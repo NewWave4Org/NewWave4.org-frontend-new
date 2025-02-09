@@ -6,27 +6,27 @@ const Menu = () => {
         <nav className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
             <ul className="flex gap-x-8 text-large font-helv">
                 <li className="py-px">
-                    <Link className="text-typography-accent hover:text-typography-secondary" href="/">
+                    <Link className="text-font-accent hover:text-font-secondary" href="/">
                         <span>Головна</span>
                     </Link>
                 </li>
                 <li className="py-px">
-                    <Link className="text-typography-accent hover:text-typography-secondary" href="/about">
+                    <Link className="text-font-accent hover:text-font-secondary" href="/about">
                         <span>Про нас</span>
                     </Link>
                 </li>
                 <li className="py-px">
-                    <Link className="text-typography-accent hover:text-typography-secondary" href="/projects">
+                    <Link className="text-font-accent hover:text-font-secondary" href="/projects">
                         <span>Проєкти</span>
                     </Link>
                 </li>
                 <li className="py-px">
-                    <Link className="text-typography-accent hover:text-typography-secondary" href="/news">
+                    <Link className="text-font-accent hover:text-font-secondary" href="/news">
                         <span>Новини</span>
                     </Link>
                 </li>
                 <li className="py-px">
-                    <Link className="text-typography-accent hover:text-typography-secondary" href="/contacts">
+                    <Link className="text-font-accent hover:text-font-secondary" href="/contacts">
                         <span>Контакти</span>
                     </Link>
                 </li>

@@ -165,7 +165,7 @@ export default {
           500: "#E9BA65",
           700: "#B07A4E"
         },
-        typography: {
+        font: {
           primary: "#0F1B40",
           accent: "#162655",
           secondary: "#3D5EA7",
