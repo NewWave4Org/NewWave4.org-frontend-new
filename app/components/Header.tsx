@@ -3,7 +3,7 @@ import Menu from "./Menu";
 
 const Header = () => {
     return (
-            <header className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-12 py-4">
+            <header className="header">
                 <Logo />
                 <Menu />
                 <div className="flex items-center lg:order-2 gap-x-4">
