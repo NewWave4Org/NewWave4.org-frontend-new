@@ -1,0 +1,18 @@
+import Image from "next/image";
+import Link from "next/link";
+
+const Logo = () => {
+
+    return (
+        <>
+            <Link href="/" className="flex w-fit gap-x-1">
+                <Image src="/logo.svg" alt="logo" width={64} height={64} />
+                <p className="w-[76px] text-small1">Нова 
+                Українська
+                Хвиля</p>
+            </Link>
+        </>
+    );
+}
+
+export default Logo;
