@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local"
-import "./globals.css";
-import Header from "./components/Header";
+import "../styles/globals.css";
+import Header from "../components/Header";
 
 const helveticaFont = localFont({
   src: [
     {
-      path: "./fonts/HelveticaNeueCyr-Light.woff",
+      path: "../styles/fonts/HelveticaNeueCyr-Light.woff",
       weight: '300',
       style: 'normal',
     },
     {
-      path: "./fonts/HelveticaNeueCyr-Roman.woff",
+      path: "../styles/fonts/HelveticaNeueCyr-Roman.woff",
       weight: '400',
       style: 'normal',
     },
     {
-      path: "./fonts/HelveticaNeueCyr-Medium.woff",
+      path: "../styles/fonts/HelveticaNeueCyr-Medium.woff",
       weight: '500',
       style: 'normal',
     }
