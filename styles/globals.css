@@ -23,12 +23,26 @@ body {
 @layer utilities {
   /* Header */
   .header {
-    @apply flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-12 py-4 rounded-[20px] bg-[#FFFFFF99];
+    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl px-12 py-4 rounded-[20px] bg-[#FFFFFF99];
   }
   .donate-btn {
     @apply bg-buttons-cta-active hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white text-medium1 text-font-primary font-helv rounded-lg px-6 py-4;
   }
   .language-btn {
     @apply text-font-primary inline-flex w-full items-center gap-x-2 px-4 py-2 text-sm font-helv text-medium1;
+  }
+  /* Menu */
+  .menu-link {
+    @apply text-font-accent hover:text-font-secondary py-1;
+  }
+  .active-link {
+    @apply !text-font-secondary underline;
+  }
+  /* Footer */
+  .footer {
+    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl px-12 py-12;
+  }
+  .footer-links {
+    @apply flex flex-col gap-y-4 text-large font-helv;
   }
 }

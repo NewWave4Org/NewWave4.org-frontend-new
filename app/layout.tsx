@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import '../styles/globals.css';
-import Header from '../components/Header';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const helveticaFont = localFont({
   src: [
@@ -35,9 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${helveticaFont.variable} font-helv antialiased`}>
+      <body
+        className={`${helveticaFont.variable} font-helv antialiased flex flex-col min-h-screen`}
+      >
         <Header />
-        {children}
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
