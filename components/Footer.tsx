@@ -1,4 +1,3 @@
-import { prefix } from '@/utils/prefix';
 import Logo from './Logo';
 import Link from 'next/link';
 import IconButton from './icons/IconButton';
@@ -7,15 +6,8 @@ import FacebookIcon from './icons/social/FacebookIcon';
 import YoutubeIcon from './icons/social/YoutubeIcon';
 
 const Footer = () => {
-  const footerImgUrl = `${prefix}/footer.png`;
   return (
-    <footer
-      style={{
-        backgroundImage: `url(${footerImgUrl})`,
-        backgroundSize: 'cover',
-      }}
-      className="footer"
-    >
+    <footer className="footer">
       <Logo />
       <div className="footer-links">
         <Link className="menu-link py-1" href="/about">
