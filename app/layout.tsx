@@ -40,7 +40,7 @@ export default function RootLayout({
         className={`${helveticaFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 center">{children}</main>
         <Footer />
       </body>
     </html>

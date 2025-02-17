@@ -5,7 +5,7 @@ import ArrowDown4Icon from './icons/navigation/ArrowDown4Icon';
 
 const Header = () => {
   return (
-    <header className="header">
+    <header className="header header-position">
       <Logo />
       <Menu />
       <div className="flex items-center lg:order-2 gap-x-4">

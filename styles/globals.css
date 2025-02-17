@@ -5,13 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --max-width: 1440px;
 }
 
 body {
@@ -21,9 +15,19 @@ body {
 }
 
 @layer utilities {
+  /* Main */
+
+  .center {
+    @apply mx-auto w-full max-w-[var(--max-width)];
+  }
+
   /* Header */
+
   .header {
-    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl px-12 py-4 rounded-[20px] bg-[#FFFFFF99];
+    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl w-[1344px] px-12 py-4 rounded-[20px] bg-[#FFFFFF99];
+  }
+  .header-position {
+    @apply fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6;
   }
   .donate-btn {
     @apply bg-buttons-cta-active hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white text-medium1 text-font-primary font-helv rounded-lg px-6 py-4;
@@ -31,18 +35,57 @@ body {
   .language-btn {
     @apply text-font-primary inline-flex w-full items-center gap-x-2 px-4 py-2 text-sm font-helv text-medium1;
   }
+
   /* Menu */
+
   .menu-link {
     @apply text-font-accent hover:text-font-secondary py-1;
   }
   .active-link {
     @apply !text-font-secondary underline;
   }
+
   /* Footer */
+
   .footer {
-    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl px-12 py-12;
+    @apply flex justify-between items-center mx-auto w-full max-w-[var(--max-width)] px-12 py-12;
   }
   .footer-links {
     @apply flex flex-col gap-y-4 text-large font-helv;
   }
+
+  /* Main Slider */
+
+  .embla {
+    @apply max-w-[var(--max-width)] mx-auto;
+    --slide-size: 824px;
+  }
+  .embla-slide {
+    @apply flex-none;
+    transform: translate3d(0, 0, 0);
+    flex: 0 0 var(--slide-size);
+    min-width: 0;
+  }
+  .embla-slide-img {
+    @apply w-full h-[544px] object-cover transition-all duration-300;
+  }
+  .embla-slide-text-container {
+    @apply absolute inset-0 flex items-center justify-center 
+    bg-[#0F1B4080] 
+    opacity-0 transition-all duration-300 cursor-pointer;
+  }
+  .embla-slide-inner-text {
+    @apply flex flex-col gap-y-4 w-[544px] translate-x-[-84px] translate-y-[119px];
+  }
+  .embla-slide-btn {
+    @apply absolute top-1/2 w-[60px] h-[60px] -translate-y-1/2 p-3 bg-primary-400 
+    opacity-0 group-hover:opacity-100 transition rounded-full z-10;
+  }
+  .embla-slider-dots {
+    @apply absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-6 bg-white bg-opacity-40 py-1.5 px-[19.5px] rounded-[16px];
+  }
+  .embla-slider-dot {
+    @apply w-3 h-3 rounded-full transition-all;
+  }
+
 }

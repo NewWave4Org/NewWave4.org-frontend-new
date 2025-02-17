@@ -1,7 +1,11 @@
-export default function Home() {
+import EmblaCarousel from '@/components/home/MainSlider';
+
+const HomePage = () => {
   return (
     <div>
-      <h1>Main page</h1>
+      <EmblaCarousel />
     </div>
   );
-}
+};
+
+export default HomePage;
