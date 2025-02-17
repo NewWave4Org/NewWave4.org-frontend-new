@@ -1,7 +1,11 @@
-export default function Home() {
+import MainSlider from '@/components/home/MainSlider';
+
+const HomePage = () => {
   return (
     <div>
-      <h1>Main page</h1>
+      <MainSlider />
     </div>
   );
-}
+};
+
+export default HomePage;
