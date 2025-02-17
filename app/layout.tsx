@@ -30,7 +30,7 @@ const baskervvilleFont = Baskervville({
   subsets: ['latin', 'latin-ext'],
   style: 'normal',
   variable: '--font-baskervville',
-  weight: '400'
+  weight: '400',
 });
 
 export const metadata: Metadata = {

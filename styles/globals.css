@@ -100,4 +100,10 @@ body {
     @apply flex items-center justify-center gap-x-20;
   }
 
+  /* Partners */
+
+  .partners-text {
+    @apply flex flex-col gap-y-4 max-w-[524px];
+  }
+
 }
