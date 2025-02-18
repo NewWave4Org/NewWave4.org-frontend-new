@@ -194,7 +194,10 @@ export default {
           info: "#6EA8FE",
           link: "#006ABB",
         },
-        background: "#FEF7F1",
+        background: {
+          primary: "#FEF7F1",
+          secondary: "#EEE2D7",
+        },
         foreground: "var(--foreground)",
       },
     },

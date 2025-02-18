@@ -51,7 +51,7 @@ body {
   /* Footer */
 
   .footer {
-    @apply flex justify-between items-center mx-auto w-full max-w-[var(--max-width)] px-12 py-12;
+    @apply flex justify-between items-center mx-auto w-full max-w-[var(--max-width)] px-12 py-12 bg-background-secondary;
   }
   .footer-links {
     @apply flex flex-col gap-y-4 text-large font-helv;
