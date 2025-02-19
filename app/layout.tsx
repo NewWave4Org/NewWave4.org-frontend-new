@@ -27,6 +27,7 @@ const helveticaFont = localFont({
 });
 
 const baskervvilleFont = Baskervville({
+  subsets: ['latin', 'latin-ext'],
   style: 'normal',
   variable: '--font-baskervville',
   weight: '400'
