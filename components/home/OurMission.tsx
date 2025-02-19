@@ -1,12 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
-import { ourMissionData } from '@/app/data/home/ourMission';
+import { ourMissionData } from '@/app/data/home/ourMissionData';
 
 const OurMission = () => {
   const data = ourMissionData.uk;
 
   return (
-    <section className="our-mission py-14 my-20 bg-background">
+    <section className="our-mission py-14 my-20 bg-background-primary">
       <h3 className="section-title text-h3 text-center text-font-accent mb-10 font-baskervville">{data.title}</h3>
       <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between max-w-[1248px] mx-auto">
         {data.items.map((item) => {
