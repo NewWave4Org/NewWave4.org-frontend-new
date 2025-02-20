@@ -1,4 +1,4 @@
-import { joinCommunityData } from '@/app/data/home/joinCommunityData';
+import { joinCommunityData } from '@/data/home/joinCommunityData';
 import React from 'react';
 
 const JoinCommunity = () => {
@@ -10,9 +10,9 @@ const JoinCommunity = () => {
       <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between max-w-[1248px] mx-auto">
         {data.items.map((item, i) => {
           return (
-            <div key={item.title} className="flex w-full flex-col items-center text-center md:w-1/3 px-2 md:px-0">
-              <h4 className="mb-4 flex items-baseline text-font-accent text-h4 font-baskervville gap-4">
-                <span className="text-5xl font-bold text-primary-700">0{i + 1}</span>
+            <div key={item.title} className="flex w-full flex-col items-center md:w-1/3 px-2 md:px-0">
+              <h4 className="mb-4 flex md:justify-items-start items-baseline text-font-accent text-left text-h4 font-baskervville gap-4 md:w-full">
+                <span className="text-5xl font-bold text-primary-700 leading-[120%]">0{i + 1}</span>
                 <span className="text-2xl">{item.title}</span>
               </h4>
               <p className="text-font-primary text-base text-justify">{item.description}</p>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { ourMissionData } from '@/app/data/home/ourMissionData';
+import { ourMissionData } from '@/data/home/ourMissionData';
 
 const OurMission = () => {
   const data = ourMissionData.uk;
