@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Logo from './Logo';
+import Logo from '@/components/layout/Logo';
 import Menu from './Menu';
-import ArrowDown4Icon from './icons/navigation/ArrowDown4Icon';
+import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 
 const Header = () => {
   return (

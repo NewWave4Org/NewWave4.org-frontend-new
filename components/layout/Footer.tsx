@@ -1,9 +1,10 @@
-import Logo from './Logo';
+'use client';
+import Logo from '@/components/layout/Logo';
 import Link from 'next/link';
-import IconButton from './icons/IconButton';
-import InstagramIcon from './icons/social/InstagramIcon';
-import FacebookIcon from './icons/social/FacebookIcon';
-import YoutubeIcon from './icons/social/YoutubeIcon';
+import IconButton from '../icons/IconButton';
+import InstagramIcon from '../icons/social/InstagramIcon';
+import FacebookIcon from '../icons/social/FacebookIcon';
+import YoutubeIcon from '../icons/social/YoutubeIcon';
 
 const Footer = () => {
   return (
@@ -33,20 +34,35 @@ const Footer = () => {
         <p className="text-small text-grey-700">Стежте за нами:</p>
         <div className="flex gap-x-2">
           <IconButton
-            href="https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ=="
-            target="_blank"
+            onClick={() =>
+              window.open(
+                'https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ==',
+              )
+            }
+            // href="https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ=="
+            // target="_blank"
           >
             <InstagramIcon />
           </IconButton>
           <IconButton
-            href="https://www.facebook.com/profile.php?id=100068772616023#"
-            target="_blank"
+            onClick={() =>
+              window.open(
+                'https://www.facebook.com/profile.php?id=100068772616023#',
+              )
+            }
+            // href="https://www.facebook.com/profile.php?id=100068772616023#"
+            // target="_blank"
           >
             <FacebookIcon />
           </IconButton>
           <IconButton
-            href="https://youtube.com/@ukrainiannewwave627?si=T6tZNSsKsR0JKlPZ"
-            target="_blank"
+            onClick={() =>
+              window.open(
+                'https://youtube.com/@ukrainiannewwave627?si=T6tZNSsKsR0JKlPZ',
+              )
+            }
+            // href="https://youtube.com/@ukrainiannewwave627?si=T6tZNSsKsR0JKlPZ"
+            // target="_blank"
           >
             <YoutubeIcon />
           </IconButton>
