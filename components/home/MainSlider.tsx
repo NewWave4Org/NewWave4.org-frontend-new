@@ -12,42 +12,47 @@ import { prefix } from '@/utils/prefix';
 const slides = [
   {
     id: 1,
-    src: `${prefix}/slider/slide1.jpg`,
+    src: `${prefix}/slider/slide1.png`,
+    srchover: `${prefix}/slider/slide1hover.png`,
     alt: 'Slide 1',
-    title: 'Нагорода “Жінка-новатор року”',
-    text: 'Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”',
+    title: 'Фестиваль «Разом до перемоги»',
+    text: "Захід об'єднав українців та друзів України для збору коштів, культурного обміну та підтримки української спільноти, яка бореться за незалежність та мир",
     link: '/projects',
   },
   {
     id: 2,
     src: `${prefix}/slider/slide2.jpg`,
+    srchover: `${prefix}/slider/slide2hover.png`,
     alt: 'Slide 2',
-    title: 'Нагорода “Жінка-новатор року”',
-    text: 'Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”',
+    title: 'Марш підтримки України у Вашингтоні',
+    text: 'Українці та їхні союзники зібралися у столиці США на масовий Марш підтримки України, щоб привернути увагу до важливості міжнародної допомоги та продемонструвати єдність у боротьбі за свободу',
     link: '/projects',
   },
   {
     id: 3,
-    src: `${prefix}/slider/slide3.png`,
+    src: `${prefix}/slider/slide3.jpg`,
+    srchover: `${prefix}/slider/slide3hover.png`,
     alt: 'Slide 3',
-    title: 'Нагорода “Жінка-новатор року”',
-    text: 'Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”',
+    title: 'Співпраця УККА та Посла України до ООН',
+    text: 'Представники Українського Конгресового Комітету Америки та Посол України до ООН Сергій Кислиця тісно співпрацювали протягом чотирьохрічної каденції, працюючи над посиленням підтримки України на міжнародній арені',
     link: '/projects',
   },
   {
     id: 4,
-    src: `${prefix}/slider/slide4.jpg`,
+    src: `${prefix}/slider/slide4.png`,
+    srchover: `${prefix}/slider/slide4hover.png`,
     alt: 'Slide 4',
-    title: 'Нагорода “Жінка-новатор року”',
-    text: 'Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”',
+    title: `Відкриття провулку Ukrainian Way на Брайтоні`,
+    text: 'У Нью-Йорку відбулося урочисте відкриття провулку Ukrainian Way на Брайтон-Біч – символу єдності української громади та визнання внеску українців у культурне розмаїття США',
     link: '/projects',
   },
   {
     id: 5,
     src: `${prefix}/slider/slide5.jpg`,
+    srchover: `${prefix}/slider/slide5hover.png`,
     alt: 'Slide 5',
-    title: 'Нагорода “Жінка-новатор року”',
-    text: 'Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року”  Нагорода “Жінка-новатор року” Нагорода “Жінка-новатор року”',
+    title: 'Зустріч із лідером демократів Чаком Шумером',
+    text: 'Під час зустрічі з очільником демократів у Конгресі США Чаком Шумером обговорювалися питання підтримки України, фінансової допомоги та подальшої міжнародної взаємодії для забезпечення безпеки нашої держави',
     link: '/projects',
   },
 ];
@@ -57,6 +62,7 @@ const MainSlider: React.FC = () => {
     Autoplay({ playOnInit: true, delay: 4000 }),
   ]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [hoveredSlide, setHoveredSlide] = useState<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -75,35 +81,29 @@ const MainSlider: React.FC = () => {
     <div className="relative embla group">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {slides.map((slide, index) => (
-            <div key={slide.id} className="relative embla-slide">
-              <Image
-                src={slide.src}
-                alt={slide.alt}
-                width={824}
-                height={544}
-                className="embla-slide-img"
-                priority={index === 0}
-              />
-              <div
-                className={`embla-slide-text-container
-                           ${
-                             index === selectedIndex
-                               ? 'group-hover:opacity-100 group-hover:backdrop-blur-[18.6px] group-hover:backdrop-opacity-85'
-                               : ''
-                           }`}
-                onClick={() => router.push(slide.link)}
-              >
-                <div
-                  className={`embla-slide-inner-text
-                    ${index === selectedIndex ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  <h4 className="text-h4 text-white">{slide.title}</h4>
-                  <p className="text-small text-grey-200">{slide.text}</p>
-                </div>
+          {slides.map((slide, index) => {
+            const isActive = index === selectedIndex;
+            const isHovered = hoveredSlide === slide.id;
+
+            return (
+              <div key={slide.id} className="relative embla-slide">
+                <Image
+                  src={isActive && isHovered ? slide.srchover : slide.src}
+                  alt={slide.alt}
+                  width={824}
+                  height={544}
+                  className="embla-slide-img transition-all duration-300"
+                  priority={isActive}
+                  onMouseEnter={() => isActive && setHoveredSlide(slide.id)}
+                  onMouseLeave={() => isActive && setHoveredSlide(null)}
+                  onClick={() => isActive && router.push(slide.link)}
+                  style={{
+                    cursor: isActive ? 'pointer' : 'default',
+                  }}
+                />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
