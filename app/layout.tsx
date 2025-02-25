@@ -4,6 +4,7 @@ import { Baskervville } from 'next/font/google';
 import '../styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import Subscribe from '@/components/layout/Subscribe';
 
 const helveticaFont = localFont({
   src: [
@@ -49,6 +50,7 @@ export default function RootLayout({
       >
         <Header />
         <main className="flex-1 center">{children}</main>
+        <Subscribe />
         <Footer />
       </body>
     </html>
