@@ -7,7 +7,7 @@ const JoinCommunity = () => {
   return (
     <section className="our-mission py-14 my-20 bg-background-secondary">
       <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto">{data.title}</h4>
-      <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between max-w-[1248px] mx-auto">
+      <div className="flex flex-col items-top gap-6 md:flex-row md:justify-between max-w-[1248px] mx-auto">
         {data.items.map((item, i) => {
           return (
             <div key={item.title} className="flex w-full flex-col items-center md:w-1/3 px-2 md:px-0">
