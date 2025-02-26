@@ -39,19 +39,15 @@ const Footer = () => {
                 'https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ==',
               )
             }
-            // href="https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ=="
-            // target="_blank"
           >
             <InstagramIcon />
           </IconButton>
           <IconButton
             onClick={() =>
               window.open(
-                'https://www.facebook.com/profile.php?id=100068772616023#',
+                'https://www.facebook.com/profile.php?id=100068772616023',
               )
             }
-            // href="https://www.facebook.com/profile.php?id=100068772616023#"
-            // target="_blank"
           >
             <FacebookIcon />
           </IconButton>
@@ -61,8 +57,6 @@ const Footer = () => {
                 'https://youtube.com/@ukrainiannewwave627?si=T6tZNSsKsR0JKlPZ',
               )
             }
-            // href="https://youtube.com/@ukrainiannewwave627?si=T6tZNSsKsR0JKlPZ"
-            // target="_blank"
           >
             <YoutubeIcon />
           </IconButton>
