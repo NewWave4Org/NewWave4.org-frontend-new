@@ -66,7 +66,7 @@ const Input: React.FC<InputProps> = ({
         <label
           htmlFor={id}
           className={`text-medium2 mb-1 ${
-            state === 'disabled' ? 'text-grey-500' : 'text-grey-300'
+            state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
           }`}
         >
           {label}
