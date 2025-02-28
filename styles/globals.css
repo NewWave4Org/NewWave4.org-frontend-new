@@ -118,6 +118,12 @@ body {
     @apply flex flex-col gap-y-6;
   }
 
+  /* Home Video */
+
+  .video-section {
+    @apply flex flex-col gap-y-10 py-12 px-24;
+  }
+
   /* Modal */
   
   .modal-wrapper {
