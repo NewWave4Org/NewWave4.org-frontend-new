@@ -139,4 +139,10 @@ body {
     @apply w-[48px] h-[48px] rounded-full flex items-center justify-center border-8;
   }
 
+    /* Contacts */
+
+    .contacts-section {
+      @apply flex justify-between py-[72px] px-[106px] rounded-2xl bg-grey-50 w-[1248px] mx-auto h-[528px] shadow-[0px_4px_12px_0px_rgba(180,140,100,0.15)];
+    }
+
 }

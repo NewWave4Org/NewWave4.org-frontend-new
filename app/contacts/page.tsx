@@ -1,7 +1,9 @@
+import Contacts from '@/components/contacts/Contacts';
+
 const ContactsPage = () => {
   return (
-    <div>
-      <h1>Contacts page</h1>
+    <div className="mt-[144px] mb-[84px]">
+      <Contacts />
     </div>
   );
 };

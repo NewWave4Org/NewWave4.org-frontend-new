@@ -6,7 +6,7 @@ const Partners: React.FC = () => {
       <h4 className="preheader">Стати партнером</h4>
       <div className="flex gap-x-[108px]">
         <div className="partners-text">
-          <h4 className="text-h4 text-font-accent font-baskervville">
+          <h4 className="text-h4 text-font-accent font-ebGaramond">
             Ми можемо зміцнювати Україну разом
           </h4>
           <p className="text-body text-font-primary">

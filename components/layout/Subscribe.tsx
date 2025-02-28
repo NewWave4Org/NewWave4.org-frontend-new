@@ -12,7 +12,7 @@ const Subscribe: React.FC = () => {
       }}
     >
       <div className="flex flex-col gap-y-6">
-        <h2 className="text-h2 text-font-primary font-baskervville">
+        <h2 className="text-h2 text-font-primary font-ebGaramond">
           Будьте в курсі наших новин та подій
         </h2>
         <SubscribeForm />
