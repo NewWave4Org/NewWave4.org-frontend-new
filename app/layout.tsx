@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import { Baskervville } from 'next/font/google';
 import '../styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -27,11 +26,26 @@ const helveticaFont = localFont({
   variable: '--font-helv',
 });
 
-const baskervvilleFont = Baskervville({
-  subsets: ['latin', 'latin-ext'],
-  style: 'normal',
-  variable: '--font-baskervville',
-  weight: '400',
+const baskervilleFont = localFont({
+  src: [
+    {
+      path: '../styles/fonts/Baskerville.ttf',
+      weight: '600',
+      style: 'normal',
+    }
+  ],
+  variable: '--font-baskerville',
+});
+
+const baskervilleBoldFont = localFont({
+  src: [
+    {
+      path: '../styles/fonts/BaskervilleBoldBT.ttf',
+      weight: '700',
+      style: 'bold',
+    },
+  ],
+  variable: '--font-baskerville-bold',
 });
 
 export const metadata: Metadata = {
@@ -46,7 +60,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${helveticaFont.variable} ${baskervvilleFont.variable} font-helv antialiased flex flex-col min-h-screen`}
+        className={`${helveticaFont.variable} ${baskervilleFont.variable} ${baskervilleBoldFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
         <Header />
         <main className="flex-1 center">{children}</main>

@@ -12,7 +12,8 @@ export default {
     extend: {
       fontFamily: {
         helv: ['var(--font-helv)'],
-        baskervville: ['var(--font-baskervville)', 'serif']
+        baskerville: ['var(--font-baskerville)'],
+        'baskerville-bold': ['var(--font-baskerville-bold)']
       },
       fontSize: {
         h1: [

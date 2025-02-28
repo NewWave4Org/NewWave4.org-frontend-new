@@ -1,7 +1,12 @@
+import OurMission from "@/components/home/OurMission";
+import Hero from "@/components/ui/Hero";
+import { heroData } from "@/data/about/hero";
+
 const AboutPage = () => {
   return (
     <div>
-      <h1>About us page</h1>
+      <Hero data={heroData} />
+      <OurMission />
     </div>
   );
 };
