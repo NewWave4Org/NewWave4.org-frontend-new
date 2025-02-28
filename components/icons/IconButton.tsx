@@ -1,12 +1,10 @@
-import React from 'react';
-import Link from 'next/link';
+'use client';
 
 interface IconButtonProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   size?: '32px' | '56px';
   isSocial?: boolean;
-  href: string;
 }
 
 const IconButton: React.FC<IconButtonProps> = ({
@@ -14,7 +12,6 @@ const IconButton: React.FC<IconButtonProps> = ({
   size = '32px',
   isSocial = false,
   className,
-  href,
   ...props
 }) => {
   const sizes = {
@@ -23,8 +20,8 @@ const IconButton: React.FC<IconButtonProps> = ({
   };
 
   return (
-    <Link
-      href={href}
+    <button
+      type="button"
       className={`flex items-center justify-center rounded-full transition-all focus:outline-none focus:ring-0 active:ring-0 ${
         sizes[size]
       } ${className || ''} 
@@ -32,7 +29,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       {...props}
     >
       {children}
-    </Link>
+    </button>
   );
 };
 

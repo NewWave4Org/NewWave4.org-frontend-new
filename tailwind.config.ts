@@ -192,10 +192,27 @@ export default {
           grey: "#9A9A9A",
         },
         status: {
-          success: "#4CAF50",
-          danger: "#E53935",
-          warning: "#FFA726",
-          info: "#6EA8FE",
+          success:
+          {
+            50: "#ECFDF3",
+            100: "#D1FADF",
+            500: "#4CAF50",
+          },
+          danger: {
+            50: "#FDECEC",
+            100: "#FAD1D1",
+            500: "#E53935"
+          },
+          warning: {
+            50: "#FDF6EC",
+            100: "#FAECD1",
+            500: "#FFA726",
+          },
+          info: {
+            50: "#ECFDFD",
+            100: "#D1F8FA",
+            500: "#6EA8FE"
+          },
           link: "#006ABB",
         },
         background: {

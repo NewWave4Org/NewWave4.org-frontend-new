@@ -1,0 +1,40 @@
+import React, { TextareaHTMLAttributes } from 'react';
+
+interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  id: string;
+  label: string;
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
+  className?: string;
+}
+
+const TextArea: React.FC<TextAreaProps> = ({
+  id,
+  label,
+  value,
+  onChange,
+  className,
+  ...props
+}) => {
+  return (
+    <div className="relative">
+      <label htmlFor={id} className={`block text-medium2 text-grey-500 mb-1 `}>
+        {label}
+      </label>
+      <textarea
+        id={id}
+        value={value}
+        onChange={onChange}
+        className={`max-w-[544px] py-2 px-4 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 
+        ${className} 
+        resize-none
+        focus:outline-none focus:ring-2 
+        hover:ring-2 hover:ring-grey-600 hover:text-grey-500
+        active:ring-status-info `}
+        {...props}
+      />
+    </div>
+  );
+};
+
+export default TextArea;
