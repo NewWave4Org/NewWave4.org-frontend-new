@@ -124,6 +124,12 @@ body {
     @apply flex flex-col gap-y-10 py-12 px-24;
   }
 
+  /* News & Events */
+
+  .news-section {
+    @apply flex flex-col gap-y-10 py-14;
+  }
+
   /* Modal */
   
   .modal-wrapper {
