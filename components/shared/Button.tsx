@@ -15,7 +15,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   let buttonStyle =
-    'rounded-lg focus:outline-none disabled:cursor-not-allowed w-fit ';
+    'rounded-lg focus:outline-none disabled:cursor-not-allowed w-fit md:text-nowrap ';
 
   // Type styles
   if (variant === 'primary') {

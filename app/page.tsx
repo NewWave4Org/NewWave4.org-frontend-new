@@ -5,6 +5,7 @@ import Partners from '@/components/home/Partners';
 import Sponsors from '@/components/home/Sponsors';
 import HomeVideo from '@/components/home/HomeVideo';
 import WhoWeAre from '@/components/home/WhoWeAre';
+import NewsEvents from '@/components/home/NewsEvents';
 
 const HomePage = () => {
   return (
@@ -16,6 +17,7 @@ const HomePage = () => {
       <JoinCommunity />
       <Partners />
       <HomeVideo />
+      <NewsEvents />
     </div>
   );
 };
