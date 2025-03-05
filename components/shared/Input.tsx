@@ -65,7 +65,7 @@ const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className={`text-medium2 mb-1 ${
+          className={`block text-medium2 mb-1 ${
             state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
           }`}
         >
