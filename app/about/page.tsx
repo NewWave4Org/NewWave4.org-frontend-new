@@ -1,3 +1,4 @@
+import Team from "@/components/about/Team";
 import OurMission from "@/components/home/OurMission";
 import Hero from "@/components/ui/Hero";
 import { heroData } from "@/data/about/hero";
@@ -7,6 +8,7 @@ const AboutPage = () => {
     <div>
       <Hero data={heroData} />
       <OurMission />
+      <Team />
     </div>
   );
 };
