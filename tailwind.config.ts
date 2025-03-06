@@ -12,8 +12,7 @@ export default {
     extend: {
       fontFamily: {
         helv: ['var(--font-helv)'],
-        baskerville: ['var(--font-baskerville)'],
-        'baskerville-bold': ['var(--font-baskerville-bold)']
+        ebGaramond: ['var(--font-ebGaramond)']
       },
       fontSize: {
         h1: [
@@ -192,10 +191,27 @@ export default {
           grey: "#9A9A9A",
         },
         status: {
-          success: "#4CAF50",
-          danger: "#E53935",
-          warning: "#FFA726",
-          info: "#6EA8FE",
+          success:
+          {
+            50: "#ECFDF3",
+            100: "#D1FADF",
+            500: "#4CAF50",
+          },
+          danger: {
+            50: "#FDECEC",
+            100: "#FAD1D1",
+            500: "#E53935"
+          },
+          warning: {
+            50: "#FDF6EC",
+            100: "#FAECD1",
+            500: "#FFA726",
+          },
+          info: {
+            50: "#ECFDFD",
+            100: "#D1F8FA",
+            500: "#6EA8FE"
+          },
           link: "#006ABB",
         },
         background: {
@@ -203,6 +219,9 @@ export default {
           secondary: "#EEE2D7",
         },
         foreground: "var(--foreground)",
+      },
+      boxShadow: {
+        custom: "0px 4px 12px 0px rgba(180, 140, 100, 0.15)",
       },
     },
   },

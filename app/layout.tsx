@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import '../styles/globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import Subscribe from '@/components/layout/Subscribe';
+import { EB_Garamond } from 'next/font/google';
 
 const helveticaFont = localFont({
   src: [
@@ -25,26 +27,10 @@ const helveticaFont = localFont({
   variable: '--font-helv',
 });
 
-const baskervilleFont = localFont({
-  src: [
-    {
-      path: '../styles/fonts/Baskerville.ttf',
-      weight: '600',
-      style: 'normal',
-    }
-  ],
-  variable: '--font-baskerville',
-});
-
-const baskervilleBoldFont = localFont({
-  src: [
-    {
-      path: '../styles/fonts/BaskervilleBoldBT.ttf',
-      weight: '700',
-      style: 'bold',
-    },
-  ],
-  variable: '--font-baskerville-bold',
+const ebGaramondFont = EB_Garamond({
+  weight: ['500', '600'],
+  subsets: ['latin'],
+  variable: '--font-ebGaramond',
 });
 
 export const metadata: Metadata = {
@@ -59,10 +45,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${helveticaFont.variable} ${baskervilleFont.variable} ${baskervilleBoldFont.variable} font-helv antialiased flex flex-col min-h-screen`}
+        className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
         <Header />
         <main className="flex-1 center">{children}</main>
+        <Subscribe />
         <Footer />
       </body>
     </html>
