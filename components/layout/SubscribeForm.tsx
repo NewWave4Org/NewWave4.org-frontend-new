@@ -24,7 +24,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
 
   return (
     <>
-      <Form className="flex gap-x-6 items-start">
+      <Form className="flex gap-x-4 items-start">
         <div>
           <Input
             id="email"
@@ -36,7 +36,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
             value={values.email}
           />
         </div>
-        <div className="mt-6">
+        <div className="mt-[28px]">
           <Button type="submit" disabled={isSubmitting}>
             Підписатися
           </Button>
