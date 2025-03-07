@@ -12,11 +12,11 @@ interface FilterItemProps {
 const FilterItem:React.FC<FilterItemProps> = ({item, handleFilterActive, activeFilter}) => {
   return (
     <li className={`filterNews__item 
-      bg-[#D4E3F9] text-base font-medium 
-      color-[#1E3770] py-2 px-4 rounded-[50px] 
-      mx-1 leading-[1.7] h-[40px] tracking-wide 
-      cursor-pointer whitespace-nowrap ${activeFilter == item.id.toString() ? '!bg-[#1E3770] text-white' : ''}
-      hover:bg-[#1E3770] hover:text-white duration-500
+      bg-primary-100 text-medium1
+      color-primary-700 py-2 px-4 rounded-[50px] 
+      mx-1 leading-[1.7] h-[40px]
+      cursor-pointer whitespace-nowrap ${activeFilter == item.id.toString() ? '!bg-primary-700 text-white' : ''}
+      hover:bg-primary-700 hover:text-white duration-500
       `}
       data-id={item.id}
       onClick={handleFilterActive}
