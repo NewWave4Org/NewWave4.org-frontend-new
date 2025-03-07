@@ -42,7 +42,7 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
         </div>
         <div className="place-self-start mt-[28px]">
           {!showComment && (
-            <Button variant="secondary" type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               Стати партнером
             </Button>
           )}
@@ -62,7 +62,6 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
             {showComment && (
               <Button
                 className="mt-[72px]"
-                variant="secondary"
                 type="submit"
                 disabled={isSubmitting}
               >
