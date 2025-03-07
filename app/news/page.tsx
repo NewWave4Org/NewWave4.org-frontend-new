@@ -8,34 +8,6 @@ import { useEffect, useRef, useState } from "react";
 
 
 const NewsPage = () => {
-  // const [isSticky, setIsSticky] = useState(false);
-
-  // useEffect(() => {
-  //   const header = document.querySelector('.header');
-  //   const filterNews = document.querySelector('.filterNews');
-
-  //   if (!header || !filterNews) return;
-
-  //   const handleScroll = () => {
-  //     const headerBottom = header.getBoundingClientRect().bottom;
-  //     const filterNewsTop = filterNews.getBoundingClientRect().top;
-  //     const offset = 25;
-
-  //     const shouldBeSticky = headerBottom + offset >= filterNewsTop;
-    
-  //     if (shouldBeSticky !== isSticky) {
-  //       setIsSticky(shouldBeSticky);
-  //     }
-  //   };
-
-  //   window.addEventListener('scroll', handleScroll);
-
-  //   handleScroll();
-
-  //   return () => {
-  //     window.removeEventListener('scroll', handleScroll);
-  //   };
-  // }, []);
   const [isSticky, setIsSticky] = useState(false);
   const [isStay, setIsStay] = useState(false);
 
