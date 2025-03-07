@@ -12,7 +12,8 @@ export default {
     extend: {
       fontFamily: {
         helv: ['var(--font-helv)'],
-        ebGaramond: ['var(--font-ebGaramond)']
+        ebGaramond: ['var(--font-ebGaramond)'],
+        poppins: ['var(--font-poppins)']
       },
       fontSize: {
         h1: [

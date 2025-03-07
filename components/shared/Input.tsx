@@ -70,7 +70,12 @@ const Input: React.FC<InputProps> = ({
           }`}
         >
           {label}
-          {required && <span className="text-status-danger-500"> *</span>}
+          {required && (
+            <span className="text-status-danger-500 text-body font-poppins">
+              {' '}
+              *
+            </span>
+          )}
         </label>
       )}
       <div className="relative">
