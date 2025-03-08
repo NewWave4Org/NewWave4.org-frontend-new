@@ -10,34 +10,34 @@ const Pagination:React.FC = () => {
             <button
               type="button"
               aria-current="page"
-              className="flex leading-[1.7] justify-center bg-[#1E3770] p-1 h-[32px] px-1 min-w-[32px] text-base text-white rounded-lg hover:bg-[#27468f] duration-500"
+              className="flex leading-[1.7] justify-center bg-primary-700 p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-white rounded-lg hover:bg-primary-500 duration-500"
             >
               1
             </button>
             <button
               type="button"
-              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-base color-[#0F1B40] rounded-lg hover:bg-[#1E3770] hover:text-white duration-500"
+              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-font-primary rounded-lg hover:bg-primary-700 hover:text-white duration-500"
             >
               2
             </button>
             <button
               type="button"
-              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-base color-[#0F1B40] rounded-lg hover:bg-[#1E3770] hover:text-white duration-500"
+              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-font-primary rounded-lg hover:bg-primary-700 hover:text-white duration-500"
             >
               3
             </button>
-            <span className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-base color-[#0F1B40] rounded-lg">
+            <span className="flex items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-font-primary rounded-lg">
               ...
             </span>
             <button
               type="button"
-              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-base color-[#0F1B40] rounded-lg hover:bg-[#1E3770] hover:text-white duration-500"
+              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-font-primary rounded-lg hover:bg-primary-700 hover:text-white duration-500"
             >
               8
             </button>
             <button
               type="button"
-              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-base color-[#0F1B40] rounded-lg hover:bg-[#1E3770] hover:text-white duration-500"
+              className="flex leading-[1.7] items-center justify-center bg-none p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-font-primary rounded-lg hover:bg-primary-700 hover:text-white duration-500"
             >
               9
             </button>
