@@ -4,7 +4,6 @@ import { prefix } from '@/utils/prefix';
 import Card from '../shared/Card';
 import Pagination from '../ui/Pagination/Pagination';
 
-
 const newsContent = [
   {
     id: 1,
@@ -77,12 +76,16 @@ const newsContent = [
 const NewsContent: React.FC = () => {
   return (
     <>
-      <div className='newsBlocks'>
-        <div className='container px-4 mx-auto'>
-          <div className='flex flex-wrap mx-[-12px]'>
+      <div className="newsBlocks">
+        <div className="container px-4 mx-auto">
+          <div className="flex flex-wrap mx-[-12px]">
             {newsContent.map(card => (
-              <div className='my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock' key={card.id}>
+              <div
+                className="my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock"
+                key={card.id}
+              >
                 <Card
+                  link={card.link}
                   imageSrc={card.src}
                   title={card.title}
                   text={card.text}
