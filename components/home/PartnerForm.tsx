@@ -11,7 +11,7 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .required('Email field cannot be empty')
     .matches(
-      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i,
+      /^[\w!#$%&'*+/=?`{|}~^-]+(?:\.[\w!#$%&'*+/=?`{|}~^-]+)*@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}$/i,
       'Please enter a valid email address',
     ),
 });
