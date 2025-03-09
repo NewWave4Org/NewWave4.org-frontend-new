@@ -6,14 +6,10 @@ import Input from '../shared/Input';
 import { useState } from 'react';
 import TextArea from '../shared/TextArea';
 import Modal from '../shared/Modal';
+import { emailValidation } from '@/utils/validation';
 
 const validationSchema = Yup.object({
-  email: Yup.string()
-    .required('Email field cannot be empty')
-    .matches(
-      /^[\w!#$%&'*+/=?`{|}~^-]+(?:\.[\w!#$%&'*+/=?`{|}~^-]+)*@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}$/i,
-      'Please enter a valid email address',
-    ),
+  email: emailValidation,
 });
 
 interface InnerPartnerFormValues {
