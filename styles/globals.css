@@ -42,7 +42,7 @@ body {
   /* Header */
 
   .header {
-    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl w-[1344px] px-12 py-4 rounded-[20px] bg-[#FFFFFF99];
+    @apply flex justify-between items-center mx-auto w-full max-w-screen-2xl w-[1344px] px-12 py-4 rounded-[20px] bg-[#FFFFFF99] backdrop-blur-[18.6px] shadow-header;
   }
   .header-position {
     @apply fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6;
