@@ -36,6 +36,8 @@ const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const getStateClasses = () => {
+    if (state === 'error' || validationText)
+      return 'ring-1 ring-status-danger-500';
     switch (state) {
       case 'hover':
         return 'ring-grey-600';
@@ -45,8 +47,6 @@ const Input: React.FC<InputProps> = ({
         return 'ring-status-info-500';
       case 'success':
         return 'ring-status-success-500';
-      case 'error':
-        return 'ring-status-danger-500';
       case 'disabled':
         return 'ring-1 ring-grey-300 cursor-not-allowed';
       default:
@@ -65,12 +65,17 @@ const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className={`text-medium2 mb-1 ${
+          className={`block text-medium2 mb-1 ${
             state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
           }`}
         >
           {label}
-          {required && <span className="text-red-500"> *</span>}
+          {required && (
+            <span className="text-status-danger-500 text-body font-poppins">
+              {' '}
+              *
+            </span>
+          )}
         </label>
       )}
       <div className="relative">

@@ -4,6 +4,7 @@ import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
 import Button from '../shared/Button';
 import { useRouter } from 'next/navigation';
 import Card from '../shared/Card';
+import Link from 'next/link';
 
 const news = [
   {
@@ -47,12 +48,9 @@ const News: React.FC = () => {
       </div>
       <div className="flex gap-x-6">
         {news.map(card => (
-          <Card
-            imageSrc={card.src}
-            key={card.id}
-            title={card.title}
-            text={card.text}
-          />
+          <Link key={card.id} href={card.link}>
+            <Card imageSrc={card.src} title={card.title} text={card.text} />
+          </Link>
         ))}
       </div>
     </section>
