@@ -6,16 +6,12 @@ import Input from '../shared/Input';
 import { useState } from 'react';
 import Modal from '../shared/Modal';
 import TextArea from '../shared/TextArea';
+import { emailValidation, phoneValidation } from '@/utils/validation';
 
 const validationSchema = Yup.object({
-  email: Yup.string()
-    .required('Email field cannot be empty')
-    .matches(
-      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i,
-      'Please enter a valid email address',
-    ),
+  email: emailValidation,
   name: Yup.string().required('Name field cannot be empty'),
-  tel: Yup.string().matches(/^\+?\d{6,15}$/, 'Invalid phone'),
+  tel: phoneValidation,
 });
 
 interface InnerContactFormValues {
