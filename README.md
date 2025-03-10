@@ -1,5 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Build Status
+
+[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/build_container.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/build_container.yml)
 
 ## Getting Started
 

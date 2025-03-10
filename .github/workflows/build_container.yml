@@ -1,4 +1,4 @@
-name: Build Docker Container Workflow
+name: Build Docker Container
 
 on:
   workflow_dispatch:
@@ -56,6 +56,7 @@ jobs:
           wget -q -O - 127.0.0.1 | grep "New Wave"
 
       - name: Docker push
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
           context: .
