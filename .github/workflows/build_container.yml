@@ -33,7 +33,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: ghcr.io/${{ toLower(github.repository_owner) }}/newwave4-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
 
       - name: Docker build for Testing
         uses: docker/build-push-action@v6
