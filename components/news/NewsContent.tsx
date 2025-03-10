@@ -85,7 +85,7 @@ const NewsContent: React.FC = () => {
                 key={card.id}
               >
                 <Card
-                  link={card.link}
+                  link={`/news/${card.id}`}
                   imageSrc={card.src}
                   title={card.title}
                   text={card.text}
