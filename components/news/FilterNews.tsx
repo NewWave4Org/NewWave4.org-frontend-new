@@ -26,21 +26,22 @@ console.log('blocksBottomRef', blocksBottomRef);
         {`
           .stickyStyle {
             position: fixed;
-            top: 150px;
+            top: 140px;
             left: 0;
             width: 100%;
-            z-index: 1000;
+            z-index: 2;
           }
           .stayStyle {
             position: absolute !important;
+            left: 0;
             top: ${blocksBottomRef}px;
           }
         `}
       </style>
-      <div className={`filterNews mb-[24px] h-[40px] `}>
+      <div className={`filterNews mb-[14px] h-[60px]`}>
         <div className={`filterNews__inner ${isSticky ? 'stickyStyle' : ''} ${isStay ? 'stayStyle' : ''}`}>
           <div className="container px-4 mx-auto">
-            <ul className="filterNews__items flex px-[32px] justify-between flex-nowrap overflow-auto">
+            <ul className="filterNews__items flex px-[32px] justify-between flex-nowrap bg-background-primary py-[10px]">
               {data.items.map(item => (
                 <FilterItem
                   key={item.id}

@@ -53,7 +53,7 @@ const NewsPage = () => {
         if(shouldByStay && !hasFilterStay.current) {
           console.log('1');
           console.log('blocksBottom', blocksBottom);
-          blocksBottomRef.current = blocksBottom + filterNewsInner.getBoundingClientRect().bottom + 25;
+          blocksBottomRef.current = blocksBottom + filterNewsInner.getBoundingClientRect().bottom - 30;
           setIsStay(true);
           hasFilterStay.current = true;
         } else if(!shouldByStay && hasFilterStay.current && blocksBottom > totalHeight + blockHeight + headerHeight) {
@@ -80,7 +80,7 @@ const NewsPage = () => {
   return (
     <div>
       <Hero data={heroData} />
-      <div className="pt-[56px] pb-[80px] relative">
+      <div className="pt-[46px] pb-[80px] relative">
         <FilterNews isSticky={isSticky} isStay={isStay} blocksBottomRef={blocksBottomRef.current} />
         <NewsContent />
       </div>
