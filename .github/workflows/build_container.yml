@@ -30,18 +30,18 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ github.repository_owner }}/newwave4-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/newwave4-frontend:${{ github.sha }}
 
       - name: Docker Image Testing
         run: |
           docker images
           docker run --name newwave4-frontend-app -d \
           -p 80:80 \
-          ${{ github.repository_owner }}/newwave4-frontend:${{ github.sha }}
-          
+          ghcr.io/${{ toLower(github.repository_owner) }}/newwave4-frontend:${{ github.sha }}
+
           export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
           echo $IP
-          
+
           echo testing Image URL using wget
           wget -q -O - 127.0.0.1 | grep "New Wave"
 
@@ -50,5 +50,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/newwave4-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/newwave4-frontend:${{ github.sha }}
