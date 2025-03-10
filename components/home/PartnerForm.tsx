@@ -6,14 +6,10 @@ import Input from '../shared/Input';
 import { useState } from 'react';
 import TextArea from '../shared/TextArea';
 import Modal from '../shared/Modal';
+import { emailValidation } from '@/utils/validation';
 
 const validationSchema = Yup.object({
-  email: Yup.string()
-    .required('Email field cannot be empty')
-    .matches(
-      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i,
-      'Please enter a valid email address',
-    ),
+  email: emailValidation,
 });
 
 interface InnerPartnerFormValues {
@@ -42,7 +38,7 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
         </div>
         <div className="place-self-start mt-[28px]">
           {!showComment && (
-            <Button variant="secondary" type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               Стати партнером
             </Button>
           )}
@@ -62,7 +58,6 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
             {showComment && (
               <Button
                 className="mt-[72px]"
-                variant="secondary"
                 type="submit"
                 disabled={isSubmitting}
               >
