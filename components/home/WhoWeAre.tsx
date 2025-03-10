@@ -7,8 +7,11 @@ const WhoWeAre: React.FC = () => {
         </h2>
       </div>
       <div className="w-[732px] bg-font-white flex items-center px-24">
-        <p className="text-body text-font-primary font-medium">
-          Ми — громадська організація, створена на основі спільності інтересів
+        <p className="text-body text-font-primary">
+          <span className="text-body text-font-secondary font-medium">
+            Ми —
+          </span>{' '}
+          громадська організація, створена на основі спільності інтересів
           насамперед вихідців з України останньої еміґраційної четвертої хвилі,
           сприяємо відродженню духу національної єдності, збереженню українських
           звичаїв і традицій, утвердженню української національної ідеї, захисту
