@@ -5,7 +5,7 @@ import FilterItem from "./FilterItem";
 import { useState } from "react";
 
 
-const FilterNews: React.FC = () => {
+const FilterNews = () => {
   const data = filterNews.uk;
 
   const [activeFilter, setActiveFilter] = useState<string | null>('1');
