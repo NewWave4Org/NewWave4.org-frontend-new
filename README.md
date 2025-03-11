@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Build Status
 
-[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/development_deploy.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/development_deploy.yml)
+[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml)
 
 [![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml)
 
