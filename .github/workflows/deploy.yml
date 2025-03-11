@@ -101,7 +101,7 @@ jobs:
 
   # Deployment job
   deploy:
-    if: success()
+    if: success() && github.ref == 'refs/heads/development'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
