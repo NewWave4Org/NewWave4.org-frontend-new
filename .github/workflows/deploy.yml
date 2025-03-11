@@ -63,6 +63,13 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
+
+      - name: Set environment variables
+        run: |
+          # Dynamically set the base path based on your repository name.
+          echo "NEXT_PUBLIC_BASE_PATH=/$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)" >> $GITHUB_ENV
+          echo "NODE_ENV=production" >> $GITHUB_ENV
+
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -73,10 +80,17 @@ jobs:
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
+
+      - name: Build with Next.js (Static Export)
+        run: |
+          # Set the base path dynamically based on the repository name.
+          export NEXT_PUBLIC_BASE_PATH="/$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)"
+          # Run the Next.js build. Next.js will internally set NODE_ENV=production.
+          ${{ steps.detect-package-manager.outputs.runner }} next build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

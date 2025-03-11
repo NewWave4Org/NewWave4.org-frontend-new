@@ -1,0 +1,59 @@
+name: Docker Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'feature-*'
+      - 'feature/*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Org Lowercase
+        run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: GHCR Login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker build for Testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+
+      - name: Docker Image Testing
+        run: |
+          docker images
+          docker run --name newwave4-frontend-app -d \
+            -p 80:80 \
+            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          
+          export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
+          echo $IP
+          
+          echo Testing Image URL using wget
+          wget -q -O - 127.0.0.1 | grep "New Wave"
+
+      - name: Docker push
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+            ghcr.io/${{ env.ORG }}/newwave4-frontend:latest
