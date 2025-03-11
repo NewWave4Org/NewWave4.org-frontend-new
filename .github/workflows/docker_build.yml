@@ -35,13 +35,6 @@ jobs:
           push: false
           tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
 
-      - name: Docker build for Testing
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
-
       - name: Docker Image Testing
         run: |
           docker images
