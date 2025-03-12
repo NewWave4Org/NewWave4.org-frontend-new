@@ -9,7 +9,7 @@ const NewsEvents: React.FC = () => {
       <div>
         <Tabs>
           <Tab title="Новини">
-            <News />
+            <News link='/news' textLink='Всі новини'/>
           </Tab>
           <Tab title="Події">
             <Events />
