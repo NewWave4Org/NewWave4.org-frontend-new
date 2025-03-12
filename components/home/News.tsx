@@ -38,7 +38,7 @@ const News: React.FC = () => {
           onClick={() => router.push('/news')}
         >
           <span className="flex items-center gap-x-2">
-            Всі новини <ArrowRightIcon size="20px" />
+            Всі новини <ArrowRightIcon size="20px" color="#3D5EA7" />
           </span>
         </Button>
       </div>
