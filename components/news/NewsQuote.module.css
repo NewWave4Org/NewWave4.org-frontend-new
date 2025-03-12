@@ -6,7 +6,7 @@
   left: 40px;
   width: 104px;
   height: 104px;
-  background: url('/icons/NewsQuoteBottom.svg') no-repeat;
+  background: url('../icons/NewsQuoteBottom.svg') no-repeat;
 }
 
 .NewsQuoteBlock__inner:before {
@@ -17,5 +17,5 @@
   right: 40px;
   width: 104px;
   height: 104px;
-  background: url('/icons/NewsQuoteTop.svg') no-repeat;
+  background: url('../icons/NewsQuoteTop.svg') no-repeat;
 }
