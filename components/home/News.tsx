@@ -5,6 +5,12 @@ import Button from '../shared/Button';
 import { useRouter } from 'next/navigation';
 import Card from '../shared/Card';
 
+interface NewsProps {
+  title?:string,
+  link: string,
+  textLink: string
+}
+
 const news = [
   {
     id: 1,
@@ -27,18 +33,19 @@ const news = [
   },
 ];
 
-const News: React.FC = () => {
+const News: React.FC<NewsProps> = ({title = false, link, textLink}) => {
   const router = useRouter();
   return (
     <section className="px-24 flex flex-col gap-y-6 w-fit">
-      <div className="flex justify-end w-full">
+      <div className={`flex  w-full ${title ? 'justify-between items-center' : 'justify-end'}`}>
+        {title && <div className='font-preheader uppercase'>{title}</div>}
         <Button
           variant="tertiary"
           size="small"
-          onClick={() => router.push('/news')}
+          onClick={() => router.push(`${link}`)}
         >
           <span className="flex items-center gap-x-2">
-            Всі новини <ArrowRightIcon size="20px" color="#3D5EA7" />
+            {textLink} <ArrowRightIcon size="20px" color="#3D5EA7" />
           </span>
         </Button>
       </div>
