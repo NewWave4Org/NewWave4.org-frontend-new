@@ -23,10 +23,11 @@ interface GeneralSliderProps {
   showArrows?: boolean,
   showDots?: boolean,
   slideHover?: boolean,
-  hasLink?: boolean
+  hasLink?: boolean,
+  fullWidth?: boolean
 }
 
-const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 4000, loop = true, showArrows = true, showDots = true, slideHover = true, hasLink = true}) => {
+const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 4000, loop = true, showArrows = true, showDots = true, slideHover = true, hasLink = true, fullWidth = true}) => {
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: loop }, [
     Autoplay({ playOnInit: true, delay: autoplayDelay }),
@@ -49,7 +50,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 40
   
   return (
     <div className="relative embla group">
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className={`${!fullWidth ? 'overflow-hidden' : '' }`} ref={emblaRef}>
         <div className="flex">
           {slides.map((slide, index) => {
             const isActive = index === selectedIndex;
