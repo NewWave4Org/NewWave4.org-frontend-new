@@ -4,6 +4,9 @@ import SocialButtons from '@/components/socialButtons/SocialButtons';
 import NewsQuote from '@/components/news/NewsQuote';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
 import News from '@/components/home/News';
+import UserIcon from '@/components/icons/symbolic/UserIcon';
+import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
+
 
 
 export async function generateStaticParams() {
@@ -77,14 +80,18 @@ const Article = () => {
             <div>
               <div className='mb-4'>
                 <div className="flex items-center mb-1">
-                  <Image src={`${prefix}/icons/user.svg`} width={16} height={16} alt="user-icon" className="mr-2" />
+                  <div className="mr-2">
+                    <UserIcon size="16" color="#7A7A7A" />
+                  </div>
                   <span className="text-grey-600 text-small2 inline-block leading-none">Автор</span>
                 </div>
                 <div className="text-font-primary text-small">Мирослава Роздольська</div>
               </div>
               <div className='mb-4'>
                 <div className='flex items-center mb-1'>
-                  <Image src={`${prefix}/icons/calendar.svg`} width={16} height={16} alt="user-icon" className="mr-2" />
+                  <div className="mr-2">
+                    <CalendarIcon size="16" color="#7A7A7A" />
+                  </div>
                   <span className="text-grey-600 text-small2 inline-block leading-none">Дата</span>
                 </div>
                 <div className='text-font-primary text-small'>17 жовтня 2024</div>
