@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Build Status
+
+[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml)
+[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml)
+
 ## Getting Started
 
 First, run the development server:
@@ -19,6 +24,36 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+# Running with Docker
+
+## Build the Docker Image
+
+Run the following command from the project root:
+
+```bash
+docker build -t newwave4-app .
+```
+
+## Run the Docker Container
+
+Start the container by mapping port 80 on the host to port 80 in the container:
+
+```bash
+docker run -d -p 80:80 --name newwave4-app newwave4-app
+```
+
+## Verify the Application
+
+Open your browser and navigate to:
+
+```text
+http://localhost
+```
+
+
+
+
 
 ## Learn More
 

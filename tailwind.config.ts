@@ -12,7 +12,8 @@ export default {
     extend: {
       fontFamily: {
         helv: ['var(--font-helv)'],
-        ebGaramond: ['var(--font-ebGaramond)']
+        ebGaramond: ['var(--font-ebGaramond)'],
+        poppins: ['var(--font-poppins)']
       },
       fontSize: {
         h1: [
@@ -222,6 +223,7 @@ export default {
       },
       boxShadow: {
         custom: "4px 4px 12px 0px rgba(180, 140, 100, 0.15)",
+        header: "inset 0px 0px 68px #FFFFFF0D, inset 0px 0px 4px #FFFFFF26"
       },
     },
   },

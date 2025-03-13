@@ -5,14 +5,10 @@ import Button from '../shared/Button';
 import Input from '../shared/Input';
 import { useState } from 'react';
 import Modal from '../shared/Modal';
+import { emailValidation } from '@/utils/validation';
 
 const validationSchema = Yup.object({
-  email: Yup.string()
-    .required('Email field cannot be empty')
-    .matches(
-      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i,
-      'Please enter a valid email address',
-    ),
+  email: emailValidation,
 });
 
 interface InnerSubscribeFormValues {
@@ -24,7 +20,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
 
   return (
     <>
-      <Form className="flex gap-x-6 items-start">
+      <Form className="flex gap-x-4 items-start">
         <div>
           <Input
             id="email"
@@ -36,7 +32,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
             value={values.email}
           />
         </div>
-        <div className="mt-6">
+        <div className="mt-[28px]">
           <Button type="submit" disabled={isSubmitting}>
             Підписатися
           </Button>
