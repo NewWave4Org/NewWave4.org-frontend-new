@@ -129,7 +129,7 @@ const Article = () => {
       </div>
 
       <div className='mb-[55px]'>
-        <GeneralSlider slides={slides} hasLink={false} slideHover={false} />
+        <GeneralSlider slides={slides} hasLink={false} slideHover={false} fullWidth={true} />
       </div>
 
       <div className='mb-[80px] flex justify-center'>
