@@ -24,8 +24,8 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
 
   return (
     <>
-      <Form className="grid grid-cols-[1fr_auto] gap-x-6 items-start">
-        <div className="">
+      <Form className="grid lg:grid-cols-[1fr_auto] gap-x-6 items-start justify-start">
+        <div className="w-[264px]">
           <Input
             id="email"
             label="Email"

@@ -36,29 +36,34 @@ const news = [
 const News: React.FC<NewsProps> = ({title = false, link, textLink}) => {
   const router = useRouter();
   return (
-    <section className="px-24 flex flex-col gap-y-6 w-fit">
-      <div className={`flex  w-full ${title ? 'justify-between items-center' : 'justify-end'}`}>
-        {title && <div className='font-preheader uppercase'>{title}</div>}
-        <Button
-          variant="tertiary"
-          size="small"
-          onClick={() => router.push(`${link}`)}
-        >
-          <span className="flex items-center gap-x-2">
-            {textLink} <ArrowRightIcon size="20px" color="#3D5EA7" />
-          </span>
-        </Button>
-      </div>
-      <div className="flex gap-x-6">
-        {news.map(card => (
-          <Card
-            key={card.id}
-            link={`/news/${card.id}`}
-            imageSrc={card.src}
-            title={card.title}
-            text={card.text}
-          />
-        ))}
+    <section className="">
+      <div className="container mx-auto px-4">
+        <div className=' flex flex-col gap-y-6'>
+          <div className={`flex  w-full ${title ? 'justify-between items-center' : 'justify-end'}`}>
+            {title && <div className='font-preheader uppercase'>{title}</div>}
+            <Button
+              variant="tertiary"
+              size="small"
+              onClick={() => router.push(`${link}`)}
+            >
+              <span className="flex items-center gap-x-2">
+                {textLink} <ArrowRightIcon size="20px" color="#3D5EA7" />
+              </span>
+            </Button>
+          </div>
+          <div className="flex flex-col lg:flex-row m-[-12px]">
+            {news.map(card => (
+              <div className='flex lg:w-1/3 p-3' key={card.id}>
+                <Card
+                  link={`/news/${card.id}`}
+                  imageSrc={card.src}
+                  title={card.title}
+                  text={card.text}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

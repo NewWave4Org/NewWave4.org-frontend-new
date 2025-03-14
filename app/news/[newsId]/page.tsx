@@ -6,6 +6,7 @@ import GeneralSlider from '@/components/generalSlider/GeneralSlider';
 import News from '@/components/home/News';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
+import HomeVideo from '@/components/home/HomeVideo';
 
 
 
@@ -71,11 +72,11 @@ const Article = () => {
   return (
     <div className="article_page pt-[145px]">
       <div className="container px-4 mx-auto">
-        <div className="flex lg:gap-6 md:gap-0 lg:flex-row md:flex-col mb-[56px]">
-          <div className="lg:w-[718px] lg:flex-1 md:w-full  lg:mb-0 md:mb-6">
+        <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
+          <div className="lg:max-w-[718px] lg:mb-0 mb-6">
             <Image src={`${prefix}/slider/slide3.jpg`} className="w-full" width={100} height={100} alt="" />
           </div>
-          <div className="lg:w-[506px] lg:flex-none md:flex-1 md:w-full flex flex-col justify-between">
+          <div className="lg:max-w-[506px] flex flex-col justify-between">
             <div className="font-ebGaramond text-h3 text-font-primary mb-6">Зустріч українців Брукліна з сенатором Шумером</div>
             <div>
               <div className='mb-4'>
@@ -110,11 +111,11 @@ const Article = () => {
           </p>
         </div>
 
-        <div className='flex lg:gap-6 md:gap-0 lg:flex-row md:flex-col mb-[40px] lg:h-[370px]'>
-          <div className="lg:w-[718px] lg:flex-1 md:w-full  lg:mb-0 md:mb-6">
+        <div className='flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto'>
+          <div className="lg:max-w-[718px] lg:flex-1 lg:mb-0 mb-6">
             <Image src={`${prefix}/slider/slide3.jpg`} className="w-full h-full" width={100} height={100} style={{ objectFit: 'cover' }} alt="" />
           </div>
-          <div className="lg:w-[506px] lg:flex-none md:flex-1 md:w-full">
+          <div className="lg:max-w-[506px]">
             <Image src={`${prefix}/slider/slide3.jpg`} className="w-full h-full" width={100} style={{ objectFit: 'cover' }} height={100} alt="" />
           </div>
         </div>
@@ -132,15 +133,8 @@ const Article = () => {
         <GeneralSlider slides={slides} hasLink={false} slideHover={false} fullWidth={true} />
       </div>
 
-      <div className='mb-[80px] flex justify-center'>
-        <iframe
-          src="https://www.youtube.com/embed/WNMAHLPBUvk?enablejsapi=1"
-          allowFullScreen
-          width={1246}
-          height={640}
-          loading="lazy"
-          className="rounded-2xl"
-        />
+      <div className='mb-[80px]'>
+        <HomeVideo />
       </div>
 
       <div className='mb-[80px]'>

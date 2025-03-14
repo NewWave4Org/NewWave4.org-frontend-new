@@ -5,7 +5,9 @@ import News from './News';
 const NewsEvents: React.FC = () => {
   return (
     <section className="news-section">
-      <h4 className="preheader px-24">Новини та події</h4>
+      <div className="container mx-auto px-4">
+        <h4 className="preheader">Новини та події</h4>
+      </div>
       <div>
         <Tabs>
           <Tab title="Новини">
