@@ -54,7 +54,7 @@ export default function RootLayout({
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} ${poppinsFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
         <Header />
-        <main className="flex-1 center">{children}</main>
+        <main className="flex-1 overflow-hidden">{children}</main>
         <Subscribe />
         <Footer />
       </body>

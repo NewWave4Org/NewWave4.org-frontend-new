@@ -12,9 +12,9 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
   return (
     <Link
       href={link}
-      className="bg-white shadow-custom rounded-lg w-[400px] overflow-hidden flex flex-col h-full hover:shadow-lg duration-500 "
+      className="bg-white shadow-custom rounded-lg overflow-hidden flex flex-col h-full hover:shadow-lg duration-500 "
     >
-      <div className="relative w-[400px] h-[208px]">
+      <div className="relative lg:h-[208px] sm:h-[300px] h-[200px]">
         <Image src={imageSrc} alt={title} fill style={{ objectFit: 'cover' }} />
       </div>
       <div className="pt-2 pb-4 px-4 flex flex-col gap-y-2 flex-1">
