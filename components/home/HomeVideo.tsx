@@ -9,7 +9,7 @@ const HomeVideo: React.FC = () => {
               src="https://www.youtube.com/embed/WNMAHLPBUvk?enablejsapi=1"
               allowFullScreen
               loading="lazy"
-              className="rounded-2xl w-full lg:h-[640px] sm:h-auto sm:aspect-video"
+              className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
             />
           </div>
         </div>
