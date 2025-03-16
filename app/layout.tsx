@@ -9,17 +9,17 @@ import { EB_Garamond, Poppins } from 'next/font/google';
 const helveticaFont = localFont({
   src: [
     {
-      path: '../styles/fonts/HelveticaNeueCyr-Light.woff',
+      path: '../styles/fonts/HelveticaNeue-Light.woff',
       weight: '300',
       style: 'normal',
     },
     {
-      path: '../styles/fonts/HelveticaNeueCyr-Roman.woff',
+      path: '../styles/fonts/HelveticaNeue-Roman.woff',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../styles/fonts/HelveticaNeueCyr-Medium.woff',
+      path: '../styles/fonts/HelveticaNeue-Medium.woff',
       weight: '500',
       style: 'normal',
     },
@@ -54,7 +54,7 @@ export default function RootLayout({
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} ${poppinsFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
         <Header />
-        <main className="flex-1 center">{children}</main>
+        <main className="flex-1 overflow-hidden">{children}</main>
         <Subscribe />
         <Footer />
       </body>
