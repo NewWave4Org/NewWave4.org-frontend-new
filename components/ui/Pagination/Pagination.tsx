@@ -10,7 +10,7 @@ const Pagination:React.FC = () => {
             <button
               type="button"
               aria-current="page"
-              className="flex font-helv justify-center bg-primary-700 p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-white rounded-lg hover:bg-primary-500 duration-500"
+              className="flex font-helv justify-center bg-primary-700 p-1 h-[32px] px-1 min-w-[32px] text-medium2 text-white rounded-lg duration-500"
             >
               1
             </button>
