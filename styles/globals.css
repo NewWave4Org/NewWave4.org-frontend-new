@@ -97,6 +97,12 @@ body {
     flex: 0 0 var(--slide-size);
     min-width: 0;
   }
+  .embla__slide {
+    flex-shrink: 0;
+    width: 360px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
   .embla-slide-img {
     @apply w-full h-[544px] object-cover transition-all duration-300;
   }
@@ -117,6 +123,9 @@ body {
   }
   .embla-slider-dot {
     @apply w-3 h-3 rounded-full transition-all;
+  }
+  .slide-btn {
+    @apply absolute top-1/2 w-[60px] h-[60px] opacity-70 -translate-y-1/2 p-3 bg-primary-400 transition rounded-full z-20;
   }
 
   /* Sponsors */
