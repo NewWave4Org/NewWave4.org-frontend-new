@@ -10,7 +10,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer__inner md:flex-row flex-col md:gap-y-0 sm:gap-y-4">
-        <div className='md:w-auto w-full md:mb-0 mb-6'>
+        <div className="md:w-auto w-full md:mb-0 mb-6">
           <Logo />
         </div>
         <div className="footer-links md:w-auto w-full">
@@ -39,20 +39,20 @@ const Footer = () => {
             <IconButton
               onClick={() =>
                 window.open(
-                  'https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ==',
-                )
-              }
-            >
-              <InstagramIcon />
-            </IconButton>
-            <IconButton
-              onClick={() =>
-                window.open(
                   'https://www.facebook.com/profile.php?id=100068772616023',
                 )
               }
             >
               <FacebookIcon />
+            </IconButton>
+            <IconButton
+              onClick={() =>
+                window.open(
+                  'https://www.instagram.com/newwavebrooklynschool?igsh=MXd3cXdwN3JzcGtuMQ==',
+                )
+              }
+            >
+              <InstagramIcon />
             </IconButton>
             <IconButton
               onClick={() =>
