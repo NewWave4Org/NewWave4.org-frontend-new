@@ -17,10 +17,10 @@ export default {
       },
       fontSize: {
         h1: [
-          '48px',
+          '56px',
           {
             lineHeight: '1.2',
-            letterSpacing: '0',
+            letterSpacing: '1.92px',
             fontWeight: '700',
           },
         ],

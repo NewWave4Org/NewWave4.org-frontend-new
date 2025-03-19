@@ -13,7 +13,7 @@ const Hero = (props: HeroProps) => {
         priority
       />
       <div className="relative z-10">
-        <h1 className="font-bold text-2xl md:text-h1 font-baskervville">{data.title}</h1>
+        <h1 className="font-bold text-3xl lg:text-h1 font-ebGaramond">{data.title}</h1>
       </div>
     </section>
   );

@@ -46,7 +46,9 @@ const Tabs = ({ children }: TabsProps) => {
       </div>
 
       {/* Tab Content */}
-      <div className="p-4">{children[activeTab]?.props.children}</div>
+      <div className="py-4">
+        {children[activeTab]?.props.children}
+      </div>
     </div>
   );
 };

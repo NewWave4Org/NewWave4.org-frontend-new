@@ -20,8 +20,8 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
 
   return (
     <>
-      <Form className="flex gap-x-4 items-start">
-        <div>
+      <Form className="flex gap-x-4 items-start sm:flex-row flex-col">
+        <div className='sm:w-[264px] w-full'>
           <Input
             id="email"
             label="Введіть Ваш email"
