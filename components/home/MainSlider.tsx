@@ -111,10 +111,7 @@ const MainSlider: React.FC = () => {
       <button className="embla-slide-btn left-4" onClick={scrollPrev}>
         <ArrowLeft4Icon size="32" color="#fafafa" />
       </button>
-      <button
-        className="embla-slide-btn right-4 flex justify-center items-center"
-        onClick={scrollNext}
-      >
+      <button className="embla-slide-btn right-4" onClick={scrollNext}>
         <ArrowRight4Icon size="32" color="#fafafa" />
       </button>
 
