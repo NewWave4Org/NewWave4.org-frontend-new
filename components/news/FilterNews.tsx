@@ -17,10 +17,10 @@ const FilterNews = () => {
 
   return (
     <>
-      <div className={`filterNews mb-[14px] h-[60px]`}>
+      <div className={`filterNews mb-[14px]`}>
         <div className={`filterNews__inner`}>
           <div className="container px-4 mx-auto">
-            <ul className="filterNews__items flex px-[32px] justify-between flex-nowrap bg-background-primary py-[10px]">
+            <ul className="filterNews__items flex lg:px-[32px] px-0 lg:justify-between justify-start bg-background-primary lg:flex-nowrap flex-wrap">
               {data.items.map(item => (
                 <FilterItem
                   key={item.id}
