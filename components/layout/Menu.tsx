@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 const Menu = () => {
   const pathname = usePathname();
   return (
-    <nav className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
-      <ul className="flex gap-x-8 text-large font-helv">
+    <nav className="justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
+      <ul className="flex gap-x-8 text-large font-helv menu__items">
         {[
           { href: '/', label: 'Головна' },
           { href: '/about', label: 'Про нас' },
