@@ -103,7 +103,7 @@ const Input: React.FC<InputProps> = ({
         )}
       </div>
       {validationText && (
-        <p className={`text-small2 mt-2 text-status-danger-500`}>
+        <p className={`text-small2 mt-[4px] text-status-danger-500`}>
           {validationText}
         </p>
       )}
