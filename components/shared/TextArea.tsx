@@ -27,10 +27,9 @@ const TextArea: React.FC<TextAreaProps> = ({
         onChange={onChange}
         className={`max-w-[544px] py-2 px-4 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 
         ${className} 
-        resize-none
-        focus:outline-none focus:ring-2 
-        hover:ring-2 hover:ring-grey-600 hover:text-grey-500
-        active:ring-status-info `}
+        resize-none 
+        hover:ring-2 hover:ring-grey-600
+        focus:outline-none focus:ring-2 focus:ring-status-info `}
         {...props}
       />
     </div>
