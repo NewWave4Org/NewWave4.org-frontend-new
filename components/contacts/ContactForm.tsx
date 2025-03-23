@@ -77,7 +77,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           <Button
             type="submit"
             variant="secondary"
-            className="w-[136px]"
+            className="!w-[136px]"
             disabled={isSubmitting}
           >
             Надіслати
