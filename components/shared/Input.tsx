@@ -85,11 +85,10 @@ const Input: React.FC<InputProps> = ({
           maxLength={maxLength}
           onChange={onChange}
           className={`w-[264px] h-[56px] p-4 text-medium2 text-font-primary rounded-lg border-0 ring ${getStateClasses()} 
-          focus:outline-none focus:ring-2          
+          focus:outline-none focus:ring-2 focus:ring-status-info-500        
           hover:ring-2 hover:ring-grey-600
           active:ring-status-info-500
-          focus:active:ring-status-info-500
-           ${validationText && 'ring-status-danger-500'}`}
+          ${validationText && 'ring-status-danger-500'}`}
           disabled={state === 'disabled'}
           {...props}
         />
