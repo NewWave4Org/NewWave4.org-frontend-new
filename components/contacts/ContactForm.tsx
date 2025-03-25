@@ -70,7 +70,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
             maxLength={200}
             value={values.message}
             onChange={handleChange}
-            className="w-full h-[80px]"
+            className="w-full h-[100px]"
           />
         </div>
         <div className="mt-6">
