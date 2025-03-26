@@ -30,20 +30,13 @@ body {
   }
   
   @layer utilities {
-    /* Main */
-  
+   
     .payments-wrapper {
         @apply bg-grey-50 rounded-2xl shadow-custom py-[72px] px-[106px] mt-[70px] flex flex-col gap-y-[40px];
-    }
-    .center {
-      @apply mx-auto w-full max-w-[var(--max-width)];
     }
    
     .header {
       @apply flex justify-between items-center mx-auto w-full max-w-[calc(100%-30px)] md:px-12 px-5 py-4  ;
     }
     
-    /* .header-position {
-      @apply fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6;
-    } */
 }
