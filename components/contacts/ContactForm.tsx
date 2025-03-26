@@ -73,16 +73,15 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
             className="w-full h-[100px]"
           />
         </div>
-        <div className="mt-6">
-          <Button
-            type="submit"
-            variant="secondary"
-            className="!w-[136px]"
-            disabled={isSubmitting}
-          >
-            Надіслати
-          </Button>
-        </div>
+
+        <Button
+          type="submit"
+          variant="secondary"
+          className="!w-[136px]"
+          disabled={isSubmitting}
+        >
+          Надіслати
+        </Button>
       </Form>
     </>
   );
