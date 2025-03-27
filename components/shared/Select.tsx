@@ -116,7 +116,9 @@ const Select: React.FC<SelectProps> = ({
       </div>
 
       {meta.touched && meta.error && (
-        <p className="text-sm text-red-500 mt-1">{meta.error}</p>
+        <p className={`text-small2 mt-[4px] text-status-danger-500`}>
+          {meta.error}
+        </p>
       )}
     </div>
   );
