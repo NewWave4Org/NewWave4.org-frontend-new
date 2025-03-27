@@ -6,7 +6,7 @@ const HomeVideo: React.FC = () => {
           <h4 className="preheader">Наші проєкти</h4>
           <div>
             <iframe
-              src="https://www.youtube.com/embed/WNMAHLPBUvk?enablejsapi=1"
+              src="https://www.youtube.com/embed/77mC1d9QKRQ"
               allowFullScreen
               loading="lazy"
               className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
