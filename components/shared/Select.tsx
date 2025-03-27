@@ -82,17 +82,17 @@ const Select: React.FC<SelectProps> = ({
           onBlur={handleBlur}
         >
           <span className="h-full flex items-center text-medium2 text-grey-700">
-            {selectedOption?.label || placeholder || 'Select an option'}
+            {selectedOption?.label || placeholder || 'Оберіть опцію'}
           </span>
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 w-[270px] mt-1 bg-white rounded-md shadow-lg">
+          <div className="absolute z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom">
             {options.map(option => (
               <div
                 key={option.value}
                 onClick={() => handleOptionClick(option)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                className="px-4 py-2 text-medium2 text-font-primary cursor-pointer hover:bg-background-primary active:bg-background-secondary"
               >
                 {option.label}
               </div>
