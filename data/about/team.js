@@ -5,15 +5,6 @@ const teamData = {
     title: "Наша команда",
     team: [
       {
-        name: "Myroslava Rozdolska",
-        img: `${prefix}/team/myroslava-rozdolska.png`,
-        position: "President",
-        location: "Staten Island, NY",
-        social: {
-          facebook: "https://www.facebook.com",
-        }
-      },
-      {
         name: "Bohdan Dohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
@@ -23,10 +14,37 @@ const teamData = {
         }
       },
       {
+        name: "Myroslava Rozdolska",
+        img: `${prefix}/team/myroslava-rozdolska.png`,
+        position: "President",
+        location: "Staten Island, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
         name: "Lesya Zlupko",
         img: `${prefix}/team/lesya-zlupko.png`,
         position: "Vice President",
         location: "Brooklyn, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
+        name: "Anna Shpook",
+        img: `${prefix}/team/anna-shpook.png`,
+        position: "Financial Adviser",
+        location: "Brooklyn, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
+        name: "Iryna Rozdolska",
+        img: `${prefix}/team/iryna-rozdolska.png`,
+        position: "PR Director",
+        location: "Staten Island, NY",
         social: {
           facebook: "https://www.facebook.com",
         }
@@ -50,16 +68,21 @@ const teamData = {
         }
       },
       {
-        name: "Myroslava Rozdolska Copy",
-        img: `${prefix}/team/myroslava-rozdolska.png`,
-        position: "President",
+        name: "Zoryana Romaniuk",
+        img: `${prefix}/team/zoryana-romaniuk.png`,
+        position: "Treasurer",
         location: "Staten Island, NY",
         social: {
           facebook: "https://www.facebook.com",
         }
-      },
+      }
+    ]
+  },
+  en: {
+    title: "Our team",
+    team: [
       {
-        name: "Bohdan Dohonok Copy",
+        name: "Bohdan Dohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
         location: "Pittsburgh, PA",
@@ -68,7 +91,16 @@ const teamData = {
         }
       },
       {
-        name: "Lesya Zlupko Copy",
+        name: "Myroslava Rozdolska",
+        img: `${prefix}/team/myroslava-rozdolska.png`,
+        position: "President",
+        location: "Staten Island, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
+        name: "Lesya Zlupko",
         img: `${prefix}/team/lesya-zlupko.png`,
         position: "Vice President",
         location: "Brooklyn, NY",
@@ -77,7 +109,16 @@ const teamData = {
         }
       },
       {
-        name: "Olga Hrynyk Copy",
+        name: "Anna Shpook",
+        img: `${prefix}/team/anna-shpook.png`,
+        position: "Financial Adviser",
+        location: "Brooklyn, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
+        name: "Olga Hrynyk",
         img: `${prefix}/team/olga-hrynyk.png`,
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
@@ -86,7 +127,16 @@ const teamData = {
         }
       },
       {
-        name: "Ostap Stakhiv Copy",
+        name: "Iryna Rozdolska",
+        img: `${prefix}/team/iryna-rozdolska.png`,
+        position: "PR Director",
+        location: "Staten Island, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      },
+      {
+        name: "Ostap Stakhiv",
         img: `${prefix}/team/ostap-stakhiv.png`,
         position: "Director of Culture Program",
         location: "Cleveland, OH",
@@ -94,10 +144,16 @@ const teamData = {
           facebook: "https://www.facebook.com",
         }
       },
+      {
+        name: "Zoryana Romaniuk",
+        img: `${prefix}/team/zoryana-romaniuk.png`,
+        position: "Treasurer",
+        location: "Staten Island, NY",
+        social: {
+          facebook: "https://www.facebook.com",
+        }
+      }
     ]
-  },
-  en: {
-    title: "Our team",
   }
 };
 

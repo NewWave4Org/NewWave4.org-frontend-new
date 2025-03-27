@@ -13,7 +13,7 @@ const MemberTeaser = ({ member } : { member : Member }) => {
         height={ 301 }
         className=""
       />
-      <div className="info bg-grey-50 pt-3 min-h-[160px] relative">
+      <div className="info bg-grey-50 pt-3 min-h-[160px] max-w-[180px] relative rounded-b-lg">
         <div className="name mb-1 text-primary text-base font-medium">{ member.name }</div>
         <div className="location text-sm text-grey-500 font-normal">{ member.location }</div>
         <div className="position mt-2 mb-[21px] text-primary-500 font-medium">{ member.position }</div>
