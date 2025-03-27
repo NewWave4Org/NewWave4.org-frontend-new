@@ -11,7 +11,6 @@ const MemberTeaser = ({ member } : { member : Member }) => {
         alt={ member.name }
         width={ 180 }
         height={ 301 }
-        className=""
       />
       <div className="info bg-grey-50 pt-3 min-h-[160px] max-w-[180px] relative rounded-b-lg">
         <div className="name mb-1 text-primary text-base font-medium">{ member.name }</div>
