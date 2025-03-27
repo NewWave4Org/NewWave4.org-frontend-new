@@ -28,7 +28,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
     <>
       <Form className="flex flex-col gap-x-6 gap-y-2">
         <div className="flex gap-x-4 items-start lg:flex-row flex-col">
-          <div className='lg:flex-1 w-full lg:mb-0 mb-4'>
+          <div className="lg:flex-1 w-full lg:mb-0 mb-4">
             <Input
               id="name"
               label="Ім'я"
@@ -39,7 +39,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
               value={values.name}
             />
           </div>
-          <div className='lg:flex-1 w-full lg:mb-0 mb-4'>
+          <div className="lg:flex-1 w-full lg:mb-0 mb-4">
             <Input
               id="email"
               label="Email"
@@ -52,7 +52,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           </div>
         </div>
 
-        <div className='lg:max-w-[264px] w-full lg:mb-0 mb-4'>
+        <div className="lg:max-w-[264px] w-full lg:mb-0 mb-4">
           <Input
             id="tel"
             label="Телефон"
@@ -62,22 +62,26 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
             value={values.tel}
           />
         </div>
-        
-        <div className='w-full'>
+
+        <div className="w-full">
           <TextArea
             id="message"
             label="Текст повідомлення"
             maxLength={200}
             value={values.message}
             onChange={handleChange}
-            className="w-full h-[80px]"
+            className="w-full h-[100px]"
           />
         </div>
-        <div className="mt-6">
-          <Button type="submit" variant="secondary" disabled={isSubmitting}>
-            Надіслати
-          </Button>
-        </div>
+
+        <Button
+          type="submit"
+          variant="secondary"
+          className="!w-[136px]"
+          disabled={isSubmitting}
+        >
+          Надіслати
+        </Button>
       </Form>
     </>
   );

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import '../styles/globals.css';
+import '../../styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Subscribe from '@/components/layout/Subscribe';
@@ -9,17 +9,17 @@ import { EB_Garamond, Poppins } from 'next/font/google';
 const helveticaFont = localFont({
   src: [
     {
-      path: '../styles/fonts/HelveticaNeue-Light.woff',
+      path: '../../styles/fonts/HelveticaNeue-Light.woff',
       weight: '300',
       style: 'normal',
     },
     {
-      path: '../styles/fonts/HelveticaNeue-Roman.woff',
+      path: '../../styles/fonts/HelveticaNeue-Roman.woff',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../styles/fonts/HelveticaNeue-Medium.woff',
+      path: '../../styles/fonts/HelveticaNeue-Medium.woff',
       weight: '500',
       style: 'normal',
     },

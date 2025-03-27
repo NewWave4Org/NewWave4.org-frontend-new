@@ -35,7 +35,8 @@ const Button: React.FC<ButtonProps> = ({
   } else if (size === 'medium') {
     buttonStyle += 'px-4 py-2.5 text-medium1 ';
   } else if (size === 'large') {
-    buttonStyle += 'px-6 py-4 text-medium1 h-[56px] ';
+    buttonStyle += 'py-4 text-medium1 h-[56px] ';
+    buttonStyle += variant === 'secondary' ? 'px-[26px] ' : 'px-6 ';
   }
 
   return (
