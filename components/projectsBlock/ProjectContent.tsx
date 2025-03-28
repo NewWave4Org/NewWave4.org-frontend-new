@@ -29,7 +29,7 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
             const oddBlock = index % 2 !== 0;
             return (
               <div key={content.id} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
-                <div className={`flex-1 lg:pr-[96px] lg:py-[40px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px] pl-0' : ''}`}>
+                <div className={`flex-1 lg:pr-[96px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px] pl-0' : ''}`}>
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px]">
                     {content.title}
                   </div>
