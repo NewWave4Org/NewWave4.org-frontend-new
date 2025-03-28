@@ -23,7 +23,7 @@ interface ProjectContentProps {
 function ProjectContent({contentBlock}: ProjectContentProps) {
   return (
     <>
-      <div className="schoolBlock__content">
+      <div className="projectsBlock__content">
         <div className="container mx-auto px-4">
           {contentBlock.map((content, index) => {
             const oddBlock = index % 2 !== 0;
