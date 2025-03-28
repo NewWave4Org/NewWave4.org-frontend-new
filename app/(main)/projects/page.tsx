@@ -188,7 +188,7 @@ const ProjectsPage = () => {
         <ProjectContent contentBlock={projects.schoolBlock.contentBottom} />
       </div>
       <div className="mb-6">
-        <NewsEvents textLink="Всі новини школи" link="" />
+        <NewsEvents textLink="Всі новини школи" link="" titleEvents="Новини та події школи" />
       </div>
       {projects.projectsContent.map(item => {
         const title = item.generalTitle;
