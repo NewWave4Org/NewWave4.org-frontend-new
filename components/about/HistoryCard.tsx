@@ -1,30 +1,28 @@
 import Image from 'next/image';
-// import { CheckCircle } from 'lucide-react';
+import List from '../shared/List';
 
-const HistoryCard = ({ data } : { data: {imageSrc : string, title: string, items: string[]}}) => {
+const HistoryCard = ({ data } : { data: {title: string, card: {imageSrc : string, title: string, items: string[]}}}) => {
   return (
-    <div className="flex flex-col sm:flex-row bg-white shadow-lg rounded-2xl p-4 max-w-2xl">
-      <div className="w-full sm:w-1/3 flex justify-center sm:justify-start">
-        <Image 
-          src={data.imageSrc} 
-          alt={data.title} 
-          width={718} 
-          height={524}
-          className="rounded-xl object-cover w-32 h-32 sm:w-full sm:h-full"
-        />
+    <section className="history-card py-14 my-20">
+      <div className="history-card__inner max-w-[1247px] mx-auto">
+        <h4 className="preheader mb-10 text-center md:text-left mx-auto">{data.title}</h4>
+        <div className="flex flex-col sm:flex-row gap-6 items-start">
+          <div className="w-full md:w-3/5 max-w-[718px] flex justify-center sm:justify-start">
+            <Image 
+              src={data.card.imageSrc} 
+              alt={data.card.title} 
+              width={718} 
+              height={524}
+              className="rounded-xl object-cover w-32 h-32 sm:w-full sm:h-full"
+            />
+          </div>
+          <div className="w-full md:w-2/5 flex flex-col justify-center mt-4 sm:mt-0">
+            <h4 className="text-lg sm:text-xl font-ebGaramond text-font-accent mb-6 font-semibold text-center sm:text-left leading-[140%]">{data.card.title}</h4>
+            <List items={data.card.items} />
+          </div>
+        </div>
       </div>
-      <div className="w-full sm:w-2/3 sm:pl-4 flex flex-col justify-center mt-4 sm:mt-0">
-        <h3 className="text-lg sm:text-xl font-semibold mb-2 text-center sm:text-left">{data.title}</h3>
-        <ul className="space-y-1">
-          {data.items.map((item: string, index: number) => (
-            <li key={index} className="flex items-center text-gray-700 justify-center sm:justify-start">
-              {/* <CheckCircle className="w-5 h-5 text-green-500 mr-2" /> */}
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </section>
   );
 };
 
