@@ -1,6 +1,11 @@
+'use client';
+
 import Image from "next/image";
-import LinkWithArrow from "../shared/LinkWithArrow";
 import CheckIcon from "../icons/symbolic/CheckIcon";
+import FacebookIcon from "../icons/social/FacebookIcon";
+import LinkBtn from "../shared/LinkBtn";
+import ArrowRightIcon from "../icons/navigation/ArrowRightIcon";
+import { useState } from "react";
 
 interface ProjectContentCheckList {
   id: number;
@@ -13,6 +18,7 @@ interface ProjectContent {
   description?: string;
   image: string;
   link?: string;
+  fbLink?: string;
   checkList?: ProjectContentCheckList[];
 }
 
@@ -21,6 +27,8 @@ interface ProjectContentProps {
 }
 
 function ProjectContent({contentBlock}: ProjectContentProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <>
       <div className="projectsBlock__content">
@@ -29,23 +37,35 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
             const oddBlock = index % 2 !== 0;
             return (
               <div key={content.id} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
-                <div className={`flex-1 lg:pr-[96px] lg:py-[40px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 pr-0 lg:pl-[40px] pl-0' : ''}`}>
-                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px]">
+                <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px] pl-0' : ''}`}>
+                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
                     {content.title}
                   </div>
                   <div className="font-key">
                     {content.description}
                     
-                    { 'link' in content &&  content.link && (
-                      <div className="mt-6">
-                        <LinkWithArrow href={content.link}>На сайт школи</LinkWithArrow>
-                      </div>
-                    )}
+                    <div className="flex gap-x-4 mt-6">
+                      { 'link' in content &&  content.link && (
+                        <LinkBtn href={content.link} className="px-[30px]" setIsHovered={setIsHovered}>
+                          <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
+                          <div className="mt-[3px]">
+                            <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
+                          </div>
+                        </LinkBtn>
+                      )}
+
+                      { 'fbLink' in content &&  content.fbLink && (
+                        <LinkBtn href={content.fbLink} className="px-[26px]">
+                          <span className="inline-block mr-1 text-medium1">На сторінку Facebook</span>
+                          <FacebookIcon size="24" />
+                        </LinkBtn>
+                      )}
+                    </div>
 
                     {'checkList' in content && content.checkList && (
                       <div>
                         {content.checkList.map((item) => (
-                          <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4">
+                          <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4 text-font-primary">
                             <span className="mr-2">
                               <CheckIcon />
                             </span>
