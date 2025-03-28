@@ -13,7 +13,7 @@ const HistoryCard = ({ data } : { data: {title: string, card: {imageSrc : string
               alt={data.card.title} 
               width={718} 
               height={524}
-              className="rounded-xl object-cover w-32 h-32 sm:w-full sm:h-full"
+              className="rounded-xl object-cover w-full h-full"
             />
           </div>
           <div className="w-full md:w-2/5 flex flex-col justify-center mt-4 sm:mt-0">
