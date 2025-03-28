@@ -201,7 +201,6 @@ const ProjectsPage = () => {
       })
 
       }
-      
     </div>
   );
 };
