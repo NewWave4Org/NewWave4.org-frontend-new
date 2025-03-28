@@ -2,7 +2,7 @@ import { Tab, Tabs } from '../shared/Tabs';
 import Events from './Events';
 import News from './News';
 
-const NewsEvents: React.FC = () => {
+const NewsEvents = ({textLink="Всі новини", link="/news"}: {textLink?: string, link?: string}) => {
   return (
     <section className="news-section">
       <div className="container mx-auto px-4">
@@ -11,7 +11,7 @@ const NewsEvents: React.FC = () => {
       <div>
         <Tabs>
           <Tab title="Новини">
-            <News link='/news' textLink='Всі новини'/>
+            <News link={link} textLink={textLink} />
           </Tab>
           <Tab title="Події">
             <Events />
