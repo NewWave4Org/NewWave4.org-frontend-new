@@ -1,6 +1,11 @@
+'use client';
+
 import Image from "next/image";
-import LinkWithArrow from "../shared/LinkWithArrow";
 import CheckIcon from "../icons/symbolic/CheckIcon";
+import FacebookIcon from "../icons/social/FacebookIcon";
+import LinkBtn from "../shared/LinkBtn";
+import ArrowRightIcon from "../icons/navigation/ArrowRightIcon";
+import { useState } from "react";
 
 interface ProjectContentCheckList {
   id: number;
@@ -13,6 +18,7 @@ interface ProjectContent {
   description?: string;
   image: string;
   link?: string;
+  fbLink?: string;
   checkList?: ProjectContentCheckList[];
 }
 
@@ -21,6 +27,8 @@ interface ProjectContentProps {
 }
 
 function ProjectContent({contentBlock}: ProjectContentProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <>
       <div className="projectsBlock__content">
@@ -36,11 +44,23 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                   <div className="font-key">
                     {content.description}
                     
-                    { 'link' in content &&  content.link && (
-                      <div className="mt-6">
-                        <LinkWithArrow href={content.link}>На сайт школи</LinkWithArrow>
-                      </div>
-                    )}
+                    <div className="flex gap-x-4 mt-6">
+                      { 'link' in content &&  content.link && (
+                        <LinkBtn href={content.link} className="px-[30px]" setIsHovered={setIsHovered}>
+                          <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
+                          <div className="mt-[3px]">
+                            <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
+                          </div>
+                        </LinkBtn>
+                      )}
+
+                      { 'fbLink' in content &&  content.fbLink && (
+                        <LinkBtn href={content.fbLink} className="px-[26px]">
+                          <span className="inline-block mr-1 text-medium1">На сторінку Facebook</span>
+                          <FacebookIcon size="24" />
+                        </LinkBtn>
+                      )}
+                    </div>
 
                     {'checkList' in content && content.checkList && (
                       <div>
