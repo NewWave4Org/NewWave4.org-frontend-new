@@ -38,7 +38,7 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
             return (
               <div key={content.id} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
                 <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px] pl-0' : ''}`}>
-                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px]">
+                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
                     {content.title}
                   </div>
                   <div className="font-key">
@@ -65,7 +65,7 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                     {'checkList' in content && content.checkList && (
                       <div>
                         {content.checkList.map((item) => (
-                          <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4">
+                          <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4 text-font-primary">
                             <span className="mr-2">
                               <CheckIcon />
                             </span>

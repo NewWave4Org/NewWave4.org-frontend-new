@@ -182,7 +182,7 @@ const ProjectsPage = () => {
       }
       <ProjectContent contentBlock={projects.schoolBlock.contentTop} />
       <div className="container mx-auto px-4">
-        <Quote quote={quote} />
+        <Quote quote={quote} className="text-font-primary"/>
       </div>
       <div className="mb-6">
         <ProjectContent contentBlock={projects.schoolBlock.contentBottom} />
