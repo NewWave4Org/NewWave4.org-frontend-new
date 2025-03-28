@@ -1,3 +1,4 @@
+import Team from "@/components/about/Team";
 import OurMission from "@/components/home/OurMission";
 import Hero from "@/components/ui/Hero";
 import DetailedTextInformation from "@/components/about/DetailedTextInformation";
@@ -17,6 +18,7 @@ const AboutPage = () => {
     <div>
       <Hero data={heroData} />
       <OurMission />
+      <Team />
       <DetailedTextInformation text={detailed_text_information} />
       <HistoryCard data={commonData[locale].history_card} />
     </div>
