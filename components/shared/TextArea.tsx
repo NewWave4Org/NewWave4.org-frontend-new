@@ -29,7 +29,7 @@ const TextArea: React.FC<TextAreaProps> = ({
         ${className} 
         resize-none 
         hover:ring-2 hover:ring-grey-600
-        focus:outline-none focus:ring-2 focus:ring-status-info `}
+        focus:outline-none focus:ring-2 focus:ring-status-info-500 `}
         {...props}
       />
     </div>

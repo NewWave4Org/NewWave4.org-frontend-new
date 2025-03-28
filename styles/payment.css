@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FEF7F1;
+  --foreground: #171717;
+  --max-width: 1440px;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+
+@media (width >= 1536px) {
+    .container {
+      max-width: 1248px;
+    }
+  }
+  
+  @layer utilities {
+   
+    .payments-wrapper {
+        @apply bg-grey-50 rounded-2xl shadow-custom py-[72px] px-[106px] mt-[70px] flex flex-col gap-y-[40px];
+    }
+   
+    .header {
+      @apply flex justify-between items-center mx-auto w-full max-w-[calc(100%-30px)] md:px-12 px-5 py-4  ;
+    }
+
+    .finish-wrapper {
+      @apply flex flex-col min-h-screen;
+    }
+
+    .finish-content {
+      @apply flex-1;
+    }
+
+     /* Footer */
+
+  .footer {
+    @apply  bg-background-secondary;
+  }
+  .footer__inner {
+    @apply flex justify-between items-center mx-auto w-full max-w-[var(--max-width)] px-12 py-12
+  }
+  .footer-links {
+    @apply flex flex-col gap-y-4 text-large font-helv;
+  }
+
+    
+}
