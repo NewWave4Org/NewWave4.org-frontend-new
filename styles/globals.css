@@ -262,3 +262,13 @@ body {
   transition: bottom 75msease, transform 75mscubic-bezier(.215,.61,.355,1) .12s;
   transform: rotate(-90deg);
 }
+
+/* List */
+
+@layer utilities {
+  .list-bg-before-image {
+    &::before {
+      background-image: var(--list-before-bg-image);
+    }
+  }
+}
