@@ -2,11 +2,11 @@ import { Tab, Tabs } from '../shared/Tabs';
 import Events from './Events';
 import News from './News';
 
-const NewsEvents = ({textLink="Всі новини", link="/news"}: {textLink?: string, link?: string}) => {
+const NewsEvents = ({textLink="Всі новини", link="/news", titleEvents="Новини та події" }: {textLink?: string, link?: string, titleEvents?: string}) => {
   return (
     <section className="news-section">
       <div className="container mx-auto px-4">
-        <h4 className="preheader">Новини та події</h4>
+        <h4 className="preheader">{titleEvents}</h4>
       </div>
       <div>
         <Tabs>
