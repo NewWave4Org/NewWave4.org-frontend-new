@@ -1,12 +1,12 @@
 import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
-import NewsQuote from '@/components/news/NewsQuote';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
 import News from '@/components/home/News';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import HomeVideo from '@/components/home/HomeVideo';
+import Quote from '@/components/quote/Quote';
 
 
 
@@ -120,7 +120,7 @@ const Article = () => {
           </div>
         </div>
 
-        <NewsQuote />
+        <Quote quote="«Світ стикається з викликами, які вимагають не тільки швидких рішень, але й глобальної єдності. Україна сьогодні несе на собі важкий тягар війни, але це також випробування для всього цивілізованого світу. Ми повинні бути голосом тих, хто цього потребує»." />
 
         <div className='mb-[56px]'>
           <p>
