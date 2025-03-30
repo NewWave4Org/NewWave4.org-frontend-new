@@ -5,6 +5,8 @@ import DetailedTextInformation from "@/components/about/DetailedTextInformation"
 import { heroData } from "@/data/about/hero";
 import { commonData } from "@/data/about/commonData";
 import HistoryCard from "@/components/about/HistoryCard";
+import HistoryFormation from "@/components/about/HistoryFormation";
+import Sponsors from '@/components/home/Sponsors';
 
 const AboutPage = () => {
   // todo: get locale from context
@@ -21,6 +23,8 @@ const AboutPage = () => {
       <Team />
       <DetailedTextInformation text={detailed_text_information} />
       <HistoryCard data={commonData[locale].history_card} />
+      <HistoryFormation data={commonData[locale].history_formation} />
+      <Sponsors />
     </div>
   );
 };
