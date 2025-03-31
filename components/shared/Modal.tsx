@@ -106,7 +106,9 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
           </div>
 
           <h4 className="text-quote text-font-primary">{title}</h4>
-          <p className="text-small text-grey-700 mb-6">{description}</p>
+          <p className="text-small text-grey-700 mb-6 min-h-[40px]">
+            {description}
+          </p>
           <Button onClick={onBtnClick}>{getBtnText()}</Button>
           {children}
         </div>
