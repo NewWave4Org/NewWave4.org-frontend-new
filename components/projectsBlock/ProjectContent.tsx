@@ -17,8 +17,8 @@ interface ProjectContent {
   title: string;
   description?: string;
   image: string;
-  link?: string;
-  fbLink?: string;
+  linkSchool?: string;
+  linkFb?: string;
   checkList?: ProjectContentCheckList[];
 }
 
@@ -41,12 +41,15 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
                     {content.title}
                   </div>
-                  <div className="font-key">
-                    {content.description}
+                  <div>
+                    <div className="text-body">
+                      {content.description}
+                    </div>
                     
+                    <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
                     <div className="flex gap-x-4 mt-6">
-                      { 'link' in content &&  content.link && (
-                        <LinkBtn href={content.link} className="px-[30px]" setIsHovered={setIsHovered}>
+                      { 'linkSchool' in content &&  content.linkSchool && (
+                        <LinkBtn href={content.linkSchool} className="px-[30px]" setIsHovered={setIsHovered}>
                           <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
                           <div className="mt-[3px]">
                             <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
@@ -54,8 +57,8 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                         </LinkBtn>
                       )}
 
-                      { 'fbLink' in content &&  content.fbLink && (
-                        <LinkBtn href={content.fbLink} className="px-[26px]">
+                      { 'linkFb' in content &&  content.linkFb && (
+                        <LinkBtn href={content.linkFb} className="px-[26px]">
                           <span className="inline-block mr-1 text-medium1">На сторінку Facebook</span>
                           <FacebookIcon size="24" />
                         </LinkBtn>
