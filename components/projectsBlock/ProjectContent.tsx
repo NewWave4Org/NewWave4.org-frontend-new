@@ -47,7 +47,7 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                     </div>
                     
                     <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
-                    <div className="flex gap-x-4 mt-6">
+                    <div className="flex gap-x-4 mt-4">
                       { 'linkSchool' in content &&  content.linkSchool && (
                         <LinkBtn href={content.linkSchool} className="px-[30px]" setIsHovered={setIsHovered}>
                           <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
