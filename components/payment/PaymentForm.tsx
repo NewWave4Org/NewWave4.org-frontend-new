@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
+import CopyText from '../shared/CopyText';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -207,33 +208,33 @@ const PaymentForm = ({ onOpenModal }: { onOpenModal: () => void }) => {
                       Ukrainian New Wave Corp
                     </p>
                     <div>
-                      <p className="h-[24px]">
+                      <div className="h-[24px]">
                         <span className="font-medium pr-[8px]">
                           Routing Number:
                         </span>
-                        226078544
-                      </p>
-                      <p className="h-[24px]">
+                        <CopyText text="226078544" />
+                      </div>
+                      <div className="h-[24px]">
                         <span className="font-medium pr-[8px]">
                           Account Number:
                         </span>
-                        13680184160158
-                      </p>
-                      <p className="h-[24px]">
+                        <CopyText text="13680184160158" />
+                      </div>
+                      <div className="h-[24px]">
                         <span className="font-medium pr-[8px]">Memo:</span>
-                        Help Ukraine
-                      </p>
+                        <CopyText text="Help Ukraine" />
+                      </div>
                     </div>
                     <p>Wire to: TD Bank, N.A., Wilmington, Delaware</p>
                     <div>
-                      <p className="h-[24px]">
+                      <div className="h-[24px]">
                         <span className="font-medium pr-[8px]">ABA:</span>
-                        0311-0126-6
-                      </p>
-                      <p className="h-[24px]">
+                        <CopyText text="0311-0126-6" />
+                      </div>
+                      <div className="h-[24px]">
                         <span className="font-medium pr-[8px]">Credit to:</span>
-                        4330409205
-                      </p>
+                        <CopyText text="4330409205" />
+                      </div>
                     </div>
                     <p>
                       Ukrainian New Wave Corp
