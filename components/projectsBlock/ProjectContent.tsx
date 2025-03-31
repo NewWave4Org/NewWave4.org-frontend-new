@@ -41,9 +41,12 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
                     {content.title}
                   </div>
-                  <div className="font-key">
-                    {content.description}
+                  <div>
+                    <div className="text-body">
+                      {content.description}
+                    </div>
                     
+                    <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
                     <div className="flex gap-x-4 mt-6">
                       { 'link' in content &&  content.link && (
                         <LinkBtn href={content.link} className="px-[30px]" setIsHovered={setIsHovered}>
