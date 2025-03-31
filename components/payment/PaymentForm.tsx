@@ -7,7 +7,7 @@ import Button from '../shared/Button';
 import Input from '../shared/Input';
 import TextArea from '../shared/TextArea';
 import Select from '../shared/Select';
-import { emailValidation } from '@/utils/validation';
+import { emailValidation, nameValidation } from '@/utils/validation';
 import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
@@ -23,12 +23,12 @@ const purposeOptions = [
 
 const validationSchema = Yup.object({
   email: emailValidation,
-  name: Yup.string().required('Name field cannot be empty'),
+  name: nameValidation,
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
 
-const PaymentForm = ({ onOpenModal }: { onOpenModal: () => void }) => {
+const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
   const router = useRouter();
 
@@ -43,7 +43,6 @@ const PaymentForm = ({ onOpenModal }: { onOpenModal: () => void }) => {
       }}
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
-        onOpenModal();
         setSubmitting(false);
         resetForm();
       }}

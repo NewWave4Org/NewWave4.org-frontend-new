@@ -75,8 +75,8 @@ const Select: React.FC<SelectProps> = ({
             hover:ring-2 hover:ring-grey-600
            ${
              meta.touched && meta.error
-               ? 'border-red-500 focus:ring-red-500'
-               : 'border-gray-300 focus:ring-blue-500'
+               ? 'ring-status-danger-500'
+               : 'ring-grey-700'
            }`}
           onClick={handleClick}
           onBlur={handleBlur}
