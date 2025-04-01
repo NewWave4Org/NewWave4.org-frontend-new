@@ -5,7 +5,7 @@ const Partners: React.FC = () => {
     <section className="sponsors">
       <div className="container mx-auto px-4">
         <div className="sponsors__inner">
-          <h4 className="preheader">Стати партнером</h4>
+          <h4 className="preheader !text-font-primary">Стати партнером</h4>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">
             <div className="partners-text lg:max-w-[524px] max-w-full">
               <h4 className="text-h4 text-font-accent font-ebGaramond">

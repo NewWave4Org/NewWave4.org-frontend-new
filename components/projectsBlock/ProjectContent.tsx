@@ -46,7 +46,9 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                       {content.description}
                     </div>
                     
-                    <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
+                    {('linkSchool' in content && content.linkSchool) || ('linkFb' in content && content.linkFb) ? (
+                      <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
+                    ) : null}
                     <div className="flex gap-x-4 mt-4">
                       { 'linkSchool' in content &&  content.linkSchool && (
                         <LinkBtn href={content.linkSchool} className="px-[30px]" setIsHovered={setIsHovered}>
@@ -77,7 +79,6 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                         ))}
                       </div>
                     )}
-                    
                   </div>
                 </div>
                 <div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
