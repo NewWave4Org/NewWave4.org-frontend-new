@@ -23,7 +23,7 @@ const HistoryCard = ({ data } : { data: {title: string, card: {carousel : string
   return (
     <section className="history-card py-14 my-20">
       <div className="history-card__inner container px-4 mx-auto">
-        <h4 className="preheader mb-10 text-center md:text-left mx-auto">{data.title}</h4>
+        <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">{data.title}</h4>
         <div className="flex flex-col sm:flex-row gap-6 items-start">
           <div className="w-full md:w-3/5 max-w-[718px] overflow-hidden">
             <EmblaCarousel slides={slides} options={{ loop: true }} />
