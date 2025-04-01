@@ -70,7 +70,7 @@ const Select: React.FC<SelectProps> = ({
       <div className="relative">
         <div
           ref={selectRef}
-          className={`w-[275px] h-[56px] bg-white p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
+          className={`w-[275px] h-[56px] bg-transparent p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
             focus:outline-none       
             hover:ring-2 hover:ring-grey-600
            ${

@@ -176,7 +176,7 @@ const PaymentForm = () => {
                     />
                   </div>
                   <Image
-                    src={`${prefix}/payment/Paypal.svg`}
+                    src={`${prefix}/payment/PayPal.svg`}
                     alt="paypal"
                     width={38}
                     height={45}
