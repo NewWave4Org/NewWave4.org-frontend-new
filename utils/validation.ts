@@ -8,3 +8,5 @@ export const emailValidation = Yup.string()
     );
 
 export const phoneValidation = Yup.string().matches(/^\+?[0-9()\-\s]{6,20}$/, 'Invalid phone');
+
+export const nameValidation = Yup.string().required('Name field cannot be empty').matches(/^[A-Za-z\s]+$/, 'Invalid name');

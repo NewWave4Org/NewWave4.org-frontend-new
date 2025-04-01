@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import AlertIcon from '../icons/status/AlertIcon';
 import CrossIcon from '../icons/navigation/CrossIcon';
@@ -27,13 +27,23 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
     type,
     title,
     description,
-    zIndex = 0,
+    zIndex = 60,
     isOpen = false,
     className = '',
     onClose,
     onBtnClick,
     children,
   } = props;
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => document.body.classList.remove('modal-open');
+  }, [isOpen]);
 
   if (typeof document === 'undefined') {
     return null;
@@ -85,7 +95,7 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
   return createPortal(
     <div className={`z-${zIndex} modal-wrapper`}>
       <div className="modal-position">
-        <div className={`modal ${className} z-${zIndex + 10}`}>
+        <div className={`modal ${className} z-${zIndex + 60}`}>
           <div className="flex justify-between items-center mb-2">
             <div className={`modal-icon ${getTypeIconClasses()} `}>
               {getIcon()}
@@ -96,7 +106,9 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
           </div>
 
           <h4 className="text-quote text-font-primary">{title}</h4>
-          <p className="text-small text-grey-700 mb-6">{description}</p>
+          <p className="text-small text-grey-700 mb-6 min-h-[40px]">
+            {description}
+          </p>
           <Button onClick={onBtnClick}>{getBtnText()}</Button>
           {children}
         </div>

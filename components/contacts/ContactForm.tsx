@@ -6,11 +6,15 @@ import Input from '../shared/Input';
 import { useState } from 'react';
 import Modal from '../shared/Modal';
 import TextArea from '../shared/TextArea';
-import { emailValidation, phoneValidation } from '@/utils/validation';
+import {
+  emailValidation,
+  nameValidation,
+  phoneValidation,
+} from '@/utils/validation';
 
 const validationSchema = Yup.object({
   email: emailValidation,
-  name: Yup.string().required('Name field cannot be empty'),
+  name: nameValidation,
   tel: phoneValidation,
 });
 

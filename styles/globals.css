@@ -175,6 +175,9 @@ body {
   .modal-icon {
     @apply w-[48px] h-[48px] rounded-full flex items-center justify-center border-8;
   }
+  .modal-open .header-position {
+    z-index: 0;
+  }
 
   /* Contacts */
 
