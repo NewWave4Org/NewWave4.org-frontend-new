@@ -20,8 +20,8 @@ const AboutPage = () => {
     <div>
       <Hero data={heroData} />
       <OurMission />
-      <Team />
       <DetailedTextInformation text={detailed_text_information} />
+      <Team />
       <HistoryCard data={commonData[locale].history_card} />
       <HistoryFormation data={commonData[locale].history_formation} />
       <Sponsors />
