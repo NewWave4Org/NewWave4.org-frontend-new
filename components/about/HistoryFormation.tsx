@@ -4,7 +4,7 @@ const HistoryFormation = ({ data } : { data: { title: string, timeline: { date :
   return (
     <section className='history-formation py-14 bg-background-secondary'>
       <div className="history-formation__inner">
-        <h4 className="preheader mb-10 text-center md:text-left container px-4 mx-auto">{data.title}</h4>
+        <h4 className="preheader mb-10 text-center md:text-left container px-4 mx-auto !text-font-primary">{data.title}</h4>
         <div className="history-formation__timeline mx-auto w-full md:py-[174px]">
             <div className="history-formation__timeline-dates bg-grey-50 w-full md:h-[180px] py-4 md:py-0">
               <div className="container md:flex justify-between mx-auto px-4">
