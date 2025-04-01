@@ -6,7 +6,7 @@ const NewsEvents = ({textLink="Всі новини", link="/news", titleEvents="
   return (
     <section className="news-section">
       <div className="container mx-auto px-4">
-        <h4 className="preheader">{titleEvents}</h4>
+        <h4 className="preheader !text-font-primary">{titleEvents}</h4>
       </div>
       <div>
         <Tabs>
