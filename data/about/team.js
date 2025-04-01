@@ -41,19 +41,19 @@ const teamData = {
         }
       },
       {
-        name: "Iryna Rozdolska",
-        img: `${prefix}/team/iryna-rozdolska.png`,
-        position: "PR Director",
-        location: "Staten Island, NY",
+        name: "Olga Hrynyk",
+        img: `${prefix}/team/olga-hrynyk.png`,
+        position: "Head of Brooklyn Department",
+        location: "Brooklyn, NY",
         social: {
           facebook: "https://www.facebook.com",
         }
       },
       {
-        name: "Olga Hrynyk",
-        img: `${prefix}/team/olga-hrynyk.png`,
-        position: "Head of Brooklyn Department",
-        location: "Brooklyn, NY",
+        name: "Iryna Rozdolska",
+        img: `${prefix}/team/iryna-rozdolska.png`,
+        position: "PR Director",
+        location: "Staten Island, NY",
         social: {
           facebook: "https://www.facebook.com",
         }
