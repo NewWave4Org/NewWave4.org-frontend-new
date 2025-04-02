@@ -38,11 +38,13 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add('modal-open');
+      document.body.classList.add('overflow-hidden');
     } else {
-      document.body.classList.remove('modal-open');
+      document.body.classList.remove('modal-open', 'overflow-hidden');
     }
 
-    return () => document.body.classList.remove('modal-open');
+    return () =>
+      document.body.classList.remove('modal-open', 'overflow-hidden');
   }, [isOpen]);
 
   if (typeof document === 'undefined') {
