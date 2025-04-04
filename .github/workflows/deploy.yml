@@ -49,4 +49,4 @@ jobs:
             --namespace ${{ env.NAMESPACE }} \
             --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
             --set image.tag=${{ github.sha }} \
-            --set imagePullSecrets[0]=ghcr-regcred
+            --set imagePullSecrets[0].name=ghcr-regcredd
