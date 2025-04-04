@@ -12,6 +12,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   onIconClick?: () => void;
   required?: boolean;
   validationText?: string;
+  classname?: string;
   state?:
     | 'default'
     | 'hover'
@@ -32,6 +33,7 @@ const Input: React.FC<InputProps> = ({
   onIconClick,
   required = false,
   validationText = '',
+  className,
   state = 'default',
   ...props
 }) => {
@@ -84,10 +86,11 @@ const Input: React.FC<InputProps> = ({
           value={value}
           maxLength={maxLength}
           onChange={onChange}
-          className={`w-full h-[56px] p-4 text-medium2 text-font-primary rounded-lg border-0 ring ${getStateClasses()} 
-          focus:outline-none focus:ring-2 
+          className={`${className}  w-[264px] h-[56px] p-4 text-medium2 text-font-primary rounded-lg border-0 ring ${getStateClasses()} 
+          focus:outline-none focus:ring-2 focus:ring-status-info-500        
           hover:ring-2 hover:ring-grey-600
-          active:ring-status-info-500`}
+          active:ring-status-info-500 bg-transparent
+          ${validationText && 'ring-status-danger-500'}`}
           disabled={state === 'disabled'}
           {...props}
         />
@@ -101,7 +104,7 @@ const Input: React.FC<InputProps> = ({
         )}
       </div>
       {validationText && (
-        <p className={`text-small2 mt-2 text-status-danger-500`}>
+        <p className={`text-small2 mt-[4px] text-status-danger-500`}>
           {validationText}
         </p>
       )}

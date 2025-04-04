@@ -6,8 +6,8 @@ const JoinCommunity = () => {
 
   return (
     <section className="our-mission py-14 my-20 bg-background-secondary">
-      <section className="container mx-auto px-4">
-        <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto">{data.title}</h4>
+      <div className="container mx-auto px-4">
+        <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto !text-font-primary">{data.title}</h4>
         <div className="flex flex-col items-top gap-6 lg:flex-row lg:justify-between">
           {data.items.map((item, i) => {
             return (
@@ -20,7 +20,7 @@ const JoinCommunity = () => {
               </div>
           );})}
         </div>
-      </section>
+      </div>
     </section>
   );
 };
