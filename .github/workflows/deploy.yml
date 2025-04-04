@@ -6,7 +6,7 @@ on:
       namespace:
         description: 'Kubernetes namespace to deploy into'
         required: true
-        default: 'staging'  # Change manually to, e.g., 'production' when needed
+        default: 'staging'
 
 jobs:
   deploy:
