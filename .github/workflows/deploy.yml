@@ -21,6 +21,10 @@ jobs:
       - name: Set Org Lowercase
         run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
+      - name: Debug Kubeconfig
+        run: |
+          cat ~/.kube/config
+
       - name: Set up Kubeconfig
         run: |
           mkdir -p ~/.kube
