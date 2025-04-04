@@ -1,0 +1,48 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Kubernetes namespace to deploy into'
+        required: true
+        default: 'staging'  # Change manually to, e.g., 'production' when needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging  # This sets the GitHub Environment. Use 'production' here for production.
+    env:
+      NAMESPACE: ${{ github.event.inputs.namespace }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Org Lowercase
+        run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      - name: Create Docker Registry Secret
+        run: |
+          kubectl create secret docker-registry ghcr-regcred \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.repository_owner }} \
+            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --docker-email=rozdolskyvolodymyr@gmail.com \
+            --namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Helm Upgrade/Install
+        run: |
+          helm upgrade --install newwave4-frontend ./helm/frontend-chart \
+            --namespace ${{ env.NAMESPACE }} \
+            --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
+            --set image.tag=${{ github.sha }} \
+            --set imagePullSecrets[0]=ghcr-regcred
