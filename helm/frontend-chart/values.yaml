@@ -33,7 +33,7 @@ securityContext:
    capabilities:
      drop:
      - ALL
-   readOnlyRootFilesystem: true
+   readOnlyRootFilesystem: false
    runAsNonRoot: true
    runAsUser: 1000
 
@@ -59,10 +59,10 @@ ingress:
 resources:
    limits:
      cpu: 150m
-     memory: 156Mi
+     memory: 184Mi
    requests:
      cpu: 150m
-   memory: 156Mi
+   memory: 184Mi
 
 #livenessProbe:
 #  httpGet:
@@ -86,3 +86,11 @@ nodeSelector:
 tolerations: []
 
 affinity: {}
+# Mount a writable volume for Nginx cache (if your chart supports extraVolumes and extraVolumeMounts)
+extraVolumes:
+  - name: nginx-cache
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: nginx-cache
+    mountPath: /var/cache/nginx
