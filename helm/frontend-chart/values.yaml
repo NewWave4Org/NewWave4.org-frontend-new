@@ -30,12 +30,12 @@ podSecurityContext:
   fsGroup: 2000
 
 securityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: false
-   runAsNonRoot: true
-   runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
 
 service:
   type: ClusterIP
@@ -57,12 +57,12 @@ ingress:
         - new.newwave4.org
 
 resources:
-   limits:
-     cpu: 150m
-     memory: 184Mi
-   requests:
-     cpu: 150m
-   memory: 184Mi
+  limits:
+    cpu: 150m
+    memory: 156Mi
+  requests:
+    cpu: 150m
+    memory: 156Mi
 
 #livenessProbe:
 #  httpGet:
@@ -79,18 +79,18 @@ autoscaling:
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 
-
 nodeSelector:
   kubernetes.io/hostname: newwave4org-node01
 
 tolerations: []
 
 affinity: {}
-# Mount a writable volume for Nginx cache (if your chart supports extraVolumes and extraVolumeMounts)
-extraVolumes:
+
+# Add a writable volume for nginx cache
+volumes:
   - name: nginx-cache
     emptyDir: {}
 
-extraVolumeMounts:
+volumeMounts:
   - name: nginx-cache
     mountPath: /var/cache/nginx
