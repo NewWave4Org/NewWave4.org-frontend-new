@@ -14,8 +14,8 @@ imagePullSecrets:
   - name: ghcr-regcred
 
 # Override chart name if needed.
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "newwave4-frontend"
+fullnameOverride: "newwave4-frontend"
 
 serviceAccount:
   create: true
@@ -58,11 +58,11 @@ ingress:
 
 resources:
    limits:
-     cpu: 100m
-     memory: 128Mi
+     cpu: 150m
+     memory: 156Mi
    requests:
-     cpu: 100m
-   memory: 128Mi
+     cpu: 150m
+   memory: 156Mi
 
 #livenessProbe:
 #  httpGet:
