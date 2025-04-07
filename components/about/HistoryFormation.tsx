@@ -15,7 +15,7 @@ const HistoryFormation = ({ data } : { data: { title: string, timeline: { date :
                     <div className="history-formation__timeline-date">{event.date}</div>
                     <div className={`history-formation__timeline-info text-center md:text-left md:absolute w-full flex items-start flex-col md:min-h-[96px] md:min-h-[140px] md:w-[170px] ${index == 5 ? "-left-[50px]" : "left-0"} ${index % 2 === 0 ? "-top-[180px]" : "-bottom-[180px]"} ${index < 3 ? "lg:left-[70px]" : "md:right-0"}`}>
                       <h4 className="text-xl font-semibold text-font-primary mb-4">{event.title}</h4>
-                      <p className="text-base text-font-primary w-full leading-[1.5] font-normal">{event.text}</p>
+                      <p className="text-base text-font-primary w-full leading-[1.5] font-normal min-h-[96px] font-helv">{event.text}</p>
                     </div>
                   </div>
                 ))}

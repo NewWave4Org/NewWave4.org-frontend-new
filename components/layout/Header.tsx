@@ -46,7 +46,7 @@ const Header = () => {
                 <Menu />
               </div>
               <div className="flex items-center lg:order-2 gap-x-4">
-                <button type="button" className="language-btn">
+                <button type="button" className="language-btn bg-white/60 rounded-lg">
                   UA
                   <ArrowDown4Icon size="16" color="#0F1B40" />
                 </button>

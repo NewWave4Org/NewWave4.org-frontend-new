@@ -52,10 +52,10 @@ body {
     @apply fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6;
   }
   .donate-btn {
-    @apply bg-buttons-cta-active hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white text-medium1 text-font-primary font-helv rounded-lg px-6 py-4;
+    @apply bg-buttons-cta-active hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white text-medium1 text-font-primary font-helv rounded-lg px-[84.5px] py-4;
   }
   .language-btn {
-    @apply text-font-primary inline-flex w-full items-center gap-x-2 px-4 py-2 text-sm font-helv text-medium1;
+    @apply text-font-primary inline-flex w-full items-center gap-x-2 p-4 text-sm font-helv text-medium1;
   }
   .headerMobile {
     @apply hidden
