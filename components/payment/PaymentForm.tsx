@@ -12,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import CopyText from '../shared/CopyText';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -107,32 +106,34 @@ const PaymentForm = () => {
                 options={purposeOptions}
               />
 
-              {showComment && (
-                <TextArea
-                  id="comment"
-                  label="Текст повідомлення"
-                  maxLength={200}
-                  value={values.comment}
-                  onChange={handleChange}
-                  className="w-[347px] h-[100px]"
-                />
-              )}
+              <div className="mt-[16px]">
+                {showComment && (
+                  <TextArea
+                    id="comment"
+                    label="Текст повідомлення"
+                    maxLength={200}
+                    value={values.comment}
+                    onChange={handleChange}
+                    className="w-[347px] h-[80px]"
+                  />
+                )}
 
-              <Button
-                variant="tertiary"
-                size="small"
-                type="button"
-                onClick={() => setShowComment(!showComment)}
-              >
-                {showComment ? 'Сховати коментар' : 'Залишити коментар'}
-              </Button>
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  type="button"
+                  onClick={() => setShowComment(!showComment)}
+                >
+                  {showComment ? 'Сховати коментар' : 'Залишити коментар'}
+                </Button>
+              </div>
             </div>
           </div>
           <div className="w-[506px] flex flex-col gap-y-[32px]">
             <div className="flex flex-col gap-y-[24px]">
-              <h4 className="text-h4 text-font-primary font-ebGaramond">
+              <h4 className="text-h5 text-font-primary font-ebGaramond">
                 Будь ласка оберіть спосіб внесення донату
-                <span className="text-status-danger-500 text-body font-poppins">
+                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] ">
                   {' '}
                   *
                 </span>
@@ -183,66 +184,6 @@ const PaymentForm = () => {
                   />
                 </div>
 
-                <RadioButton
-                  label="Показати банківський рахунок"
-                  name="paymentMethod"
-                  value="card"
-                  onChange={() => setFieldValue('paymentMethod', 'card')}
-                  checked={values.paymentMethod === 'card'}
-                  error={
-                    touched.paymentMethod && errors.paymentMethod
-                      ? errors.paymentMethod
-                      : undefined
-                  }
-                />
-                {values.paymentMethod === 'card' && (
-                  <div className="flex flex-col gap-y-2 text-body text-font-primary">
-                    <p>
-                      <span className="font-medium">
-                        Ukrainian National Federal Credit Union
-                      </span>
-                      <br />
-                      1678 East 1678 East 17th Street, Brooklyn, NY 11229
-                      <br />
-                      Ukrainian New Wave Corp
-                    </p>
-                    <div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">
-                          Routing Number:
-                        </span>
-                        <CopyText text="226078544" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">
-                          Account Number:
-                        </span>
-                        <CopyText text="13680184160158" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">Memo:</span>
-                        <CopyText text="Help Ukraine" />
-                      </div>
-                    </div>
-                    <p>Wire to: TD Bank, N.A., Wilmington, Delaware</p>
-                    <div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">ABA:</span>
-                        <CopyText text="0311-0126-6" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">Credit to:</span>
-                        <CopyText text="4330409205" />
-                      </div>
-                    </div>
-                    <p>
-                      Ukrainian New Wave Corp
-                      <br />
-                      12 Rome Avenue Staten Island, NY 10304
-                    </p>
-                  </div>
-                )}
-
                 {touched.paymentMethod && errors.paymentMethod && (
                   <p className="text-status-danger-500 text-small2">
                     {errors.paymentMethod}
@@ -272,22 +213,10 @@ const PaymentForm = () => {
                   Відмінити та повернутися на сторінку
                 </Button>
               </div>
-              {values.paymentMethod === 'card' ? (
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => {
-                    resetForm();
-                    router.push('/donation/finish');
-                  }}
-                >
-                  Завершено
-                </Button>
-              ) : (
-                <Button variant="primary" type="submit">
-                  Donate
-                </Button>
-              )}
+
+              <Button variant="primary" type="submit">
+                Donate
+              </Button>
             </div>
           </div>
         </Form>
