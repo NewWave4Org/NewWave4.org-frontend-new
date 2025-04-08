@@ -130,9 +130,9 @@ const PaymentForm = () => {
           </div>
           <div className="w-[506px] flex flex-col gap-y-[32px]">
             <div className="flex flex-col gap-y-[24px]">
-              <h4 className="text-h4 text-font-primary font-ebGaramond">
+              <h4 className="text-h5 text-font-primary font-ebGaramond">
                 Будь ласка оберіть спосіб внесення донату
-                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-6px] ">
+                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] ">
                   {' '}
                   *
                 </span>
