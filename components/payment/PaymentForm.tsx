@@ -107,25 +107,27 @@ const PaymentForm = () => {
                 options={purposeOptions}
               />
 
-              {showComment && (
-                <TextArea
-                  id="comment"
-                  label="Текст повідомлення"
-                  maxLength={200}
-                  value={values.comment}
-                  onChange={handleChange}
-                  className="w-[347px] h-[80px]"
-                />
-              )}
+              <div className="mt-[16px]">
+                {showComment && (
+                  <TextArea
+                    id="comment"
+                    label="Текст повідомлення"
+                    maxLength={200}
+                    value={values.comment}
+                    onChange={handleChange}
+                    className="w-[347px] h-[80px]"
+                  />
+                )}
 
-              <Button
-                variant="tertiary"
-                size="small"
-                type="button"
-                onClick={() => setShowComment(!showComment)}
-              >
-                {showComment ? 'Сховати коментар' : 'Залишити коментар'}
-              </Button>
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  type="button"
+                  onClick={() => setShowComment(!showComment)}
+                >
+                  {showComment ? 'Сховати коментар' : 'Залишити коментар'}
+                </Button>
+              </div>
             </div>
           </div>
           <div className="w-[506px] flex flex-col gap-y-[32px]">
