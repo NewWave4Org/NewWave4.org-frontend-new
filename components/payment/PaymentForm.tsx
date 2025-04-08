@@ -114,7 +114,7 @@ const PaymentForm = () => {
                   maxLength={200}
                   value={values.comment}
                   onChange={handleChange}
-                  className="w-[347px] h-[100px]"
+                  className="w-[347px] h-[80px]"
                 />
               )}
 
