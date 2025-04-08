@@ -12,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import CopyText from '../shared/CopyText';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -185,66 +184,6 @@ const PaymentForm = () => {
                   />
                 </div>
 
-                <RadioButton
-                  label="Показати банківський рахунок"
-                  name="paymentMethod"
-                  value="card"
-                  onChange={() => setFieldValue('paymentMethod', 'card')}
-                  checked={values.paymentMethod === 'card'}
-                  error={
-                    touched.paymentMethod && errors.paymentMethod
-                      ? errors.paymentMethod
-                      : undefined
-                  }
-                />
-                {values.paymentMethod === 'card' && (
-                  <div className="flex flex-col gap-y-2 text-body text-font-primary">
-                    <p>
-                      <span className="font-medium">
-                        Ukrainian National Federal Credit Union
-                      </span>
-                      <br />
-                      1678 East 1678 East 17th Street, Brooklyn, NY 11229
-                      <br />
-                      Ukrainian New Wave Corp
-                    </p>
-                    <div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">
-                          Routing Number:
-                        </span>
-                        <CopyText text="226078544" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">
-                          Account Number:
-                        </span>
-                        <CopyText text="13680184160158" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">Memo:</span>
-                        <CopyText text="Help Ukraine" />
-                      </div>
-                    </div>
-                    <p>Wire to: TD Bank, N.A., Wilmington, Delaware</p>
-                    <div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">ABA:</span>
-                        <CopyText text="0311-0126-6" />
-                      </div>
-                      <div className="h-[24px]">
-                        <span className="font-medium pr-[8px]">Credit to:</span>
-                        <CopyText text="4330409205" />
-                      </div>
-                    </div>
-                    <p>
-                      Ukrainian New Wave Corp
-                      <br />
-                      12 Rome Avenue Staten Island, NY 10304
-                    </p>
-                  </div>
-                )}
-
                 {touched.paymentMethod && errors.paymentMethod && (
                   <p className="text-status-danger-500 text-small2">
                     {errors.paymentMethod}
@@ -274,22 +213,10 @@ const PaymentForm = () => {
                   Відмінити та повернутися на сторінку
                 </Button>
               </div>
-              {values.paymentMethod === 'card' ? (
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => {
-                    resetForm();
-                    router.push('/donation/finish');
-                  }}
-                >
-                  Завершено
-                </Button>
-              ) : (
-                <Button variant="primary" type="submit">
-                  Donate
-                </Button>
-              )}
+
+              <Button variant="primary" type="submit">
+                Donate
+              </Button>
             </div>
           </div>
         </Form>
