@@ -5,19 +5,16 @@ import EmblaCarousel from '@/components/ui/EmblaCarousel';
 const HistoryCard = ({ data } : { data: {title: string, card: {carousel : string[], title: string, items: string[]}}}) => {
 
     const slides = data.card.carousel.map((url, i) => {
-
-    // todo: remove condition when images will be added.
-
-    return (
-      <Image 
-        key={i}
-        src={i == 0 ? url : `https://picsum.photos/600/350?v=${i}`} 
-        alt={data.card.title} 
-        width={718} 
-        height={524}
-        className="rounded-xl object-cover w-full h-[200px] embla__slide__img md:h-[524px] md:w-[718px]"
-      />
-    );
+      return (
+        <Image 
+          key={i}
+          src={url}
+          alt={data.card.title} 
+          width={718} 
+          height={524}
+          className="rounded-xl object-cover w-full h-[200px] embla__slide__img md:h-[524px] md:w-[718px]"
+        />
+      );
   });
 
   return (
