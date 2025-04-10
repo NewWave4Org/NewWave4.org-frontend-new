@@ -73,10 +73,7 @@ const Input: React.FC<InputProps> = ({
         >
           {label}
           {required && (
-            <span className="text-status-danger-500 text-body font-poppins">
-              {' '}
-              *
-            </span>
+            <span className="text-status-danger-500 text-body"> *</span>
           )}
         </label>
       )}
