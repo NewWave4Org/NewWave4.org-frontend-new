@@ -3,7 +3,7 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Option {
   value: string;
@@ -33,6 +33,16 @@ const Select: React.FC<SelectProps> = ({
     options.find(o => o.value === field.value) || null,
   );
   const selectRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      dropdownRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [isOpen]);
 
   const handleBlur = (e: React.FocusEvent) => {
     if (!selectRef.current?.contains(e.relatedTarget as Node)) {
@@ -60,10 +70,7 @@ const Select: React.FC<SelectProps> = ({
         >
           {label}
           {required && (
-            <span className="text-status-danger-500 text-body font-poppins">
-              {' '}
-              *
-            </span>
+            <span className="text-status-danger-500 text-body"> *</span>
           )}
         </label>
       )}
@@ -87,7 +94,10 @@ const Select: React.FC<SelectProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom">
+          <div
+            ref={dropdownRef}
+            className="absolute z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom"
+          >
             {options.map(option => (
               <div
                 key={option.value}
@@ -114,6 +124,8 @@ const Select: React.FC<SelectProps> = ({
           />
         )}
       </div>
+
+      {isOpen && <div style={{ height: '220px' }} />}
 
       {meta.touched && meta.error && (
         <p className={`text-small2 mt-[4px] text-status-danger-500`}>

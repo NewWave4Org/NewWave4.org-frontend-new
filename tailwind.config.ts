@@ -13,7 +13,6 @@ export default {
       fontFamily: {
         helv: ['var(--font-helv)'],
         ebGaramond: ['var(--font-ebGaramond)'],
-        poppins: ['var(--font-poppins)']
       },
       fontSize: {
         h1: [
