@@ -5,10 +5,8 @@
 replicaCount: 1
 
 image:
-  # Replace "yourorg" with your actual GitHub organization name if desired.
   repository: "ghcr.io/newwave4org/newwave4-frontend"
   pullPolicy: IfNotPresent
-  # Default tag, override this with the commit SHA in your workflow
   tag: "latest"
 
 # Define imagePullSecrets to allow Kubernetes to pull from the private GitHub Packages registry.
@@ -16,84 +14,87 @@ imagePullSecrets:
   - name: ghcr-regcred
 
 # Override chart name if needed.
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "newwave4-frontend"
+fullnameOverride: "newwave4-frontend"
 
 serviceAccount:
   create: true
-  automount: true
+  automount: false
   annotations: {}
-  name: ""
+  name: "frontend-sa"
 
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
-# fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-# runAsUser: 1000
+#podSecurityContext:
+#  fsGroup: 2000
+#
+#securityContext:
+#  capabilities:
+#    drop:
+#      - ALL
+#  readOnlyRootFilesystem: true
+#  runAsNonRoot: true
+#  runAsUser: 1000
 
 service:
   type: ClusterIP
   port: 80
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # Example:
-    # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
   hosts:
-    - host: chart-example.local
+    - host: new.newwave4.org
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+    - secretName: frontend-tls-certificate
+      hosts:
+        - new.newwave4.org
 
-resources: {}
-  # Uncomment and adjust if you want to set default resource requests and limits.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-#   memory: 128Mi
+resources:
+  limits:
+    cpu: 150m
+    memory: 156Mi
+  requests:
+    cpu: 150m
+    memory: 156Mi
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+#livenessProbe:
+#  httpGet:
+#    path: /
+#    port: http
+#readinessProbe:
+#  httpGet:
+#    path: /
+#    port: http
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
+nodeSelector:
+  kubernetes.io/hostname: newwave4org-node01
 
 tolerations: []
 
 affinity: {}
+
+# Writable volume for Nginx cache
+volumes:
+  - name: nginx-cache
+    emptyDir: {}
+  - name: nginx-run
+    emptyDir: {}
+
+volumeMounts:
+  - name: nginx-cache
+    mountPath: /var/cache/nginx
+  - name: nginx-run
+    mountPath: /var/run
