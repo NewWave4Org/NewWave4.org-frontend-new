@@ -22,31 +22,31 @@ const LogInInnerForm = (props: FormikProps<FormValues>) => {
   return (
     <Form action="">
       <div className="mb-5">
-        <label htmlFor="email" className="flex items-center text-xl mb-5 text-[#2A4365]">
+        <label htmlFor="email" className="flex items-center text-xl mb-5 text-admin-700">
           <span className="mr-[10px]"><EmailIcon /></span> 
           Email address
         </label>
-        <Field id="email" name="email" type="email" className="bg-[#EDF2F7] w-full h-[70px] px-5 rounded-lg" />
+        <Field id="email" name="email" type="email" className="bg-background-light w-full h-[70px] px-5 rounded-lg" />
         {touched.email && errors.email && (
           <div className="text-red-500 mt-2 text-sm">{errors.email}</div>
         )}
       </div>
       <div className="mb-5">
-        <label htmlFor="password" className="flex items-center text-xl mb-5 text-[#2A4365]">
+        <label htmlFor="password" className="flex items-center text-xl mb-5 text-admin-700">
           <span className="mr-[10px]"><LockIcon /></span> 
           Password
         </label>
-        <Field id="password" name="password" type="password" className="bg-[#EDF2F7] w-full h-[70px] px-5 rounded-lg" />
+        <Field id="password" name="password" type="password" className="bg-background-light w-full h-[70px] px-5 rounded-lg" />
         {touched.password && errors.password && (
           <div className="text-red-500 mt-2 text-sm">{errors.password}</div>
         )}
       </div>
       <div className="mt-[40px] flex items-center justify-between">
         <div>
-          <Link href="/admin/resetPassword" className="color=[#3182CE] text-xl">Forgot password?</Link>
+          <Link href="/admin/resetPassword" className="text-admin-600 text-xl">Forgot password?</Link>
         </div>
         <div className="w-[200px]">
-          <button type="submit" disabled={isSubmitting} className="bg-[#2A4365] text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500">Sign in</button>
+          <button type="submit" disabled={isSubmitting} className="bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500">Sign in</button>
         </div>
       </div>
     </Form>

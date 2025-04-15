@@ -24,9 +24,9 @@ export default function AdminLayout({
       <body
         className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen`}
       >
-
-        <main className="flex-1 overflow-hidden">{children}</main>
-
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
       </body>
     </html>
   );
