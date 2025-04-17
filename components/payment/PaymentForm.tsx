@@ -16,7 +16,7 @@ import { prefix } from '@/utils/prefix';
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
   { value: '2', label: 'Школа Українознавства "Нова хвилька"' },
-  { value: '3', label: 'Проект "Мистецтво і перемога"' },
+  { value: '3', label: 'Проєкт "Мистецтво і перемога"' },
   { value: '4', label: 'Інші Програми' },
 ];
 
@@ -114,7 +114,7 @@ const PaymentForm = () => {
                     maxLength={200}
                     value={values.comment}
                     onChange={handleChange}
-                    className="w-[347px] h-[80px]"
+                    className="w-[357px] h-[80px]"
                   />
                 )}
 

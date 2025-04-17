@@ -26,6 +26,10 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
+      - name: Debug Kubeconfig
+        run: |
+          cat ~/.kube/config
+
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -35,7 +39,7 @@ jobs:
           kubectl create secret docker-registry ghcr-regcred \
             --docker-server=ghcr.io \
             --docker-username=${{ github.repository_owner }} \
-            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --docker-password=${{ secrets.GHCR_PAT }} \
             --docker-email=rozdolskyvolodymyr@gmail.com \
             --namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
 
@@ -45,4 +49,4 @@ jobs:
             --namespace ${{ env.NAMESPACE }} \
             --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
             --set image.tag=${{ github.sha }} \
-            --set imagePullSecrets[0]=ghcr-regcred
+            --set imagePullSecrets[0].name=ghcr-regcred
