@@ -29,3 +29,6 @@ body {
     transition: background-color 5000s ease-in-out 0s;
   }
 }
+.activeStyle {
+  font-weight: 900;
+}

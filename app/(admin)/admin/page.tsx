@@ -46,7 +46,10 @@ const LogInInnerForm = (props: FormikProps<FormValues>) => {
           <Link href="/admin/resetPassword" className="text-admin-600 text-xl">Forgot password?</Link>
         </div>
         <div className="w-[200px]">
-          <button type="submit" disabled={isSubmitting} className="bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500">Sign in</button>
+          <button type="submit" disabled={isSubmitting} 
+            className="bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500">
+              Sign in
+          </button>
         </div>
       </div>
     </Form>

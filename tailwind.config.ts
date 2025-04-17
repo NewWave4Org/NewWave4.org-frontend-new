@@ -162,6 +162,7 @@ export default {
           400: '#5A7CC0',
           500: '#3D5EA7',
           700: '#1E3770',
+          800: '#2C5282',
         },
         accent: {
           300: '#FEEB93',
@@ -170,8 +171,10 @@ export default {
         },
         admin: {
           100: '#F7FAFC',
+          300: '#E2E8F0',
           600: '#3182CE',
           700: '#2A4365',
+          red: '#FC8181',
         },
         font: {
           primary: '#0F1B40',
@@ -223,6 +226,8 @@ export default {
           secondary: '#EEE2D7',
           light: '#EDF2F7',
           darkBlue: '#2A4365',
+          darkBlue800: '#2D3748',
+          darkBlue800_2: '#2C5282',
         },
         foreground: 'var(--foreground)',
       },
