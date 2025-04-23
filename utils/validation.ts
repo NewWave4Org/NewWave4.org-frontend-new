@@ -9,4 +9,4 @@ export const emailValidation = Yup.string()
 
 export const phoneValidation = Yup.string().matches(/^\+?[0-9()\-\s]{6,20}$/, 'Invalid phone');
 
-export const nameValidation = Yup.string().required('Name field cannot be empty').min(2, 'Invalid name').matches(/^[^\d!@#$%^&*()_+={}[\]:;"'<>,.?/~`|-]+$/, 'Invalid name');
+export const nameValidation = Yup.string().required('Name field cannot be empty').min(2, 'Invalid name').matches(/^[^\d!@#$%^&*()_+={}[\]:;"<>,.?/~|]+$/, 'Invalid name');
