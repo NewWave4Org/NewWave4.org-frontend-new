@@ -19,7 +19,9 @@ const PaymentErrorPage = () => {
           />
           <div className="flex flex-col gap-y-[32px] justify-center items-center mx-auto">
             <div className="flex flex-col gap-y-[16px] justify-center items-center mx-auto">
-              <h2 className="text-h3 text-font-primary">Оплата не завершена</h2>
+              <h2 className="text-h3 text-font-primary font-ebGaramond">
+                Оплата не завершена
+              </h2>
               <p className="text-body text-font-primary">
                 На жаль, щось пішло не так, і платіж не було здійснено.
               </p>
