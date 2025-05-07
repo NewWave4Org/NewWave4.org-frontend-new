@@ -21,6 +21,8 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     | 'success'
     | 'error'
     | 'disabled';
+  labelIcon?: React.ReactNode,
+  labelClass?: string
 }
 
 const Input: React.FC<InputProps> = ({
@@ -35,6 +37,8 @@ const Input: React.FC<InputProps> = ({
   validationText = '',
   className,
   state = 'default',
+  labelIcon,
+  labelClass,
   ...props
 }) => {
   const getStateClasses = () => {
@@ -68,9 +72,17 @@ const Input: React.FC<InputProps> = ({
         <label
           htmlFor={id}
           className={`block text-medium2 mb-1 ${
-            state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
-          }`}
+              state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
+            }
+            ${labelIcon ? 'flex items-center' : ''}
+            ${labelClass}
+          `}
         >
+          {labelIcon && (
+            <span className="mr-[10px]">
+              {labelIcon}
+            </span>
+          )}
           {label}
           {required && (
             <span className="text-status-danger-500 text-body"> *</span>

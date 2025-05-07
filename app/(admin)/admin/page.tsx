@@ -3,9 +3,11 @@ import EmailIcon from "@/components/icons/symbolic/EmailIcon";
 import LockIcon from "@/components/icons/symbolic/LockIcon";
 import Logo from "@/components/layout/Logo";
 import * as Yup from 'yup';
-import { withFormik, FormikProps, Form, Field } from 'formik';
+import { withFormik, FormikProps, Form } from 'formik';
 import Link from "next/link";
 import { emailValidation, passwordValidation } from "@/utils/validation";
+import Button from "@/components/shared/Button";
+import Input from "@/components/shared/Input";
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -18,38 +20,53 @@ interface FormValues {
 }
 
 const LogInInnerForm = (props: FormikProps<FormValues>) => {
-  const { touched, errors, isSubmitting } = props;
+  const { touched, errors, isSubmitting, handleChange, values } = props;
   return (
     <Form action="">
       <div className="mb-5">
-        <label htmlFor="email" className="flex items-center text-xl mb-5 text-admin-700">
-          <span className="mr-[10px]"><EmailIcon /></span> 
-          Email address
-        </label>
-        <Field id="email" name="email" type="email" className="bg-background-light w-full h-[70px] px-5 rounded-lg" />
-        {touched.email && errors.email && (
-          <div className="text-red-500 mt-2 text-sm">{errors.email}</div>
-        )}
+        <Input
+          required
+          onChange={handleChange}
+          id="email"
+          name="email"
+          type="email"
+          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+          value={values.email}
+          label="Email address"
+          labelClass="text-xl mb-5 !text-admin-700"
+          labelIcon={<EmailIcon />}
+          validationText={touched.email && errors.email ? errors.email : ''}
+        />
       </div>
       <div className="mb-5">
-        <label htmlFor="password" className="flex items-center text-xl mb-5 text-admin-700">
-          <span className="mr-[10px]"><LockIcon /></span> 
-          Password
-        </label>
-        <Field id="password" name="password" type="password" className="bg-background-light w-full h-[70px] px-5 rounded-lg" />
-        {touched.password && errors.password && (
-          <div className="text-red-500 mt-2 text-sm">{errors.password}</div>
-        )}
+        <Input
+          required
+          onChange={handleChange}
+          id="password"
+          name="password"
+          type="password"
+          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+          label="Password"
+          labelIcon={<LockIcon />}
+          labelClass="text-xl mb-5 !text-admin-700"
+          value={values.password}
+          validationText={touched.password && errors.password ? errors.password : ''}
+        />
       </div>
       <div className="mt-[40px] flex items-center justify-between">
         <div>
-          <Link href="/admin/resetPassword" className="text-admin-600 text-xl">Forgot password?</Link>
+          <Link href="/admin/resetPassword" className="text-admin-600 text-xl">
+            Forgot password?
+          </Link>
         </div>
         <div className="w-[200px]">
-          <button type="submit" disabled={isSubmitting} 
-            className="bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500">
-              Sign in
-          </button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="!bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500"
+          >
+            Sign in
+          </Button>
         </div>
       </div>
     </Form>

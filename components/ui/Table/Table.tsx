@@ -18,7 +18,7 @@ const Table = <T, >({data, renderHeader, renderRow, className, classNameRow, emp
           )
           : (
             <tr className="h-[50px]">
-              <td>{emptyState}</td>
+              <td colSpan={100}>{emptyState}</td>
             </tr>
           )
         }
