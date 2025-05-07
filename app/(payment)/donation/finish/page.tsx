@@ -19,7 +19,7 @@ const FinishPage = () => {
           />
           <div className="flex flex-col gap-y-[32px] justify-center items-center mx-auto">
             <div className="flex flex-col gap-y-[16px] justify-center items-center mx-auto">
-              <h2 className="text-h3 text-font-primary">
+              <h2 className="text-h3 text-font-primary font-ebGaramond">
                 Дякуємо за вашу підтримку!
               </h2>
               <p className="text-body text-font-primary">
