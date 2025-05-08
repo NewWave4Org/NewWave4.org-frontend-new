@@ -59,5 +59,15 @@ body {
     @apply flex flex-col gap-y-4 text-large font-helv;
   }
 
+    /* Menu */
+
+    .menu-link {
+      @apply text-font-accent hover:text-font-secondary py-1;
+    }
+    .active-link {
+      @apply !text-font-secondary underline;
+    }
+  
+
     
 }
