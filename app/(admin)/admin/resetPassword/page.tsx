@@ -1,15 +1,15 @@
 'use client';
-import Logo from "@/components/layout/Logo";
+import React from 'react';
+import ResetPasswordForm from '@/components/admin/ResetPasswordForm/ResetPasswordForm';
+import { emailValidation } from '@/utils/validation';
 import * as Yup from 'yup';
-import { emailValidation, passwordValidation } from "@/utils/validation";
-import LogIn from "@/components/admin/LogIn/LogIn";
+import Logo from '@/components/layout/Logo';
 
 const validationSchema = Yup.object({
   email: emailValidation,
-  password: passwordValidation,
 });
 
-const AdminLogIn = () => {
+const ResetPassword = () => {
   return (
     <div className="adminLogIn py-[35px] flex items-center justify-center h-full overflow-auto">
       <div className="container mx-auto px-4">
@@ -18,7 +18,7 @@ const AdminLogIn = () => {
           <div className="mb-[52px] flex justify-center"><Logo /></div>
 
           <div className="adminLogIn__form p-[32px] bg-[#fff] rounded-[10px]">
-            <LogIn validationSchema={validationSchema} />
+            <ResetPasswordForm validationSchema={validationSchema} />
           </div>
         </div>
       </div>
@@ -26,4 +26,4 @@ const AdminLogIn = () => {
   );
 };
 
-export default AdminLogIn;
+export default ResetPassword;
