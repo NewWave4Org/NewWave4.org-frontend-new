@@ -10,7 +10,7 @@ const teamData = {
         position: "Vice President",
         location: "Pittsburgh, PA",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/bohdan.bohonok",
         }
       },
       {
@@ -19,7 +19,7 @@ const teamData = {
         position: "President",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/myroslava.rozdolska",
         }
       },
       {
@@ -28,7 +28,7 @@ const teamData = {
         position: "Vice President",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/lesya.zlupko",
         }
       },
       {
@@ -37,7 +37,7 @@ const teamData = {
         position: "Financial Adviser",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/anyashpook",
         }
       },
       {
@@ -55,7 +55,7 @@ const teamData = {
         position: "PR Director",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/iryna.borshchevskarozdolska",
         }
       },
       {
@@ -73,7 +73,7 @@ const teamData = {
         position: "Treasurer",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/zirusia.romanyuk",
         }
       }
     ]
@@ -87,7 +87,7 @@ const teamData = {
         position: "Vice President",
         location: "Pittsburgh, PA",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/bohdan.bohonok",
         }
       },
       {
@@ -96,7 +96,7 @@ const teamData = {
         position: "President",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/myroslava.rozdolska",
         }
       },
       {
@@ -105,7 +105,7 @@ const teamData = {
         position: "Vice President",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/lesya.zlupko",
         }
       },
       {
@@ -114,7 +114,7 @@ const teamData = {
         position: "Financial Adviser",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/anyashpook",
         }
       },
       {
@@ -132,7 +132,7 @@ const teamData = {
         position: "PR Director",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/iryna.borshchevskarozdolska",
         }
       },
       {
@@ -150,7 +150,7 @@ const teamData = {
         position: "Treasurer",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/zirusia.romanyuk",
         }
       }
     ]
