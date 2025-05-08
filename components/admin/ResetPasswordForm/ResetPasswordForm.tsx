@@ -53,11 +53,11 @@ const ResetPasswordForm = ({validationSchema}: IvalidationSchema) => {
               Back to Sign in
             </Link>
           </div>
-          <div className="w-[200px]">
+          <div className="w-[210px]">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="!bg-background-darkBlue text-white rounded-[5px] w-full text-xl p-4 hover:opacity-[0.8] duration-500"
+              className="!bg-background-darkBlue text-white w-full text-xl p-4 hover:opacity-[0.8] duration-500 !rounded-[5px] !h-[60px] font-normal"
             >
               Reset password
             </Button>

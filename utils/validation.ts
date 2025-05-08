@@ -20,3 +20,14 @@ export const nameValidation = Yup.string()
 export const passwordValidation = Yup.string().required(
   'Password field cannot be empty',
 );
+
+export const adminPassValidation = Yup.string()
+  .required('Password field cannot be empty')
+  .min(8, 'Password must be at least 8 characters long')
+  .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .matches(/\d/, 'Password must contain at least one number')
+  .matches(
+    /[@$!%*?&.,;:()[\]{}^#\-_=+\\|/~`]/,
+    'Password must contain at least one special character',
+  )
+  .matches(/^\S*$/, 'Password must not contain spaces');
