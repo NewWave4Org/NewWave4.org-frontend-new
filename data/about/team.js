@@ -5,7 +5,7 @@ const teamData = {
     title: "Наша команда",
     team: [
       {
-        name: "Bohdan Dohonok",
+        name: "Bohdan Bohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
         location: "Pittsburgh, PA",
@@ -41,7 +41,7 @@ const teamData = {
         }
       },
       {
-        name: "Olga Hrynyk",
+        name: "Olha Hrynyk",
         img: `${prefix}/team/olga-hrynyk.png`,
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
@@ -82,7 +82,7 @@ const teamData = {
     title: "Our team",
     team: [
       {
-        name: "Bohdan Dohonok",
+        name: "Bohdan Bohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
         location: "Pittsburgh, PA",
@@ -118,7 +118,7 @@ const teamData = {
         }
       },
       {
-        name: "Olga Hrynyk",
+        name: "Olha Hrynyk",
         img: `${prefix}/team/olga-hrynyk.png`,
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
