@@ -31,3 +31,7 @@ export const adminPassValidation = Yup.string()
     'Password must contain at least one special character',
   )
   .matches(/^\S*$/, 'Password must not contain spaces');
+
+export const adminRole = Yup.string().required(
+  'Password field cannot be empty',
+);

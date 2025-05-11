@@ -77,7 +77,6 @@ const Input: React.FC<InputProps> = ({
     setShowPassword(prev => !prev);
   };
 
-  console.log(props.type);
   return (
     <>
       {label && (
