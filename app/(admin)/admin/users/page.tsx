@@ -55,7 +55,7 @@ const Users = () => {
               <Button
                 variant="primary"
                 className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
-                onClick={() => dispatch(openModal(ModalType.CREATENEWUSER))}
+                onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
               >
                 <div className="mr-[12px]">
                   <UsersIcon color="#fff" />
