@@ -1,5 +1,6 @@
 import Logo from "@/components/layout/Logo";
 import DropDown from "@/components/shared/DropDown";
+import adminLink from "./enums/enum";
 
 
 const AdminHeader = () => {
@@ -10,12 +11,16 @@ const AdminHeader = () => {
           <Logo textColor="text-white" />
           <div>
             <DropDown
-              label="admin"
-              classNameBtn=""
+              renderBth={(isOpen, toggle) => (
+                <button onClick={toggle} >
+                  Admin
+                </button>
+              )}
               classNameItem=""
+              classNameMenu="right-0 w-[200px]"
               items={[
-                { label: "Профіль", href: "/profile", isLink: true },
-                { label: "Налаштування", href: "/settings", isLink: true },
+                { label: "Профіль", href: adminLink.PROFILE, isLink: true },
+                { label: "Налаштування", href: adminLink.SETTINGS, isLink: true },
                 { label: "Вихід" },
               ]}
             />

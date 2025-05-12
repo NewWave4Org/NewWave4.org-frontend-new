@@ -16,7 +16,6 @@ const DeleteUser = () => {
       <div>
         <Button
           type="submit"
-          disabled
           onClick={() => handleDeleteUser()}
           className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal w-full text-xl p-4 hover:opacity-[0.8] duration-500"
         >

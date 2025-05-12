@@ -89,7 +89,7 @@ const Users = () => {
                 <div className="tableActions flex justify-end">
                   <div className="flex gap-x-[40px]">
                     <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                      hover:bg-transparent active:bg-transparent active:text-admin-700"
+                      hover:bg-transparent active:bg-transparent active:!text-admin-700"
                       onClick={() => handleEdituser(user)}
                     >
                       <div className="mr-[10px]">
@@ -98,7 +98,7 @@ const Users = () => {
                       Edit
                     </Button>
                     <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                      hover:bg-transparent active:bg-transparent active:text-admin-700"
+                      hover:bg-transparent active:bg-transparent active:!text-admin-700"
                       onClick={() => handleDeleteUser(user)}
                     >
                       <div className="mr-[10px]">

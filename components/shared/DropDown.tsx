@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface DropDownItem {
   label: string;
@@ -14,42 +14,54 @@ interface DropDownProps {
   icon?: React.ReactNode;
   items?: DropDownItem[];
   placeholder?: string;
-  classNameBtn: string;
-  classNameItem: string;
+  classNameMenu?: string;
+  classNameItem?: string;
+  renderBth: (isOpen: boolean, toggle: () => void) => React.ReactNode;
 }
 
 const DropDown = ({
-  label,
   items,
   classNameItem,
-  classNameBtn,
-  icon,
+  classNameMenu,
+  renderBth
 }: DropDownProps) => {
-  const [selected, setSelected] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const dropDownRef = useRef<HTMLDivElement>(null);
 
-  function handleSelect(item: DropDownItem) {
-    setSelected(item.label);
+  function toggle() {
+    setIsOpen(prev => !prev);
+  }
+
+  function closeDropDown() {
     setIsOpen(false);
   }
 
+  useEffect(() => {
+    function handleClickOutSide(e: MouseEvent) {
+      if(dropDownRef.current && !dropDownRef.current.contains(e.target as Node)) {
+        closeDropDown();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutSide);
+
+    return() => document.removeEventListener('mousedown', handleClickOutSide);
+  });
+
   return (
-    <div>
-      <button onClick={() => setIsOpen(!isOpen)} className={classNameBtn}>
-        {icon && <span className="mr-1">{icon}</span>}
-        {selected || label}
-      </button>
+    <div className='relative' ref={dropDownRef}>
+      {renderBth(isOpen, toggle)}
 
       {isOpen && (
-        <div className="absolute z-10 mt-2 w-full bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn">
+        <div className={`absolute z-10 mt-2 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn ${classNameMenu}`}>
           {items?.map(item => (
             <div key={item.label} className={classNameItem}>
               {item.isLink && item.href ? (
-                <Link href={item.href} onClick={() => handleSelect(item)}>
+                <Link href={item.href} onClick={() => closeDropDown()} className='py-2 px-4 block border-b hover:text-admin-700'>
                   {item.label}
                 </Link>
               ) : (
-                <div onClick={() => handleSelect(item)}>{item.label}</div>
+                <div onClick={() => closeDropDown()} className='py-2 px-4 border-b hover:text-admin-700 cursor-pointer'>{item.label}</div>
               )}
             </div>
           ))}
