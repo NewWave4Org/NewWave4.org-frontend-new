@@ -7,12 +7,12 @@ const AdminHeader = () => {
   return (
     <div className="header bg-background-darkBlue800">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center px-2">
+        <div className="flex justify-between items-center py-2">
           <Logo textColor="text-white" />
           <div>
             <DropDown
               renderBth={(isOpen, toggle) => (
-                <button onClick={toggle} >
+                <button onClick={toggle} className="text-white">
                   Admin
                 </button>
               )}
