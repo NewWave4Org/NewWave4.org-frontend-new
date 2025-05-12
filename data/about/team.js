@@ -46,7 +46,7 @@ const teamData = {
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/profile.php?id=100003584783957",
         }
       },
       {
@@ -123,7 +123,7 @@ const teamData = {
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/profile.php?id=100003584783957",
         }
       },
       {

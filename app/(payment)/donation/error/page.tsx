@@ -28,6 +28,7 @@ const PaymentErrorPage = () => {
             </div>
             <div className="flex flex-col gap-y-[16px] justify-center items-center">
               <Button
+                className="leading-[1.3]"
                 variant="primary"
                 size="large"
                 onClick={() => router.push('/donation')}
