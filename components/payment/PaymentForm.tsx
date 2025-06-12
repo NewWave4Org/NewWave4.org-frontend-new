@@ -31,6 +31,12 @@ const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
   const router = useRouter();
 
+  const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
+    console.log(values);
+    setSubmitting(false);
+    resetForm();
+  }
+
   return (
     <Formik
       initialValues={{
@@ -41,10 +47,7 @@ const PaymentForm = () => {
         paymentMethod: '',
       }}
       validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting, resetForm }) => {
-        setSubmitting(false);
-        resetForm();
-      }}
+      onSubmit={handleSubmitPaymentForm}
     >
       {({
         touched,
