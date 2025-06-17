@@ -21,9 +21,7 @@ function PaypalComponent() {
 
   const onApprove = (data: any, actions: any) => {
     return actions.order.capture().then(function (details: any) {
-      console.log('Payment Approved: ', details);
       setIsPaymentApproved(true);
-      // Optional: Show success message or redirect
     });
   }
 

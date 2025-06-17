@@ -36,11 +36,8 @@ const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
   const [isPaypal, setIsPaypal] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const { isPaymentApproved, amount, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount } = usePaymentContext();
+  const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount } = usePaymentContext();
   const router = useRouter();
-  const query = useSearchParams();
-  const isStripePaymentsuccess = query.get('stripe-payment');
-
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
 
@@ -82,7 +79,6 @@ const PaymentForm = () => {
 
 
   const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
-    console.log(values);
     setAmount(values.amount);
     if (values.paymentMethod === 'paypal') {
       setIsPaypal(true);

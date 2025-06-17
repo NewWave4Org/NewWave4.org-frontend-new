@@ -1,32 +1,32 @@
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 interface IPaymentContext {
   isPaymentApproved: boolean;
-  setIsPaymentApproved: (value: any) => void;
+  setIsPaymentApproved: (value: boolean) => void;
   isPaymentError: boolean;
-  setIsPaymentError: (value: any) => void;
+  setIsPaymentError: (value: boolean) => void;
   amount: string;
-  setAmount: (value: any) => void;
+  setAmount: (value: string) => void;
   loading: boolean;
-  setLoading: (values: any) => void;
+  setLoading: (values: boolean) => void;
 }
 
 const initialValues: IPaymentContext = {
   isPaymentApproved: false,
-  setIsPaymentApproved: (value: any) => null,
+  setIsPaymentApproved: (value: boolean) => null,
   isPaymentError: false,
-  setIsPaymentError: (value: any) => null,
+  setIsPaymentError: (value: boolean) => null,
   amount: '',
-  setAmount: (value: any) => null,
+  setAmount: (value: string) => null,
   loading: false,
-  setLoading: (values: any) => null
+  setLoading: (values: boolean) => null
 };
 
 const PaymentContext = createContext(initialValues);
 
 export const usePaymentContext = () => useContext(PaymentContext);
 
-function PaymentContextAPI(props: any) {
+function PaymentContextAPI(props: React.PropsWithChildren<{}>) {
   const { children } = props;
 
   const [isPaymentApproved, setIsPaymentApproved] = useState<boolean>(false);
