@@ -1,4 +1,4 @@
-const HttpMethods = {
+const HttpMethod = {
   GET: 'GET',
   POST: 'POST',
   PUT: 'PUT',
@@ -6,6 +6,6 @@ const HttpMethods = {
   PATCH: 'PATCH',
 } as const;
 
-type HttpMethods = (typeof HttpMethods)[keyof typeof HttpMethods];
+type HttpMethod = (typeof HttpMethod)[keyof typeof HttpMethod];
 
-export default HttpMethods;
+export default HttpMethod;

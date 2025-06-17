@@ -5,6 +5,7 @@ import React, { ReactNode } from 'react';
 import AdminHeader from '@/components/layout/admin/adminHeader/AdminHeader';
 import AdminSidebar from '@/components/layout/admin/adminSidebar/AdminSidebar';
 import Modals from '@/components/admin/Modals/Modals';
+import Logo from '@/components/layout/Logo';
 
 
 type AdminPanelProps = {
@@ -16,7 +17,8 @@ const AdminPanel = ({children}: AdminPanelProps) => {
   return (
     <>
           <AdminHeader />
-          <main className="flex-1">
+          {/* if user if log in */}
+          {/* <main className="flex-1">
             <div className='flex h-full bg-white'>
               <div className='container mx-auto flex'>
                 <div className='admin-left bg-background-light  w-[300px]'>
@@ -31,9 +33,9 @@ const AdminPanel = ({children}: AdminPanelProps) => {
                 </div>
               </div>
             </div>
-          </main>
+          </main> */}
 
-          {/* <main className="flex-1">
+          <main className="flex-1">
             <div className="py-[35px] flex items-center justify-center h-full">
               <div className="container mx-auto px-4">
                 <div className="max-w-[500px] mx-auto">
@@ -47,7 +49,7 @@ const AdminPanel = ({children}: AdminPanelProps) => {
               </div>
             </div>
             
-          </main> */}
+          </main>
 
           <Modals />
     </>

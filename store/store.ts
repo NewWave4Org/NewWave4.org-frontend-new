@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import modalReducer from '@/components/ui/Modal/ModalSlice';
+import tokenReducer from '@/store/slices/tokenSlice';
 
 export const store = configureStore({
   reducer: {
     modal: modalReducer,
+    token: tokenReducer,
   },
 });
 
