@@ -2,16 +2,20 @@
 
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../shared/Button';
 import Input from '../shared/Input';
 import TextArea from '../shared/TextArea';
 import Select from '../shared/Select';
 import { emailValidation, nameValidation } from '@/utils/validation';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
+import PaypalComponent from '../Payment/PaypalComponent';
+import Modal from '../shared/Modal';
+import { usePaymentContext } from '@/stores/PaymentContextAPI';
+import { loadStripe } from '@stripe/stripe-js';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -23,19 +27,83 @@ const purposeOptions = [
 const validationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
+  amount: Yup.string().required('Please add a donation amount'),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
 
 const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
+  const [isPaypal, setIsPaypal] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const { isPaymentApproved, amount, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount } = usePaymentContext();
   const router = useRouter();
+  const query = useSearchParams();
+  const isStripePaymentsuccess = query.get('stripe-payment');
+
+
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
+
+  const handleStripeCheckout = async (stripeAmount: string) => {
+    setLoading(true);
+    try {
+      console.log(stripeAmount);
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: stripeAmount,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Checkout error:', errorData.error);
+        alert(`Error: ${errorData.error}`);
+        setLoading(false);
+        return;
+      }
+
+      const { id } = await res.json();
+      const stripe = await stripePromise;
+      if (stripe) {
+        await stripe.redirectToCheckout({ sessionId: id });
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      alert('Something went wrong!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
     console.log(values);
+    setAmount(values.amount);
+    if (values.paymentMethod === 'paypal') {
+      setIsPaypal(true);
+      setOpenModal(true);
+    } if (values.paymentMethod === 'stripe') {
+      handleStripeCheckout(values.amount);
+    }
     setSubmitting(false);
     resetForm();
   }
+
+  const onModalClose = () => setOpenModal(false);
+  const onApprovedModalClose = () => setIsPaymentApproved(false);
+
+
+  useEffect(() => {
+    if (isPaymentApproved) {
+      setOpenModal(false);
+      router.push("/donation/finish")
+    }
+  }, [isPaymentApproved])
 
   return (
     <Formik
@@ -43,6 +111,7 @@ const PaymentForm = () => {
         email: '',
         name: '',
         purpose: '',
+        amount: '',
         comment: '',
         paymentMethod: '',
       }}
@@ -58,6 +127,18 @@ const PaymentForm = () => {
         setFieldValue,
       }) => (
         <Form className="flex gap-x-[131px]">
+          {openModal ? <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={"Paypal Gateway"}>
+            {isPaypal ? <PaypalComponent /> : <></>}
+          </Modal> :
+            <></>
+          }
+          {isPaymentApproved &&
+            <Modal type={isPaymentApproved ? 'success' : 'error'} isOpen={isPaymentApproved || isPaymentError} onClose={onApprovedModalClose} title='Success'>
+              {isPaymentApproved ?
+                <h1 className='text-xl font-bolder'>Thank you for donation!</h1> :
+                <h1 className='text-xl font-bolder'>Something went wrong!</h1>}
+            </Modal>
+          }
           <div className="w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
               <h3 className="text-h3 text-font-primary font-ebGaramond">
@@ -97,6 +178,21 @@ const PaymentForm = () => {
                   }
                   onChange={handleChange}
                   value={values.email}
+                />
+              </div>
+
+              <div>
+                <Input
+                  className="!w-[275px]"
+                  id="amount"
+                  label="Donation amount"
+                  maxLength={50}
+                  required
+                  validationText={
+                    touched.amount && errors.amount ? errors.amount : ''
+                  }
+                  onChange={handleChange}
+                  value={values.amount}
                 />
               </div>
 
@@ -218,7 +314,7 @@ const PaymentForm = () => {
               </div>
 
               <Button variant="primary" type="submit">
-                Donate
+                {loading ? "loading..." : "Donate"}
               </Button>
             </div>
           </div>
