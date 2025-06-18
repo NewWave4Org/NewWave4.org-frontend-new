@@ -12,11 +12,6 @@ export const phoneValidation = Yup.string().matches(
   'Invalid phone',
 );
 
-export const nameValidation = Yup.string()
-  .required('Name field cannot be empty')
-  .min(2, 'Invalid name')
-  .matches(/^[^\d!@#$%^&*()_+={}[\]:;"'<>,.?/~`|-]+$/, 'Invalid name');
-
 export const passwordValidation = Yup.string().required(
   'Password field cannot be empty',
 );
@@ -35,3 +30,6 @@ export const adminPassValidation = Yup.string()
 export const adminRole = Yup.string().required(
   'Password field cannot be empty',
 );
+
+export const nameValidation = Yup.string().required('Name field cannot be empty').min(2, 'Invalid name').matches(/^[^\d!@#$%^&*()_+={}[\]:;"<>,.?/~|]+$/, 'Invalid name');
+

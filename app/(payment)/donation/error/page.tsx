@@ -5,34 +5,44 @@ import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-const FinishPage = () => {
+const PaymentErrorPage = () => {
   const router = useRouter();
   return (
     <section className="mx-auto finish-wrapper">
       <div className="container mx-auto finish-content flex justify-center items-center">
         <div className="flex flex-col gap-y-[28px] justify-center items-center mx-auto">
           <Image
-            src={`${prefix}/thankyou.png`}
-            alt="thank-you"
-            width={308}
+            src={`${prefix}/error.png`}
+            alt="error"
+            width={332}
             height={308}
           />
           <div className="flex flex-col gap-y-[32px] justify-center items-center mx-auto">
             <div className="flex flex-col gap-y-[16px] justify-center items-center mx-auto">
               <h2 className="text-h3 text-font-primary font-ebGaramond">
-                Дякуємо за вашу підтримку!
+                Оплата не завершена
               </h2>
               <p className="text-body text-font-primary">
-                Ваша підтримка допомагає нам рухатися вперед.
+                На жаль, щось пішло не так, і платіж не було здійснено.
               </p>
             </div>
-            <Button
-              variant="primary"
-              size="large"
-              onClick={() => router.push('/')}
-            >
-              На головну
-            </Button>
+            <div className="flex flex-col gap-y-[16px] justify-center items-center">
+              <Button
+                className="leading-[1.3]"
+                variant="primary"
+                size="large"
+                onClick={() => router.push('/donation')}
+              >
+                Спробувати ще раз
+              </Button>
+              <Button
+                variant="tertiary"
+                size="small"
+                onClick={() => router.push('/')}
+              >
+                На головну
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -41,4 +51,4 @@ const FinishPage = () => {
   );
 };
 
-export default FinishPage;
+export default PaymentErrorPage;
