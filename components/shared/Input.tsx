@@ -1,6 +1,8 @@
 'use client';
-import { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, useState } from 'react';
 import CrossIcon from '../icons/navigation/CrossIcon';
+import CloseEyeIcon from '../icons/symbolic/CloseEyeIcon';
+import OpenEyeIcon from '../icons/symbolic/OpenEyeIcon';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   id: string;
@@ -21,6 +23,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     | 'success'
     | 'error'
     | 'disabled';
+  labelIcon?: React.ReactNode,
+  labelClass?: string,
+  passwordIcon?: boolean
 }
 
 const Input: React.FC<InputProps> = ({
@@ -35,8 +40,13 @@ const Input: React.FC<InputProps> = ({
   validationText = '',
   className,
   state = 'default',
+  labelIcon,
+  labelClass,
+  passwordIcon,
   ...props
 }) => {
+  const { type, ...rest } = props;
+
   const getStateClasses = () => {
     if (state === 'error' || validationText)
       return 'ring-1 ring-status-danger-500';
@@ -62,15 +72,28 @@ const Input: React.FC<InputProps> = ({
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const handlePassword = () => {
+    setShowPassword(prev => !prev);
+  };
+
   return (
     <>
       {label && (
         <label
           htmlFor={id}
           className={`block text-medium2 mb-1 ${
-            state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
-          }`}
+              state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
+            }
+            ${labelIcon ? 'flex items-center' : ''}
+            ${labelClass}
+          `}
         >
+          {labelIcon && (
+            <span className="mr-[10px]">
+              {labelIcon}
+            </span>
+          )}
           {label}
           {required && (
             <span className="text-status-danger-500 text-body"> *</span>
@@ -89,7 +112,8 @@ const Input: React.FC<InputProps> = ({
           active:ring-status-info-500 bg-transparent
           ${validationText && 'ring-status-danger-500'}`}
           disabled={state === 'disabled'}
-          {...props}
+          type={passwordIcon ? (showPassword ? 'text' : 'password') : type}
+          {...rest}
         />
         {icon && (
           <span
@@ -97,6 +121,12 @@ const Input: React.FC<InputProps> = ({
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
           >
             <CrossIcon color="#7A7A7A" />
+          </span>
+        )}
+
+        {passwordIcon && props.type === 'password'  && (
+          <span onClick={handlePassword} className='cursor-pointer absolute right-[25px] top-1/2 transform -translate-y-1/2'>
+            {showPassword ? <OpenEyeIcon /> : <CloseEyeIcon />}
           </span>
         )}
       </div>
