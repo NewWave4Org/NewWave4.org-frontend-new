@@ -5,7 +5,7 @@ import React from 'react'
 export const paypalClientId = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! };
 
 function PaypalComponent() {
-  const { setIsPaymentApproved, setIsPaymentError, amount } = usePaymentContext();
+  const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();
 
   const createpaypalorderwebhook = (data: any, actions: any) => {
     return actions.order.create({
@@ -14,6 +14,7 @@ function PaypalComponent() {
           amount: {
             value: amount,
           },
+          description: paymentDetails.description
         },
       ],
     });

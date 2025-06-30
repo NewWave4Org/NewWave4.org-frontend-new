@@ -36,7 +36,7 @@ const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
   const [isPaypal, setIsPaypal] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount } = usePaymentContext();
+  const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
@@ -44,7 +44,6 @@ const PaymentForm = () => {
   const handleStripeCheckout = async (stripeAmount: string) => {
     setLoading(true);
     try {
-      console.log(stripeAmount);
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -80,6 +79,10 @@ const PaymentForm = () => {
 
   const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
     setAmount(values.amount);
+    const purpose = purposeOptions.find((item) => item.value === values.purpose);
+    setPaymentDetails({
+      description: purpose?.label
+    })
     if (values.paymentMethod === 'paypal') {
       setIsPaypal(true);
       setOpenModal(true);
