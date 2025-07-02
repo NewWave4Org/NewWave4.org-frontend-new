@@ -44,7 +44,7 @@ const PaymentForm = () => {
   const handleStripeCheckout = async (stripeAmount: string) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch('http://localhost:8080/api/v1/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
