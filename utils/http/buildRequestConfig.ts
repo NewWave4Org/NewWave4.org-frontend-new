@@ -9,6 +9,7 @@ function buildRequestConfig({
   params,
   config,
 }: RequestOptions): AxiosRequestConfig {
+  console.log('accessToken', accessToken);
   return {
     method,
     url,

@@ -1,5 +1,7 @@
 const ApiEndpoint = {
   LOGIN: 'auth/login',
+  USERS: 'users',
+
   REFRESHTOKEN: '',
 } as const;
 

@@ -3,7 +3,7 @@ import { prefix } from '../prefix';
 import { axiosInstance } from './axiosInstance';
 import { ApiEndpoint } from './enums/api-endpoint';
 import { store } from '@/store/store';
-import { clearToken, setToken } from '@/store/slices/tokenSlice';
+
 import { RequestOptions } from './type/interface';
 import buildRequestConfig from './buildRequestConfig';
 import { normalizeApiError } from './normalizeApiError';
@@ -17,21 +17,19 @@ export async function refreshToken() {
     const response = await axiosInstance.post(ApiEndpoint.REFRESHTOKEN);
     const access_token = response.data.data.access_token;
 
-    store.dispatch(setToken(access_token));
-
     return access_token;
   } catch (error) {
     console.error('Error refreshing access token:', error);
-    store.dispatch(clearToken());
 
     return null;
   }
 }
 
 export async function request<T>(options: RequestOptions) {
-  const { method, url, body, params, config } = options;
-  const accessToken = store.getState().token.accessToken;
+  const { method, url, body, params, config, accessToken } = options;
+  // const accessToken = store.getState().token.accessToken;
 
+  // console.log('1', accessToken);
   try {
     const requestConfig = buildRequestConfig({
       method,
@@ -43,15 +41,23 @@ export async function request<T>(options: RequestOptions) {
     });
     const response: AxiosResponse<T> = await axiosInstance(requestConfig);
 
+    if (response.data === '') {
+      return {
+        success: true,
+        status: response.status,
+        message: 'No content returned',
+      } as any;
+    }
+
     console.log('response', response);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      const { isAuthInitialized } = store.getState().token;
+      // const { isAuthInitialized } = store.getState().token;
 
-      if (!isAuthInitialized) {
-        return Promise.reject(error);
-      }
+      // if (!isAuthInitialized) {
+      //   return Promise.reject(error);
+      // }
 
       const newAccessToken = await refreshToken();
 
@@ -71,8 +77,6 @@ export async function request<T>(options: RequestOptions) {
 
         return retryResponse.data;
       } else {
-        store.dispatch(clearToken());
-
         console.log('Unauthorized');
 
         return Promise.reject(new Error('Unauthorized'));
@@ -80,8 +84,6 @@ export async function request<T>(options: RequestOptions) {
     }
 
     const normalized = normalizeApiError(error);
-
-    console.error('API error:', normalized);
 
     throw normalized;
   }

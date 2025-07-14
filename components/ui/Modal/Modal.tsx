@@ -2,6 +2,7 @@ import { useAppDispatch } from '@/store/hook';
 import React, { ReactNode } from 'react';
 import { closeModal } from './ModalSlice';
 import CloseIcon from '@/components/icons/symbolic/CloseIcon';
+import { clearUserById } from '@/store/users/users_slice';
 
 type ModalProps = {
   modalType: string | null,
@@ -15,6 +16,7 @@ const Modal = ({children, modalType}: ModalProps) => {
   function handleCloseModal(e: React.MouseEvent<HTMLElement>) {
     if(e.target  === e.currentTarget) {
       dispatch(closeModal());
+      dispatch(clearUserById())
     }
   }
 
