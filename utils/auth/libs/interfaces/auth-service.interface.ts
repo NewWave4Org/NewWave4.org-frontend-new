@@ -1,8 +1,8 @@
 import { AuthLogInRequestDTO } from '../types/AuthLogInRequestDTO';
-import { AuthLogInResponseDTO } from '../types/AuthLogInResponseDTO';
+import { AuthLogInResponseDto } from '../types/AuthLogInResponseDTO';
 
 interface IAuthService {
-  loginAuth: (data: AuthLogInRequestDTO) => Promise<AuthLogInResponseDTO>;
+  loginAuth: (data: AuthLogInRequestDTO) => Promise<AuthLogInResponseDto>;
 }
 
 export default IAuthService;
