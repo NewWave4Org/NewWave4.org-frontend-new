@@ -16,7 +16,7 @@ interface DropDownProps {
   placeholder?: string;
   classNameMenu?: string;
   classNameItem?: string;
-  renderBth: (isOpen: boolean, toggle: () => void) => React.ReactNode;
+  renderBth?: (isOpen: boolean, toggle: () => void) => React.ReactNode;
 }
 
 const DropDown = ({
@@ -38,19 +38,19 @@ const DropDown = ({
 
   useEffect(() => {
     function handleClickOutSide(e: MouseEvent) {
-      if(dropDownRef.current && !dropDownRef.current.contains(e.target as Node)) {
+      if (dropDownRef.current && !dropDownRef.current.contains(e.target as Node)) {
         closeDropDown();
       }
     }
 
     document.addEventListener('mousedown', handleClickOutSide);
 
-    return() => document.removeEventListener('mousedown', handleClickOutSide);
+    return () => document.removeEventListener('mousedown', handleClickOutSide);
   });
 
   return (
     <div className='relative' ref={dropDownRef}>
-      {renderBth(isOpen, toggle)}
+      {typeof renderBth === "function" && renderBth(isOpen, toggle)}
 
       {isOpen && (
         <div className={`absolute z-10 mt-2 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn ${classNameMenu}`}>

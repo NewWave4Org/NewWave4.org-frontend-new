@@ -3,9 +3,9 @@ import DropDown from "@/components/shared/DropDown";
 
 const ArticlesListPage = () => {
   const articlesHeader = [
-    {id: '1', title: 'Title'},
-    {id: '2', title: 'Status'},
-    {id: '3', title: 'Views'},
+    { id: '1', title: 'Title' },
+    { id: '2', title: 'Status' },
+    { id: '3', title: 'Views' },
   ];
   return (
     <div>
@@ -13,15 +13,15 @@ const ArticlesListPage = () => {
         {articlesHeader?.map(item => (
           <div key={item.id}>{item.title}</div>
         ))}
-        <DropDown 
+        <DropDown
           icon={<PenIcon />}
-          classNameBtn=""
+          // classNameBtn=""
           classNameItem=""
           label="Add new"
           items={[
-            {label: 'Article'},
-            {label: 'Event'},
-            {label: 'Program'},
+            { label: 'Article' },
+            { label: 'Event' },
+            { label: 'Program' },
           ]}
         />
       </div>

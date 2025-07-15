@@ -1,7 +1,7 @@
 import IAuthAPI from './libs/interfaces/auth-api.interface';
 import IAuthService from './libs/interfaces/auth-service.interface';
 import { AuthLogInRequestDTO } from './libs/types/AuthLogInRequestDTO';
-import { AuthLogInResponseDTO } from './libs/types/AuthLogInResponseDTO';
+import { AuthLogInResponseDto } from './libs/types/AuthLogInResponseDTO';
 
 class AuthService implements IAuthService {
   private authApi: IAuthAPI;
@@ -10,7 +10,7 @@ class AuthService implements IAuthService {
     this.authApi = authApi;
   }
 
-  async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDTO> {
+  async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDto> {
     return this.authApi.loginAuth(data);
   }
 }

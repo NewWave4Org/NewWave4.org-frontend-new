@@ -11,6 +11,7 @@
   "dependencies": {
     "@paypal/react-paypal-js": "^8.8.3",
     "@reduxjs/toolkit": "^2.8.1",
+    "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.1",
     "axios": "^1.9.0",
     "embla-carousel-autoplay": "^8.5.2",

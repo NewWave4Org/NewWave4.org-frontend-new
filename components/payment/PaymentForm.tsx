@@ -8,7 +8,7 @@ import Input from '../shared/Input';
 import TextArea from '../shared/TextArea';
 import Select from '../shared/Select';
 import { emailValidation, nameValidation } from '@/utils/validation';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
@@ -41,43 +41,38 @@ const PaymentForm = () => {
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
 
-  const handleStripeCheckout = async (stripeAmount: string) => {
+  const handleStripeCheckout = async (paymentDetails: any) => {
+    const { name, amount } = paymentDetails;
+    const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      const res = await fetch('/api/checkout', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: stripeAmount,
+          name,
+          amount: parseInt(amount),
+          description: purpose?.label
         }),
       });
+      const data = await response.json();
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Checkout error:', errorData.error);
-        alert(`Error: ${errorData.error}`);
-        setLoading(false);
-        return;
+      if (data.sessionId) {
+        const stripe = await stripePromise;
+        await stripe?.redirectToCheckout({ sessionId: data.sessionId });
+      } else {
+        alert('Failed to create session: ' + data.message);
       }
-
-      const { id } = await res.json();
-      const stripe = await stripePromise;
-      if (stripe) {
-        await stripe.redirectToCheckout({ sessionId: id });
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      alert('Something went wrong!');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      return error;
     }
   };
 
 
 
-  const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
+  const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     setAmount(values.amount);
     const purpose = purposeOptions.find((item) => item.value === values.purpose);
     setPaymentDetails({
@@ -87,7 +82,7 @@ const PaymentForm = () => {
       setIsPaypal(true);
       setOpenModal(true);
     } if (values.paymentMethod === 'stripe') {
-      handleStripeCheckout(values.amount);
+      handleStripeCheckout(values);
     }
     setSubmitting(false);
     resetForm();
