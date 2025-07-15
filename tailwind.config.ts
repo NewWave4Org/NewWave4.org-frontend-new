@@ -120,6 +120,14 @@ export default {
             fontWeight: '500',
           },
         ],
+        medium: [
+          '15px',
+          {
+            lineHeight: '1.5',
+            letterSpacing: '0.32px',
+            fontWeight: '400',
+          },
+        ],
         medium1: [
           '16px',
           {

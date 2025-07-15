@@ -4,43 +4,68 @@ import UsersIcon from "@/components/icons/symbolic/UsersIcon";
 import Button from "@/components/shared/Button";
 import Input from "@/components/shared/Input";
 import Select from "@/components/shared/Select";
-import { Form, Formik } from "formik";
+import { closeModal } from "@/components/ui/Modal/ModalSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { getUsers, updateUser } from "@/store/users/actions";
+import useHandleThunk from "@/utils/useHandleThunk";
+import { UsersRoleOptions } from "@/utils/users/type/users-role";
+import { Form, Formik, FormikHelpers } from "formik";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 import { AnyObjectSchema } from "yup";
 
 interface newUserDTO {
   name: string,
   email: string,
-  role: string
+  roles: string[]
 }
 
-interface IvalidationSchema {
+interface IValidationSchema {
   validationSchema: AnyObjectSchema
 }
 
-const roleOptions = [
-  {value: '1', label: 'Admin'},
-  {value: '2', label: 'Manager'},
-];
+const EditUser = ({validationSchema}: IValidationSchema) => {
+  const dispatch = useAppDispatch();
+  const userById = useAppSelector(state => state.users.userById);
+  const token = useAppSelector(state => state.authUser.token)
+  const handleThunk = useHandleThunk();
+  const [submitError, setSubmitError] = useState('');
+  if (!userById.id) return <div>Loading...</div>;
 
-const EditUser = ({validationSchema}: IvalidationSchema) => {
+  async function handleUpdateUser(values: newUserDTO, formikHelpers: FormikHelpers<newUserDTO>) {
+    const { resetForm } = formikHelpers;
+    const data = {
+      id: userById.id,
+      ...values,
+      roles: [values.roles],
+      token,
+    }
+
+    const result = await handleThunk(updateUser, data, setSubmitError)
+
+    if(result) {
+      resetForm();
+      setSubmitError('');
+      toast.success('User profile updated successfully')
+      dispatch(closeModal());
+      await dispatch(getUsers(token as string));
+    }
+  }
+
   return (
     <>
       <div className='modal__header font-medium text-[22px] text-admin-700 mb-[38px]'>Editing user</div>
       <div className='modal__body'>
         <Formik
           initialValues={{
-            name: '',
-            email: '',
-            role: '',
+            name: userById.name,
+            email: userById.email,
+            roles: userById.roles,
           }}
+          enableReinitialize={true}
           validationSchema={validationSchema}
-          onSubmit={(
-            values: newUserDTO, { resetForm }
-          ) => {
-            console.log('new user', values);
-            resetForm();
-          }}
+          onSubmit={( values: newUserDTO, formikHelpers) => handleUpdateUser(values, formikHelpers)}
         >
 
         {({errors, touched, handleChange, isSubmitting, values}) => (
@@ -81,13 +106,17 @@ const EditUser = ({validationSchema}: IvalidationSchema) => {
                 labelIcon={<UsersIcon />}
                 labelClass="text-xl mb-5 !text-admin-700"
                 adminSelectClass={true}
-                name="role"
+                name="roles"
                 required
                 placeholder="Choose role"
+                defaultValue={values.roles.toString()}
                 onChange={handleChange}
-                options={roleOptions}
+                options={UsersRoleOptions}
               />
             </div>
+            {submitError && (
+              <div className='text-medium text-status-danger-500 mb-4'>{submitError}</div>
+            )}
             <div>
               <Button
                 type="submit"

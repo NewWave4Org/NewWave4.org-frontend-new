@@ -4,26 +4,28 @@ import BasketIcon from "@/components/icons/symbolic/BasketIcon";
 import EditIcon from "@/components/icons/symbolic/EditIcon";
 import UsersIcon from "@/components/icons/symbolic/UsersIcon";
 import Button from "@/components/shared/Button";
-import { useAppDispatch } from "@/store/hook";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { openModal } from "@/components/ui/Modal/ModalSlice";
 import ModalType from "@/components/ui/Modal/enums/modals-type";
+import ProtectedRoute from "../../ProtectedRoute";
+import { useEffect } from "react";
+import { getUserById, getUsers } from "@/store/users/actions";
+import { UserItem } from "@/utils/users/type/interface";
 
-const tableBody = [
-  {id: '1', title: 'Іван Черевко 1', role: 'admin'},
-  {id: '2', title: "Варшавська Дар'я", role: 'admin'},
-  {id: '3', title: 'Іван Черевко 3', role: 'admin'},
-];
-
-interface UserDTO {
-  id: string,
-  title: string,
-  role: string,
-}
 
 const Users = () => {
   const dispatch = useAppDispatch();
+  const token = useAppSelector(state => state.authUser.token)
+  const users = useAppSelector(state => state.users.users)
 
-  function handleDeleteUser(user: UserDTO) {
+  useEffect(() => {
+    if(token) {
+      dispatch(getUsers(token));
+    }
+  }, [dispatch])
+
+
+  function handleDeleteUser(user: UserItem) {
     dispatch(openModal(
       {
         modalType: ModalType.DELETEUSER,
@@ -32,88 +34,102 @@ const Users = () => {
     ));
   }
 
-  function handleEdituser(user: UserDTO) {
-    dispatch(openModal(
-      {
-        modalType: ModalType.EDITUSER,
-        user: user
-      }
-    ));
+  function handleEditUser(user: UserItem) {
+    dispatch(openModal({modalType: ModalType.EDITUSER}));
+
+    if(token) {
+      dispatch(getUserById({
+        id: user.id,
+        token: token
+      }))
+    }
+    
   }
 
   return (
-    <div className="users-manager">
-      <Table
-        classNameRow="bg-admin-100"
-        data={tableBody}
-        renderHeader={() => (
-          <>
-            <th className="pl-[45px] pb-4 border-b border-admin-300">Avatar</th>
-            <th className="pb-4 border-b  border-admin-300">Name</th>
-            <th className="pb-4 border-b  border-admin-300">Role</th>
-            <th className="pb-4 border-b  border-admin-300 flex justify-end">
-              <Button
-                variant="primary"
-                className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
-                onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
-              >
-                <div className="mr-[12px]">
-                  <UsersIcon color="#fff" />
-                </div>
-                Add new
-              </Button>
-            </th>
-          </>
-        )}
-        renderRow={user => {
-          const initials = user.title
-            .split(' ')
-            .map(word => word[0]?.toUpperCase())
-            .join('');
-          return (
+    <ProtectedRoute>
+      <div className="users-manager">
+        <Table
+          classNameRow="bg-admin-100"
+          data={users}
+          renderHeader={() => (
             <>
-              <td className="flex justify-start pl-[45px] py-[25px]">
-                <div className="bg-background-darkBlue text-font-white text-center w-[50px] h-[50px] rounded-full flex items-center justify-center font-semibold">
-                  {initials}
-                </div>
-              </td>
-              <td className="py-[25px]">
-                <div className="text-admin-700 text-small">{user.title}</div>
-              </td>
-              <td className="py-[25px]">
-                <span className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small">
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                </span>
-              </td>
-              <td className="pr-[45px] py-[25px]">
-                <div className="tableActions flex justify-end">
-                  <div className="flex gap-x-[40px]">
-                    <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                      hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                      onClick={() => handleEdituser(user)}
-                    >
-                      <div className="mr-[10px]">
-                        <EditIcon />
-                      </div>
-                      Edit
-                    </Button>
-                    <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                      hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                      onClick={() => handleDeleteUser(user)}
-                    >
-                      <div className="mr-[10px]">
-                        <BasketIcon color="#FC8181" />
-                      </div>
-                      Delete
-                    </Button>
+              <th className="pl-[45px] pb-4 border-b border-admin-300">Avatar</th>
+              <th className="pb-4 border-b  border-admin-300">Name</th>
+              <th className="pb-4 border-b  border-admin-300">Role</th>
+              <th className="pb-4 border-b  border-admin-300 flex justify-end">
+                <Button
+                  variant="primary"
+                  className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
+                  onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
+                >
+                  <div className="mr-[12px]">
+                    <UsersIcon color="#fff" />
                   </div>
-                </div>
-              </td>
+                  Add new
+                </Button>
+              </th>
             </>
-          );
-        }}
-      />
-    </div>
+          )}
+          renderRow={user => {
+            const initials = user?.name
+              ? user.name
+                  .split(' ')
+                  .map(word => word[0]?.toUpperCase() ?? '')
+                  .join('')
+              : '';
+            return (
+              <>
+                <td className="flex justify-start pl-[45px] py-[25px]">
+                  <div className="bg-background-darkBlue text-font-white text-center w-[50px] h-[50px] rounded-full flex items-center justify-center font-semibold">
+                    {initials}
+                  </div>
+                </td>
+                <td className="py-[25px]">
+                  <div className="text-admin-700 text-small">{user?.name}</div>
+                </td>
+                <td className="py-[25px]">
+                  <div className="">
+                    {user?.roles.map(role => {
+                      const userRole = role.startsWith('ROLE_') ? role.replace('ROLE_', '').toLowerCase().replace('_', ' ') : role.toLowerCase().replace('_', ' ');
+                      return (
+                        <span key={userRole} className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small mr-2">
+                          {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </td>
+                <td className="pr-[45px] py-[25px]">
+                  <div className="tableActions flex justify-end">
+                    <div className="flex gap-x-[40px]">
+                      <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
+                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <div className="mr-[10px]">
+                          <EditIcon />
+                        </div>
+                        Edit
+                      </Button>
+                      <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
+                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                        onClick={() => handleDeleteUser(user)}
+                      >
+                        <div className="mr-[10px]">
+                          <BasketIcon color="#FC8181" />
+                        </div>
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </td>
+              </>
+            );
+          }}
+        />
+      </div>
+    </ProtectedRoute>
   );
 };
 

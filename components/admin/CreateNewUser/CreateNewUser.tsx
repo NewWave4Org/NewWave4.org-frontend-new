@@ -1,30 +1,56 @@
 'use client';
+import AlertCheckSuccess from '@/components/icons/status/AlertCheckSuccess';
 import EmailIcon from '@/components/icons/symbolic/EmailIcon';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import Select from '@/components/shared/Select';
-import { Form, Formik } from 'formik';
-import React from 'react';
+import { closeModal } from '@/components/ui/Modal/ModalSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { createNewUser, getUsers } from '@/store/users/actions';
+import useHandleThunk from '@/utils/useHandleThunk';
+import { UsersRoleOptions } from '@/utils/users/type/users-role';
+import { Form, Formik, FormikHelpers } from 'formik';
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { AnyObjectSchema } from 'yup';
 
 interface newUserDTO {
   name: string,
   email: string,
-  role: string
+  roles: string
 }
 
-interface IvalidationSchema {
+interface IValidationSchema {
   validationSchema: AnyObjectSchema
 }
 
-const roleOptions = [
-  {value: '1', label: 'Admin'},
-  {value: '2', label: 'Manager'},
-];
+const CreateNewUser = ({validationSchema}: IValidationSchema) => {
+  const dispatch = useAppDispatch();
+  const [submitError, setSubmitError] = useState('');
+  const token = useAppSelector(state => state.authUser.token);
+  const handleThunk = useHandleThunk();
 
-const CreateNewUser = ({validationSchema}: IvalidationSchema) => {
+  async function handleCreateNewUser(values: newUserDTO, formikHelpers: FormikHelpers<newUserDTO>) {
+    const { resetForm } = formikHelpers;
+    const data = {
+      ...values,
+      roles: [values.roles],
+      token,
+    };
+
+    const result = await handleThunk(createNewUser, data, setSubmitError)
+    if (result) {
+      console.log('result create', result)
+      resetForm();
+      setSubmitError('');
+      toast.success('Invitation sent successfully')
+      dispatch(closeModal());
+      await dispatch(getUsers(token as string));
+    }
+  }
+
   return (
     <>
       <div className='modal__header font-medium text-[22px] text-admin-700 mb-[38px]'>Creating new user</div>
@@ -33,15 +59,10 @@ const CreateNewUser = ({validationSchema}: IvalidationSchema) => {
           initialValues={{
             name: '',
             email: '',
-            role: '',
+            roles: '',
           }}
           validationSchema={validationSchema}
-          onSubmit={(
-            values: newUserDTO, { resetForm }
-          ) => {
-            console.log('new user', values);
-            resetForm();
-          }}
+          onSubmit={(values: newUserDTO, formikHelpers) => handleCreateNewUser(values, formikHelpers)}
         >
 
         {({errors, touched, handleChange, isSubmitting, values}) => (
@@ -82,13 +103,16 @@ const CreateNewUser = ({validationSchema}: IvalidationSchema) => {
                 labelIcon={<UsersIcon />}
                 labelClass="text-xl mb-5 !text-admin-700"
                 adminSelectClass={true}
-                name="role"
+                name="roles"
                 required
                 placeholder="Choose role"
                 onChange={handleChange}
-                options={roleOptions}
+                options={UsersRoleOptions}
               />
             </div>
+            {submitError && (
+              <div className='text-medium text-status-danger-500 mb-4'>{submitError}</div>
+            )}
             <div>
               <Button
                 type="submit"

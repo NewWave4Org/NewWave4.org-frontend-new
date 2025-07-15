@@ -11,7 +11,7 @@ import DeleteUser from '../DeleteUser/DeleteUser';
 const CreateNewUserValidationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
-  role: adminRole
+  roles: adminRole
 });
 
 const Modals = () => {

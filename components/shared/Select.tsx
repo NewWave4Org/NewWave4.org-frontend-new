@@ -20,6 +20,7 @@ interface SelectProps {
   labelClass?: string,
   adminSelectClass?: boolean,
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -30,6 +31,7 @@ const Select: React.FC<SelectProps> = ({
   labelIcon,
   labelClass,
   adminSelectClass,
+  defaultValue,
   ...props
 }) => {
   const [field, meta] = useField(props);
@@ -40,6 +42,16 @@ const Select: React.FC<SelectProps> = ({
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (defaultValue) {
+      const foundOption = options.find(option => option.value === defaultValue);
+      if (foundOption) {
+        setSelectedOption(foundOption);
+        setFieldValue(props.name, foundOption.value);
+      }
+    }
+  }, [defaultValue, options, props.name, setFieldValue]);
 
   useEffect(() => {
     if (isOpen && dropdownRef.current) {

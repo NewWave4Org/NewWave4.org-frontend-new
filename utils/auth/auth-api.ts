@@ -8,7 +8,7 @@ import { AuthLogInResponseDTO } from './libs/types/AuthLogInResponseDTO';
 class AuthAPI implements IAuthAPI {
   async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDTO> {
     return request({
-      method: HttpMethod.GET,
+      method: HttpMethod.POST,
       url: ApiEndpoint.LOGIN,
       body: data,
     });
