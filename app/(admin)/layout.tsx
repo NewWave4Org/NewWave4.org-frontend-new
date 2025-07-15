@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import AdminLayoutClient from './AdminLayoutClient';
 import '../../styles/admin.css';
+import { Bounce, ToastContainer } from 'react-toastify';
 
 
 const RobotoFont = Roboto({
@@ -26,6 +27,19 @@ export default function AdminLayout({
       >
         <AdminLayoutClient>
           {children}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+            transition={Bounce}
+          />
         </AdminLayoutClient>
       </body>
     </html>

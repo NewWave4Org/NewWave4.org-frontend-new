@@ -27,9 +27,9 @@ export const adminPassValidation = Yup.string()
   )
   .matches(/^\S*$/, 'Password must not contain spaces');
 
-export const adminRole = Yup.string().required(
-  'Password field cannot be empty',
-);
+export const adminRole = Yup.string().required('Role field cannot be empty');
 
-export const nameValidation = Yup.string().required('Name field cannot be empty').min(2, 'Invalid name').matches(/^[^\d!@#$%^&*()_+={}[\]:;"<>,.?/~|]+$/, 'Invalid name');
-
+export const nameValidation = Yup.string()
+  .required('Name field cannot be empty')
+  .min(2, 'Invalid name')
+  .matches(/^[^\d!@#$%^&*()_+={}[\]:;"<>,.?/~|]+$/, 'Invalid name');

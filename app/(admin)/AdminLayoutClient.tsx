@@ -5,6 +5,7 @@ import ReduxProvider from './ReduxProvider';
 import AdminPanel from './AdminPanel';
 
 const AdminLayoutClient = ({ children }: { children: ReactNode }) => {
+
   return (
     <ReduxProvider>
       <AdminPanel>

@@ -4,18 +4,26 @@ import HttpMethod from '../enums/http-method';
 
 export type RequestOptions = {
   readonly method: HttpMethod;
-  readonly url: ApiEndpoint;
+  readonly url: ApiEndpoint | string;
   readonly accessToken?: string | null;
   readonly body?: unknown;
   readonly params?: Record<string, string | number>;
   readonly config?: AxiosRequestConfig;
+  readonly headers?: Record<string, string>;
+};
+
+export type ServerErrorData = {
+  status: string;
+  errors: Record<string, string> | string;
+  timestamp: string;
 };
 
 export type ApiError = {
-  message: string;
-  statusCode?: number;
-  original?: unknown;
-  fieldErrors?: Record<string, string>;
+  status?: string;
+  message?: string;
+  errors?: Record<string, string> | string;
+  timestamp?: string;
+  original?: ServerErrorData | any;
 };
 
 export type ApiResult = {

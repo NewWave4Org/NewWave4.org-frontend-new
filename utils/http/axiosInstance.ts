@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { prefix } from '../prefix';
 
 export const axiosInstance = axios.create({
-  baseURL: prefix,
+  baseURL: 'https://api.stage.newwave4.org/api/v1/',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

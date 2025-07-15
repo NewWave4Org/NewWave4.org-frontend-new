@@ -1,0 +1,33 @@
+export interface UserItem {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+
+export type UserResponseDTO = { content: UserItem[] };
+
+export interface UserByIdRequestDTO {
+  id: number;
+  token: string;
+}
+
+export interface UserByIdResponseDTO {
+  id: number;
+  email: string;
+  name: string;
+  roles: string[];
+}
+
+export interface NewUserRequestDTO extends Omit<UserItem, 'id'> {
+  token: string;
+}
+
+export interface DeleteUserRequestDTO {
+  token: string;
+  userId: number;
+}
+
+export interface UpdateUserRequestDTO extends UserByIdResponseDTO {
+  token: string;
+}

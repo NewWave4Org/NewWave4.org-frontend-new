@@ -72,7 +72,7 @@ const PaymentForm = () => {
 
 
 
-  const handleSubmitPaymentForm = (values: any, { setSubmitting, resetForm }: any) => {
+  const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     setAmount(values.amount);
     const purpose = purposeOptions.find((item) => item.value === values.purpose);
     setPaymentDetails({
