@@ -2,7 +2,7 @@
 
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useEffect, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import Button from '../shared/Button';
 import Input from '../shared/Input';
 import TextArea from '../shared/TextArea';
@@ -27,7 +27,11 @@ const purposeOptions = [
 const validationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
-  amount: Yup.string().required('Please add a donation amount'),
+  amount: Yup.string().required('Please add a donation amount').test(
+    'not-zero',
+    'Donation amount must be greater than 0',
+    value => parseFloat(value || '0') > 0
+  ),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
@@ -36,13 +40,14 @@ const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
   const [isPaypal, setIsPaypal] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
   const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
-    const { name, amount } = paymentDetails;
+    const { name } = paymentDetails;
     const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
@@ -53,7 +58,7 @@ const PaymentForm = () => {
         },
         body: JSON.stringify({
           name,
-          amount: parseInt(amount),
+          amount: calculatedAmount,
           description: purpose?.label
         }),
       });
@@ -98,6 +103,15 @@ const PaymentForm = () => {
       router.push("/donation/finish")
     }
   }, [isPaymentApproved])
+
+  const handleAmountChange = (e: any) => {
+    if (e.target.value === '' || isNaN(parseFloat(e.target.value))) {
+      setCalculatedAmount(0);
+    } else {
+      const calculatedAmount: number = parseFloat(((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2));
+      setCalculatedAmount(calculatedAmount);
+    }
+  }
 
   return (
     <Formik
@@ -185,7 +199,10 @@ const PaymentForm = () => {
                   validationText={
                     touched.amount && errors.amount ? errors.amount : ''
                   }
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handleAmountChange(e);
+                  }}
                   value={values.amount}
                 />
               </div>
@@ -282,6 +299,10 @@ const PaymentForm = () => {
                     {errors.paymentMethod}
                   </p>
                 )}
+              </div>
+              <div className='flex justify-between text-[#0F1B40]'>
+                <span>Full amount</span>
+                <span>${calculatedAmount}</span>
               </div>
               <div className="flex flex-col gap-y-[8px]">
                 <div className="border-t border-grey-300 w-full"></div>
