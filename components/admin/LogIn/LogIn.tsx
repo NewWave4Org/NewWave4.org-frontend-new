@@ -40,19 +40,19 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
     const { resetForm } = formikHelpers;
 
     const result = await handleThunk(loginAuth, data, setSubmitError)
-    if(result && result.token) {
-      const decoded = jwtDecode<TokenPayload>(result.token);
+
+    if(result) {
+      console.log('result', result)
+      // const decoded = jwtDecode<TokenPayload>(result.token);
       dispatch(setAuthData({
-        token: result.token,
-        email: decoded.sub,
-        roles: decoded.roles,
+        // token: result.token,
+        // email: decoded.sub,
+        // roles: decoded.roles,
         isAuthenticated: true,
       }))
       resetForm();
       setSubmitError('');
       route.push('/admin/users')
-    }else if (!result?.token) {
-      setSubmitError('Токен не отримано від сервера.');
     }
   }
 

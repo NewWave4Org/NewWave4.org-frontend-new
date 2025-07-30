@@ -8,7 +8,7 @@ import {
 } from './interface';
 
 interface IUsersApi {
-  getUsers: (token: string) => Promise<UserResponseDTO>;
+  getUsers: () => Promise<UserResponseDTO>;
   getUserById: (data: UserByIdRequestDTO) => Promise<UserByIdResponseDTO>;
   createNewUser: (data: NewUserRequestDTO) => void;
   deleteUser: (data: DeleteUserRequestDTO) => void;

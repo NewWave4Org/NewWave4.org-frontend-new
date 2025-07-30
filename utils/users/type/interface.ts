@@ -9,7 +9,6 @@ export type UserResponseDTO = { content: UserItem[] };
 
 export interface UserByIdRequestDTO {
   id: number;
-  token: string;
 }
 
 export interface UserByIdResponseDTO {
@@ -20,14 +19,14 @@ export interface UserByIdResponseDTO {
 }
 
 export interface NewUserRequestDTO extends Omit<UserItem, 'id'> {
-  token: string;
+  // token: string;
 }
 
 export interface DeleteUserRequestDTO {
-  token: string;
+  // token: string;
   userId: number;
 }
 
 export interface UpdateUserRequestDTO extends UserByIdResponseDTO {
-  token: string;
+  // token: string;
 }

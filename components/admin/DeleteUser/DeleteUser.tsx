@@ -12,14 +12,12 @@ const DeleteUser = () => {
   const handleThunk = useHandleThunk();
 
   const currentUser = useAppSelector(state => state.modal.user) as UserItem;
-  const token = useAppSelector(state => state.authUser.token);
 
   const [submitError, setSubmitError] = useState('');
 
   async function handleDeleteUser() {
     const data = {
-      userId: currentUser.id,
-      token: token
+      userId: currentUser.id
     }
     const result = await handleThunk(deleteUser, data, setSubmitError);
 
@@ -27,7 +25,7 @@ const DeleteUser = () => {
       setSubmitError('');
       toast.success('User deleted successfully');
       dispatch(closeModal());
-      await dispatch(getUsers(token as string));
+      await dispatch(getUsers());
     }
     
   }

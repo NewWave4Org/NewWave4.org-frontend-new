@@ -16,8 +16,8 @@ class UsersServices implements IUsersServices {
     this.users = users;
   }
 
-  async getUsers(token: string): Promise<UserResponseDTO> {
-    return this.users.getUsers(token);
+  async getUsers(): Promise<UserResponseDTO> {
+    return this.users.getUsers();
   }
 
   async getUserById(data: UserByIdRequestDTO): Promise<UserByIdResponseDTO> {
