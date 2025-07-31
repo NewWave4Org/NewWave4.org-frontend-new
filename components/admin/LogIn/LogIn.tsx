@@ -15,19 +15,12 @@ import { setAuthData } from '@/store/auth/auth_slice';
 import { useRouter } from 'next/navigation';
 import useHandleThunk from '@/utils/useHandleThunk';
 
-
-
 interface LogInDto {
   email: string;
   password: string;
 }
 interface IValidationSchema {
   validationSchema: AnyObjectSchema
-}
-
-interface TokenPayload {
-  roles: string[];
-  sub: string
 }
 
 const LogIn = ({validationSchema}: IValidationSchema) => {
@@ -43,13 +36,7 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
 
     if(result) {
       console.log('result', result)
-      // const decoded = jwtDecode<TokenPayload>(result.token);
-      dispatch(setAuthData({
-        // token: result.token,
-        // email: decoded.sub,
-        // roles: decoded.roles,
-        isAuthenticated: true,
-      }))
+      dispatch(setAuthData({isAuthenticated: true}))
       resetForm();
       setSubmitError('');
       route.push('/admin/users')
@@ -59,8 +46,8 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
   return (
     <Formik 
       initialValues={{
-        email: 'admin@newwave4.org',
-        password: 'admin123',
+        email: 'admin@gmail.com',
+        password: '12345678',
       }}
       validationSchema={validationSchema}
       onSubmit={(values: LogInDto, formikHelpers) => handleLogIn(values, formikHelpers)}

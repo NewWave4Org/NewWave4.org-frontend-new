@@ -41,7 +41,6 @@ const CreateNewUser = ({validationSchema}: IValidationSchema) => {
 
     const result = await handleThunk(createNewUser, data, setSubmitError)
     if (result) {
-      console.log('result create', result)
       resetForm();
       setSubmitError('');
       toast.success('Invitation sent successfully')

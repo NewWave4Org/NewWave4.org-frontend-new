@@ -11,8 +11,9 @@ import Table from '@/components/ui/Table/Table';
 import { useAppDispatch } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
+import { UsersProps } from './types/interface';
 
-function UsersTable({users}) {
+function UsersTable({users}: UsersProps) {
   const dispatch = useAppDispatch();
 
   function handleDeleteUser(user: UserItem) {
@@ -26,11 +27,7 @@ function UsersTable({users}) {
 
   function handleEditUser(user: UserItem) {
     dispatch(openModal({modalType: ModalType.EDITUSER}));
-
-
-      dispatch(getUserById({id: user.id}))
-
-    
+    dispatch(getUserById({id: user.id}))
   }
 
   return (
@@ -43,6 +40,7 @@ function UsersTable({users}) {
             <>
               <th className="pl-[45px] pb-4 border-b border-admin-300">Avatar</th>
               <th className="pb-4 border-b  border-admin-300">Name</th>
+              <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 <Button
@@ -74,6 +72,9 @@ function UsersTable({users}) {
                 </td>
                 <td className="py-[25px]">
                   <div className="text-admin-700 text-small">{user?.name}</div>
+                </td>
+                 <td className="py-[25px]">
+                  <div className="text-admin-700 text-small">{user?.email}</div>
                 </td>
                 <td className="py-[25px]">
                   <div className="">
