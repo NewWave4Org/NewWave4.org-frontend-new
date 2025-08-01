@@ -29,25 +29,23 @@ interface IValidationSchema {
 const CreateNewUser = ({validationSchema}: IValidationSchema) => {
   const dispatch = useAppDispatch();
   const [submitError, setSubmitError] = useState('');
-  const token = useAppSelector(state => state.authUser.token);
+
   const handleThunk = useHandleThunk();
 
   async function handleCreateNewUser(values: newUserDTO, formikHelpers: FormikHelpers<newUserDTO>) {
     const { resetForm } = formikHelpers;
     const data = {
       ...values,
-      roles: [values.roles],
-      token,
+      roles: [values.roles]
     };
 
     const result = await handleThunk(createNewUser, data, setSubmitError)
     if (result) {
-      console.log('result create', result)
       resetForm();
       setSubmitError('');
       toast.success('Invitation sent successfully')
       dispatch(closeModal());
-      await dispatch(getUsers(token as string));
+      await dispatch(getUsers());
     }
   }
 

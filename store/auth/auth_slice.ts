@@ -20,9 +20,6 @@ const authSlice = createSlice({
   reducers: {
     setAuthData: (state, action) => {
       state.isAuthenticated = true;
-      state.token = action.payload.token;
-      state.email = action.payload.email;
-      state.roles = action.payload.roles;
     },
   },
 });

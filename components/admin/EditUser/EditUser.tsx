@@ -28,7 +28,7 @@ interface IValidationSchema {
 const EditUser = ({validationSchema}: IValidationSchema) => {
   const dispatch = useAppDispatch();
   const userById = useAppSelector(state => state.users.userById);
-  const token = useAppSelector(state => state.authUser.token)
+
   const handleThunk = useHandleThunk();
   const [submitError, setSubmitError] = useState('');
   if (!userById.id) return <div>Loading...</div>;
@@ -38,8 +38,7 @@ const EditUser = ({validationSchema}: IValidationSchema) => {
     const data = {
       id: userById.id,
       ...values,
-      roles: [values.roles],
-      token,
+      roles: [values.roles]
     }
 
     const result = await handleThunk(updateUser, data, setSubmitError)
@@ -49,7 +48,7 @@ const EditUser = ({validationSchema}: IValidationSchema) => {
       setSubmitError('');
       toast.success('User profile updated successfully')
       dispatch(closeModal());
-      await dispatch(getUsers(token as string));
+      await dispatch(getUsers());
     }
   }
 

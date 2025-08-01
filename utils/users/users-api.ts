@@ -14,48 +14,42 @@ import {
 import { IUsersApi } from './type/users-api.interface';
 
 class UserApi implements IUsersApi {
-  async getUsers(token: string): Promise<UserResponseDTO> {
+  async getUsers(): Promise<UserResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.USERS,
-      accessToken: token,
     });
   }
 
   async getUserById(data: UserByIdRequestDTO): Promise<UserByIdResponseDTO> {
-    const { token, id } = data;
+    const { id } = data;
     return request({
       method: HttpMethod.GET,
       url: `${ApiEndpoint.USERS}/${id}`,
-      accessToken: token,
     });
   }
 
   async createNewUser(data: NewUserRequestDTO) {
-    const { token, ...body } = data;
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.USERS,
-      accessToken: token,
-      body: body,
+      body: data,
     });
   }
 
   async deleteUser(data: DeleteUserRequestDTO) {
-    const { token, userId } = data;
+    const { userId } = data;
     return request({
       method: HttpMethod.DELETE,
       url: `${ApiEndpoint.USERS}/${userId}`,
-      accessToken: token,
     });
   }
 
   async updateUser(data: UpdateUserRequestDTO) {
-    const { token, id, ...body } = data;
+    const { id, ...body } = data;
     return request({
       method: HttpMethod.PUT,
       url: `${ApiEndpoint.USERS}/${id}`,
-      accessToken: token,
       body: body,
     });
   }
