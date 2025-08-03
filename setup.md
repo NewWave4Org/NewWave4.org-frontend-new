@@ -62,6 +62,60 @@ spring:
     active: dev
 ```
 
+## **Example application-dev.yml file**
+
+```
+spring:
+  sql:
+    init:
+      mode: always
+  config:
+    activate:
+      on-profile: dev
+  application:
+    name: NewWave4.org-backend-new
+  datasource:
+    url: jdbc:postgresql://localhost:5432/new_wave_dev
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+stripe:
+  secret: sk_test_
+  webhook: whsec_87
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+admin:
+  email: admin@gmail.com
+  password: 12345678
+
+jwt:
+  secret: soem-secret-keysoem-secret-keysoem-secret-keysoem-secret-key
+  access-token-expiration: 3600
+  refresh-token-expiration: 3600
+
+frontend:
+  base:
+    url: http://localhost:3000
+
+```
+
 ### 4. **Run the backend**
 
 ```bash
