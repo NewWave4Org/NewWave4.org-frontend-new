@@ -7,13 +7,6 @@ import { logOutAuth } from "@/store/auth/action";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-// const headerMenu = [
-//   {id: 1, label: "Профіль", href: adminLink.PROFILE, isLink: true},
-//   {id: 2, label: "Налаштування", href: adminLink.PROFILE, isLink: true},
-//   {id: 3, label: "Вихід", href: '#', isLink: false, onclick: handleLogOut},
-// ]
-
-
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
   const route = useRouter();
