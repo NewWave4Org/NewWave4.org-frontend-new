@@ -3,9 +3,17 @@ import DropDown from "@/components/shared/DropDown";
 import adminLink from "./enums/enum";
 import { useAppSelector } from "@/store/hook";
 
+const headerMenu = [
+  {id: 1, label: "Профіль", href: adminLink.PROFILE, isLink: true},
+  {id: 2, label: "Налаштування", href: adminLink.PROFILE, isLink: true},
+  {id: 3, label: "Вихід", href: '#', isLink: false},
+]
+
 
 const AdminHeader = () => {
   const isAuthenticated = useAppSelector(state => state.authUser.isAuthenticated);
+  const currentUser = useAppSelector(state => state.authUser.user);
+  const currentUserName = currentUser?.name;
 
   return (
     <div className="header bg-background-darkBlue800">
@@ -16,7 +24,7 @@ const AdminHeader = () => {
               <DropDown
                 renderBth={(isOpen, toggle) => (
                   <button onClick={toggle} className="text-white">
-                    Admin
+                    {currentUserName}
                   </button>
                 )}
                 classNameItem=""
