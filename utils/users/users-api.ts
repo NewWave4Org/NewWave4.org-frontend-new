@@ -29,6 +29,13 @@ class UserApi implements IUsersApi {
     });
   }
 
+  async getuserbytoken() {
+    return request({
+      method: HttpMethod.GET,
+      url: `${ApiEndpoint.GETUSERINFO}`
+    })
+  }
+
   async createNewUser(data: NewUserRequestDTO) {
     return request({
       method: HttpMethod.POST,

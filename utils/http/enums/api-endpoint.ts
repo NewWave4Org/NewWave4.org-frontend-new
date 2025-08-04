@@ -1,6 +1,7 @@
 const ApiEndpoint = {
   LOGIN: 'auth/login',
   USERS: 'users',
+  GETUSERINFO: 'auth/getuserinfo',
   ALL_ARTICLES: 'articles/cms',
 
   // REFRESHTOKEN: '',

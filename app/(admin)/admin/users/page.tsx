@@ -1,7 +1,7 @@
 'use client';
 import UsersTable from "@/components/admin/Users/UsersTable";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { getUsers } from "@/store/users/actions";
+import { getUserbytoken, getUsers } from "@/store/users/actions";
 import { useEffect } from "react";
 
 function UsersPage() {
@@ -11,6 +11,7 @@ function UsersPage() {
 
   useEffect(() => {
     dispatch(getUsers());
+    dispatch(getUserbytoken());
   }, [dispatch]);
 
   return (
