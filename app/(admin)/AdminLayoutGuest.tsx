@@ -1,6 +1,5 @@
 'use client';
 
-import AdminHeader from "@/components/layout/admin/adminHeader/AdminHeader";
 import Logo from "@/components/layout/Logo";
 import { ReactNode } from "react";
 

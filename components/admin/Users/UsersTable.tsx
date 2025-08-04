@@ -1,6 +1,6 @@
 'use client';
 
-import ProtectedRoute from '@/app/(admin)/ProtectedRoute';
+
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
@@ -8,13 +8,14 @@ import Button from '@/components/shared/Button';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { openModal } from '@/components/ui/Modal/ModalSlice';
 import Table from '@/components/ui/Table/Table';
-import { useAppDispatch } from '@/store/hook';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
 
 function UsersTable({users}: UsersProps) {
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector(state => state.authUser.user);
 
   function handleDeleteUser(user: UserItem) {
     dispatch(openModal(
@@ -31,7 +32,7 @@ function UsersTable({users}: UsersProps) {
   }
 
   return (
-    <ProtectedRoute>
+    <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
@@ -100,15 +101,15 @@ function UsersTable({users}: UsersProps) {
                         </div>
                         Edit
                       </Button>
-                      <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                        onClick={() => handleDeleteUser(user)}
-                      >
-                        <div className="mr-[10px]">
-                          <BasketIcon color="#FC8181" />
-                        </div>
-                        Delete
-                      </Button>
+                      {user.email !== currentUser?.email && (  <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
+                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          <div className="mr-[10px]">
+                            <BasketIcon color="#FC8181" />
+                          </div>
+                          Delete
+                        </Button>)}
                     </div>
                   </div>
                 </td>
@@ -117,7 +118,7 @@ function UsersTable({users}: UsersProps) {
           }}
         />
       </div>
-    </ProtectedRoute>
+    </>
   );
 }
 
