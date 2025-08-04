@@ -20,10 +20,6 @@ class UsersServices implements IUsersServices {
     return this.users.getUsers();
   }
 
-  async getUserByToken(): Promise<any> {
-    return this.users.getuserbytoken();
-  }
-
   async getUserById(data: UserByIdRequestDTO): Promise<UserByIdResponseDTO> {
     return this.users.getUserById(data);
   }

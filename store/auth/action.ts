@@ -22,4 +22,18 @@ const loginAuth = createAsyncThunk<
   },
 );
 
-export { loginAuth };
+const getUserInfo = createAsyncThunk(
+  'users/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.getUserInfo();
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export { loginAuth, getUserInfo };

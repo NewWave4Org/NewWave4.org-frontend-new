@@ -6,12 +6,18 @@ import { AuthLogInRequestDTO } from './libs/types/AuthLogInRequestDTO';
 import { AuthLogInResponseDto } from './libs/types/AuthLogInResponseDTO';
 
 class AuthAPI implements IAuthAPI {
-  // async getuserInfo: () => null;
   async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDto> {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.LOGIN,
       body: data,
+    });
+  }
+
+  async getUserInfo() {
+    return request({
+      method: HttpMethod.GET,
+      url: ApiEndpoint.GETUSERINFO,
     });
   }
 }

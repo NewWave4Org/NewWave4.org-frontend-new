@@ -1,6 +1,6 @@
 'use client';
 
-import ProtectedRoute from '@/app/(admin)/ProtectedRoute';
+
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
@@ -31,7 +31,7 @@ function UsersTable({users}: UsersProps) {
   }
 
   return (
-    <ProtectedRoute>
+    <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
@@ -117,7 +117,7 @@ function UsersTable({users}: UsersProps) {
           }}
         />
       </div>
-    </ProtectedRoute>
+    </>
   );
 }
 

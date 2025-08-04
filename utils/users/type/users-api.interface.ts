@@ -9,7 +9,6 @@ import {
 
 interface IUsersApi {
   getUsers: () => Promise<UserResponseDTO>;
-  getuserbytoken: () => Promise<any>;
   getUserById: (data: UserByIdRequestDTO) => Promise<UserByIdResponseDTO>;
   createNewUser: (data: NewUserRequestDTO) => void;
   deleteUser: (data: DeleteUserRequestDTO) => void;

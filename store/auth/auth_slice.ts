@@ -1,17 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { getUserInfo } from './action';
+import { UserInfoResponseDTO } from '@/utils/auth/libs/types/UserInfoResponseDTO';
 
 export interface IAuthState {
   isAuthenticated: boolean;
-  token: string | null;
-  email: string | null;
-  roles: string[];
+  user: null | UserInfoResponseDTO;
 }
 
 const initialState: IAuthState = {
   isAuthenticated: false,
-  token: null,
-  email: null,
-  roles: [],
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -21,9 +19,24 @@ const authSlice = createSlice({
     setAuthData: (state, action) => {
       state.isAuthenticated = true;
     },
+    clearAuthData(state) {
+      state.isAuthenticated = false;
+      state.user = null;
+    },
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(getUserInfo.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(getUserInfo.rejected, state => {
+        state.user = null;
+        state.isAuthenticated = false;
+      });
   },
 });
 
-export const { setAuthData } = authSlice.actions;
+export const { setAuthData, clearAuthData } = authSlice.actions;
 
 export default authSlice.reducer;

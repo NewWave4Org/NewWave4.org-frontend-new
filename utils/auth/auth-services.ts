@@ -14,9 +14,9 @@ class AuthService implements IAuthService {
     return this.authApi.loginAuth(data);
   }
 
-  // async getuserInfo() {
-  //   return this.authApi.getuserInfo();
-  // }
+  async getUserInfo() {
+    return this.authApi.getUserInfo();
+  }
 }
 
 export default AuthService;

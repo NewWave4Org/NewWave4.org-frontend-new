@@ -1,7 +1,6 @@
 'use client';
 import PenIcon from "@/components/icons/symbolic/PenIcon";
 import DropDown from "@/components/shared/DropDown";
-import ProtectedRoute from "../../ProtectedRoute";
 import Table from "@/components/ui/Table/Table";
 import Button from "@/components/shared/Button";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -23,7 +22,7 @@ const ArticlesListPage = () => {
   }, [dispatch])
   console.log('allArticles', getAllArticles)
   return (
-    <ProtectedRoute>
+    <>
       <div className="">
         {articlesHeader?.map(item => (
           <div key={item.id}>{item.title}</div>
@@ -66,7 +65,7 @@ const ArticlesListPage = () => {
         /> */}
 
       </div>
-    </ProtectedRoute>
+    </>
   );
 };
 

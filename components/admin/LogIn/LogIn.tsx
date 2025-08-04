@@ -9,8 +9,7 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import Link from 'next/link';
 import { AnyObjectSchema } from 'yup';
 import { useAppDispatch } from '@/store/hook';
-import { loginAuth } from '@/store/auth/action';
-import { jwtDecode } from 'jwt-decode';
+import { getUserInfo, loginAuth } from '@/store/auth/action';
 import { setAuthData } from '@/store/auth/auth_slice';
 import { useRouter } from 'next/navigation';
 import useHandleThunk from '@/utils/useHandleThunk';
@@ -32,10 +31,9 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
   async function handleLogIn(data: LogInDto, formikHelpers: FormikHelpers<LogInDto>) {
     const { resetForm } = formikHelpers;
 
-    const result = await handleThunk(loginAuth, data, setSubmitError)
+    const result = await handleThunk(loginAuth, data, setSubmitError);
 
     if(result) {
-      console.log('result', result)
       dispatch(setAuthData({isAuthenticated: true}))
       resetForm();
       setSubmitError('');

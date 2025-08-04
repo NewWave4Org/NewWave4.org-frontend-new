@@ -23,7 +23,7 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body
-        className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen`}
+        className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative overflow-hidden`}
       >
         <AdminLayoutClient>
           {children}
