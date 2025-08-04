@@ -1,8 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { prefix } from '../prefix';
 import { axiosInstance } from './axiosInstance';
-import { ApiEndpoint } from './enums/api-endpoint';
-import { store } from '@/store/store';
 
 import { RequestOptions } from './type/interface';
 import buildRequestConfig from './buildRequestConfig';
@@ -19,7 +17,6 @@ export async function request<T>(options: RequestOptions) {
     const requestConfig = buildRequestConfig({
       method,
       url,
-      accessToken,
       body,
       params,
       config,
@@ -37,10 +34,6 @@ export async function request<T>(options: RequestOptions) {
     console.log('response', response);
     return response.data;
   } catch (error: unknown) {
-    // if (axios.isAxiosError(error) && error.response?.status === 401) {
-    //   // NEED ADD CHEKING FOR ID
-    // }
-
     const normalized = normalizeApiError(error);
 
     throw normalized;
