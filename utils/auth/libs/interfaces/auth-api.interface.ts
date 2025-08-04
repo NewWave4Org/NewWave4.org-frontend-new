@@ -5,6 +5,7 @@ import { UserInfoResponseDTO } from '../types/UserInfoResponseDTO';
 interface IAuthAPI {
   loginAuth: (data: AuthLogInRequestDTO) => Promise<AuthLogInResponseDto>;
   getUserInfo: () => Promise<UserInfoResponseDTO>;
+  logOutAuth: () => void;
 }
 
 export default IAuthAPI;

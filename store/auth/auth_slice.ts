@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getUserInfo } from './action';
+import { getUserInfo, logOutAuth } from './action';
 import { UserInfoResponseDTO } from '@/utils/auth/libs/types/UserInfoResponseDTO';
 
 export interface IAuthState {
@@ -31,6 +31,10 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(getUserInfo.rejected, state => {
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logOutAuth.fulfilled, state => {
         state.user = null;
         state.isAuthenticated = false;
       });

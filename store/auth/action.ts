@@ -36,4 +36,18 @@ const getUserInfo = createAsyncThunk(
   },
 );
 
-export { loginAuth, getUserInfo };
+const logOutAuth = createAsyncThunk(
+  'auth/fetchLogOut',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.logOutAuth();
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export { loginAuth, getUserInfo, logOutAuth };
