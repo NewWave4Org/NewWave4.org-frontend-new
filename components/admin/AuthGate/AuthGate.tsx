@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { getUserInfo } from '@/store/auth/action';
 import Loading from '@/components/admin/Loading/Loading';
 
 const AuthGate = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAppSelector((state) => state.authUser.isAuthenticated);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const hasLoaded = useRef(false);

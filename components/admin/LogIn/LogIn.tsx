@@ -9,7 +9,7 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import Link from 'next/link';
 import { AnyObjectSchema } from 'yup';
 import { useAppDispatch } from '@/store/hook';
-import { loginAuth } from '@/store/auth/action';
+import { getUserInfo, loginAuth } from '@/store/auth/action';
 import { setAuthData } from '@/store/auth/auth_slice';
 import { useRouter } from 'next/navigation';
 import useHandleThunk from '@/utils/useHandleThunk';
@@ -34,7 +34,7 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
     const result = await handleThunk(loginAuth, data, setSubmitError);
 
     if(result) {
-      dispatch(setAuthData({isAuthenticated: true}))
+      dispatch(getUserInfo())
       resetForm();
       setSubmitError('');
       route.push('/admin/users')

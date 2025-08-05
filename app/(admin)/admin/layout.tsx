@@ -13,6 +13,11 @@ import AdminLayoutGuest from '../AdminLayoutGuest';
 
 export const AdminLayoutClient = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAppSelector((state) => state.authUser.isAuthenticated);
+  const isUserChecked = useAppSelector((state) => state.authUser.isUserChecked)
+
+  if (!isUserChecked) {
+    return <Loading />;
+  }
 
   if (isAuthenticated) {
     return <AdminLayoutAuthorized>{children}</AdminLayoutAuthorized>;
