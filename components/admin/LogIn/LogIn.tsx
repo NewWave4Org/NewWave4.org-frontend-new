@@ -9,7 +9,7 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import Link from 'next/link';
 import { AnyObjectSchema } from 'yup';
 import { useAppDispatch } from '@/store/hook';
-import { getUserInfo, loginAuth } from '@/store/auth/action';
+import { loginAuth } from '@/store/auth/action';
 import { setAuthData } from '@/store/auth/auth_slice';
 import { useRouter } from 'next/navigation';
 import useHandleThunk from '@/utils/useHandleThunk';
