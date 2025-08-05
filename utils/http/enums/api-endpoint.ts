@@ -4,8 +4,7 @@ const ApiEndpoint = {
   GETUSERINFO: 'auth/getuserinfo',
   ALL_ARTICLES: 'articles/cms',
   LOGOUT: 'auth/logout',
-
-  // REFRESHTOKEN: '',
+  REFRESHTOKEN: 'auth/refresh',
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];
