@@ -19,6 +19,7 @@ interface SelectProps {
   labelIcon?: ReactNode,
   labelClass?: string,
   adminSelectClass?: boolean,
+  parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   defaultValue?: string;
 }
@@ -31,6 +32,7 @@ const Select: React.FC<SelectProps> = ({
   labelIcon,
   labelClass,
   adminSelectClass,
+  parentClassname,
   defaultValue,
   ...props
 }) => {
@@ -105,12 +107,12 @@ const Select: React.FC<SelectProps> = ({
           className={`w-[275px] relative h-[56px] bg-transparent p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
             focus:outline-none       
             hover:ring-2 hover:ring-grey-600
+          ${parentClassname ? parentClassname : ""}
             ${adminSelectClass ? '!w-full !bg-background-light !ring-0' : ''}
-           ${
-             meta.touched && meta.error
-               ? 'ring-status-danger-500'
-               : 'ring-grey-700'
-           }`}
+           ${meta.touched && meta.error
+              ? 'ring-status-danger-500'
+              : 'ring-grey-700'
+            }`}
           onClick={handleClick}
           onBlur={handleBlur}
         >
@@ -150,7 +152,7 @@ const Select: React.FC<SelectProps> = ({
           </div>
         )}
 
-        
+
       </div>
 
       {/* {isOpen && <div style={{ height: '220px' }} />} */}

@@ -134,7 +134,7 @@ const PaymentForm = () => {
         resetForm,
         setFieldValue,
       }) => (
-        <Form className="flex gap-x-[131px]">
+        <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
           {openModal ? <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={"Paypal Gateway"}>
             {isPaypal ? <PaypalComponent /> : <></>}
           </Modal> :
@@ -147,7 +147,7 @@ const PaymentForm = () => {
                 <h1 className='text-xl font-bolder'>Something went wrong!</h1>}
             </Modal>
           }
-          <div className="w-[399px] flex flex-col gap-y-[40px]">
+          <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
               <h3 className="text-h3 text-font-primary font-ebGaramond">
                 Ваш вплив починається сьогодні
@@ -161,7 +161,7 @@ const PaymentForm = () => {
             <div className="flex flex-col gap-y-2">
               <div>
                 <Input
-                  className="!w-[275px]"
+                  className="max-[1100px]:w-full xl:!w-[275px]"
                   id="name"
                   label="Ім'я та Прізвище"
                   maxLength={50}
@@ -176,7 +176,7 @@ const PaymentForm = () => {
 
               <div>
                 <Input
-                  className="!w-[275px]"
+                  className="max-[1100px]:w-full xl:!w-[275px]"
                   id="email"
                   label="Email"
                   maxLength={50}
@@ -191,7 +191,7 @@ const PaymentForm = () => {
 
               <div>
                 <Input
-                  className="!w-[275px]"
+                  className="max-[1100px]:w-full xl:!w-[275px]"
                   id="amount"
                   label="Donation amount"
                   maxLength={50}
@@ -211,6 +211,7 @@ const PaymentForm = () => {
                 label="Призначення донату"
                 name="purpose"
                 required
+                parentClassname='max-[1100px]:w-full'
                 placeholder="Обрати опцію"
                 onChange={handleChange}
                 options={purposeOptions}
@@ -239,7 +240,7 @@ const PaymentForm = () => {
               </div>
             </div>
           </div>
-          <div className="w-[506px] flex flex-col gap-y-[32px]">
+          <div className="max-[1100px]:w-full xl:w-[506px] flex flex-col gap-y-[32px] max-[1000px]:pt-6">
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
                 Будь ласка оберіть спосіб внесення донату
@@ -313,7 +314,7 @@ const PaymentForm = () => {
                 </p>
               </div>
             </div>
-            <div className="flex">
+            <div className="flex max-[500px]:flex-col">
               <div className="flex-1 flex items-center">
                 <Button
                   size="small"
@@ -328,7 +329,7 @@ const PaymentForm = () => {
                 </Button>
               </div>
 
-              <Button variant="primary" type="submit">
+              <Button variant="primary" type="submit" className='max-[500px]:w-full max-[500px]:mt-8'>
                 {loading ? "loading..." : "Donate"}
               </Button>
             </div>
