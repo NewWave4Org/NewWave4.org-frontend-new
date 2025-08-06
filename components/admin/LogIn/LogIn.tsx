@@ -34,7 +34,7 @@ const LogIn = ({validationSchema}: IValidationSchema) => {
     const result = await handleThunk(loginAuth, data, setSubmitError);
 
     if(result) {
-      dispatch(setAuthData({isAuthenticated: true}))
+      dispatch(getUserInfo())
       resetForm();
       setSubmitError('');
       route.push('/admin/users')

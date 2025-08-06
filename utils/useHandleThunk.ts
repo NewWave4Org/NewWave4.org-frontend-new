@@ -12,7 +12,6 @@ function useHandleThunk() {
     const result = await dispatch(thunkAction(args));
 
     if (thunkAction.rejected.match(result)) {
-      console.log('result', result);
       const msg = extractErrorMessage(
         result.payload?.original?.errors || result.payload?.message,
       );
@@ -21,7 +20,7 @@ function useHandleThunk() {
     }
 
     const value = result.payload != null ? result.payload : true;
-    console.log('✅ Thunk success, result:');
+
     return value;
   };
 }

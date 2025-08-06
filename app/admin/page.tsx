@@ -10,6 +10,7 @@ const validationSchema = Yup.object({
 });
 
 const AdminLogIn = () => {
+
   return (
     <LogIn validationSchema={validationSchema} />
   );
