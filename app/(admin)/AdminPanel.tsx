@@ -17,7 +17,7 @@ const AdminPanel = ({children}: AdminPanelProps) => {
   
   return (
     <>
-      <Layout>{children}</Layout>
+      <AdminLayoutAuthorized>{children}</AdminLayoutAuthorized>
     </>
   );
 };

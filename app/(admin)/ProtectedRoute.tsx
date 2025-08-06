@@ -15,15 +15,15 @@ const ProtectedRoute = ({ children }: Props) => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace('/admin');
+      // router.replace('/admin');
     } else {
       setChecked(true);
     }
   }, [isAuthenticated, router]);
 
-  if (!checked) {
-    return <div>Завантаження...</div>;
-  }
+  // if (!checked) {
+  //   return <div>Завантаження...</div>;
+  // }
 
   return <>{children}</>;
 };
