@@ -11,12 +11,14 @@ const DonationPage = () => {
   return (
     <PayPalScriptProvider options={paypalClientId}>
       <Elements stripe={stripePromise}>
-        <section className="container mx-auto payments-wrapper">
-          <header>
-            <Logo />
-          </header>
-          <PaymentForm />
-        </section>
+        <div className='p-4'>
+          <section className="container mx-auto payments-wrapper max-[1100px]:p-10 max-[500px]:p-6 max-[750px]:m-0">
+            <header>
+              <Logo />
+            </header>
+            <PaymentForm />
+          </section>
+        </div>
       </Elements>
     </PayPalScriptProvider>
   );

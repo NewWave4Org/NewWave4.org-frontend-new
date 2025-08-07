@@ -3,13 +3,12 @@
 import AdminHeader from "@/components/layout/admin/adminHeader/AdminHeader";
 import AdminSidebar from "@/components/layout/admin/adminSidebar/AdminSidebar";
 import { ReactNode } from "react";
-import ProtectedRoute from "./ProtectedRoute";
 import Modals from "@/components/admin/Modals/Modals";
 
 function AdminLayoutAuthorized({ children }: { children: ReactNode }) { 
 
   return (
-    <ProtectedRoute>
+    <div className="flex flex-col h-full">
       <AdminHeader />
       <main className="flex-1">
         <div className='flex h-full bg-white'>
@@ -26,7 +25,7 @@ function AdminLayoutAuthorized({ children }: { children: ReactNode }) {
         </div>
       </main>
       <Modals />
-    </ProtectedRoute>
+    </div>
   );
 }
 

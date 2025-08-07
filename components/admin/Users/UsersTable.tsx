@@ -1,6 +1,6 @@
 'use client';
 
-import ProtectedRoute from '@/app/(admin)/ProtectedRoute';
+
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
@@ -8,13 +8,17 @@ import Button from '@/components/shared/Button';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { openModal } from '@/components/ui/Modal/ModalSlice';
 import Table from '@/components/ui/Table/Table';
-import { useAppDispatch } from '@/store/hook';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
+import { ROLES } from '@/data/admin/roles/Roles';
 
 function UsersTable({users}: UsersProps) {
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector(state => state.authUser.user);
+
+  const onlyContentManager = currentUser?.roles.length === 1 && currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
 
   function handleDeleteUser(user: UserItem) {
     dispatch(openModal(
@@ -31,7 +35,7 @@ function UsersTable({users}: UsersProps) {
   }
 
   return (
-    <ProtectedRoute>
+    <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
@@ -43,7 +47,7 @@ function UsersTable({users}: UsersProps) {
               <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
-                <Button
+                {!onlyContentManager && (<Button
                   variant="primary"
                   className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
                   onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
@@ -52,7 +56,7 @@ function UsersTable({users}: UsersProps) {
                     <UsersIcon color="#fff" />
                   </div>
                   Add new
-                </Button>
+                </Button>)}
               </th>
             </>
           )}
@@ -100,15 +104,15 @@ function UsersTable({users}: UsersProps) {
                         </div>
                         Edit
                       </Button>
-                      <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                        onClick={() => handleDeleteUser(user)}
-                      >
-                        <div className="mr-[10px]">
-                          <BasketIcon color="#FC8181" />
-                        </div>
-                        Delete
-                      </Button>
+                      {user.email !== currentUser?.email && (  <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
+                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          <div className="mr-[10px]">
+                            <BasketIcon color="#FC8181" />
+                          </div>
+                          Delete
+                        </Button>)}
                     </div>
                   </div>
                 </td>
@@ -117,7 +121,7 @@ function UsersTable({users}: UsersProps) {
           }}
         />
       </div>
-    </ProtectedRoute>
+    </>
   );
 }
 

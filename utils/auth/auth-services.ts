@@ -13,6 +13,14 @@ class AuthService implements IAuthService {
   async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDto> {
     return this.authApi.loginAuth(data);
   }
+
+  async getUserInfo() {
+    return this.authApi.getUserInfo();
+  }
+
+  async logOutAuth() {
+    return this.authApi.logOutAuth();
+  }
 }
 
 export default AuthService;

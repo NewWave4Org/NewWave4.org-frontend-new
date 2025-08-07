@@ -7,6 +7,7 @@ interface DropDownItem {
   label: string;
   href?: string;
   isLink?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 interface DropDownProps {
@@ -61,7 +62,12 @@ const DropDown = ({
                   {item.label}
                 </Link>
               ) : (
-                <div onClick={() => closeDropDown()} className='py-2 px-4 border-b hover:text-admin-700 cursor-pointer'>{item.label}</div>
+                <div 
+                onClick={(e) => {
+                  item.onClick?.(e); 
+                  closeDropDown();
+                }}
+                className='py-2 px-4 border-b hover:text-admin-700 cursor-pointer'>{item.label}</div>
               )}
             </div>
           ))}

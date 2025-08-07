@@ -13,6 +13,20 @@ class AuthAPI implements IAuthAPI {
       body: data,
     });
   }
+
+  async getUserInfo() {
+    return request({
+      method: HttpMethod.GET,
+      url: ApiEndpoint.GETUSERINFO,
+    });
+  }
+
+  async logOutAuth() {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.LOGOUT,
+    });
+  }
 }
 
 export default AuthAPI;
