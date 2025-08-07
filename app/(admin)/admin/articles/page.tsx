@@ -6,6 +6,7 @@ import DropDown from '@/components/shared/DropDown';
 import ProtectedRoute from '../../ProtectedRoute';
 import Table from '@/components/ui/Table/Table';
 import Button from '@/components/shared/Button';
+import Pagination from '@/components/shared/Pagination';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { allArticles } from '@/store/articles/action';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
@@ -26,6 +27,8 @@ const ArticlesListPage = () => {
   useEffect(() => {
     dispatch(allArticles({ page: currentPage }));
   }, [dispatch, currentPage]);
+
+  const changePage = (page: number) => setCurrentPage(page);
 
   return (
     <ProtectedRoute>
@@ -124,6 +127,12 @@ const ArticlesListPage = () => {
               </>
             );
           }}
+        />
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          changePage={changePage}
         />
       </div>
     </ProtectedRoute>
