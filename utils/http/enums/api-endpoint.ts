@@ -2,6 +2,7 @@ const ApiEndpoint = {
   LOGIN: 'auth/login',
   USERS: 'users',
   GETUSERINFO: 'auth/getuserinfo',
+  RESET_PASSWORD: 'users/reset-password',
   ALL_ARTICLES: 'articles/cms',
   LOGOUT: 'auth/logout',
   REFRESHTOKEN: 'auth/refresh',
