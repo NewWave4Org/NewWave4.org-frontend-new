@@ -10,8 +10,8 @@ function AdminLayoutAuthorized({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col h-full">
       <AdminHeader />
-      <main className="flex-1">
-        <div className='flex h-full bg-white'>
+      <main className="flex flex-col flex-1 h-full overflow-auto">
+        <div className='flex flex-grow bg-white'>
           <div className='container mx-auto flex'>
             <div className='admin-left bg-background-light  w-[300px]'>
               <AdminSidebar />

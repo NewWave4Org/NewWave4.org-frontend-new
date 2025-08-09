@@ -9,8 +9,9 @@ class ArticleService implements IArticleService {
     this.articles = articles;
   }
 
-  async getArticles(): Promise<ArticlesResponseDTO> {
-    return this.articles.getArticles();
+  async getArticles(params: { page?: number } = {}): Promise<ArticlesResponseDTO> {
+    const { page = 0 } = params;
+    return this.articles.getArticles({ page });
   }
 }
 

@@ -2,7 +2,7 @@ const ApiEndpoint = {
   LOGIN: 'auth/login',
   USERS: 'users',
   GETUSERINFO: 'auth/getuserinfo',
-  ALL_ARTICLES: 'articles/cms',
+  ALL_ARTICLES: 'news/public/get-all',
   LOGOUT: 'auth/logout',
   REFRESHTOKEN: 'auth/refresh',
 } as const;
