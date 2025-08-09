@@ -15,7 +15,7 @@ const Pagination: FC<Props> = ({
   const pagesArray = Array.from({ length: totalPages }, (_, i) => i);
 
   return (
-    <div className="flex justify-center gap-2.5 w-full py-5">
+    <div className="flex justify-center gap-2.5 w-full">
       {pagesArray.map(page => (
         <span
           key={page}
@@ -23,9 +23,9 @@ const Pagination: FC<Props> = ({
           className={clsx(
             'flex items-center justify-center size-[30px] font-bold rounded-full cursor-pointer transition-all duration-300',
             {
-              'bg-[#E2E8F0] text-[#2A4365] hover:opacity-75':
+              'bg-admin-300 text-admin-700 hover:opacity-75':
                 currentPage !== page,
-              'bg-[#2A4365] text-[#E2E8F0]': currentPage === page,
+              'bg-admin-700 text-admin-300': currentPage === page,
             },
           )}
         >
