@@ -35,7 +35,7 @@ const ResetPasswordForm = ({ validationSchema }: IValidationSchema) => {
     }
   }
 
-  if (!success) {
+  if (success) {
     return (
       <>
         <h2 className="text-xl text-admin-700 mb-5">Check your email</h2>
