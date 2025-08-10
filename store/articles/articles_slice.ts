@@ -4,10 +4,12 @@ import { allArticles } from './action';
 
 interface articlesState {
   articles: Article[];
+  totalPages: number;
 }
 
 const initialState: articlesState = {
   articles: [],
+  totalPages: 0,
 };
 
 const articlesSlice = createSlice({
@@ -17,6 +19,7 @@ const articlesSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(allArticles.fulfilled, (state, action) => {
       state.articles = action.payload.content;
+      state.totalPages = action.payload.totalPages;
     });
   },
 });

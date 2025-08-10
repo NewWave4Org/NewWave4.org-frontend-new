@@ -4,9 +4,9 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const allArticles = createAsyncThunk(
   'articles/getAllArticles',
-  async (_, { rejectWithValue }) => {
+  async ({ page }: { page: number }, { rejectWithValue }) => {
     try {
-      const response = await articleService.getArticles();
+      const response = await articleService.getArticles({ page });
 
       return response;
     } catch (error) {

@@ -1,12 +1,15 @@
 export interface Article {
   id: number;
-  title: string;
   articleType: string;
-  articleStatus: string;
-  articleProjectTag: string;
-  createdAt: string;
-  updatedAt: string;
-  authorId: number;
+  authorId: string;
+  authorName: string;
+  newsProjectTag: string;
+  newsStatus: string;
+  previewDescription: string | null;
+  previewImageUrl: string | null;
+  publishedAt: string | null;
+  title: string;
+  views: number;
 }
 
 export interface ArticlesResponseDTO {

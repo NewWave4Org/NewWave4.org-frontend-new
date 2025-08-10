@@ -5,10 +5,11 @@ import { IArticleApi } from './type/articles-api.interface';
 import { ArticlesResponseDTO } from './type/interface';
 
 class ArticleApi implements IArticleApi {
-  async getArticles(): Promise<ArticlesResponseDTO> {
+  async getArticles(params: { page: number }): Promise<ArticlesResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.ALL_ARTICLES,
+      params: { page: params.page, size: 10 },
     });
   }
 }
