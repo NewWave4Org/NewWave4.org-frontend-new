@@ -32,7 +32,6 @@ const userSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(getUsers.fulfilled, (state, action) => {
-      console.log('payload', action.payload);
       state.users = action.payload.content;
     });
     builder.addCase(getUserById.fulfilled, (state, action) => {

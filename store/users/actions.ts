@@ -43,8 +43,6 @@ export const createNewUser = createAsyncThunk(
     try {
       const response = await userService.createNewUser(data);
 
-      console.log('response new user', response);
-
       return response;
     } catch (error) {
       const normalized = normalizeApiError(error);

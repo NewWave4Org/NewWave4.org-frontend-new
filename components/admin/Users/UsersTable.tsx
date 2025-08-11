@@ -12,10 +12,13 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
+import { ROLES } from '@/data/admin/roles/Roles';
 
 function UsersTable({users}: UsersProps) {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
+
+  const onlyContentManager = currentUser?.roles.length === 1 && currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
 
   function handleDeleteUser(user: UserItem) {
     dispatch(openModal(
@@ -44,7 +47,7 @@ function UsersTable({users}: UsersProps) {
               <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
-                <Button
+                {!onlyContentManager && (<Button
                   variant="primary"
                   className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
                   onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
@@ -53,7 +56,7 @@ function UsersTable({users}: UsersProps) {
                     <UsersIcon color="#fff" />
                   </div>
                   Add new
-                </Button>
+                </Button>)}
               </th>
             </>
           )}
