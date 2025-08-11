@@ -160,7 +160,6 @@ Create a `.env.local` file in the root of the frontend directory:
 ```
 NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_test_client_id
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=your_stripe_publishable_key
-NEXT_PUBLIC_STRIPE_SECRET_KEYS=your_stripe_secret_key
 NEXT_PUBLIC_STRIPE_WEBHOOK_URL=http://localhost:8080/api/stripe/webhook
 NEXT_PUBLIC_NEWWAVE_API_URL=http://localhost:8080
 ```
