@@ -1,6 +1,7 @@
 import { authService } from '@/utils/auth';
 import { AuthLogInRequestDTO } from '@/utils/auth/libs/types/AuthLogInRequestDTO';
 import { AuthLogInResponseDto } from '@/utils/auth/libs/types/AuthLogInResponseDTO';
+import { ResetPasswordRequestDTO } from '@/utils/auth/libs/types/ResetPasswordDTO';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { ApiError, ServerErrorData } from '@/utils/http/type/interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -50,4 +51,18 @@ const logOutAuth = createAsyncThunk(
   },
 );
 
-export { loginAuth, getUserInfo, logOutAuth };
+const resetPassword = createAsyncThunk(
+  'auth/fetchResetPassword',
+  async (data: ResetPasswordRequestDTO, { rejectWithValue }) => {
+    try {
+      const response = await authService.resetPassword(data);
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export { loginAuth, getUserInfo, logOutAuth, resetPassword };
