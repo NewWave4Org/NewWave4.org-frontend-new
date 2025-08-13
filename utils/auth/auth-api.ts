@@ -4,7 +4,11 @@ import { request } from '../http/http-request-service';
 import IAuthAPI from './libs/interfaces/auth-api.interface';
 import { AuthLogInRequestDTO } from './libs/types/AuthLogInRequestDTO';
 import { AuthLogInResponseDto } from './libs/types/AuthLogInResponseDTO';
-import { ResetPasswordRequestDTO } from './libs/types/ResetPasswordDTO';
+import {
+  CheckValidTokenDTO,
+  ConfirmResetPasswordRequestDTO,
+  ResetPasswordRequestDTO,
+} from './libs/types/ResetPasswordDTO';
 
 class AuthAPI implements IAuthAPI {
   async loginAuth(data: AuthLogInRequestDTO): Promise<AuthLogInResponseDto> {
@@ -33,6 +37,22 @@ class AuthAPI implements IAuthAPI {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.RESET_PASSWORD,
+      body: data,
+    });
+  }
+
+  async checkValidToken(data: CheckValidTokenDTO) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.CHECK_VALIDATION_TOKEN,
+      body: data,
+    });
+  }
+
+  async confirmResetPassword(data: ConfirmResetPasswordRequestDTO) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.CONFIRM_RESET_PASSWORD,
       body: data,
     });
   }

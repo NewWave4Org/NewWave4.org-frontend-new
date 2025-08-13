@@ -1,7 +1,11 @@
 import { authService } from '@/utils/auth';
 import { AuthLogInRequestDTO } from '@/utils/auth/libs/types/AuthLogInRequestDTO';
 import { AuthLogInResponseDto } from '@/utils/auth/libs/types/AuthLogInResponseDTO';
-import { ResetPasswordRequestDTO } from '@/utils/auth/libs/types/ResetPasswordDTO';
+import {
+  CheckValidTokenDTO,
+  ConfirmResetPasswordRequestDTO,
+  ResetPasswordRequestDTO,
+} from '@/utils/auth/libs/types/ResetPasswordDTO';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { ApiError, ServerErrorData } from '@/utils/http/type/interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -65,4 +69,39 @@ const resetPassword = createAsyncThunk(
   },
 );
 
-export { loginAuth, getUserInfo, logOutAuth, resetPassword };
+const checkToken = createAsyncThunk(
+  'auth/fetchValidationToken',
+  async (data: CheckValidTokenDTO, { rejectWithValue }) => {
+    try {
+      const response = await authService.checkValidToken(data);
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+const confirmResetPass = createAsyncThunk(
+  'auth/fetchConfirmResetPass',
+  async (data: ConfirmResetPasswordRequestDTO, { rejectWithValue }) => {
+    try {
+      const response = await authService.confirmResetPassword(data);
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export {
+  loginAuth,
+  getUserInfo,
+  logOutAuth,
+  resetPassword,
+  checkToken,
+  confirmResetPass,
+};
