@@ -14,7 +14,7 @@ import TokenExpired from './TokenExpired';
 interface SetPasswordDto {
   token: string;
   password: string;
-  confirmPassword: string;
+  repeatPassword: string;
 }
 interface IValidationSchema {
   validationSchema: AnyObjectSchema;
@@ -79,10 +79,11 @@ const SetPasswordForm = ({ validationSchema }: IValidationSchema) => {
   return (
     <Formik
       initialValues={{
-        token: '',
+        token: token ?? '',
         password: '',
-        confirmPassword: '',
+        repeatPassword: '',
       }}
+      enableReinitialize
       validationSchema={validationSchema}
       onSubmit={(values: SetPasswordDto, formikHelpers) =>
         handleSetPassword(values, formikHelpers)
@@ -121,18 +122,18 @@ const SetPasswordForm = ({ validationSchema }: IValidationSchema) => {
               <Input
                 required
                 onChange={handleChange}
-                id="confirmPassword"
-                name="confirmPassword"
+                id="repeatPassword"
+                name="repeatPassword"
                 type="password"
                 className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
                 label="Confirm your password"
                 labelIcon={<LockIcon />}
                 passwordIcon={true}
                 labelClass="text-xl mb-5 !text-admin-700"
-                value={values.confirmPassword}
+                value={values.repeatPassword}
                 validationText={
-                  touched.confirmPassword && errors.confirmPassword
-                    ? errors.confirmPassword
+                  touched.repeatPassword && errors.repeatPassword
+                    ? errors.repeatPassword
                     : ''
                 }
               />
