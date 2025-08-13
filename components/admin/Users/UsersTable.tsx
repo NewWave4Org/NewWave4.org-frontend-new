@@ -1,6 +1,5 @@
 'use client';
 
-
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
@@ -14,24 +13,28 @@ import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
 import { ROLES } from '@/data/admin/roles/Roles';
 
-function UsersTable({users}: UsersProps) {
+function UsersTable({ users }: UsersProps) {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
 
-  const onlyContentManager = currentUser?.roles.length === 1 && currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
+  const onlyContentManager =
+    currentUser?.roles.length === 1 &&
+    currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
+
+  const isSuperAdmin = currentUser?.roles.includes('ROLE_SUPER_ADMIN');
 
   function handleDeleteUser(user: UserItem) {
-    dispatch(openModal(
-      {
+    dispatch(
+      openModal({
         modalType: ModalType.DELETEUSER,
-        user: user
-      }
-    ));
+        user: user,
+      }),
+    );
   }
 
   function handleEditUser(user: UserItem) {
-    dispatch(openModal({modalType: ModalType.EDITUSER}));
-    dispatch(getUserById({id: user.id}))
+    dispatch(openModal({ modalType: ModalType.EDITUSER }));
+    dispatch(getUserById({ id: user.id }));
   }
 
   return (
@@ -42,21 +45,29 @@ function UsersTable({users}: UsersProps) {
           data={users}
           renderHeader={() => (
             <>
-              <th className="pl-[45px] pb-4 border-b border-admin-300">Avatar</th>
+              <th className="pl-[45px] pb-4 border-b border-admin-300">
+                Avatar
+              </th>
               <th className="pb-4 border-b  border-admin-300">Name</th>
               <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
-                {!onlyContentManager && (<Button
-                  variant="primary"
-                  className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
-                  onClick={() => dispatch(openModal({modalType: ModalType.CREATENEWUSER}))}
-                >
-                  <div className="mr-[12px]">
-                    <UsersIcon color="#fff" />
-                  </div>
-                  Add new
-                </Button>)}
+                {!onlyContentManager && (
+                  <Button
+                    variant="primary"
+                    className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
+                    onClick={() =>
+                      dispatch(
+                        openModal({ modalType: ModalType.CREATENEWUSER }),
+                      )
+                    }
+                  >
+                    <div className="mr-[12px]">
+                      <UsersIcon color="#fff" />
+                    </div>
+                    Add new
+                  </Button>
+                )}
               </th>
             </>
           )}
@@ -77,44 +88,58 @@ function UsersTable({users}: UsersProps) {
                 <td className="py-[25px]">
                   <div className="text-admin-700 text-small">{user?.name}</div>
                 </td>
-                 <td className="py-[25px]">
+                <td className="py-[25px]">
                   <div className="text-admin-700 text-small">{user?.email}</div>
                 </td>
                 <td className="py-[25px]">
                   <div className="">
                     {user?.roles.map(role => {
-                      const userRole = role.startsWith('ROLE_') ? role.replace('ROLE_', '').toLowerCase().replace('_', ' ') : role.toLowerCase().replace('_', ' ');
+                      const userRole = role.startsWith('ROLE_')
+                        ? role
+                            .replace('ROLE_', '')
+                            .toLowerCase()
+                            .replace('_', ' ')
+                        : role.toLowerCase().replace('_', ' ');
                       return (
-                        <span key={userRole} className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small mr-2">
+                        <span
+                          key={userRole}
+                          className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small mr-2"
+                        >
                           {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                         </span>
-                      )
+                      );
                     })}
                   </div>
                 </td>
                 <td className="pr-[45px] py-[25px]">
-                  <div className="tableActions flex justify-end">
-                    <div className="flex gap-x-[40px]">
-                      <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
+                  {!user.roles.includes('ROLE_SUPER_ADMIN') && (
+                    <div className="tableActions flex justify-end">
+                      <div className="flex gap-x-[40px]">
+                        <Button
+                          className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
                         hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <div className="mr-[10px]">
-                          <EditIcon />
-                        </div>
-                        Edit
-                      </Button>
-                      {user.email !== currentUser?.email && (  <Button className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                          onClick={() => handleDeleteUser(user)}
+                          onClick={() => handleEditUser(user)}
                         >
                           <div className="mr-[10px]">
-                            <BasketIcon color="#FC8181" />
+                            <EditIcon />
                           </div>
-                          Delete
-                        </Button>)}
+                          Edit
+                        </Button>
+                        {user.email !== currentUser?.email && (
+                          <Button
+                            className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
+                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                            onClick={() => handleDeleteUser(user)}
+                          >
+                            <div className="mr-[10px]">
+                              <BasketIcon color="#FC8181" />
+                            </div>
+                            Delete
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </td>
               </>
             );
