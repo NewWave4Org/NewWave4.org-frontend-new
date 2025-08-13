@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { Roboto } from 'next/font/google';
@@ -18,16 +17,18 @@ export const metadata: Metadata = {
   title: 'Login | Admin panel',
 };
 
-export default function AdminPublicLayout({ children }: { children: ReactNode }) {
+export default function AdminPublicLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
         <ReduxProvider>
-          <AdminLayoutGuest>
-            {children}
-          </AdminLayoutGuest>
+          <AdminLayoutGuest>{children}</AdminLayoutGuest>
         </ReduxProvider>
-    
+
         <ToastContainer
           position="top-right"
           autoClose={5000}
