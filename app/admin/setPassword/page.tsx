@@ -4,13 +4,17 @@ import SetPasswordForm from '@/components/admin/SetPasswordForm/SetPasswordForm'
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-function SetPasswordPage() {
+function SetPasswordWrapper() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
 
+  return <SetPasswordForm token={token} />;
+}
+
+function SetPasswordPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SetPasswordForm token={token} />;
+      <SetPasswordWrapper />;
     </Suspense>
   );
 }
