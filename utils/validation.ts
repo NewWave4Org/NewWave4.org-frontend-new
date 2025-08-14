@@ -1,10 +1,19 @@
 import * as Yup from 'yup';
+import { validateEmail } from './emailValidator';
 
 export const emailValidation = Yup.string()
   .required('Email field cannot be empty')
-  .matches(
-    /^[\w!#$%&'*+/=?`{|}~^-]+(?:\.[\w!#$%&'*+/=?`{|}~^-]+)*@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}$/i,
+  .test(
+    'is-valid-email',
     'Please enter a valid email address',
+    async (value) => {
+      if (!value) return false;
+      try {
+        return await validateEmail(value);
+      } catch {
+        return false;
+      }
+    }
   );
 
 export const phoneValidation = Yup.string().matches(
