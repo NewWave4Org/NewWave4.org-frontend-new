@@ -1,3 +1,5 @@
+'use client';
+
 import LockIcon from '@/components/icons/symbolic/LockIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
