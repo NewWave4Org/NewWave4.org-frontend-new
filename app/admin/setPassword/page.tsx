@@ -1,20 +1,13 @@
 'use client';
 
-import React from 'react';
-import * as Yup from 'yup';
 import SetPasswordForm from '@/components/admin/SetPasswordForm/SetPasswordForm';
-import { adminPassValidation } from '@/utils/validation';
+import { useSearchParams } from 'next/navigation';
 
-const validationSchema = Yup.object({
-  password: adminPassValidation,
-  confirmPassword: adminPassValidation.oneOf(
-    [Yup.ref('password')],
-    'Passwords do not match',
-  ),
-});
+function SetPasswordPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token') ?? '';
 
-const page = () => {
-  return <SetPasswordForm validationSchema={validationSchema} />;
-};
+  return <SetPasswordForm token={token} />;
+}
 
-export default page;
+export default SetPasswordPage;

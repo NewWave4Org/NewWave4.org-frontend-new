@@ -1,15 +1,17 @@
+'use client';
+
+import * as Yup from 'yup';
 import LockIcon from '@/components/icons/symbolic/LockIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import { checkToken, confirmResetPass } from '@/store/auth/action';
 import { useAppDispatch } from '@/store/hook';
 import { Form, Formik, FormikHelpers } from 'formik';
-import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { AnyObjectSchema } from 'yup';
 import useHandleThunk from '@/utils/useHandleThunk';
 import SetPasswordSuccess from './SetPasswordSuccess';
 import TokenExpired from './TokenExpired';
+import { adminPassValidation } from '@/utils/validation';
 
 interface SetPasswordDto {
   token: string;
@@ -17,20 +19,25 @@ interface SetPasswordDto {
   repeatPassword: string;
 }
 interface IValidationSchema {
-  validationSchema: AnyObjectSchema;
+  token: string;
 }
 
+const validationSchema = Yup.object({
+  password: adminPassValidation,
+  confirmPassword: adminPassValidation.oneOf(
+    [Yup.ref('password')],
+    'Passwords do not match',
+  ),
+});
+
 // this form for a new user
-const SetPasswordForm = ({ validationSchema }: IValidationSchema) => {
+const SetPasswordForm = ({ token }: IValidationSchema) => {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
   const [submitError, setSubmitError] = useState('');
   const [success, setSuccess] = useState(false);
 
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
-
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
 
   useEffect(() => {
     if (token) {
@@ -60,21 +67,16 @@ const SetPasswordForm = ({ validationSchema }: IValidationSchema) => {
     }
   }
 
-  if (isValidToken === null) {
+  if (isValidToken === null)
     return (
       <div className="text-black font-semibold mt-5 text-center text-xl">
         Loading...
       </div>
     );
-  }
 
-  if (!isValidToken) {
-    return <TokenExpired />;
-  }
+  if (!isValidToken) return <TokenExpired />;
 
-  if (!success) {
-    return <SetPasswordSuccess />;
-  }
+  if (!success) return <SetPasswordSuccess />;
 
   return (
     <Formik
@@ -170,6 +172,9 @@ const SetPasswordForm = ({ validationSchema }: IValidationSchema) => {
                   at least one special character.
                 </li>
               </ul>
+            </div>
+            <div className="text-medium text-status-danger-500 mt-5">
+              {submitError}
             </div>
             <div className="mt-[40px] flex items-center justify-between">
               <div className="w-full">
