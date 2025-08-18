@@ -17,6 +17,7 @@ export interface UserByIdResponseDTO {
   email: string;
   name: string;
   roles: string[];
+  verificatedUser: boolean;
 }
 
 export interface NewUserRequestDTO extends Omit<UserItem, 'id'> {
