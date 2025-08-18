@@ -51,6 +51,7 @@ function UsersTable({ users }: UsersProps) {
               <th className="pb-4 border-b  border-admin-300">Name</th>
               <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
+              <th className="pb-4 border-b  border-admin-300">Status</th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 {!onlyContentManager && (
                   <Button
@@ -110,6 +111,17 @@ function UsersTable({ users }: UsersProps) {
                       );
                     })}
                   </div>
+                </td>
+                <td>
+                  {user.verificatedUser ? (
+                    <span className="bg-status-success-500 py-1.5 px-4 rounded-2xl text-white font-semibold">
+                      Verified
+                    </span>
+                  ) : (
+                    <span className="bg-red-600 py-1.5 px-4 rounded-2xl text-white font-semibold">
+                      Not Verified
+                    </span>
+                  )}
                 </td>
                 <td className="pr-[45px] py-[25px]">
                   {!user.roles.includes('ROLE_SUPER_ADMIN') && (

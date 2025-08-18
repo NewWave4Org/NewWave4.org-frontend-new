@@ -14,6 +14,7 @@ const initialState: UserState = {
     name: '',
     email: '',
     roles: [],
+    verificatedUser: false,
   },
 };
 
@@ -27,6 +28,7 @@ const userSlice = createSlice({
         name: '',
         email: '',
         roles: [],
+        verificatedUser: false,
       };
     },
   },

@@ -14,7 +14,7 @@ function SetPasswordWrapper() {
 function SetPasswordPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SetPasswordWrapper />;
+      <SetPasswordWrapper />
     </Suspense>
   );
 }

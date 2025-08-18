@@ -67,16 +67,21 @@ const SetPasswordForm = ({ token }: IValidationSchema) => {
     }
   }
 
-  if (isValidToken === null)
+  if (isValidToken === null) {
     return (
       <div className="text-black font-semibold mt-5 text-center text-xl">
         Loading...
       </div>
     );
+  }
 
-  if (!isValidToken) return <TokenExpired />;
+  if (!isValidToken) {
+    return <TokenExpired />;
+  }
 
-  if (!success) return <SetPasswordSuccess />;
+  if (success) {
+    return <SetPasswordSuccess />;
+  }
 
   return (
     <Formik

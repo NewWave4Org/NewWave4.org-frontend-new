@@ -62,7 +62,10 @@ export async function request<T>(options: RequestOptions) {
   } catch (error: unknown) {
     const err = error as AxiosError;
 
-    if (err?.response?.status === 401 && !options._retry) {
+    if (
+      (err?.response?.status === 401 || err?.response?.status === 403) &&
+      !options._retry
+    ) {
       options._retry = true;
 
       const refreshed = await refreshAccessToken();
