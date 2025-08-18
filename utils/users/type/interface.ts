@@ -3,6 +3,7 @@ export interface UserItem {
   name: string;
   email: string;
   roles: string[];
+  verificatedUser: boolean;
 }
 
 export type UserResponseDTO = { content: UserItem[] };
