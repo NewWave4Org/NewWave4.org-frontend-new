@@ -1,15 +1,24 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
 export default {
   mode: 'jit',
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
       fontFamily: {
         helv: ['var(--font-helv)'],
         ebGaramond: ['var(--font-ebGaramond)'],
@@ -111,6 +120,14 @@ export default {
             fontWeight: '500',
           },
         ],
+        medium: [
+          '15px',
+          {
+            lineHeight: '1.5',
+            letterSpacing: '0.32px',
+            fontWeight: '400',
+          },
+        ],
         medium1: [
           '16px',
           {
@@ -146,83 +163,94 @@ export default {
       },
       colors: {
         grey: {
-          50: "#FAFAFA",
-          100: "#F4F4F4",
-          200: "#E8E8E8",
-          300: "#D1D1D1",
-          400: "#B5B5B5",
-          500: "#9A9A9A",
-          600: "#7A7A7A",
-          700: "#5A5A5A"
+          50: '#FAFAFA',
+          100: '#F4F4F4',
+          200: '#E8E8E8',
+          300: '#D1D1D1',
+          400: '#B5B5B5',
+          500: '#9A9A9A',
+          600: '#7A7A7A',
+          700: '#5A5A5A',
         },
         primary: {
-          100: "#D4E3F9",
-          200: "#A4C2EC",
-          300: "#789BDA",
-          400: "#5A7CC0",
-          500: "#3D5EA7",
-          700: "#1E3770"
+          100: '#D4E3F9',
+          200: '#A4C2EC',
+          300: '#789BDA',
+          400: '#5A7CC0',
+          500: '#3D5EA7',
+          700: '#1E3770',
+          800: '#2C5282',
         },
         accent: {
-          300: "#FEEB93",
-          500: "#E9BA65",
-          700: "#B07A4E"
+          300: '#FEEB93',
+          500: '#E9BA65',
+          700: '#B07A4E',
+        },
+        admin: {
+          100: '#F7FAFC',
+          300: '#E2E8F0',
+          600: '#3182CE',
+          700: '#2A4365',
+          red: '#FC8181',
         },
         font: {
-          primary: "#0F1B40",
-          accent: "#162655",
-          secondary: "#3D5EA7",
-          tertiary: "#8B5E3C",
-          white: "#FFFFFF"
+          primary: '#0F1B40',
+          accent: '#162655',
+          secondary: '#3D5EA7',
+          tertiary: '#8B5E3C',
+          white: '#FFFFFF',
         },
         buttons: {
           cta: {
-            active: "#D4A017",
-            hover: "#C49415"
+            active: '#D4A017',
+            hover: '#C49415',
           },
           secondary: {
-            active: "#2D4A8F",
-            hover: "#162655"
-          }
+            active: '#2D4A8F',
+            hover: '#162655',
+          },
         },
         icons: {
-          active: "#1E3770",
-          hover: "#3D5EA7",
-          grey: "#9A9A9A",
+          active: '#1E3770',
+          hover: '#3D5EA7',
+          grey: '#9A9A9A',
         },
         status: {
-          success:
-          {
-            50: "#ECFDF3",
-            100: "#D1FADF",
-            500: "#4CAF50",
+          success: {
+            50: '#ECFDF3',
+            100: '#D1FADF',
+            500: '#4CAF50',
           },
           danger: {
-            50: "#FDECEC",
-            100: "#FAD1D1",
-            500: "#E53935"
+            50: '#FDECEC',
+            100: '#FAD1D1',
+            500: '#E53935',
           },
           warning: {
-            50: "#FDF6EC",
-            100: "#FAECD1",
-            500: "#FFA726",
+            50: '#FDF6EC',
+            100: '#FAECD1',
+            500: '#FFA726',
           },
           info: {
-            50: "#ECFDFD",
-            100: "#D1F8FA",
-            500: "#6EA8FE"
+            50: '#ECFDFD',
+            100: '#D1F8FA',
+            500: '#6EA8FE',
           },
-          link: "#006ABB",
+          link: '#006ABB',
         },
         background: {
-          primary: "#FEF7F1",
-          secondary: "#EEE2D7",
+          primary: '#FEF7F1',
+          secondary: '#EEE2D7',
+          light: '#EDF2F7',
+          darkBlue: '#2A4365',
+          darkBlue800: '#2D3748',
+          darkBlue800_2: '#2C5282',
         },
-        foreground: "var(--foreground)",
+        foreground: 'var(--foreground)',
       },
       boxShadow: {
-        custom: "4px 4px 12px 0px rgba(180, 140, 100, 0.15)",
-        header: "inset 0px 0px 68px #FFFFFF0D, inset 0px 0px 4px #FFFFFF26"
+        custom: '4px 4px 12px 0px rgba(180, 140, 100, 0.15)',
+        header: 'inset 0px 0px 68px #FFFFFF0D, inset 0px 0px 4px #FFFFFF26',
       },
     },
   },

@@ -1,0 +1,7 @@
+const ROLES = {
+  SUPER_ADMIN: "ROLE_SUPER_ADMIN",
+  ADMIN: 'ROLE_ADMIN',
+  MANAGER: 'ROLE_CONTENT_MANAGER',
+} as const;
+
+export { ROLES };

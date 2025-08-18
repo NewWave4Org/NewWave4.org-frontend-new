@@ -3,7 +3,7 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 interface Option {
   value: string;
@@ -16,7 +16,12 @@ interface SelectProps {
   label?: string;
   required?: boolean;
   placeholder?: string;
+  labelIcon?: ReactNode,
+  labelClass?: string,
+  adminSelectClass?: boolean,
+  parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -24,6 +29,11 @@ const Select: React.FC<SelectProps> = ({
   label,
   required,
   placeholder,
+  labelIcon,
+  labelClass,
+  adminSelectClass,
+  parentClassname,
+  defaultValue,
   ...props
 }) => {
   const [field, meta] = useField(props);
@@ -34,6 +44,16 @@ const Select: React.FC<SelectProps> = ({
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (defaultValue) {
+      const foundOption = options.find(option => option.value === defaultValue);
+      if (foundOption) {
+        setSelectedOption(foundOption);
+        setFieldValue(props.name, foundOption.value);
+      }
+    }
+  }, [defaultValue, options, props.name, setFieldValue]);
 
   useEffect(() => {
     if (isOpen && dropdownRef.current) {
@@ -66,8 +86,15 @@ const Select: React.FC<SelectProps> = ({
         <label
           htmlFor={props.name}
           className={`block text-medium2 mb-1 text-grey-500
-         }`}
+            ${labelIcon ? 'flex items-center' : ''}
+            ${labelClass}
+         `}
         >
+          {labelIcon && (
+            <span className="mr-[10px]">
+              {labelIcon}
+            </span>
+          )}
           {label}
           {required && (
             <span className="text-status-danger-500 text-body"> *</span>
@@ -77,26 +104,41 @@ const Select: React.FC<SelectProps> = ({
       <div className="relative">
         <div
           ref={selectRef}
-          className={`w-[275px] h-[56px] bg-transparent p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
+          className={`w-[275px] relative h-[56px] bg-transparent p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
             focus:outline-none       
             hover:ring-2 hover:ring-grey-600
-           ${
-             meta.touched && meta.error
-               ? 'ring-status-danger-500'
-               : 'ring-grey-700'
-           }`}
+          ${parentClassname ? parentClassname : ""}
+            ${adminSelectClass ? '!w-full !bg-background-light !ring-0' : ''}
+           ${meta.touched && meta.error
+              ? 'ring-status-danger-500'
+              : 'ring-grey-700'
+            }`}
           onClick={handleClick}
           onBlur={handleBlur}
         >
           <span className="h-full flex items-center text-medium2 text-grey-700">
             {selectedOption?.label || placeholder || 'Оберіть опцію'}
           </span>
+
+          {isOpen ? (
+            <ArrowUp4Icon
+              size="20px"
+              color="#7A7A7A"
+              className="absolute right-[15px] top-1/2 -translate-y-1/2 pointer-events-none"
+            />
+          ) : (
+            <ArrowDown4Icon
+              size="20px"
+              color="#7A7A7A"
+              className="absolute right-[15px] top-1/2 -translate-y-1/2 pointer-events-none"
+            />
+          )}
         </div>
 
         {isOpen && (
           <div
             ref={dropdownRef}
-            className="absolute z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom"
+            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom ${adminSelectClass ? '!w-full' : ''}`}
           >
             {options.map(option => (
               <div
@@ -110,22 +152,10 @@ const Select: React.FC<SelectProps> = ({
           </div>
         )}
 
-        {isOpen ? (
-          <ArrowUp4Icon
-            size="20px"
-            color="#7A7A7A"
-            className="absolute left-[240px] top-1/2 -translate-y-1/2 pointer-events-none"
-          />
-        ) : (
-          <ArrowDown4Icon
-            size="20px"
-            color="#7A7A7A"
-            className="absolute left-[240px] top-1/2 -translate-y-1/2 pointer-events-none"
-          />
-        )}
+
       </div>
 
-      {isOpen && <div style={{ height: '220px' }} />}
+      {/* {isOpen && <div style={{ height: '220px' }} />} */}
 
       {meta.touched && meta.error && (
         <p className={`text-small2 mt-[4px] text-status-danger-500`}>

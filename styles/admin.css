@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F7FAFC;
+  --foreground: #2C5282;
+}
+
+* {
+  outline: none !important;
+}
+
+html, body {
+  height: 100vh;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  box-sizing: border-box;
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+.activeStyle {
+  font-weight: 900;
+}
+
+.modal {
+  pointer-events: none;
+  position: fixed;
+  inset: 0px;
+  margin: 0px;
+  display: grid;
+  height: 100%;
+  max-height: none;
+  width: 100%;
+  max-width: none;
+  justify-items: center;
+  align-items: center;
+  padding: 0px;
+  opacity: 0;
+  overscroll-behavior: contain;
+  z-index: 999;
+  background-color: transparent;
+  color: inherit;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  transition-property: transform, opacity, visibility;
+  overflow-y: hidden;
+}
+.modal-open {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.37);
+}
+.modal-box {
+  max-height: calc(100vh - 5em);
+  width: 515px;
+  grid-column-start: 1;
+  grid-row-start: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #FFFFFF;
+  border-radius: 10px;
+  padding: 50px 40px;
+  position: relative;
+}
+.modal__header {
+  padding-right: 36px;
+}
+.modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  position: absolute;
+  top: 44px;
+  right: 33px;
+  z-index: 99;
+  cursor: pointer;
+}

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import '../../styles/payment.css';
+import '@/styles/globals.css';
 import { EB_Garamond, Poppins } from 'next/font/google';
+import DonationPageLayout from '@/components/DonationPageLayout/DonationPageLayout';
 
 const helveticaFont = localFont({
   src: [
@@ -50,7 +52,9 @@ export default function PaymentLayout({
       <body
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} ${poppinsFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-hidden">
+          <DonationPageLayout>{children}</DonationPageLayout>
+        </main>
       </body>
     </html>
   );

@@ -5,12 +5,12 @@ const teamData = {
     title: "Наша команда",
     team: [
       {
-        name: "Bohdan Dohonok",
+        name: "Bohdan Bohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
         location: "Pittsburgh, PA",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/bohdan.bohonok",
         }
       },
       {
@@ -19,7 +19,7 @@ const teamData = {
         position: "President",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/myroslava.rozdolska",
         }
       },
       {
@@ -28,7 +28,7 @@ const teamData = {
         position: "Vice President",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/lesya.zlupko",
         }
       },
       {
@@ -37,16 +37,16 @@ const teamData = {
         position: "Financial Adviser",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/anyashpook",
         }
       },
       {
-        name: "Olga Hrynyk",
+        name: "Olha Hrynyk",
         img: `${prefix}/team/olga-hrynyk.png`,
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/profile.php?id=100003584783957",
         }
       },
       {
@@ -55,7 +55,7 @@ const teamData = {
         position: "PR Director",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/iryna.borshchevskarozdolska",
         }
       },
       {
@@ -73,7 +73,7 @@ const teamData = {
         position: "Treasurer",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/zirusia.romanyuk",
         }
       }
     ]
@@ -82,12 +82,12 @@ const teamData = {
     title: "Our team",
     team: [
       {
-        name: "Bohdan Dohonok",
+        name: "Bohdan Bohonok",
         img: `${prefix}/team/bohdan-dohonok.png`,
         position: "Vice President",
         location: "Pittsburgh, PA",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/bohdan.bohonok",
         }
       },
       {
@@ -96,7 +96,7 @@ const teamData = {
         position: "President",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/myroslava.rozdolska",
         }
       },
       {
@@ -105,7 +105,7 @@ const teamData = {
         position: "Vice President",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/lesya.zlupko",
         }
       },
       {
@@ -114,16 +114,16 @@ const teamData = {
         position: "Financial Adviser",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/anyashpook",
         }
       },
       {
-        name: "Olga Hrynyk",
+        name: "Olha Hrynyk",
         img: `${prefix}/team/olga-hrynyk.png`,
         position: "Head of Brooklyn Department",
         location: "Brooklyn, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/profile.php?id=100003584783957",
         }
       },
       {
@@ -132,7 +132,7 @@ const teamData = {
         position: "PR Director",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/iryna.borshchevskarozdolska",
         }
       },
       {
@@ -150,7 +150,7 @@ const teamData = {
         position: "Treasurer",
         location: "Staten Island, NY",
         social: {
-          facebook: "https://www.facebook.com",
+          facebook: "https://www.facebook.com/zirusia.romanyuk",
         }
       }
     ]
