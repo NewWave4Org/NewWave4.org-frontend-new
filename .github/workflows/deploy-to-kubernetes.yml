@@ -1,0 +1,125 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Kubernetes namespace to deploy into'
+        required: true
+        default: 'staging'
+      chart_version:
+        description: 'Version of the Helm chart to deploy'
+        required: true
+        default: '0.1.2'
+      image_tag:
+        description: 'Docker image tag to deploy (default: latest)'
+        required: false
+        default: 'latest'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging  # This sets the GitHub Environment. Use 'production' here for production.
+    env:
+      NAMESPACE: ${{ github.event.inputs.namespace }}
+      CHART_VERSION: ${{ github.event.inputs.chart_version }}
+      IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Org Lowercase
+        run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Debug Kubeconfig
+        run: |
+          cat ~/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry for Helm
+        run: |
+            echo "${{ secrets.GHCR_PAT }}" | helm registry login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Create values.yaml from Secret
+        run: |
+          echo "${{ secrets.VALUES_YAML }}" > ./values.yaml
+
+      - name: Install yq
+        run: |
+          wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod a+x /usr/local/bin/yq
+
+      - name: Debug values.yaml (without showing sensitive data)
+        run: |
+          echo "Verifying values.yaml file exists and is valid YAML..."
+          if [ -f ./values.yaml ]; then
+            echo "values.yaml file exists"
+            # Check if it's valid YAML without displaying the content
+            if ! yq eval ./values.yaml > /dev/null 2>&1; then
+              echo "Error: values.yaml is not valid YAML. Please check your VALUES_YAML secret."
+              exit 1
+            else
+              echo "values.yaml is valid YAML"
+              # Show structure without values
+              echo "File structure (keys only):"
+              yq eval 'keys' ./values.yaml
+            fi
+          else
+            echo "Error: values.yaml file was not created"
+            exit 1
+          fi
+
+      - name: Create Docker Registry Secret
+        run: |
+          kubectl create secret docker-registry ghcr-regcred \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.repository_owner }} \
+            --docker-password=${{ secrets.GHCR_PAT }} \
+            --docker-email=rozdolskyvolodymyr@gmail.com \
+            --namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Debug OCI Registry
+        run: |
+          echo "Checking if we can access the OCI registry..."
+          # List repositories in the registry using the correct authentication format
+          curl -s -H "Authorization: token ${{ secrets.GHCR_PAT }}" https://ghcr.io/v2/${{ env.ORG }}/charts/tags/list || echo "Failed to list tags"
+
+          echo "Trying to pull the chart..."
+          helm pull oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart --version ${{ env.CHART_VERSION }} || echo "Failed to pull chart"
+
+          echo "For OCI repositories, we use direct OCI URLs instead of adding repositories"
+        
+
+      - name: Helm Upgrade/Install
+        run: |
+          echo "Installing chart from OCI repository..."
+          helm upgrade --install newwave4-frontend oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart \
+            --version ${{ env.CHART_VERSION }} \
+            --namespace ${{ env.NAMESPACE }} \
+            -f ./values.yaml \
+            --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set imagePullSecrets[0].name=ghcr-regcred
+          
+          # Check if the installation was successful
+          if [ $? -ne 0 ]; then
+            echo "Failed to install chart from OCI repository"
+            exit 1
+          fi
+
+      - name: Cleanup Sensitive Files
+        if: always()
+        run: |
+          echo "Removing values.yaml file to prevent leaking sensitive information..."
+          rm -f ./values.yaml
