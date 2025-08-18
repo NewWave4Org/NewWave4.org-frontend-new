@@ -24,7 +24,7 @@ interface IValidationSchema {
 
 const validationSchema = Yup.object({
   password: adminPassValidation,
-  confirmPassword: adminPassValidation.oneOf(
+  repeatPassword: adminPassValidation.oneOf(
     [Yup.ref('password')],
     'Passwords do not match',
   ),
@@ -56,6 +56,7 @@ const SetPasswordForm = ({ token }: IValidationSchema) => {
     data: SetPasswordDto,
     FormikHelpers: FormikHelpers<SetPasswordDto>,
   ) {
+    console.log(data);
     const { resetForm } = FormikHelpers;
 
     const result = await handleThunk(confirmResetPass, data, setSubmitError);
@@ -67,21 +68,21 @@ const SetPasswordForm = ({ token }: IValidationSchema) => {
     }
   }
 
-  if (isValidToken === null) {
-    return (
-      <div className="text-black font-semibold mt-5 text-center text-xl">
-        Loading...
-      </div>
-    );
-  }
+  // if (isValidToken === null) {
+  //   return (
+  //     <div className="text-black font-semibold mt-5 text-center text-xl">
+  //       Loading...
+  //     </div>
+  //   );
+  // }
 
-  if (!isValidToken) {
-    return <TokenExpired />;
-  }
+  // if (!isValidToken) {
+  //   return <TokenExpired />;
+  // }
 
-  if (success) {
-    return <SetPasswordSuccess />;
-  }
+  // if (success) {
+  //   return <SetPasswordSuccess />;
+  // }
 
   return (
     <Formik
