@@ -24,7 +24,7 @@ interface IValidationSchema {
 
 const validationSchema = Yup.object({
   password: adminPassValidation,
-  confirmPassword: adminPassValidation.oneOf(
+  repeatPassword: adminPassValidation.oneOf(
     [Yup.ref('password')],
     'Passwords do not match',
   ),
