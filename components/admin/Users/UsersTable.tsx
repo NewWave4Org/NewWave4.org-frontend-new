@@ -11,17 +11,17 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
-import { ROLES } from '@/data/admin/roles/Roles';
+import { useCallback, useMemo, useState } from 'react';
 
 function UsersTable({ users }: UsersProps) {
+  const [sortVal, setSortVal] = useState<'asc' | 'desc'>('asc');
+
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
 
   const onlyContentManager =
     currentUser?.roles.length === 1 &&
     currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
-
-  const isSuperAdmin = currentUser?.roles.includes('ROLE_SUPER_ADMIN');
 
   function handleDeleteUser(user: UserItem) {
     dispatch(
@@ -37,12 +37,25 @@ function UsersTable({ users }: UsersProps) {
     dispatch(getUserById({ id: user.id }));
   }
 
+  const sortedUsers = useMemo(() => {
+    return [...users].sort((a, b) => {
+      const aVal = a.verificatedUser ? 1 : 0;
+      const bVal = b.verificatedUser ? 1 : 0;
+
+      return sortVal === 'asc' ? bVal - aVal : aVal - bVal;
+    });
+  }, [users, sortVal]);
+
+  const handleStatus = useCallback(() => {
+    setSortVal(prev => (prev === 'asc' ? 'desc' : 'asc'));
+  }, []);
+
   return (
     <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
-          data={users}
+          data={sortedUsers}
           renderHeader={() => (
             <>
               <th className="pl-[45px] pb-4 border-b border-admin-300">
@@ -51,7 +64,25 @@ function UsersTable({ users }: UsersProps) {
               <th className="pb-4 border-b  border-admin-300">Name</th>
               <th className="pb-4 border-b  border-admin-300">Email</th>
               <th className="pb-4 border-b  border-admin-300">Role</th>
-              <th className="pb-4 border-b  border-admin-300">Status</th>
+              <th className="pb-4 border-b  border-admin-300">
+                <span onClick={() => handleStatus()} className="cursor-pointer">
+                  Status
+                  <span
+                    className={
+                      sortVal === 'asc' ? 'font-bold' : 'text-gray-400'
+                    }
+                  >
+                    ↑
+                  </span>
+                  <span
+                    className={
+                      sortVal === 'desc' ? 'font-bold' : 'text-gray-400'
+                    }
+                  >
+                    ↓
+                  </span>
+                </span>
+              </th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 {!onlyContentManager && (
                   <Button
@@ -124,7 +155,7 @@ function UsersTable({ users }: UsersProps) {
                   )}
                 </td>
                 <td className="pr-[45px] py-[25px]">
-                  {!user.roles.includes('ROLE_SUPER_ADMIN') && (
+                  {user.email !== currentUser?.email && (
                     <div className="tableActions flex justify-end">
                       <div className="flex gap-x-[40px]">
                         <Button
@@ -137,18 +168,17 @@ function UsersTable({ users }: UsersProps) {
                           </div>
                           Edit
                         </Button>
-                        {user.email !== currentUser?.email && (
-                          <Button
-                            className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
-                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                            onClick={() => handleDeleteUser(user)}
-                          >
-                            <div className="mr-[10px]">
-                              <BasketIcon color="#FC8181" />
-                            </div>
-                            Delete
-                          </Button>
-                        )}
+
+                        <Button
+                          className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
+                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          <div className="mr-[10px]">
+                            <BasketIcon color="#FC8181" />
+                          </div>
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   )}
