@@ -13,6 +13,8 @@ import { getUserInfo, loginAuth } from '@/store/auth/action';
 import { setAuthData } from '@/store/auth/auth_slice';
 import { useRouter } from 'next/navigation';
 import useHandleThunk from '@/utils/useHandleThunk';
+import { ROLES } from '@/data/admin/roles/Roles';
+import { getRedirectPathByRole } from '@/utils/getRedirectPathByRole';
 
 interface LogInDto {
   email: string;
@@ -25,7 +27,7 @@ interface IValidationSchema {
 const LogIn = ({ validationSchema }: IValidationSchema) => {
   const dispatch = useAppDispatch();
   const [submitError, setSubmitError] = useState('');
-  const route = useRouter();
+  const router = useRouter();
   const handleThunk = useHandleThunk();
 
   async function handleLogIn(
@@ -37,10 +39,14 @@ const LogIn = ({ validationSchema }: IValidationSchema) => {
     const result = await handleThunk(loginAuth, data, setSubmitError);
 
     if (result) {
-      dispatch(getUserInfo());
+      const userInfo = await dispatch(getUserInfo()).unwrap();
+      const roles = userInfo?.roles || [];
+
+      const redirectPath = getRedirectPathByRole(roles);
+      router.replace(redirectPath);
+
       resetForm();
       setSubmitError('');
-      route.push('/admin/users');
     }
   }
 
