@@ -12,6 +12,9 @@ import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
 import { useCallback, useMemo, useState } from 'react';
+import EmailIcon from '@/components/icons/symbolic/EmailIcon';
+import { resendInvitation } from '@/store/auth/action';
+import { toast } from 'react-toastify';
 
 function UsersTable({ users }: UsersProps) {
   const [sortVal, setSortVal] = useState<'asc' | 'desc'>('asc');
@@ -37,6 +40,18 @@ function UsersTable({ users }: UsersProps) {
     dispatch(getUserById({ id: user.id }));
   }
 
+  function handleResetInvitation(email: string) {
+    if (!email) return;
+    dispatch(resendInvitation({ email }))
+      .unwrap()
+      .then(() => {
+        toast.success(`Invitation resent to ${email}`);
+      })
+      .catch(err => {
+        toast.error(err.message || 'Failed to resend invitation');
+      });
+  }
+
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => {
       const aVal = a.verificatedUser ? 1 : 0;
@@ -58,13 +73,13 @@ function UsersTable({ users }: UsersProps) {
           data={sortedUsers}
           renderHeader={() => (
             <>
-              <th className="pl-[45px] pb-4 border-b border-admin-300">
+              <th className="pl-10 pb-4 px-2 border-b border-admin-300">
                 Avatar
               </th>
-              <th className="pb-4 border-b  border-admin-300">Name</th>
-              <th className="pb-4 border-b  border-admin-300">Email</th>
-              <th className="pb-4 border-b  border-admin-300">Role</th>
-              <th className="pb-4 border-b  border-admin-300">
+              <th className="pb-4 px-2 border-b  border-admin-300">Name</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">Email</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">Role</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">
                 <span onClick={() => handleStatus()} className="cursor-pointer">
                   Status
                   <span
@@ -112,19 +127,19 @@ function UsersTable({ users }: UsersProps) {
               : '';
             return (
               <>
-                <td className="flex justify-start pl-[45px] py-[25px]">
+                <td className="pl-6 py-6">
                   <div className="bg-background-darkBlue text-font-white text-center w-[50px] h-[50px] rounded-full flex items-center justify-center font-semibold">
                     {initials}
                   </div>
                 </td>
-                <td className="py-[25px]">
+                <td className="py-6 px-2">
                   <div className="text-admin-700 text-small">{user?.name}</div>
                 </td>
-                <td className="py-[25px]">
+                <td className="py-6 px-2">
                   <div className="text-admin-700 text-small">{user?.email}</div>
                 </td>
-                <td className="py-[25px]">
-                  <div className="">
+                <td className="py-6 px-2">
+                  <div className="flex flex-wrap">
                     {user?.roles.map(role => {
                       const userRole = role.startsWith('ROLE_')
                         ? role
@@ -135,7 +150,7 @@ function UsersTable({ users }: UsersProps) {
                       return (
                         <span
                           key={userRole}
-                          className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small mr-2"
+                          className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small m-1 whitespace-nowrap"
                         >
                           {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                         </span>
@@ -143,38 +158,54 @@ function UsersTable({ users }: UsersProps) {
                     })}
                   </div>
                 </td>
-                <td>
+                <td className="px-2">
                   {user.verificatedUser ? (
-                    <span className="bg-status-success-500 py-1.5 px-4 rounded-2xl text-white font-semibold">
+                    <span className="bg-status-success-500 py-1.5 px-4 rounded-2xl text-white font-semibold whitespace-nowrap text-small">
                       Verified
                     </span>
                   ) : (
-                    <span className="bg-red-600 py-1.5 px-4 rounded-2xl text-white font-semibold">
+                    <span className="bg-red-600 py-1.5 px-4 rounded-2xl text-white font-semibold whitespace-nowrap text-small">
                       Not Verified
                     </span>
                   )}
                 </td>
-                <td className="pr-[45px] py-[25px]">
+                <td className="pr-6 py-6">
                   {user.email !== currentUser?.email && (
                     <div className="tableActions flex justify-end">
-                      <div className="flex gap-x-[40px]">
-                        <Button
-                          className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <div className="mr-[10px]">
-                            <EditIcon />
-                          </div>
-                          Edit
-                        </Button>
+                      <div className="flex gap-x-5">
+                        {user.verificatedUser ? (
+                          <Button
+                            variant="tertiary"
+                            className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 
+                            active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
+                            onClick={() => handleEditUser(user)}
+                          >
+                            <div className="mr-1">
+                              <EditIcon />
+                            </div>
+                            Edit
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="tertiary"
+                            className=" !text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
+                            active:!text-admin-700 hover:shadow-lg duration-500"
+                            onClick={() => handleResetInvitation(user?.email)}
+                          >
+                            <div className="mr-1">
+                              <EmailIcon />
+                            </div>
+                            Resend invitation
+                          </Button>
+                        )}
 
                         <Button
-                          className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                          variant="tertiary"
+                          className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
+                          active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
                           onClick={() => handleDeleteUser(user)}
                         >
-                          <div className="mr-[10px]">
+                          <div className="mr-1">
                             <BasketIcon color="#FC8181" />
                           </div>
                           Delete

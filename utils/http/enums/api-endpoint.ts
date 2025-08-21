@@ -8,6 +8,7 @@ const ApiEndpoint = {
   REFRESHTOKEN: 'auth/refresh',
   CHECK_VALIDATION_TOKEN: 'users/check-reset-password-token',
   CONFIRM_RESET_PASSWORD: 'users/confirm-reset-password',
+  RESEND_INVITATION: 'users/resend-reset-password-token',
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];
