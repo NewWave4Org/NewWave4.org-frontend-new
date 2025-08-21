@@ -29,7 +29,8 @@ export const refreshAccessToken = async () => {
     (await import('@/store/store')).store.dispatch(logOutAuth());
 
     if (typeof window !== 'undefined') {
-      window.location.href = '/admin';
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+      window.location.href = `${basePath}/admin`;
     }
 
     return false;

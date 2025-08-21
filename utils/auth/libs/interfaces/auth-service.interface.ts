@@ -3,6 +3,7 @@ import { AuthLogInResponseDto } from '../types/AuthLogInResponseDTO';
 import {
   CheckValidTokenDTO,
   ConfirmResetPasswordRequestDTO,
+  ResendInvitationRequestDTO,
   ResetPasswordRequestDTO,
 } from '../types/ResetPasswordDTO';
 import { UserInfoResponseDTO } from '../types/UserInfoResponseDTO';
@@ -13,6 +14,7 @@ interface IAuthService {
   resetPassword: (data: ResetPasswordRequestDTO) => void;
   checkValidToken: (data: CheckValidTokenDTO) => void;
   confirmResetPassword: (data: ConfirmResetPasswordRequestDTO) => void;
+  resendInvitation: (data: ResendInvitationRequestDTO) => void;
   logOutAuth: () => void;
 }
 
