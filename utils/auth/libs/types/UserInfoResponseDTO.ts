@@ -4,5 +4,6 @@ export interface UserInfoResponseDTO {
   name: string;
   referenceId: string;
   roles: string[];
+  createdAt: string | null;
   verificatedUser: boolean;
 }
