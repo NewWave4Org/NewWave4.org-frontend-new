@@ -1,7 +1,5 @@
 'use client';
 
-import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
@@ -12,9 +10,10 @@ import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
 import { useCallback, useMemo, useState } from 'react';
-import EmailIcon from '@/components/icons/symbolic/EmailIcon';
 import { resendInvitation } from '@/store/auth/action';
 import { toast } from 'react-toastify';
+import UserRow from './UserRow';
+import { userUpdate } from '@/store/users/users_slice';
 
 function UsersTable({ users }: UsersProps) {
   const [sortVal, setSortVal] = useState<'asc' | 'desc'>('asc');
@@ -40,15 +39,26 @@ function UsersTable({ users }: UsersProps) {
     dispatch(getUserById({ id: user.id }));
   }
 
-  function handleResetInvitation(email: string) {
-    if (!email) return;
+  function handleResetInvitation(user: UserItem) {
+    if (!user) return;
+    const { id, email } = user;
+
     dispatch(resendInvitation({ email }))
       .unwrap()
       .then(() => {
         toast.success(`Invitation resent to ${email}`);
+
+        dispatch(getUserById({ id }))
+          .unwrap()
+          .then(updatedUser => {
+            dispatch(userUpdate(updatedUser));
+          });
       })
       .catch(err => {
-        toast.error(err.message || 'Failed to resend invitation');
+        console.log('errors', err.original.errors.toString());
+        toast.error(
+          err.original.errors.toString() || 'Failed to resend invitation',
+        );
       });
   }
 
@@ -118,105 +128,16 @@ function UsersTable({ users }: UsersProps) {
               </th>
             </>
           )}
-          renderRow={user => {
-            const initials = user?.name
-              ? user.name
-                  .split(' ')
-                  .map(word => word[0]?.toUpperCase() ?? '')
-                  .join('')
-              : '';
-            return (
-              <>
-                <td className="pl-6 py-6">
-                  <div className="bg-background-darkBlue text-font-white text-center w-[50px] h-[50px] rounded-full flex items-center justify-center font-semibold">
-                    {initials}
-                  </div>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="text-admin-700 text-small">{user?.name}</div>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="text-admin-700 text-small">{user?.email}</div>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="flex flex-wrap">
-                    {user?.roles.map(role => {
-                      const userRole = role.startsWith('ROLE_')
-                        ? role
-                            .replace('ROLE_', '')
-                            .toLowerCase()
-                            .replace('_', ' ')
-                        : role.toLowerCase().replace('_', ' ');
-                      return (
-                        <span
-                          key={userRole}
-                          className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small m-1 whitespace-nowrap"
-                        >
-                          {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </td>
-                <td className="px-2">
-                  {user.verificatedUser ? (
-                    <span className="bg-status-success-500 py-1.5 px-4 rounded-2xl text-white font-semibold whitespace-nowrap text-small">
-                      Verified
-                    </span>
-                  ) : (
-                    <span className="bg-red-600 py-1.5 px-4 rounded-2xl text-white font-semibold whitespace-nowrap text-small">
-                      Not Verified
-                    </span>
-                  )}
-                </td>
-                <td className="pr-6 py-6">
-                  {user.email !== currentUser?.email && (
-                    <div className="tableActions flex justify-end">
-                      <div className="flex gap-x-5">
-                        {user.verificatedUser ? (
-                          <Button
-                            variant="tertiary"
-                            className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 
-                            active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <div className="mr-1">
-                              <EditIcon />
-                            </div>
-                            Edit
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="tertiary"
-                            className=" !text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
-                            active:!text-admin-700 hover:shadow-lg duration-500"
-                            onClick={() => handleResetInvitation(user?.email)}
-                          >
-                            <div className="mr-1">
-                              <EmailIcon />
-                            </div>
-                            Resend invitation
-                          </Button>
-                        )}
-
-                        <Button
-                          variant="tertiary"
-                          className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
-                          active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
-                          onClick={() => handleDeleteUser(user)}
-                        >
-                          <div className="mr-1">
-                            <BasketIcon color="#FC8181" />
-                          </div>
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </td>
-              </>
-            );
-          }}
+          renderRow={user => (
+            <UserRow
+              key={`${user.id}-${user.lastInvitationSentAt}`}
+              user={user}
+              currentUser={currentUser}
+              handleDeleteUser={handleDeleteUser}
+              handleEditUser={handleEditUser}
+              handleResetInvitation={handleResetInvitation}
+            />
+          )}
         />
       </div>
     </>

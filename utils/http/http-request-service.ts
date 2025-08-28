@@ -24,7 +24,7 @@ export const refreshAccessToken = async () => {
     return true;
   } catch (error) {
     console.error('Ошибка обновления токена:', error);
-    toast.error('Сессия завершена. Пожалуйста, войдите заново.');
+    toast.error('Session expired. Please log in again.');
 
     (await import('@/store/store')).store.dispatch(logOutAuth());
 

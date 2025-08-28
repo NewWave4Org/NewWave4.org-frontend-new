@@ -3,7 +3,9 @@ export interface UserItem {
   name: string;
   email: string;
   roles: string[];
+  createdAt: string;
   verificatedUser: boolean;
+  lastInvitationSentAt: string;
 }
 
 export type UserResponseDTO = { content: UserItem[] };
@@ -16,8 +18,11 @@ export interface UserByIdResponseDTO {
   id: number;
   email: string;
   name: string;
+  createdAt: string;
   roles: string[];
   verificatedUser: boolean;
+  referenceId: string;
+  lastInvitationSentAt: string;
 }
 
 export interface NewUserRequestDTO extends Omit<UserItem, 'id'> {
