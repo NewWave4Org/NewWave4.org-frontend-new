@@ -5,6 +5,7 @@ import Button from '@/components/shared/Button';
 import DropDown from '@/components/shared/DropDown';
 import { useEffect, useState } from 'react';
 import { UserRowProps } from './types/interface';
+import { ROLES } from '@/data/admin/roles/Roles';
 
 function UserRow({
   user,
@@ -13,7 +14,6 @@ function UserRow({
   handleResetInvitation,
   currentUser,
 }: UserRowProps) {
-  console.log('user', user.name);
   const [remainingSeconds, setRemainingSeconds] = useState(() => {
     const createdAtTimestamp = new Date(
       user.lastInvitationSentAt ?? user.createdAt,
@@ -47,6 +47,8 @@ function UserRow({
         .map(word => word[0]?.toUpperCase() ?? '')
         .join('')
     : '';
+
+  const isSuperAdmin = user.roles.includes(ROLES.SUPER_ADMIN);
 
   return (
     <>
@@ -90,7 +92,7 @@ function UserRow({
         )}
       </td>
       <td className="pr-6 py-6">
-        {user.email !== currentUser?.email && (
+        {user.email !== currentUser?.email && !isSuperAdmin && (
           <div className="tableActions flex justify-end">
             <div className="flex gap-x-5">
               {user.verificatedUser ? (
