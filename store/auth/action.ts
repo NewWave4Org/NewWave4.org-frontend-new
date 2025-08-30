@@ -4,6 +4,7 @@ import { AuthLogInResponseDto } from '@/utils/auth/libs/types/AuthLogInResponseD
 import {
   CheckValidTokenDTO,
   ConfirmResetPasswordRequestDTO,
+  ResendInvitationRequestDTO,
   ResetPasswordRequestDTO,
 } from '@/utils/auth/libs/types/ResetPasswordDTO';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
@@ -97,6 +98,20 @@ const confirmResetPass = createAsyncThunk(
   },
 );
 
+const resendInvitation = createAsyncThunk(
+  'auth/fetchResendInvitation',
+  async (data: ResendInvitationRequestDTO, { rejectWithValue }) => {
+    try {
+      const response = await authService.resendInvitation(data);
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
 export {
   loginAuth,
   getUserInfo,
@@ -104,4 +119,5 @@ export {
   resetPassword,
   checkToken,
   confirmResetPass,
+  resendInvitation,
 };

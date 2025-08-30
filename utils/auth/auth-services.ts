@@ -35,6 +35,10 @@ class AuthService implements IAuthService {
     return this.authApi.checkValidToken(data);
   }
 
+  async resendInvitation(data: ResetPasswordRequestDTO) {
+    return this.authApi.resendInvitation(data);
+  }
+
   async confirmResetPassword(data: ConfirmResetPasswordRequestDTO) {
     return this.authApi.confirmResetPassword(data);
   }

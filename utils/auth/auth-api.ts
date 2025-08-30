@@ -7,6 +7,7 @@ import { AuthLogInResponseDto } from './libs/types/AuthLogInResponseDTO';
 import {
   CheckValidTokenDTO,
   ConfirmResetPasswordRequestDTO,
+  ResendInvitationRequestDTO,
   ResetPasswordRequestDTO,
 } from './libs/types/ResetPasswordDTO';
 
@@ -45,6 +46,14 @@ class AuthAPI implements IAuthAPI {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.CHECK_VALIDATION_TOKEN,
+      body: data,
+    });
+  }
+
+  async resendInvitation(data: ResendInvitationRequestDTO) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.RESEND_INVITATION,
       body: data,
     });
   }

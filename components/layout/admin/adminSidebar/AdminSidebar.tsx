@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
+import { ROLES } from '@/data/admin/roles/Roles';
 
 const adminMenu = [
   {
@@ -48,7 +49,7 @@ const AdminSidebar = () => {
     currentUserRole?.includes('ROLE_SUPER_ADMIN');
 
   return (
-    <div className="adminSidebar pt-[48px] pl-[70px] pr-[45px]">
+    <div className="adminSidebar xl:p-12 p-9">
       <div className="admin-menu">
         <div className="admin-menu__items">
           {adminMenu
