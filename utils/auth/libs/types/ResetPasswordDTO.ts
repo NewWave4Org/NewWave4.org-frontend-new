@@ -11,3 +11,7 @@ export interface ConfirmResetPasswordRequestDTO {
   password: string;
   repeatPassword: string;
 }
+
+export interface ResendInvitationRequestDTO {
+  email: string;
+}

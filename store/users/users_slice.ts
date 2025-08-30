@@ -14,7 +14,9 @@ const initialState: UserState = {
     name: '',
     email: '',
     roles: [],
+    createdAt: '',
     verificatedUser: false,
+    lastInvitationSentAt: '',
   },
 };
 
@@ -26,10 +28,19 @@ const userSlice = createSlice({
       state.userById = {
         id: 0,
         name: '',
+        createdAt: '',
         email: '',
         roles: [],
         verificatedUser: false,
+        lastInvitationSentAt: '',
       };
+    },
+    userUpdate: (state, action) => {
+      const updatedUser = action.payload;
+      const index = state.users.findIndex(u => u.id === updatedUser.id);
+      if (index !== -1) {
+        state.users[index] = updatedUser;
+      }
     },
   },
   extraReducers(builder) {
@@ -38,11 +49,15 @@ const userSlice = createSlice({
     });
     builder.addCase(getUserById.fulfilled, (state, action) => {
       state.userById = action.payload;
+
+      const updated = action.payload;
+      const idx = state.users.findIndex(u => u.id === updated.id);
+      if (idx >= 0) state.users[idx] = updated;
     });
     builder.addCase(createNewUser.fulfilled, (state, action) => {});
   },
 });
 
-export const { clearUserById } = userSlice.actions;
+export const { clearUserById, userUpdate } = userSlice.actions;
 
 export default userSlice.reducer;

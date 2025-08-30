@@ -1,7 +1,5 @@
 'use client';
 
-import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import EditIcon from '@/components/icons/symbolic/EditIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
@@ -11,17 +9,21 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
-import { ROLES } from '@/data/admin/roles/Roles';
+import { useCallback, useMemo, useState } from 'react';
+import { resendInvitation } from '@/store/auth/action';
+import { toast } from 'react-toastify';
+import UserRow from './UserRow';
+import { userUpdate } from '@/store/users/users_slice';
 
 function UsersTable({ users }: UsersProps) {
+  const [sortVal, setSortVal] = useState<'asc' | 'desc'>('asc');
+
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
 
   const onlyContentManager =
     currentUser?.roles.length === 1 &&
     currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
-
-  const isSuperAdmin = currentUser?.roles.includes('ROLE_SUPER_ADMIN');
 
   function handleDeleteUser(user: UserItem) {
     dispatch(
@@ -37,21 +39,75 @@ function UsersTable({ users }: UsersProps) {
     dispatch(getUserById({ id: user.id }));
   }
 
+  function handleResetInvitation(user: UserItem) {
+    if (!user) return;
+    const { id, email } = user;
+
+    dispatch(resendInvitation({ email }))
+      .unwrap()
+      .then(() => {
+        toast.success(`Invitation resent to ${email}`);
+
+        dispatch(getUserById({ id }))
+          .unwrap()
+          .then(updatedUser => {
+            dispatch(userUpdate(updatedUser));
+          });
+      })
+      .catch(err => {
+        console.log('errors', err.original.errors.toString());
+        toast.error(
+          err.original.errors.toString() || 'Failed to resend invitation',
+        );
+      });
+  }
+
+  const sortedUsers = useMemo(() => {
+    return [...users].sort((a, b) => {
+      const aVal = a.verificatedUser ? 1 : 0;
+      const bVal = b.verificatedUser ? 1 : 0;
+
+      return sortVal === 'asc' ? bVal - aVal : aVal - bVal;
+    });
+  }, [users, sortVal]);
+
+  const handleStatus = useCallback(() => {
+    setSortVal(prev => (prev === 'asc' ? 'desc' : 'asc'));
+  }, []);
+
   return (
     <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
-          data={users}
+          data={sortedUsers}
           renderHeader={() => (
             <>
-              <th className="pl-[45px] pb-4 border-b border-admin-300">
+              <th className="pl-10 pb-4 px-2 border-b border-admin-300">
                 Avatar
               </th>
-              <th className="pb-4 border-b  border-admin-300">Name</th>
-              <th className="pb-4 border-b  border-admin-300">Email</th>
-              <th className="pb-4 border-b  border-admin-300">Role</th>
-              <th className="pb-4 border-b  border-admin-300">Status</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">Name</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">Email</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">Role</th>
+              <th className="pb-4 px-2 border-b  border-admin-300">
+                <span onClick={() => handleStatus()} className="cursor-pointer">
+                  Status
+                  <span
+                    className={
+                      sortVal === 'asc' ? 'font-bold' : 'text-gray-400'
+                    }
+                  >
+                    ↑
+                  </span>
+                  <span
+                    className={
+                      sortVal === 'desc' ? 'font-bold' : 'text-gray-400'
+                    }
+                  >
+                    ↓
+                  </span>
+                </span>
+              </th>
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 {!onlyContentManager && (
                   <Button
@@ -72,90 +128,16 @@ function UsersTable({ users }: UsersProps) {
               </th>
             </>
           )}
-          renderRow={user => {
-            const initials = user?.name
-              ? user.name
-                  .split(' ')
-                  .map(word => word[0]?.toUpperCase() ?? '')
-                  .join('')
-              : '';
-            return (
-              <>
-                <td className="flex justify-start pl-[45px] py-[25px]">
-                  <div className="bg-background-darkBlue text-font-white text-center w-[50px] h-[50px] rounded-full flex items-center justify-center font-semibold">
-                    {initials}
-                  </div>
-                </td>
-                <td className="py-[25px]">
-                  <div className="text-admin-700 text-small">{user?.name}</div>
-                </td>
-                <td className="py-[25px]">
-                  <div className="text-admin-700 text-small">{user?.email}</div>
-                </td>
-                <td className="py-[25px]">
-                  <div className="">
-                    {user?.roles.map(role => {
-                      const userRole = role.startsWith('ROLE_')
-                        ? role
-                            .replace('ROLE_', '')
-                            .toLowerCase()
-                            .replace('_', ' ')
-                        : role.toLowerCase().replace('_', ' ');
-                      return (
-                        <span
-                          key={userRole}
-                          className="bg-background-darkBlue800_2 text-font-white font-bold px-[17px] py-[5px] rounded-[50px] text-small mr-2"
-                        >
-                          {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </td>
-                <td>
-                  {user.verificatedUser ? (
-                    <span className="bg-status-success-500 py-1.5 px-4 rounded-2xl text-white font-semibold">
-                      Verified
-                    </span>
-                  ) : (
-                    <span className="bg-red-600 py-1.5 px-4 rounded-2xl text-white font-semibold">
-                      Not Verified
-                    </span>
-                  )}
-                </td>
-                <td className="pr-[45px] py-[25px]">
-                  {!user.roles.includes('ROLE_SUPER_ADMIN') && (
-                    <div className="tableActions flex justify-end">
-                      <div className="flex gap-x-[40px]">
-                        <Button
-                          className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <div className="mr-[10px]">
-                            <EditIcon />
-                          </div>
-                          Edit
-                        </Button>
-                        {user.email !== currentUser?.email && (
-                          <Button
-                            className="bg-transparent !text-admin-700 !p-0 h-auto flex items-center font-bold 
-                          hover:bg-transparent active:bg-transparent active:!text-admin-700"
-                            onClick={() => handleDeleteUser(user)}
-                          >
-                            <div className="mr-[10px]">
-                              <BasketIcon color="#FC8181" />
-                            </div>
-                            Delete
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </td>
-              </>
-            );
-          }}
+          renderRow={user => (
+            <UserRow
+              key={`${user.id}-${user.lastInvitationSentAt}`}
+              user={user}
+              currentUser={currentUser}
+              handleDeleteUser={handleDeleteUser}
+              handleEditUser={handleEditUser}
+              handleResetInvitation={handleResetInvitation}
+            />
+          )}
         />
       </div>
     </>
