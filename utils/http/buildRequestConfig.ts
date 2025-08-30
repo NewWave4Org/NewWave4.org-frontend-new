@@ -7,10 +7,12 @@ function buildRequestConfig({
   body,
   params,
   config,
+  id
 }: RequestOptions): AxiosRequestConfig {
+  const resolvedUrl = typeof url === 'function' ? url(id!) : url;
   return {
     method,
-    url,
+    url: resolvedUrl,
     data: body,
     params,
     withCredentials: true,
