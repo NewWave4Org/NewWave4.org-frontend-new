@@ -6,6 +6,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   value: string;
   onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   className?: string;
+  labelClass?: string;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -14,11 +15,15 @@ const TextArea: React.FC<TextAreaProps> = ({
   value,
   onChange,
   className,
+  labelClass,
   ...props
 }) => {
   return (
     <div className="relative">
-      <label htmlFor={id} className={`block text-medium2 text-grey-500 mb-1 `}>
+      <label
+        htmlFor={id}
+        className={`block text-medium2 text-grey-500 mb-1  ${labelClass} `}
+      >
         {label}
       </label>
       <textarea

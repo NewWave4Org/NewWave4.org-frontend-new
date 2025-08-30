@@ -9,6 +9,7 @@ import Button from '@/components/shared/Button';
 import PenIcon from '@/components/icons/symbolic/PenIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import clsx from 'clsx';
+import { useRouter } from 'next/navigation';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
@@ -31,12 +32,17 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const articles = useAppSelector(state => state.articles.articles);
   const totalPages = useAppSelector(state => state.articles.totalPages);
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     dispatch(allArticles({ page: currentPage }));
   }, [dispatch, currentPage]);
 
   const changePage = (page: number) => setCurrentPage(page);
+
+  const handleAddNewArticle = () => {
+    router.push('/admin/articles/new');
+  };
 
   return (
     <div className="relative w-full h-full overflow-auto">
@@ -68,7 +74,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                   </Button>
                 )}
                 items={[
-                  { label: 'Article' },
+                  { label: 'Article', onClick: handleAddNewArticle },
                   { label: 'Event' },
                   { label: 'Program' },
                 ]}
