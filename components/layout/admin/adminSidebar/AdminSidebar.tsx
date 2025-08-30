@@ -58,7 +58,8 @@ const AdminSidebar = () => {
               return true;
             })
             .map(link => {
-              const isActive = pathName === link.href;
+              const isActive =
+                pathName === link.href || pathName.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.id}

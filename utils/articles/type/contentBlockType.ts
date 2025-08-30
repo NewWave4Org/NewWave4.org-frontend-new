@@ -1,0 +1,9 @@
+export enum ContentBlockType {
+  MAIN_NEWS_BLOCK = "MAIN_NEWS_BLOCK",
+  TEXT = "TEXT",
+  QUOTE = "QUOTE",
+  PHOTO = "PHOTO",
+  PHOTOS_LIST = "PHOTOS_LIST",
+  PHOTOS_SLIDER = "PHOTOS_SLIDER",
+  VIDEO = "VIDEO",
+}

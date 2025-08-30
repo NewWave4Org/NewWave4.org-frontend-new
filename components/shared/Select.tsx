@@ -16,9 +16,9 @@ interface SelectProps {
   label?: string;
   required?: boolean;
   placeholder?: string;
-  labelIcon?: ReactNode,
-  labelClass?: string,
-  adminSelectClass?: boolean,
+  labelIcon?: ReactNode;
+  labelClass?: string;
+  adminSelectClass?: boolean;
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   defaultValue?: string;
@@ -37,47 +37,22 @@ const Select: React.FC<SelectProps> = ({
   ...props
 }) => {
   const [field, meta] = useField(props);
-  const [isOpen, setIsOpen] = useState(false);
   const { setFieldValue } = useFormikContext();
-  const [selectedOption, setSelectedOption] = useState<Option | null>(
-    options.find(o => o.value === field.value) || null,
-  );
+  const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (defaultValue) {
-      const foundOption = options.find(option => option.value === defaultValue);
-      if (foundOption) {
-        setSelectedOption(foundOption);
-        setFieldValue(props.name, foundOption.value);
-      }
-    }
-  }, [defaultValue, options, props.name, setFieldValue]);
+  const selectedOption = options.find(o => o.value === field.value);
 
-  useEffect(() => {
-    if (isOpen && dropdownRef.current) {
-      dropdownRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
-    }
-  }, [isOpen]);
+  const handleOptionClick = (option: Option) => {
+    setFieldValue(props.name, option.value, false);
+    setIsOpen(false);
+  };
 
   const handleBlur = (e: React.FocusEvent) => {
     if (!selectRef.current?.contains(e.relatedTarget as Node)) {
       setIsOpen(false);
     }
-  };
-
-  const handleClick = () => {
-    setIsOpen(prevState => !prevState);
-  };
-
-  const handleOptionClick = (option: Option) => {
-    setSelectedOption(option);
-    setFieldValue(props.name, option.value);
-    setIsOpen(false);
   };
 
   return (
@@ -90,11 +65,7 @@ const Select: React.FC<SelectProps> = ({
             ${labelClass}
          `}
         >
-          {labelIcon && (
-            <span className="mr-[10px]">
-              {labelIcon}
-            </span>
-          )}
+          {labelIcon && <span className="mr-[10px]">{labelIcon}</span>}
           {label}
           {required && (
             <span className="text-status-danger-500 text-body"> *</span>
@@ -107,13 +78,14 @@ const Select: React.FC<SelectProps> = ({
           className={`w-[275px] relative h-[56px] bg-transparent p-4 pr-6 text-medium2 text-font-primary rounded-lg border-0 ring-1 ring-grey-700 appearance-none
             focus:outline-none       
             hover:ring-2 hover:ring-grey-600
-          ${parentClassname ? parentClassname : ""}
+          ${parentClassname ? parentClassname : ''}
             ${adminSelectClass ? '!w-full !bg-background-light !ring-0' : ''}
-           ${meta.touched && meta.error
-              ? 'ring-status-danger-500'
-              : 'ring-grey-700'
-            }`}
-          onClick={handleClick}
+           ${
+             meta.touched && meta.error
+               ? 'ring-status-danger-500'
+               : 'ring-grey-700'
+           }`}
+          onClick={() => setIsOpen(!isOpen)}
           onBlur={handleBlur}
         >
           <span className="h-full flex items-center text-medium2 text-grey-700">
@@ -138,7 +110,9 @@ const Select: React.FC<SelectProps> = ({
         {isOpen && (
           <div
             ref={dropdownRef}
-            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom ${adminSelectClass ? '!w-full' : ''}`}
+            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom ${
+              adminSelectClass ? '!w-full' : ''
+            }`}
           >
             {options.map(option => (
               <div
@@ -151,8 +125,6 @@ const Select: React.FC<SelectProps> = ({
             ))}
           </div>
         )}
-
-
       </div>
 
       {/* {isOpen && <div style={{ height: '220px' }} />} */}
