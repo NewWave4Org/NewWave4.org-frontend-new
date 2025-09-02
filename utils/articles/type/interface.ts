@@ -65,3 +65,9 @@ export interface ContentBlockRequestDTO {
   data: string,
   orderIndex: number
 }
+
+export interface ContentBlockArrayRequestDTO {
+  contentBlockType: ContentBlockType,
+  data: string[],
+  orderIndex: number
+}

@@ -1,5 +1,5 @@
 import { articleService } from '@/utils/articles';
-import { ContentBlockRequestDTO, NewArticleRequestDTO } from '@/utils/articles/type/interface';
+import { ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO } from '@/utils/articles/type/interface';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -128,6 +128,43 @@ export const deleteContentBlock = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await articleService.deleteContentBlock(id);
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+interface ContentBlockArrayPayload {
+  id: number;
+  data: ContentBlockArrayRequestDTO;
+}
+
+export const createContentBlockArray = createAsyncThunk<
+  any,
+  ContentBlockArrayPayload
+>(
+  'articles/createNewContentBlockArray',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await articleService.createContentBlockArray(id, data);
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export const updateContentBlockArray = createAsyncThunk<
+  any,
+  ContentBlockArrayPayload
+>(
+  'articles/updateContentBlockArray',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await articleService.updateContentBlockArray(id, data);
       return response;
     } catch (error) {
       const normalized = normalizeApiError(error);

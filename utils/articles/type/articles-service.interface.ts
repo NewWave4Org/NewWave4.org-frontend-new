@@ -1,4 +1,4 @@
-import { Article, ArticleResponseDTO, ArticlesResponseDTO, ContentBlock, ContentBlockRequestDTO, NewArticleRequestDTO } from './interface';
+import { Article, ArticleResponseDTO, ArticlesResponseDTO, ContentBlock, ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO } from './interface';
 
 interface IArticleService {
   getArticles: () => Promise<ArticlesResponseDTO>;
@@ -9,6 +9,8 @@ interface IArticleService {
   createContentBlock: (id: number, data: ContentBlockRequestDTO) => Promise<ContentBlock>;
   updateContentBlock: (id: number, data: ContentBlockRequestDTO) => Promise<ContentBlock>;
   deleteContentBlock: (id: number) => Promise<void>;
+  createContentBlockArray: (id: number, data: ContentBlockArrayRequestDTO) => Promise<ContentBlock>;
+  updateContentBlockArray: (id: number, data: ContentBlockArrayRequestDTO) => Promise<ContentBlock>;
 }
 
 export { type IArticleService };
