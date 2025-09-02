@@ -2,7 +2,7 @@ import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
 import { IArticleApi } from './type/articles-api.interface';
-import { ArticlesResponseDTO, ContentBlock, ContentBlockRequestDTO, NewArticleRequestDTO } from './type/interface';
+import { ArticlesResponseDTO, ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO } from './type/interface';
 
 class ArticleApi implements IArticleApi {
 
@@ -67,6 +67,24 @@ class ArticleApi implements IArticleApi {
       method: HttpMethod.DELETE,
       url: ApiEndpoint.DELETE_CONTENT_BLOCK(id),
       params: { id },
+    });
+  }
+
+  async createContentBlockArray(articleId: number, data: ContentBlockArrayRequestDTO) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.ADD_NEWS_CONTENT_BLOCK_ARRAY(articleId),
+      body: data,
+      id: articleId
+    });
+  }
+
+  async updateContentBlockArray(id: number, data: ContentBlockArrayRequestDTO) {
+    return request({
+      method: HttpMethod.PUT,
+      url: ApiEndpoint.UPDATE_NEWS_CONTENT_BLOCK_ARRAY(id),
+      body: data,
+      id
     });
   }
 }

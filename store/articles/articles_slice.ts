@@ -1,4 +1,4 @@
-import { Article, ArticleResponseDTO, ContentBlockRequestDTO } from '@/utils/articles/type/interface';
+import { Article, ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { createSlice } from '@reduxjs/toolkit';
 import { allArticles, createContentBlock, createNewArticle, getArticleById, getArticleFullById } from './action';
 

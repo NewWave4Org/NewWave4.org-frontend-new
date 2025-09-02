@@ -5,9 +5,11 @@ import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
 import {
   createContentBlock,
+  createContentBlockArray,
   deleteContentBlock,
   getArticleFullById,
   updateContentBlock,
+  updateContentBlockArray,
 } from '@/store/articles/action';
 import { useAppDispatch } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
@@ -18,12 +20,18 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import { UploadPhotoParams } from '@/utils/photos/photo-service';
+import PhotoUploader from '@/components/ui/PhotoUploader';
+import { deletePhoto, uploadPhoto } from '@/store/photos/action';
 
 interface ArticleContentDTO {
   textblock1: string;
   textblock2: string;
   quote: string;
   video: string;
+  mainPhoto?: string | null;
+  photosList?: string[];
+  sliderPhotos?: string[];
 }
 
 interface IArticleContent {
@@ -32,7 +40,6 @@ interface IArticleContent {
 
 const ArticleContent = ({ articleId }: IArticleContent) => {
   const dispatch = useAppDispatch();
-  const [submitError, setSubmitError] = useState('');
   const [article, setArticle] = useState<ArticleResponseDTO | null>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -60,12 +67,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     };
 
     fetchArticle();
-  }, [articleId, dispatch]);
+  }, [articleId]);
 
-  async function handleCreateNewArticleContent(values: ArticleContentDTO) {
+  async function handleSaveArticleContent(values: ArticleContentDTO) {
     const blocks: {
       type: ContentBlockType;
-      data: string;
+      data: string | string[];
       label: string;
       orderIndex: number;
     }[] = [
@@ -93,7 +100,29 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
         label: 'Video',
         orderIndex: 4,
       },
+      {
+        type: ContentBlockType.PHOTO,
+        data: typeof values.mainPhoto === 'string' ? values.mainPhoto : '',
+        label: 'Main Photo',
+        orderIndex: 5,
+      },
+      {
+        type: ContentBlockType.PHOTOS_LIST,
+        data: values.photosList || [],
+        label: 'Photo List',
+        orderIndex: 6,
+      },
+      {
+        type: ContentBlockType.PHOTOS_SLIDER,
+        data: values.sliderPhotos || [],
+        label: 'Slider',
+        orderIndex: 7,
+      },
     ];
+
+    const isArrayBlock = (type: ContentBlockType) =>
+      type === ContentBlockType.PHOTOS_LIST ||
+      type === ContentBlockType.PHOTOS_SLIDER;
 
     const results = await Promise.all(
       blocks.map(async block => {
@@ -102,29 +131,58 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             b => b.contentBlockType === block.type,
           );
 
-          if (existingBlock) {
-            if (!block.data) {
-              await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
-            } else {
+          if (isArrayBlock(block.type)) {
+            if (existingBlock) {
+              if ((block.data as string[]).length === 0) {
+                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
+              } else {
+                await dispatch(
+                  updateContentBlockArray({
+                    id: existingBlock.id,
+                    data: {
+                      contentBlockType: block.type,
+                      data: block.data as string[],
+                      orderIndex: block.orderIndex,
+                    },
+                  }),
+                ).unwrap();
+              }
+            } else if ((block.data as string[]).length > 0) {
               await dispatch(
-                updateContentBlock({
-                  id: existingBlock.id,
+                createContentBlockArray({
+                  id: articleId!,
                   data: {
                     contentBlockType: block.type,
-                    data: block.data,
+                    data: block.data as string[],
                     orderIndex: block.orderIndex,
                   },
                 }),
               ).unwrap();
             }
           } else {
-            if (block.data) {
+            const dataStr = block.data as string;
+            if (existingBlock) {
+              if (!dataStr) {
+                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
+              } else {
+                await dispatch(
+                  updateContentBlock({
+                    id: existingBlock.id,
+                    data: {
+                      contentBlockType: block.type,
+                      data: dataStr,
+                      orderIndex: block.orderIndex,
+                    },
+                  }),
+                ).unwrap();
+              }
+            } else if (dataStr) {
               await dispatch(
                 createContentBlock({
                   id: articleId!,
                   data: {
                     contentBlockType: block.type,
-                    data: block.data,
+                    data: dataStr,
                     orderIndex: block.orderIndex,
                   },
                 }),
@@ -146,11 +204,30 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     } else {
       const failedNames = failedBlocks.map(b => b.label).join(', ');
       toast.error(`Failed to save: ${failedNames}`);
-      setSubmitError(`Failed to save: ${failedNames}`);
     }
 
     router.push(`/admin/articles/`);
   }
+
+  const uploadFiles = async (files: File[]): Promise<string[]> => {
+    const urls: string[] = [];
+
+    for (const file of files) {
+      const params: UploadPhotoParams = {
+        file,
+        entityReferenceId: articleId!,
+        articleType: 'NEWS',
+      };
+
+      const response = await dispatch(uploadPhoto(params)).unwrap();
+      urls.push(response);
+    }
+    return urls;
+  };
+
+  const deleteFile = async (url: string) => {
+    await dispatch(deletePhoto(url)).unwrap();
+  };
 
   return (
     <>
@@ -178,10 +255,27 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             video:
               article?.contentBlocks?.find(b => b.contentBlockType === 'VIDEO')
                 ?.data || '',
+            mainPhoto:
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTO,
+              )?.data || '',
+            photosList: (() => {
+              const data = article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
+              )?.data;
+              return Array.isArray(data) ? data : [];
+            })(),
+
+            sliderPhotos: (() => {
+              const data = article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
+              )?.data;
+              return Array.isArray(data) ? data : [];
+            })(),
           }}
           validationSchema={validationSchema}
           onSubmit={(values: ArticleContentDTO) =>
-            handleCreateNewArticleContent(values)
+            handleSaveArticleContent(values)
           }
         >
           {({ errors, touched, handleChange, isSubmitting, values }) => (
@@ -233,6 +327,30 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   }
                 />
               </div>
+
+              <PhotoUploader
+                label="Main Photo"
+                name="mainPhoto"
+                maxFiles={1}
+                onUpload={files => uploadFiles(files)}
+                onDelete={deleteFile}
+              />
+
+              <PhotoUploader
+                label="Photo List"
+                name="photosList"
+                maxFiles={2}
+                onUpload={files => uploadFiles(files)}
+                onDelete={deleteFile}
+              />
+
+              <PhotoUploader
+                label="Photo Slider"
+                name="sliderPhotos"
+                maxFiles={5}
+                onUpload={files => uploadFiles(files)}
+                onDelete={deleteFile}
+              />
 
               <div>
                 <Button
