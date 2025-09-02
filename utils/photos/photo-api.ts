@@ -27,7 +27,7 @@ class PhotoApi implements IPhotoApi {
         });
     }
 
-    async deletePhoto(photoId: number) {
+    async deletePhoto(url: string) {
         // return request({
         //     method: HttpMethod.DELETE,
         //     url: `${ApiEndpoint.DELETE_PHOTO}/${photoId}`,
