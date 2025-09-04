@@ -29,7 +29,7 @@ function UsersTable({ users }: UsersProps) {
     dispatch(
       openModal({
         modalType: ModalType.DELETEUSER,
-        user: user,
+        payload: user,
       }),
     );
   }

@@ -71,3 +71,8 @@ export interface ContentBlockArrayRequestDTO {
   data: string[],
   orderIndex: number
 }
+
+export interface PublishArticleRequestDTO {
+  previewImageUrl: string,
+  previewDescription: string
+}

@@ -10,6 +10,10 @@ import PenIcon from '@/components/icons/symbolic/PenIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
+import { Article } from '@/utils/articles/type/interface';
+import { openModal } from '@/components/ui/Modal/ModalSlice';
+import ModalType from '@/components/ui/Modal/enums/modals-type';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
@@ -42,6 +46,15 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
 
   const handleAddNewArticle = () => {
     router.push('/admin/articles/new');
+  };
+
+  const handleDeleteArticle = (article: Article) => {
+    dispatch(
+      openModal({
+        modalType: ModalType.DELETEARTICLE,
+        payload: article,
+      }),
+    );
   };
 
   return (
@@ -123,18 +136,31 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
               </td>
 
               <td className="flex justify-end pr-[45px] py-[25px]">
-                <Link href={`/admin/articles/${id}/edit`}>
+                <div className="flex gap-x-[40px]">
+                  <Link href={`/admin/articles/${id}/edit`}>
+                    <Button
+                      variant="tertiary"
+                      className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 
+                  active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
+                    >
+                      <div className="mr-1">
+                        <EditIcon />
+                      </div>
+                      Edit
+                    </Button>
+                  </Link>
                   <Button
-                    className="bg-transparent !p-0 h-auto flex items-center font-bold 
-                        hover:bg-transparent active:bg-transparent active:!text-admin-700"
+                    variant="tertiary"
+                    className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
+                active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
+                    onClick={() => handleDeleteArticle(article)}
                   >
-                    <div className="mr-[10px]">
-                      <EditIcon />
+                    <div className="mr-1">
+                      <BasketIcon color="#FC8181" />
                     </div>
-
-                    <span>Edit</span>
+                    Delete
                   </Button>
-                </Link>
+                </div>
               </td>
             </>
           );

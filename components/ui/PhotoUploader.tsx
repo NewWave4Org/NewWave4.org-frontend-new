@@ -111,12 +111,14 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({
           disabled={loading || values.length >= maxFiles}
           className="absolute w-full h-full opacity-0"
         />
-        <Button
-          size="medium"
-          className="!bg-blue-600 text-white !rounded-[5px] "
-        >
-          {values.length > 0 ? 'Change photo' : 'Select file'}
-        </Button>
+        {values.length < maxFiles && (
+          <Button
+            size="medium"
+            className="!bg-blue-600 text-white !rounded-[5px] "
+          >
+            {values.length > 0 ? 'Add photo' : 'Select file'}
+          </Button>
+        )}
       </div>
     </div>
   );
