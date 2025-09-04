@@ -1,6 +1,6 @@
 import { IArticleApi } from './type/articles-api.interface';
 import { IArticleService } from './type/articles-service.interface';
-import { Article, ArticleResponseDTO, ArticlesResponseDTO, ContentBlock, ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO } from './type/interface';
+import { Article, ArticleResponseDTO, ArticlesResponseDTO, ContentBlock, ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO, PublishArticleRequestDTO } from './type/interface';
 
 class ArticleService implements IArticleService {
   private articles: IArticleApi;
@@ -50,6 +50,15 @@ class ArticleService implements IArticleService {
   async updateContentBlockArray(id: number, data: ContentBlockArrayRequestDTO) {
     return this.articles.updateContentBlockArray(id, data);
   }
+
+  async publishArticle(id: number, data: PublishArticleRequestDTO) {
+    return this.articles.publishArticle(id, data);
+  }
+
+  async deleteArticle(id: number) {
+    return this.articles.deleteArticle(id);
+  }
+
 }
 
 export default ArticleService;

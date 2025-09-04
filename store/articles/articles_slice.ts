@@ -1,6 +1,6 @@
 import { Article, ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { createSlice } from '@reduxjs/toolkit';
-import { allArticles, createContentBlock, createNewArticle, getArticleById, getArticleFullById } from './action';
+import { allArticles, createContentBlock, createNewArticle, getArticleById, getArticleFullById, deleteArticle } from './action';
 
 interface articlesState {
   articles: Article[];
@@ -63,6 +63,9 @@ const articlesSlice = createSlice({
       if (state.articleFull) {
         state.articleFull.contentBlocks.push(action.payload);
       }
+    });
+    builder.addCase(deleteArticle.fulfilled, (state, action) => {
+      state.articles = state.articles.filter(article => article.id !== action.payload);
     });
   },
 });

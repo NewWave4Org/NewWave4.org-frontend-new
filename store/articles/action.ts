@@ -56,6 +56,20 @@ export const updateArticle = createAsyncThunk<
   },
 );
 
+export const deleteArticle = createAsyncThunk(
+  'articles/deleteArticle',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      await articleService.deleteArticle(id);
+      return id;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
 export const getArticleById = createAsyncThunk(
   'articles/getArticleById',
   async (id: number, { rejectWithValue }) => {
