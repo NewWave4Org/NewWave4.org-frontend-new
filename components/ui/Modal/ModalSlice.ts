@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface ModalProps {
   isModalOpen: boolean;
   modalType: string | null;
-  payload: unknown; // може бути user, article, event і т.д.
+  payload: unknown;
 }
 
 const initialState: ModalProps = {
