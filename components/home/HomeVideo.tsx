@@ -11,7 +11,6 @@ const HomeVideo: React.FC<HomeVideoProps> = ({ videoUrl }) => {
           <div>
             <iframe
               src={videoUrl}
-              // src="https://www.youtube.com/embed/77mC1d9QKRQ"
               allowFullScreen
               loading="lazy"
               className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
