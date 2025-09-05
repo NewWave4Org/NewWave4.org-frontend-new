@@ -1,4 +1,8 @@
-const HomeVideo: React.FC = () => {
+interface HomeVideoProps {
+  videoUrl: string;
+}
+
+const HomeVideo: React.FC<HomeVideoProps> = ({ videoUrl }) => {
   return (
     <section className="video-section">
       <div className="container mx-auto px-4">
@@ -6,7 +10,8 @@ const HomeVideo: React.FC = () => {
           <h4 className="preheader !text-font-primary">Наші проєкти</h4>
           <div>
             <iframe
-              src="https://www.youtube.com/embed/77mC1d9QKRQ"
+              src={videoUrl}
+              // src="https://www.youtube.com/embed/77mC1d9QKRQ"
               allowFullScreen
               loading="lazy"
               className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"

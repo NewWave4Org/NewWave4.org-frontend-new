@@ -18,7 +18,7 @@ class PhotoService {
     }
 
     async deletePhoto(url: string) {
-        // return this.photos.deletePhoto(photoId);
+        return this.photos.deletePhoto(url);
     }
 }
 

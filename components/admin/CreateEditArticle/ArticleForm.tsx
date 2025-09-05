@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
+import { extractErrorMessage } from '@/utils/apiErrors';
 
 interface newArticleDTO {
   id?: number;
@@ -63,25 +64,34 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
 
   async function handleSubmit(values: newArticleDTO) {
     let result;
-    if (values.id) {
-      const payload = {
-        title: values.newsTitle,
-        newsProjectTag: values.newsProjectTag,
-      };
-      result = await handleThunk(
-        updateArticle,
-        { id: values.id, data: payload },
-        setSubmitError,
-      );
-      if (result) {
-        toast.success('Article updated successfully');
+
+    try {
+      if (values.id) {
+        const payload = {
+          title: values.newsTitle,
+          newsProjectTag: values.newsProjectTag,
+        };
+        result = await handleThunk(
+          updateArticle,
+          { id: values.id, data: payload },
+          setSubmitError,
+        );
+
+        if (result) {
+          toast.success('Article updated successfully');
+        }
+      } else {
+        result = await handleThunk(createNewArticle, values, setSubmitError);
+
+        if (result) {
+          toast.success('Article created successfully');
+          router.push(`/admin/articles/new/content?id=${result.id}`);
+        }
       }
-    } else {
-      result = await handleThunk(createNewArticle, values, setSubmitError);
-      if (result) {
-        toast.success('Article created successfully');
-        router.push(`/admin/articles/new/content?id=${result.id}`);
-      }
+    } catch (err: any) {
+      const message = extractErrorMessage(err?.errors ?? err?.message ?? err);
+      toast.error(message);
+      // console.error('Submit error:', err);
     }
   }
 

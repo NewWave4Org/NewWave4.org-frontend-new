@@ -19,7 +19,7 @@ const HomePage = () => {
       <Programs />
       <JoinCommunity />
       <Partners />
-      <HomeVideo />
+      <HomeVideo videoUrl="https://www.youtube.com/embed/77mC1d9QKRQ" />
       <NewsEvents />
     </div>
   );

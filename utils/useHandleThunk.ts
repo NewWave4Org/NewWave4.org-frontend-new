@@ -16,7 +16,7 @@ function useHandleThunk() {
         result.payload?.original?.errors || result.payload?.message,
       );
       setError(msg);
-      return null;
+      throw new Error(msg);
     }
 
     const value = result.payload != null ? result.payload : true;

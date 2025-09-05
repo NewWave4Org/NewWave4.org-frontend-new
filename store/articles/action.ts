@@ -1,5 +1,5 @@
 import { articleService } from '@/utils/articles';
-import { ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO } from '@/utils/articles/type/interface';
+import { ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO, PublishArticleRequestDTO } from '@/utils/articles/type/interface';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -62,6 +62,24 @@ export const deleteArticle = createAsyncThunk(
     try {
       await articleService.deleteArticle(id);
       return id;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export const publishArticle = createAsyncThunk(
+  'articles/publishArticle',
+  async (
+    { id, data }: { id: number; data: PublishArticleRequestDTO },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await articleService.publishArticle(id, data);
+
+      return response;
     } catch (error) {
       const normalized = normalizeApiError(error);
 

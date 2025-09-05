@@ -5,7 +5,7 @@ interface IPhotoApi {
         file: File;
     }) => Promise<string>;
 
-    deletePhoto?: (url: string) => Promise<void>;
+    deletePhoto: (url: string) => Promise<void>;
 }
 
 export { type IPhotoApi };

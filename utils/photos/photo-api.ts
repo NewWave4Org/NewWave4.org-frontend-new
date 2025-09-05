@@ -28,10 +28,16 @@ class PhotoApi implements IPhotoApi {
     }
 
     async deletePhoto(url: string) {
-        // return request({
-        //     method: HttpMethod.DELETE,
-        //     url: `${ApiEndpoint.DELETE_PHOTO}/${photoId}`,
-        // });
+        return request({
+            method: HttpMethod.DELETE,
+            url: `${ApiEndpoint.DELETE_PHOTO}`,
+            params: {
+                url
+            },
+            config: {
+                baseURL: 'https://api.stage.newwave4.org/api/',
+            },
+        });
     }
 }
 

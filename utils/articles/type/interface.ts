@@ -76,3 +76,13 @@ export interface PublishArticleRequestDTO {
   previewImageUrl: string,
   previewDescription: string
 }
+
+export interface ArticleFull extends Article {
+  mainPhoto: string,
+  photoList: string[],
+  photoSlider: string[],
+  quote: string,
+  mainText: string,
+  textblock2: string,
+  video: string
+}

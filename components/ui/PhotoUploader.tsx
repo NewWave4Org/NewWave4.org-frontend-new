@@ -87,9 +87,12 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({
             <Image
               src={url}
               alt="preview"
-              height={200}
-              width={300}
-              className="object-cover rounded"
+              width={1}
+              height={1}
+              style={{
+                height: '220px',
+                width: 'auto',
+              }}
             />
             <button
               type="button"
