@@ -8,6 +8,7 @@ import {
   createContentBlockArray,
   deleteContentBlock,
   getArticleFullById,
+  publishArticle,
   updateContentBlock,
   updateContentBlockArray,
 } from '@/store/articles/action';
@@ -23,6 +24,7 @@ import { usePathname } from 'next/navigation';
 import { UploadPhotoParams } from '@/utils/photos/photo-service';
 import PhotoUploader from '@/components/ui/PhotoUploader';
 import { deletePhoto, uploadPhoto } from '@/store/photos/action';
+import { extractErrorMessage } from '@/utils/apiErrors';
 
 interface ArticleContentDTO {
   textblock1: string;
@@ -70,6 +72,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   }, [articleId]);
 
   async function handleSaveArticleContent(values: ArticleContentDTO) {
+    const saveSuccess = await saveArticleContent(values);
+    if (!saveSuccess) return;
+    router.push(`/admin/articles/`);
+  }
+
+  async function saveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
     const blocks: {
       type: ContentBlockType;
       data: string | string[];
@@ -115,7 +125,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
       {
         type: ContentBlockType.PHOTOS_SLIDER,
         data: values.sliderPhotos || [],
-        label: 'Slider',
+        label: 'Photo Slider',
         orderIndex: 7,
       },
     ];
@@ -201,12 +211,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
     if (failedBlocks.length === 0) {
       toast.success('All content blocks saved successfully!');
+      return true;
     } else {
       const failedNames = failedBlocks.map(b => b.label).join(', ');
       toast.error(`Failed to save: ${failedNames}`);
+      return false;
     }
-
-    router.push(`/admin/articles/`);
   }
 
   const uploadFiles = async (files: File[]): Promise<string[]> => {
@@ -228,6 +238,76 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   const deleteFile = async (url: string) => {
     await dispatch(deletePhoto(url)).unwrap();
   };
+
+  async function handlePublish(values: ArticleContentDTO) {
+    if (!articleId) return;
+
+    const saveSuccess = await saveArticleContent(values);
+    if (!saveSuccess) {
+      toast.error('Failed to save article before publishing');
+      return;
+    }
+
+    if (!values.mainPhoto) {
+      toast.error('Main photo is required to publish');
+      return;
+    }
+
+    if (!values.textblock1 || values.textblock1.trim() === '') {
+      toast.error('Text block 1 cannot be empty');
+      return;
+    }
+
+    const nonEmptyBlocks = [
+      values.textblock1,
+      values.textblock2,
+      values.quote,
+      values.video,
+      values.mainPhoto,
+      ...(values.photosList || []),
+      ...(values.sliderPhotos || []),
+    ]
+      .flatMap(block => (Array.isArray(block) ? block : [block]))
+      .filter(block => block && block.toString().trim() !== '');
+
+    if (nonEmptyBlocks.length < 3) {
+      toast.error('Article must have at least 3 content blocks');
+      return;
+    }
+
+    try {
+      const previewDescription = values.textblock1
+        .split('\n')
+        .slice(0, 3)
+        .join('\n');
+
+      const result = await dispatch(
+        publishArticle({
+          id: articleId,
+          data: {
+            previewImageUrl: values.mainPhoto || '',
+            previewDescription: previewDescription || '',
+          },
+        }),
+      );
+
+      if (publishArticle.rejected.match(result)) {
+        const message = extractErrorMessage(result.payload);
+        toast.error(message);
+        return;
+      }
+
+      toast.success('Article published successfully!');
+      router.push('/admin/articles');
+    } catch (err: any) {
+      const message = extractErrorMessage(err?.errors ?? err?.message ?? err);
+      toast.error(message || 'Failed to publish article');
+    }
+  }
+
+  async function handlePreview() {
+    router.push(`/admin/articles/${articleId}/preview`);
+  }
 
   return (
     <>
@@ -274,9 +354,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             })(),
           }}
           validationSchema={validationSchema}
-          onSubmit={(values: ArticleContentDTO) =>
-            handleSaveArticleContent(values)
-          }
+          onSubmit={async (values: ArticleContentDTO) => {
+            await handleSaveArticleContent(values);
+          }}
         >
           {({ errors, touched, handleChange, isSubmitting, values }) => (
             <Form>
@@ -352,7 +432,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 onDelete={deleteFile}
               />
 
-              <div>
+              <div className="flex gap-x-6 mt-6">
                 <Button
                   type="submit"
                   disabled={isSubmitting}
@@ -360,6 +440,24 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 >
                   Save
                 </Button>
+
+                {/* <Button
+                  type="button"
+                  onClick={handlePreview}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
+                  Preview
+                </Button> */}
+
+                {article?.newsStatus !== 'PUBLISHED' && (
+                  <Button
+                    type="button"
+                    onClick={() => handlePublish(values)}
+                    className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                  >
+                    Publish
+                  </Button>
+                )}
               </div>
             </Form>
           )}

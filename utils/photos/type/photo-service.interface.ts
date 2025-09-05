@@ -5,7 +5,7 @@ interface IPhotoService {
         file: File;
     }) => Promise<{ url: string }>;
 
-    deletePhoto?: (photoId: number) => Promise<void>;
+    deletePhoto?: (url: string) => Promise<void>;
 }
 
 export { type IPhotoService };

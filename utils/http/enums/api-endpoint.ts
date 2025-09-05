@@ -16,6 +16,7 @@ const ApiEndpoint = {
   ADD_NEWS_CONTENT_BLOCK_ARRAY: (id: number | string) => `news/content-blocks/private/${id}/array`,
   UPDATE_NEWS_CONTENT_BLOCK_ARRAY: (id: number | string) => `news/content-blocks/private/${id}/array`,
   UPLOAD_PHOTO: 'photos/upload-photo',
+  DELETE_PHOTO: 'photos/delete-photo',
   LOGOUT: 'auth/logout',
   REFRESHTOKEN: 'auth/refresh',
   CHECK_VALIDATION_TOKEN: 'users/check-reset-password-token',
