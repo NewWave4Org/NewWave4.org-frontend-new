@@ -1,12 +1,16 @@
+'use client';
+
 import ArticlePreview from '@/components/admin/CreateEditArticle/ArticlePreview';
+import { useSearchParams } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const PreviewArticlePage = async ({ params }: PageProps) => {
-  const { id } = await params;
-  const articleId = Number(id);
+const PreviewArticlePage = ({ params }: PageProps) => {
+  const searchParams = useSearchParams();
+  const idParam = searchParams.get('id');
+  const articleId = idParam ? Number(idParam) : undefined;
 
   if (!articleId) return <div>Article not found</div>;
 
@@ -18,8 +22,3 @@ const PreviewArticlePage = async ({ params }: PageProps) => {
 };
 
 export default PreviewArticlePage;
-
-export async function generateStaticParams() {
-  const ids = Array.from({ length: 1000 }, (_, i) => i + 1);
-  return ids.map(id => ({ id: String(id) }));
-}
