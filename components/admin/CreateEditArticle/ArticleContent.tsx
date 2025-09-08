@@ -306,7 +306,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   }
 
   async function handlePreview() {
-    router.push(`/admin/articles/${articleId}/preview`);
+    router.push(`/admin/articles/preview?id=${articleId}`);
   }
 
   return (
@@ -441,13 +441,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   Save
                 </Button>
 
-                {/* <Button
+                <Button
                   type="button"
                   onClick={handlePreview}
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                 >
                   Preview
-                </Button> */}
+                </Button>
 
                 {article?.newsStatus !== 'PUBLISHED' && (
                   <Button

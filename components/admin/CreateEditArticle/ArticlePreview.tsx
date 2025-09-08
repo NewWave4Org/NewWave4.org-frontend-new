@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
-import News from '@/components/home/News';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import HomeVideo from '@/components/home/HomeVideo';
@@ -18,16 +17,17 @@ import { toast } from 'react-toastify';
 import { getArticleFullById } from '@/store/articles/action';
 import { mapArticleResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
+import { getArticleProjectLabel } from '@/utils/articles/type/articles-project';
+import { Slide } from '@/components/generalSlider/slidesData';
 
 interface IArticlePreview {
   articleId?: number;
 }
 
 const ArticlePreview = ({ articleId }: IArticlePreview) => {
-  if (!articleId) return <div>Article not found</div>;
-
   const dispatch = useAppDispatch();
   const [article, setArticle] = useState<ArticleFull | null>(null);
+  const [slides, setSlides] = useState<Slide[]>([]);
 
   useEffect(() => {
     if (!articleId) return;
@@ -39,6 +39,21 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         ).unwrap();
         const articleFull: ArticleFull = mapArticleResponseToFull(data);
         setArticle(articleFull);
+        if (articleFull?.photoSlider) {
+          const mappedSlides: Slide[] = articleFull.photoSlider.map(
+            (item, index) => ({
+              id: index,
+              src: item,
+              srchover: item,
+              alt: `Slide ${index + 1}`,
+              title: articleFull.title,
+              text: '',
+              link: '',
+            }),
+          );
+
+          setSlides(mappedSlides);
+        }
       } catch (err) {
         toast.error('Failed to fetch article');
       }
@@ -70,6 +85,15 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
             </div>
             <div>
               <div className="mb-4">
+                <div
+                  className="filterNews__item 
+                  bg-primary-100 text-medium1
+                  text-primary-700 py-2 px-4 rounded-[50px] 
+                  my-[10px] h-[40px] font-helv leading-[1.3]
+                  whitespace-nowrap "
+                >
+                  {getArticleProjectLabel(article.newsProjectTag)}
+                </div>
                 <div className="flex items-center mb-1">
                   <div className="mr-2">
                     <UserIcon size="16" color="#7A7A7A" />
@@ -92,7 +116,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
                   </span>
                 </div>
                 <div className="text-font-primary text-small">
-                  {/* 17 жовтня 2024 */}
                   {formatDateUk(article.publishedAt)}
                 </div>
               </div>
@@ -144,28 +167,22 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         </div>
       </div>
 
-      {/* <div className="mb-[55px]">
-        <GeneralSlider
-          slides={slides}
-          hasLink={false}
-          slideHover={false}
-          fullWidth={true}
-        />
-      </div> */}
+      {article.photoSlider.length > 0 && (
+        <div className=" max-w-[1280px] mb-[55px]">
+          <GeneralSlider
+            slides={slides}
+            hasLink={false}
+            slideHover={false}
+            fullWidth={true}
+          />
+        </div>
+      )}
 
       {article.video && (
         <div className="mb-[80px]">
           <HomeVideo videoUrl={article.video} />
         </div>
       )}
-
-      <div className="mb-[80px]">
-        <News
-          title="Інші новини"
-          link="#"
-          textLink="Всі новини Культурного Центру"
-        />
-      </div>
     </div>
   );
 };

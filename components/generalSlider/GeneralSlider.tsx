@@ -9,33 +9,42 @@ import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import ArrowRight4Icon from '../icons/navigation/ArrowRight4Icon';
 
 interface Slide {
-  id: number,
-  src: string,
-  srchover: string,
-  alt: string,
-  link: string
+  id: number;
+  src: string;
+  srchover: string;
+  alt: string;
+  link: string;
 }
 
 interface GeneralSliderProps {
-  slides: Slide[],
-  autoplayDelay?: number,
-  loop?: boolean,
-  showArrows?: boolean,
-  showDots?: boolean,
-  slideHover?: boolean,
-  hasLink?: boolean,
-  fullWidth?: boolean
+  slides: Slide[];
+  autoplayDelay?: number;
+  loop?: boolean;
+  showArrows?: boolean;
+  showDots?: boolean;
+  slideHover?: boolean;
+  hasLink?: boolean;
+  fullWidth?: boolean;
 }
 
-const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 4000, loop = true, showArrows = true, showDots = true, slideHover = true, hasLink = true, fullWidth = true}) => {
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: loop }, [
-    Autoplay({ playOnInit: true, delay: autoplayDelay }),
-  ]);
+const GeneralSlider: React.FC<GeneralSliderProps> = ({
+  slides,
+  autoplayDelay = 4000,
+  loop = true,
+  showArrows = true,
+  showDots = true,
+  slideHover = true,
+  hasLink = true,
+  fullWidth = true,
+}) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: loop, align: 'center' },
+    [Autoplay({ playOnInit: true, delay: autoplayDelay })],
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [hoveredSlide, setHoveredSlide] = useState<number | null>(null);
   const router = useRouter();
-  
+
   useEffect(() => {
     if (!emblaApi) return;
     const onSelect = () => {
@@ -47,17 +56,20 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 40
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-  
+
   return (
     <div className="relative embla group">
-      <div className={`${!fullWidth ? 'overflow-hidden' : '' }`} ref={emblaRef}>
+      <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {slides.map((slide, index) => {
             const isActive = index === selectedIndex;
             const isHovered = hoveredSlide === slide.id;
 
             return (
-              <div key={slide.id} className="relative embla-slide">
+              <div
+                key={slide.id}
+                className="relative embla-slide flex-shrink-0 w-[824px] h-[544px] aspect-[824/544] "
+              >
                 <Image
                   src={
                     slideHover
@@ -67,13 +79,16 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 40
                       : slide.src
                   }
                   alt={slide.alt}
-                  width={824}
-                  height={544}
-                  className="embla-slide-img transition-all duration-300"
+                  fill
+                  className="embla-slide-img transition-all duration-300 object-cover"
                   priority={isActive}
                   onMouseEnter={() => isActive && setHoveredSlide(slide.id)}
                   onMouseLeave={() => isActive && setHoveredSlide(null)}
-                  onClick={hasLink ? () => isActive && router.push(slide.link) : undefined}
+                  onClick={
+                    hasLink
+                      ? () => isActive && router.push(slide.link)
+                      : undefined
+                  }
                   style={{
                     cursor: isActive ? 'pointer' : 'default',
                   }}
@@ -83,7 +98,6 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 40
           })}
         </div>
       </div>
-
 
       {/* Arrow Buttons */}
       {showArrows && (
@@ -100,21 +114,20 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({slides, autoplayDelay = 40
         </>
       )}
 
-
       {/* Dots */}
       {showDots && (
-          <>
-            <div className="embla-slider-dots">
-              {slides.map((_, index) => (
-                <div
-                  key={index}
-                  className={`embla-slider-dot ${
-                    selectedIndex === index ? 'bg-primary-500' : 'bg-grey-50'
-                  }`}
-                />
-              ))}
-            </div>
-          </>
+        <>
+          <div className="embla-slider-dots">
+            {slides.map((_, index) => (
+              <div
+                key={index}
+                className={`embla-slider-dot ${
+                  selectedIndex === index ? 'bg-primary-500' : 'bg-grey-50'
+                }`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

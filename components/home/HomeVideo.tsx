@@ -1,8 +1,14 @@
+import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
+
 interface HomeVideoProps {
   videoUrl: string;
 }
 
 const HomeVideo: React.FC<HomeVideoProps> = ({ videoUrl }) => {
+  const embedUrl = convertYoutubeUrlToEmbed(videoUrl);
+  if (!embedUrl) {
+    return null;
+  }
   return (
     <section className="video-section">
       <div className="container mx-auto px-4">
@@ -10,7 +16,7 @@ const HomeVideo: React.FC<HomeVideoProps> = ({ videoUrl }) => {
           <h4 className="preheader !text-font-primary">Наші проєкти</h4>
           <div>
             <iframe
-              src={videoUrl}
+              src={embedUrl}
               allowFullScreen
               loading="lazy"
               className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
