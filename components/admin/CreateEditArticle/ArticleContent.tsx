@@ -74,7 +74,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   async function handleSaveArticleContent(values: ArticleContentDTO) {
     const saveSuccess = await saveArticleContent(values);
     if (!saveSuccess) return;
-    router.push(`/admin/articles/`);
+    // router.push(`/admin/articles/`);
   }
 
   async function saveArticleContent(
