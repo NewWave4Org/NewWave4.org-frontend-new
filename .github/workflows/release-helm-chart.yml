@@ -17,12 +17,12 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pull-requests: write
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          repository: NewWave4.org-frontend-new
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set Org Lowercase
@@ -31,7 +31,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
-          version: 'latest'
+          version: 'v3.14.4' # pin for stability
 
       - name: Configure Git
         run: |
@@ -40,54 +40,36 @@ jobs:
 
       - name: Update Chart Version
         run: |
-          # Update version in Chart.yaml
+          set -euo pipefail
           sed -i "s/^version:.*/version: ${{ github.event.inputs.version }}/" helm/frontend-chart/Chart.yaml
-
-          # Update appVersion if requested
           if [[ "${{ github.event.inputs.update_app_version }}" == "true" ]]; then
-            # Get the latest Docker image tag
-            echo "Updating appVersion to match latest Docker image"
-            sed -i "s/^appVersion:.*/appVersion: \"latest\"/" helm/frontend-chart/Chart.yaml
+            sed -i 's/^appVersion:.*/appVersion: "latest"/' helm/frontend-chart/Chart.yaml
           fi
-
-          # Show the changes
           cat helm/frontend-chart/Chart.yaml
 
-      - name: Package Helm Chart
+      - name: (Optional) Update deps
+        if: ${{ always() }}
         run: |
-          helm package newwave4-frontend-chart
+          set -euo pipefail
+          helm dependency update helm/frontend-chart || true
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GHCR for Helm (OCI)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io \
+            --username "${{ github.actor }}" --password-stdin
+
+      - name: Package Helm Chart
+        id: pkg
+        run: |
+          set -euo pipefail
+          PKG_FILE=$(helm package helm/frontend-chart | awk '{print $NF}')
+          echo "pkg=${PKG_FILE}" >> $GITHUB_OUTPUT
 
       - name: Push Helm Chart to GHCR
         run: |
-          # Push the chart to GHCR as OCI artifact
-          # The chart will be available at oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart
-          helm push newwave4-frontend-chart-${{ github.event.inputs.version }}.tgz oci://ghcr.io/${{ env.ORG }}/charts
-
-          # Verify that the chart was pushed correctly
-          echo "Verifying that the chart was pushed correctly..."
-
-          # For OCI repositories, we don't use helm repo add
-          # Instead, we directly pull the chart to verify it exists
+          set -euo pipefail
+          helm push "${{ steps.pkg.outputs.pkg }}" oci://ghcr.io/${{ env.ORG }}/charts
           echo "Pulling the chart to verify it exists..."
-          helm pull oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart --version ${{ github.event.inputs.version }}
-
-          # List the pulled chart file to confirm it was downloaded
-          echo "Listing the pulled chart file..."
-          ls -la newwave4-frontend-chart-${{ github.event.inputs.version }}.tgz
-
-      - name: Commit and Push Chart Version Update
-        run: |
-          git add helm/frontend-chart/Chart.yaml
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update Helm chart version to ${{ github.event.inputs.version }}"
-            git push
-          fi
+          helm pull oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart \
+            --version "${{ github.event.inputs.version }}"
+          ls -la "newwave4-frontend-chart-${{ github.event.inputs.version }}.tgz"
