@@ -7,11 +7,12 @@ import * as Yup from 'yup';
 import { adminRole, emailValidation, nameValidation } from '@/utils/validation';
 import EditUser from '../EditUser/EditUser';
 import DeleteUser from '../DeleteUser/DeleteUser';
+import DeleteArticle from '../DeleteArticle/DeleteArticle';
 
 const CreateNewUserValidationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
-  roles: adminRole
+  roles: adminRole,
 });
 
 const Modals = () => {
@@ -19,13 +20,18 @@ const Modals = () => {
   const modalType = useAppSelector(state => state.modal.modalType);
   return (
     <>
-      {isModalOpen && 
+      {isModalOpen && (
         <Modal modalType={modalType} isModalOpen={isModalOpen}>
-          {modalType === ModalType.CREATENEWUSER && <CreateNewUser validationSchema={CreateNewUserValidationSchema}/>}
-          {modalType === ModalType.EDITUSER && <EditUser validationSchema={CreateNewUserValidationSchema}/>}
+          {modalType === ModalType.CREATENEWUSER && (
+            <CreateNewUser validationSchema={CreateNewUserValidationSchema} />
+          )}
+          {modalType === ModalType.EDITUSER && (
+            <EditUser validationSchema={CreateNewUserValidationSchema} />
+          )}
           {modalType === ModalType.DELETEUSER && <DeleteUser />}
+          {modalType === ModalType.DELETEARTICLE && <DeleteArticle />}
         </Modal>
-      }
+      )}
     </>
   );
 };

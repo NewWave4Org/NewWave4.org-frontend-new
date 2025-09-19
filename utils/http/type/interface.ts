@@ -11,6 +11,7 @@ export type RequestOptions = {
   readonly config?: AxiosRequestConfig;
   readonly headers?: Record<string, string>;
   _retry?: boolean;
+  readonly id?: string | number;
 };
 
 export type ServerErrorData = {

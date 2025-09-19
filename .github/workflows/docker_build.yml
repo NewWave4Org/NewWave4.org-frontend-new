@@ -44,11 +44,14 @@ jobs:
           docker images
           docker run --name newwave4-frontend-app -d \
             -p 80:80 \
+            --env NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }} \
+            --env NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }} \
+            --env NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }} \
             ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
-          
+
           export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
           echo $IP
-          
+
           echo Testing Image URL using wget
           wget -q -O - 127.0.0.1 | grep "New Wave"
 

@@ -8,16 +8,13 @@ import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import HomeVideo from '@/components/home/HomeVideo';
 import Quote from '@/components/quote/Quote';
 
-
-
 export async function generateStaticParams() {
   const newsIds = ['1', '2', '3'];
 
-  return newsIds.map((id) => ({
+  return newsIds.map(id => ({
     newsId: id,
   }));
 }
-
 
 const slides = [
   {
@@ -67,84 +64,134 @@ const slides = [
   },
 ];
 
-
 const Article = () => {
   return (
     <div className="article_page pt-[145px]">
       <div className="container px-4 mx-auto">
         <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
           <div className="lg:max-w-[718px] lg:mb-0 mb-6">
-            <Image src={`${prefix}/slider/slide3.jpg`} className="w-full" width={100} height={100} alt="" />
+            <Image
+              src={`${prefix}/slider/slide3.jpg`}
+              className="w-full"
+              width={100}
+              height={100}
+              alt=""
+            />
           </div>
           <div className="lg:max-w-[506px] flex flex-col justify-between">
-            <div className="font-ebGaramond text-h3 text-font-primary mb-6">Зустріч українців Брукліна з сенатором Шумером</div>
+            <div className="font-ebGaramond text-h3 text-font-primary mb-6">
+              Зустріч українців Брукліна з сенатором Шумером
+            </div>
             <div>
-              <div className='mb-4'>
+              <div className="mb-4">
                 <div className="flex items-center mb-1">
                   <div className="mr-2">
                     <UserIcon size="16" color="#7A7A7A" />
                   </div>
-                  <span className="text-grey-600 text-small2 inline-block leading-none">Автор</span>
+                  <span className="text-grey-600 text-small2 inline-block leading-none">
+                    Автор
+                  </span>
                 </div>
-                <div className="text-font-primary text-small">Мирослава Роздольська</div>
+                <div className="text-font-primary text-small">
+                  Мирослава Роздольська
+                </div>
               </div>
-              <div className='mb-4'>
-                <div className='flex items-center mb-1'>
+              <div className="mb-4">
+                <div className="flex items-center mb-1">
                   <div className="mr-2">
                     <CalendarIcon size="16" color="#7A7A7A" />
                   </div>
-                  <span className="text-grey-600 text-small2 inline-block leading-none">Дата</span>
+                  <span className="text-grey-600 text-small2 inline-block leading-none">
+                    Дата
+                  </span>
                 </div>
-                <div className='text-font-primary text-small'>17 жовтня 2024</div>
+                <div className="text-font-primary text-small">
+                  17 жовтня 2024
+                </div>
               </div>
             </div>
             <div>
-              <div className='text-small text-grey-700 mb-2'>Поділись з друзями</div>
+              <div className="text-small text-grey-700 mb-2">
+                Поділись з друзями
+              </div>
               <SocialButtons />
             </div>
           </div>
         </div>
 
-        <div className='mb-[40px]'>
-          <p className='text-font-primary text-body'>
-            10 жовтня, відбулася зустріч представників української і проукраїнської громади цієї околиці Брукліна, НЙ з  найбільш впливовим сенатором-демократом Чаком Шумером. Його реакція на дії Путіна в Україні і, на терористичні атаки московських окупантів, здійснені у ці дні, була такою ж сповненою гніву, як кожного з нас українців. Підготовлені нами питання про визнання Росії – державою-терористом на офіційному рівні, про кваліфікацію воєнних злочинів Росії в Україні геноцидом, про надання ще більше зброї Україні знаходили глибоке розуміння і запевнення в тому, що  він, як справжній друг України, прикладе до цього всіх зусиль.
+        <div className="mb-[40px]">
+          <p className="text-font-primary text-body">
+            10 жовтня, відбулася зустріч представників української і
+            проукраїнської громади цієї околиці Брукліна, НЙ з найбільш
+            впливовим сенатором-демократом Чаком Шумером. Його реакція на дії
+            Путіна в Україні і, на терористичні атаки московських окупантів,
+            здійснені у ці дні, була такою ж сповненою гніву, як кожного з нас
+            українців. Підготовлені нами питання про визнання Росії –
+            державою-терористом на офіційному рівні, про кваліфікацію воєнних
+            злочинів Росії в Україні геноцидом, про надання ще більше зброї
+            Україні знаходили глибоке розуміння і запевнення в тому, що він, як
+            справжній друг України, прикладе до цього всіх зусиль.
           </p>
         </div>
 
-        <div className='flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto'>
+        <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto">
           <div className="lg:max-w-[718px] lg:flex-1 lg:mb-0 mb-6">
-            <Image src={`${prefix}/slider/slide3.jpg`} className="w-full h-full" width={100} height={100} style={{ objectFit: 'cover' }} alt="" />
+            <Image
+              src={`${prefix}/slider/slide3.jpg`}
+              className="w-full h-full"
+              width={100}
+              height={100}
+              style={{ objectFit: 'cover' }}
+              alt=""
+            />
           </div>
           <div className="lg:max-w-[506px]">
-            <Image src={`${prefix}/slider/slide3.jpg`} className="w-full h-full" width={100} style={{ objectFit: 'cover' }} height={100} alt="" />
+            <Image
+              src={`${prefix}/slider/slide3.jpg`}
+              className="w-full h-full"
+              width={100}
+              style={{ objectFit: 'cover' }}
+              height={100}
+              alt=""
+            />
           </div>
         </div>
 
         <Quote quote="«Світ стикається з викликами, які вимагають не тільки швидких рішень, але й глобальної єдності. Україна сьогодні несе на собі важкий тягар війни, але це також випробування для всього цивілізованого світу. Ми повинні бути голосом тих, хто цього потребує»." />
 
-        <div className='mb-[56px]'>
+        <div className="mb-[56px]">
           <p>
-            Розмова про пришвидшення розгляду еміграційних питань,  зокрема, щодо отримання дозволу на працю для українських біженців також була в числі першочергових. Заторкнули ми і питання   про створення українського освітньо-культурного центру у  Брукліні для потреб громади.
+            Розмова про пришвидшення розгляду еміграційних питань, зокрема, щодо
+            отримання дозволу на працю для українських біженців також була в
+            числі першочергових. Заторкнули ми і питання про створення
+            українського освітньо-культурного центру у Брукліні для потреб
+            громади.
           </p>
         </div>
       </div>
 
-      <div className='mb-[55px]'>
-        <GeneralSlider slides={slides} hasLink={false} slideHover={false} fullWidth={true} />
+      <div className="mb-[55px]">
+        <GeneralSlider
+          slides={slides}
+          hasLink={false}
+          slideHover={false}
+          fullWidth={true}
+        />
       </div>
 
-      <div className='mb-[80px]'>
-        <HomeVideo />
+      <div className="mb-[80px]">
+        <HomeVideo videoUrl="https://www.youtube.com/embed/77mC1d9QKRQ" />
       </div>
 
-      <div className='mb-[80px]'>
-        <News title="Інші новини" link='#' textLink="Всі новини Культурного Центру" />
+      <div className="mb-[80px]">
+        <News
+          title="Інші новини"
+          link="#"
+          textLink="Всі новини Культурного Центру"
+        />
       </div>
     </div>
   );
 };
-
-
-
 
 export default Article;

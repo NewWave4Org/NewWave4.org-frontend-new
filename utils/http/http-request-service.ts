@@ -17,19 +17,30 @@ axios.defaults.headers.post['Content-Type'] =
 export const refreshAccessToken = async () => {
   console.log('refreshAccessToken');
   try {
-    await axiosInstance.post(ApiEndpoint.REFRESHTOKEN);
+    await axios.post(ApiEndpoint.REFRESHTOKEN, {}, { withCredentials: true });
 
-    (await import('@/store/store')).store.dispatch(getUserInfo());
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    try {
+      (await import('@/store/store')).store.dispatch(getUserInfo()).unwrap();
+    } catch (error) {
+      console.error('getUserInfo doesnt work, redirect to log in page:', error);
+
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+      window.location.href = `${basePath}/admin`;
+      return false;
+    }
 
     return true;
   } catch (error) {
-    console.error('Ошибка обновления токена:', error);
-    toast.error('Сессия завершена. Пожалуйста, войдите заново.');
+    console.error('Error refresh token:', error);
+    toast.error('Session expired. Please log in again.');
 
     (await import('@/store/store')).store.dispatch(logOutAuth());
 
     if (typeof window !== 'undefined') {
-      window.location.href = '/admin';
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+      window.location.href = `${basePath}/admin`;
     }
 
     return false;
