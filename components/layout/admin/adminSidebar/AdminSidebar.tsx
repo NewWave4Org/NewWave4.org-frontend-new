@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
-import { ROLES } from '@/data/admin/roles/Roles';
 
 const adminMenu = [
   {
@@ -32,6 +31,13 @@ const adminMenu = [
   },
   {
     id: '4',
+    title: 'Projects',
+    icon: <ArticlesIcon />,
+    href: adminLinkSidebar.ADMIN_PROJECTS,
+    allowedToAdmin: false,
+  },
+  {
+    id: '5',
     title: 'Archived page',
     icon: <BasketIcon />,
     href: adminLinkSidebar.ADMIN_ARCHIVE,

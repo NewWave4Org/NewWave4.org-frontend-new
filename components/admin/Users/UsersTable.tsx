@@ -3,27 +3,35 @@
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
-import { openModal } from '@/components/ui/Modal/ModalSlice';
+import { openModal } from '@/store/modal/ModalSlice';
 import Table from '@/components/ui/Table/Table';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById } from '@/store/users/actions';
 import { UserItem } from '@/utils/users/type/interface';
 import { UsersProps } from './types/interface';
-import { useCallback, useMemo, useState } from 'react';
+
 import { resendInvitation } from '@/store/auth/action';
 import { toast } from 'react-toastify';
 import UserRow from './UserRow';
 import { userUpdate } from '@/store/users/users_slice';
+import useSortTable from '@/utils/hooks/useSortTable';
+
+const TableHeader = [
+  { id: '1', title: 'Avatar' },
+  { id: '2', title: 'Name' },
+  { id: '3', title: 'Email' },
+  { id: '4', title: 'Role' },
+];
 
 function UsersTable({ users }: UsersProps) {
-  const [sortVal, setSortVal] = useState<'asc' | 'desc'>('asc');
-
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
 
-  const onlyContentManager =
-    currentUser?.roles.length === 1 &&
-    currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
+  const {sortVal, handleSort, sortedData} = useSortTable({
+    data: users,
+  });
+
+  const onlyContentManager = currentUser?.roles.length === 1 && currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
 
   function handleDeleteUser(user: UserItem) {
     dispatch(
@@ -62,48 +70,29 @@ function UsersTable({ users }: UsersProps) {
       });
   }
 
-  const sortedUsers = useMemo(() => {
-    return [...users].sort((a, b) => {
-      const aVal = a.verificatedUser ? 1 : 0;
-      const bVal = b.verificatedUser ? 1 : 0;
-
-      return sortVal === 'asc' ? bVal - aVal : aVal - bVal;
-    });
-  }, [users, sortVal]);
-
-  const handleStatus = useCallback(() => {
-    setSortVal(prev => (prev === 'asc' ? 'desc' : 'asc'));
-  }, []);
-
   return (
     <>
       <div className="users-manager">
         <Table
           classNameRow="bg-admin-100"
-          data={sortedUsers}
+          data={sortedData}
           renderHeader={() => (
             <>
-              <th className="pl-10 pb-4 px-2 border-b border-admin-300">
-                Avatar
-              </th>
-              <th className="pb-4 px-2 border-b  border-admin-300">Name</th>
-              <th className="pb-4 px-2 border-b  border-admin-300">Email</th>
-              <th className="pb-4 px-2 border-b  border-admin-300">Role</th>
+              {TableHeader.map(({ id, title }) => (
+                <th key={id} className={`${id === '1' ? 'pl-6' : ''} pb-4 px-2 border-b  border-admin-300`}>
+                  {title}
+                </th>
+              ))}
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span onClick={() => handleStatus()} className="cursor-pointer">
+                <span onClick={() => handleSort("verificatedUser")} className="cursor-pointer">
                   Status
-                  <span
-                    className={
-                      sortVal === 'asc' ? 'font-bold' : 'text-gray-400'
-                    }
-                  >
+                  <span className={`${sortVal === 'asc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}>
                     ↑
                   </span>
                   <span
-                    className={
-                      sortVal === 'desc' ? 'font-bold' : 'text-gray-400'
-                    }
-                  >
+                    className={`${sortVal === 'desc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`} >
                     ↓
                   </span>
                 </span>

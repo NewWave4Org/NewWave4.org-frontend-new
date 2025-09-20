@@ -1,5 +1,5 @@
 import Button from '@/components/shared/Button';
-import { closeModal } from '@/components/ui/Modal/ModalSlice';
+import { closeModal } from '@/store/modal/ModalSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { deleteUser, getUsers } from '@/store/users/actions';
 import { clearUserById } from '@/store/users/users_slice';

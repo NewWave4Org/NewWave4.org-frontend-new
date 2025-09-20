@@ -1,5 +1,5 @@
 import Button from '@/components/shared/Button';
-import { closeModal } from '@/components/ui/Modal/ModalSlice';
+import { closeModal } from '@/store/modal/ModalSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { deleteArticle, allArticles } from '@/store/articles/action';
 import useHandleThunk from '@/utils/useHandleThunk';

@@ -4,7 +4,7 @@ import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import Select from '@/components/shared/Select';
-import { closeModal } from '@/components/ui/Modal/ModalSlice';
+import { closeModal } from '@/store/modal/ModalSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUserById, getUsers, updateUser } from '@/store/users/actions';
 import { userUpdate } from '@/store/users/users_slice';

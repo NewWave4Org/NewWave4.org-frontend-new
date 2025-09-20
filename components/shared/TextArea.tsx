@@ -19,7 +19,7 @@ const TextArea: React.FC<TextAreaProps> = ({
   ...props
 }) => {
   return (
-    <div className="relative">
+    <div className="relative flex flex-col">
       <label
         htmlFor={id}
         className={`block text-medium2 text-grey-500 mb-1  ${labelClass} `}

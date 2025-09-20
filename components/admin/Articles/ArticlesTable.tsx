@@ -12,7 +12,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { Article } from '@/utils/articles/type/interface';
-import { openModal } from '@/components/ui/Modal/ModalSlice';
+import { openModal } from '@/store/modal/ModalSlice';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 
 const articlesHeader = [

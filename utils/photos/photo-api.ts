@@ -1,3 +1,4 @@
+import { ArticleType } from '../ArticleType';
 import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
@@ -6,7 +7,7 @@ import { IPhotoApi } from './type/photo-api.interface';
 class PhotoApi implements IPhotoApi {
     async uploadPhoto(params: {
         entityReferenceId: number;
-        articleType: 'NEWS' | 'EVENT' | 'PROGRAM';
+        articleType: ArticleType;
         file: File;
     }): Promise<string> {
         const formData = new FormData();

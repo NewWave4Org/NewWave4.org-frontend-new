@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/store/hook';
 import React, { ReactNode } from 'react';
-import { closeModal } from './ModalSlice';
+import { closeModal } from '../../../store/modal/ModalSlice';
 import CloseIcon from '@/components/icons/symbolic/CloseIcon';
 
 type ModalProps = {

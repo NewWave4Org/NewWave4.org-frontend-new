@@ -27,7 +27,7 @@ const AdminHeader = () => {
   }
 
   return (
-    <div className="header bg-background-darkBlue800">
+    <div className="header bg-background-darkBlue800 fixed top-0 w-full z-10">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-2">
           <Logo textColor="text-white" />
