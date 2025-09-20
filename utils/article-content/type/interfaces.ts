@@ -8,7 +8,7 @@ export interface IArticleBody {
   authorId: string;
   views: number;
   publishedAt: string;
-  contentBlocks: any[];
+  contentBlocks: any[] | null;
   relevant_project_id?: number;
 }
 
@@ -27,7 +27,7 @@ export interface GerArticleByIdResponseDTO {
 export interface CreateNewArticleRequestDTO {
   articleType: ArticleType,
   title: string,
-  contentBlocks: any[],
+  contentBlocks: any[] | null,
   relevantProjectId?: number 
 }
 export interface CreateNewArticleResponseDTO {
@@ -39,7 +39,7 @@ export interface CreateNewArticleResponseDTO {
   authorId: string;
   views: number;
   publishedAt: string;
-  contentBlocks: any[];
+  contentBlocks: any[] | null;
   relevant_project_id: number;
 }
 
@@ -87,12 +87,12 @@ export interface UpdateArticleRequestDTO {
   data: {
     title: string;
     articleType: ArticleType;
-    contentBlocks: any[];
+    contentBlocks: any[] | null;
     relevantProjectId?: number;
   } 
 }
 export interface UpdateArticleResponseDTO {
   title: string;
-  contentBlocks: any[];
+  contentBlocks: any[] | null;
   articleType: ArticleType;
 }

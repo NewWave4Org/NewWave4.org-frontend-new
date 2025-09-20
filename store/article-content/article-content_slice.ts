@@ -1,9 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getAllArticle } from './action';
-
+import { IGetAllArticleResponseDTO } from '@/utils/article-content/type/interfaces';
 
 interface IArticleContentSlice {
-  articleContent: any;
+  articleContent: any[];
   totalPages: number;
 }
 
@@ -24,8 +24,8 @@ const articleContentSlice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(getAllArticle.fulfilled, (state, action) => {
-      state.articleContent = action.payload.content;
+    builder.addCase(getAllArticle.fulfilled, (state, action: PayloadAction<IGetAllArticleResponseDTO>) => {
+      state.articleContent = action.payload.content.contentBlocks ?? [];
       state.totalPages = action.payload.totalPages;
     });
   },
