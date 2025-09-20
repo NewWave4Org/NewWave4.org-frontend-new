@@ -28,14 +28,14 @@ const AuthGate = ({ children }: { children: React.ReactNode }) => {
 
       setLoading(false);
 
-      const userRole = result.payload?.roles || [];
+      // const userRole = result.payload?.roles || [];
 
-      const redirectPath = getRedirectPathByRole(userRole);
-      router.replace(redirectPath);
+      // const redirectPath = getRedirectPathByRole(userRole);
+      // router.replace(redirectPath);
     };
 
     loadUser();
-  }, [dispatch, router]);
+  }, []);
 
   if (loading) return <Loading />;
 

@@ -9,6 +9,9 @@ import EditUser from '../EditUser/EditUser';
 import DeleteUser from '../DeleteUser/DeleteUser';
 import DeleteArticle from '../DeleteArticle/DeleteArticle';
 
+import {ArticleModalDelete, ArticleModalArchive} from '../ArticleModals';
+
+
 const CreateNewUserValidationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
@@ -18,6 +21,7 @@ const CreateNewUserValidationSchema = Yup.object({
 const Modals = () => {
   const isModalOpen = useAppSelector(state => state.modal.isModalOpen);
   const modalType = useAppSelector(state => state.modal.modalType);
+  const modalTitle = useAppSelector(state => state.modal.title)
   return (
     <>
       {isModalOpen && (
@@ -30,6 +34,9 @@ const Modals = () => {
           )}
           {modalType === ModalType.DELETEUSER && <DeleteUser />}
           {modalType === ModalType.DELETEARTICLE && <DeleteArticle />}
+
+          {modalType === ModalType.DELETEPROJECT && <ArticleModalDelete title={modalTitle || ''} />}
+          {modalType === ModalType.ARCHIVEDARTICLE && <ArticleModalArchive title={modalTitle} />}
         </Modal>
       )}
     </>
