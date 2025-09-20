@@ -1,14 +1,14 @@
-'use client';
-
 import ProjectContent from '@/components/admin/ProjectsPage/ProjectContent/ProjectContent';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import LinkBtn from '@/components/shared/LinkBtn';
-import { useParams } from 'next/navigation';
 
-function EditProjectPage() {
-  const params = useParams();
-  const id = params?.id;
+
+async function EditProjectPage({params}: {params: Promise<{ id: string }>}) {
+  const { id } = await params;
   const projectId = Number(id);
+  // const params = useParams();
+  // const id = params?.id;
+  // const projectId = Number(id);
 
   return (
     <>
