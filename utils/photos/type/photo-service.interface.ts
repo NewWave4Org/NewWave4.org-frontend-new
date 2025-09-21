@@ -1,7 +1,9 @@
+import { ArticleType } from "@/utils/ArticleType";
+
 interface IPhotoService {
     uploadPhoto: (params: {
         entityReferenceId: number;
-        articleType: 'NEWS' | 'EVENT' | 'PROGRAM';
+        articleType: ArticleType;
         file: File;
     }) => Promise<{ url: string }>;
 

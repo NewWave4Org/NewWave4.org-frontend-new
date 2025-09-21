@@ -4,14 +4,14 @@ import HttpMethod from '../enums/http-method';
 
 export type RequestOptions = {
   readonly method: HttpMethod;
-  readonly url: ApiEndpoint | string;
+  readonly url: ApiEndpoint | string | ((id: string | number) => string);
   readonly accessToken?: string | null;
   readonly body?: unknown;
   readonly params?: Record<string, string | number>;
   readonly config?: AxiosRequestConfig;
   readonly headers?: Record<string, string>;
   _retry?: boolean;
-  readonly id?: string | number;
+  readonly id?: number;
 };
 
 export type ServerErrorData = {

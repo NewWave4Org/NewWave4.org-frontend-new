@@ -2,11 +2,17 @@ import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
 import { IArticleApi } from './type/articles-api.interface';
-import { ArticleResponseDTO, ArticlesResponseDTO, ContentBlockArrayRequestDTO, ContentBlockRequestDTO, NewArticleRequestDTO, PublishArticleRequestDTO } from './type/interface';
+import {
+  ArticleResponseDTO,
+  ArticlesResponseDTO,
+  ContentBlockArrayRequestDTO,
+  ContentBlockRequestDTO,
+  NewArticleRequestDTO,
+  PublishArticleRequestDTO,
+} from './type/interface';
 
 class ArticleApi implements IArticleApi {
-
-  async getArticleById(params: { id: number; }) {
+  async getArticleById(params: { id: number }) {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE(params.id),
@@ -70,12 +76,15 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async createContentBlockArray(articleId: number, data: ContentBlockArrayRequestDTO) {
+  async createContentBlockArray(
+    articleId: number,
+    data: ContentBlockArrayRequestDTO,
+  ) {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.ADD_NEWS_CONTENT_BLOCK_ARRAY(articleId),
       body: data,
-      id: articleId
+      id: articleId,
     });
   }
 
@@ -84,7 +93,7 @@ class ArticleApi implements IArticleApi {
       method: HttpMethod.PUT,
       url: ApiEndpoint.UPDATE_NEWS_CONTENT_BLOCK_ARRAY(id),
       body: data,
-      id
+      id,
     });
   }
 
@@ -92,7 +101,7 @@ class ArticleApi implements IArticleApi {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.PUBLISH_ARTICLE(id),
-      body: data
+      body: data,
     });
   }
 
