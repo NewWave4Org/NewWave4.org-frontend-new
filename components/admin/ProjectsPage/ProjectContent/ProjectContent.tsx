@@ -36,6 +36,12 @@ const validationSchema = Yup.object({
             .required('Author field cannot be empty')
 });
 
+const typeSocialMediaList = [
+  {value: '1', label: 'Instagram'},
+  {value: '2', label: 'Facebook'},
+  {value: '3', label: 'Telegram'},
+]
+
 function ProjectContent({ projectId }: { projectId: number }) {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -61,6 +67,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
       { contentBlockType: 'QUOTE', text: '' },
+      { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
+      { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
+      { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
       { contentBlockType: 'SECTION_TITLE', sectionTitle: '' },
       { contentBlockType: 'TEXT', text: '' },
       { contentBlockType: 'PHOTO', files: [] },
@@ -174,8 +183,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             <FieldArray name="contentBlocks">
               {({push, remove}) => {
-                const initialBlocks = values.contentBlocks?.slice(0, 5) || [];
-                const additionalBlocks = values.contentBlocks?.slice(5) || [];
+                const initialBlocks = values.contentBlocks?.slice(0, 8) || [];
+                const additionalBlocks = values.contentBlocks?.slice(8) || [];
 
                 return (
                   <div className="mb-5">
@@ -208,46 +217,92 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       )}
                     </div>
 
+                    <div className='mb-4'>
+                      {initialBlocks[2].contentBlockType === 'LINK_TO_SITE' && (
+                        <Input
+                          id="contentBlocks.2.siteUrl"
+                          name="contentBlocks.2.siteUrl"
+                          label="Link to web-site"
+                          labelClass="!text-admin-700"
+                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                          value={initialBlocks[2].siteUrl}
+                          onChange={handleChange}
+                        />
+                      )}
+                    </div>
+
+                    <div className='flex gap-4'>
+                      <div className='w-1/2 mb-4'>
+                        {initialBlocks[3].contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
+                          <Select 
+                            label='Change type social media (if needed)'
+                            adminSelectClass={true}
+                            name="contentBlocks.3.typeSocialMedia"
+                            labelClass="!text-admin-700"
+                            placeholder="Media types"
+                            defaultValue={initialBlocks[3].typeSocialMedia || ''}
+                            onChange={handleChange}
+                            options={typeSocialMediaList}
+                            parentClassname='h-[70px]'
+                          />
+                        )}
+                      </div>
+
+                      <div className='w-1/2 mb-4'>
+                        {initialBlocks[4].contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                          <Input
+                            id="contentBlocks.4.socialMediaUrl"
+                            name="contentBlocks.4.socialMediaUrl"
+                            label="Link to social media"
+                            labelClass="!text-admin-700"
+                            className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                            value={initialBlocks[4].socialMediaUrl}
+                            onChange={handleChange}
+                          />
+                        )}
+                      </div>
+                    </div>
+
                     <div className="flex gap-4 mb-4">
                       {/* TEXT block */}
-                      <div className="w-1/2">
-                        {initialBlocks[2].contentBlockType === 'SECTION_TITLE' && (
+                      <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                        {initialBlocks[5].contentBlockType === 'SECTION_TITLE' && (
                           <div className='mb-4'>
                             <Input
                               onChange={handleChange}
-                              id='contentBlocks.2.sectionTitle'
-                              name='contentBlocks.2.sectionTitle'
+                              id='contentBlocks.5.sectionTitle'
+                              name='contentBlocks.5.sectionTitle'
                               type="text"
                               className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                              value={initialBlocks[2].sectionTitle}
+                              value={initialBlocks[5].sectionTitle}
                               label="Section title"
                               labelClass="!text-admin-700"
                             />
                           </div>
                         )}
                       
-                        {initialBlocks[3].contentBlockType === 'TEXT' && (
+                        {initialBlocks[6].contentBlockType === 'TEXT' && (
                           <TextArea
-                            id="contentBlocks.3.text"
-                            name="contentBlocks.3.text"
+                            id="contentBlocks.6.text"
+                            name="contentBlocks.6.text"
                             label="Text block"
-                            value={initialBlocks[3].text}
+                            value={initialBlocks[6].text}
                             labelClass="!text-admin-700"
-                            className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
+                            className="!bg-background-light w-full flex-1 px-5 rounded-lg !ring-0 !max-w-full"
                             onChange={handleChange}
                           />
                         )}
                       </div>
                       {/* PHOTO block */}
-                      <div className="w-1/2">
-                        {initialBlocks[4].contentBlockType === 'PHOTO' && (
+                      <div className="w-1/2 h-[442px]">
+                        {initialBlocks[7].contentBlockType === 'PHOTO' && (
                           <ImageLoading
                             articleId={projectId}
                             label="Add photo"
                             classBlock="h-[100px]"
                             contentType={ArticleTypeEnum.PROJECT}
-                            uploadedUrls={initialBlocks[4].files || []}
-                            onFilesChange={files => setFieldValue('contentBlocks.4.files', files)}
+                            uploadedUrls={initialBlocks[7].files || []}
+                            onFilesChange={files => setFieldValue('contentBlocks.7.files', files)}
                           />
                         )}
                       </div>
@@ -255,7 +310,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
 
                     {additionalBlocks.map((_, pairIndex) => {
-                      const leftIndex = pairIndex * 2 + 5;
+                      const leftIndex = pairIndex * 2 + 8;
                       const rightIndex = leftIndex + 1;
 
                       const leftBlock = values.contentBlocks[leftIndex];
@@ -275,20 +330,23 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                     name={`contentBlocks.${leftIndex}.sectionTitle`}
                                     type="text"
                                     className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                    value={leftBlock.sectionTitle ?? ''}
+                                    value={leftBlock.sectionTitle}
                                     label="Section title"
                                     labelClass="!text-admin-700"
                                   />
                                 </div>
-                                <TextArea
-                                  id={`contentBlocks.${leftIndex}.text`}
-                                  name={`contentBlocks.${leftIndex}.text`}
-                                  label="Text block"
-                                  value={leftBlock.text}
-                                  labelClass="!text-admin-700"
-                                  className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
-                                  onChange={handleChange}
-                                />
+
+                                <div className='mb-4'>
+                                  <TextArea
+                                    id={`contentBlocks.${leftIndex}.text`}
+                                    name={`contentBlocks.${leftIndex}.text`}
+                                    label="Text block"
+                                    value={leftBlock.text}
+                                    labelClass="!text-admin-700"
+                                    className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
+                                    onChange={handleChange}
+                                  />
+                                </div>
                               </div>
                             )}
 
