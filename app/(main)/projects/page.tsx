@@ -6,7 +6,7 @@ import HttpMethod from "@/utils/http/enums/http-method";
 import ProjectPage from "@/components/projectPage/ProjectPage";
 import { IArticleBody } from "@/utils/article-content/type/interfaces";
 
-export async function ProjectsPage() {
+async function ProjectsPage() {
   const baseUrl = 'https://api.stage.newwave4.org/api/v1/' + ApiEndpoint.GET_ARTICLE_CONTENT_ALL;
   const params = {
     currentPage: '1',
