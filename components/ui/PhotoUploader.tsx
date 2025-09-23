@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import Button from '../shared/Button';
 import Image from 'next/image';
 
-interface PhotoUploaderProps {
+export interface PhotoUploaderProps {
   name: string;
   label: string;
   maxFiles: number;

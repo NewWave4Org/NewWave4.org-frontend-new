@@ -32,7 +32,7 @@ const Input: React.FC<InputProps> = ({
   id,
   label,
   value,
-  maxLength = 50,
+  maxLength,
   onChange,
   icon = false,
   onIconClick,

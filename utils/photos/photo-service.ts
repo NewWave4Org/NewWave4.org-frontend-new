@@ -1,25 +1,26 @@
+import { ArticleType } from '../ArticleType';
 import { IPhotoApi } from './type/photo-api.interface';
 
 export interface UploadPhotoParams {
-    entityReferenceId: number;
-    articleType: 'NEWS' | 'EVENT' | 'PROGRAM';
-    file: File;
+  entityReferenceId: number;
+  articleType: ArticleType;
+  file: File;
 }
 
 class PhotoService {
-    private photos: IPhotoApi;
+  private photos: IPhotoApi;
 
-    constructor(photos: IPhotoApi) {
-        this.photos = photos;
-    }
+  constructor(photos: IPhotoApi) {
+    this.photos = photos;
+  }
 
-    async uploadPhoto(params: UploadPhotoParams) {
-        return this.photos.uploadPhoto(params);
-    }
+  async uploadPhoto(params: UploadPhotoParams) {
+    return this.photos.uploadPhoto(params);
+  }
 
-    async deletePhoto(url: string) {
-        return this.photos.deletePhoto(url);
-    }
+  async deletePhoto(url: string) {
+    return this.photos.deletePhoto(url);
+  }
 }
 
 export default PhotoService;
