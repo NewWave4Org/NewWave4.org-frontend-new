@@ -38,16 +38,15 @@ jobs:
           context: .
           push: false
           tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+            NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
 
       - name: Docker Image Testing
         run: |
           docker images
-          docker run --name newwave4-frontend-app -d \
-            -p 80:80 \
-            --env NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }} \
-            --env NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }} \
-            --env NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }} \
-            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          docker run --name newwave4-frontend-app -d -p 80:80 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
 
           export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
           echo $IP
