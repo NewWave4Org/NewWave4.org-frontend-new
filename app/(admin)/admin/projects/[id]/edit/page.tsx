@@ -6,9 +6,6 @@ import LinkBtn from '@/components/shared/LinkBtn';
 async function EditProjectPage({params}: {params: Promise<{ id: string }>}) {
   const { id } = await params;
   const projectId = Number(id);
-  // const params = useParams();
-  // const id = params?.id;
-  // const projectId = Number(id);
 
   return (
     <>
@@ -34,8 +31,3 @@ async function EditProjectPage({params}: {params: Promise<{ id: string }>}) {
 
 
 export default EditProjectPage;
-
-export async function generateStaticParams() {
-  const ids = Array.from({ length: 1000 }, (_, i) => i + 1);
-  return ids.map(id => ({ id: String(id) }));
-}

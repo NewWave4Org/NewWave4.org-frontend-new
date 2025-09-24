@@ -1,4 +1,4 @@
-const ProjectHeader = ({title, className=''}: {title: string, className?: string}) => {
+const ProjectHeader = ({title, className=''}: {title: string | undefined, className?: string}) => {
   return (
     <div className={`lg:mb-[40px] mb-[20px] ${className}`}>
       <div className="projectsBlock__header bg-background-secondary">

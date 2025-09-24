@@ -46,13 +46,13 @@ jobs:
       - name: Docker Image Testing
         run: |
           docker images
-          docker run --name newwave4-frontend-app -d -p 80:80 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          docker run --name newwave4-frontend-app -d -p 3000:3000 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
 
           export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
           echo $IP
 
           echo Testing Image URL using wget
-          wget -q -O - 127.0.0.1 | grep "New Wave"
+          wget -q -O - 127.0.0.1:3000 | grep "New Wave"
 
       - name: Docker push
         if: github.ref == 'refs/heads/main'

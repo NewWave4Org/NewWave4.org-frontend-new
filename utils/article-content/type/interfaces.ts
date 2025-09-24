@@ -67,9 +67,7 @@ export interface IGetAllArticleResponseDTO {
     unpaged: boolean;
   };
   size: number;
-  content: {
-    contentBlocks: any[] | null
-  };
+  content: any[] | null;
   number: number;
   sort: {
     sorted: boolean;
