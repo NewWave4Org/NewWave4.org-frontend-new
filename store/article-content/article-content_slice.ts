@@ -25,7 +25,7 @@ const articleContentSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(getAllArticle.fulfilled, (state, action: PayloadAction<IGetAllArticleResponseDTO>) => {
-      state.articleContent = action.payload.content.contentBlocks ?? [];
+      state.articleContent = action.payload.content ?? [];
       state.totalPages = action.payload.totalPages;
     });
   },

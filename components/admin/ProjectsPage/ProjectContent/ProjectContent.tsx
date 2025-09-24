@@ -19,6 +19,7 @@ import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { getUsers } from '@/store/users/actions';
 import Select from '@/components/shared/Select';
+import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 
 
 export interface UpdateArticleFormValues {
@@ -61,9 +62,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
       { contentBlockType: 'QUOTE', text: '' },
-      { contentBlockType: 'SECTION_TITLE', sectionTitle: '' },
-      { contentBlockType: 'TEXT', text: '' },
-      { contentBlockType: 'PHOTO', files: [] },
+      { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
+      { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
+      { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
+      { contentBlockType: 'SECTION', sectionTitle: '' ,text: '',  files: [] },
     ],
   };
 
@@ -174,8 +176,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             <FieldArray name="contentBlocks">
               {({push, remove}) => {
-                const initialBlocks = values.contentBlocks?.slice(0, 5) || [];
-                const additionalBlocks = values.contentBlocks?.slice(5) || [];
+                const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
+                const additionalBlocks = values.contentBlocks?.slice(6) || [];
 
                 return (
                   <div className="mb-5">
@@ -208,110 +210,153 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       )}
                     </div>
 
-                    <div className="flex gap-4 mb-4">
-                      {/* TEXT block */}
-                      <div className="w-1/2">
-                        {initialBlocks[2].contentBlockType === 'SECTION_TITLE' && (
-                          <div className='mb-4'>
-                            <Input
-                              onChange={handleChange}
-                              id='contentBlocks.2.sectionTitle'
-                              name='contentBlocks.2.sectionTitle'
-                              type="text"
-                              className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                              value={initialBlocks[2].sectionTitle}
-                              label="Section title"
-                              labelClass="!text-admin-700"
-                            />
-                          </div>
-                        )}
-                      
-                        {initialBlocks[3].contentBlockType === 'TEXT' && (
-                          <TextArea
-                            id="contentBlocks.3.text"
-                            name="contentBlocks.3.text"
-                            label="Text block"
-                            value={initialBlocks[3].text}
+                    <div className='mb-4'>
+                      {initialBlocks[2].contentBlockType === 'LINK_TO_SITE' && (
+                        <Input
+                          id="contentBlocks.2.siteUrl"
+                          name="contentBlocks.2.siteUrl"
+                          label="Link to web-site"
+                          labelClass="!text-admin-700"
+                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                          value={initialBlocks[2].siteUrl}
+                          onChange={handleChange}
+                        />
+                      )}
+                    </div>
+
+                    <div className='flex gap-4'>
+                      <div className='w-1/2 mb-4'>
+                        {initialBlocks[3].contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
+                          <Select 
+                            label='Change type social media (if needed)'
+                            adminSelectClass={true}
+                            name="contentBlocks.3.typeSocialMedia"
                             labelClass="!text-admin-700"
-                            className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
+                            placeholder="Media types"
+                            defaultValue={initialBlocks[3].typeSocialMedia || ''}
                             onChange={handleChange}
+                            options={typeSocialMediaList}
+                            parentClassname='h-[70px]'
                           />
                         )}
                       </div>
-                      {/* PHOTO block */}
-                      <div className="w-1/2">
-                        {initialBlocks[4].contentBlockType === 'PHOTO' && (
-                          <ImageLoading
-                            articleId={projectId}
-                            label="Add photo"
-                            classBlock="h-[100px]"
-                            contentType={ArticleTypeEnum.PROJECT}
-                            uploadedUrls={initialBlocks[4].files || []}
-                            onFilesChange={files => setFieldValue('contentBlocks.4.files', files)}
+
+                      <div className='w-1/2 mb-4'>
+                        {initialBlocks[4].contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                          <Input
+                            id="contentBlocks.4.socialMediaUrl"
+                            name="contentBlocks.4.socialMediaUrl"
+                            label="Link to social media"
+                            labelClass="!text-admin-700"
+                            className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                            value={initialBlocks[4].socialMediaUrl}
+                            onChange={handleChange}
                           />
                         )}
                       </div>
                     </div>
 
+                    <div className="flex gap-4 mb-4">
+                      {/* TEXT block */}
+                      {initialBlocks[5].contentBlockType === 'SECTION' && (
+                        <>
+                          <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                            <div className='mb-4'>
+                              <Input
+                                onChange={handleChange}
+                                id='contentBlocks.5.sectionTitle'
+                                name='contentBlocks.5.sectionTitle'
+                                type="text"
+                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                value={initialBlocks[5].sectionTitle}
+                                label="Section title"
+                                labelClass="!text-admin-700"
+                              />
+                            </div>
 
-                    {additionalBlocks.map((_, pairIndex) => {
-                      const leftIndex = pairIndex * 2 + 5;
-                      const rightIndex = leftIndex + 1;
+                            <TextArea
+                              id="contentBlocks.5.text"
+                              name="contentBlocks.5.text"
+                              label="Text block"
+                              value={initialBlocks[5].text}
+                              labelClass="!text-admin-700"
+                              className="!bg-background-light w-full flex-1 px-5 rounded-lg !ring-0 !max-w-full"
+                              onChange={handleChange}
+                            />
+                     
+                          </div>
+                          <div className="w-1/2 h-[442px]">
+                            <ImageLoading
+                              articleId={projectId}
+                              label="Add photo"
+                              classBlock="h-[100px]"
+                              contentType={ArticleTypeEnum.PROJECT}
+                              uploadedUrls={initialBlocks[5].files || []}
+                              onFilesChange={files => setFieldValue('contentBlocks.5.files', files)}
+                            />
+                          </div>
+                        </>
+                      )}
+                      {/* PHOTO block */}
+                      
+                    </div>
 
-                      const leftBlock = values.contentBlocks[leftIndex];
-                      const rightBlock = values.contentBlocks[rightIndex];
 
-                      if (!leftBlock && !rightBlock) return null;
+                    {additionalBlocks.map((block, pairIndex) => {
+                      const index = pairIndex + 6; 
+
+                      if (block.contentBlockType !== 'SECTION') {
+                        return null; 
+                      }
 
                       return (
-                        <div key={leftIndex} className='mb-5'>
+                        <div key={index} className='mb-5'>
                           <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
-                            {leftBlock && leftBlock.contentBlockType === 'TEXT' && (
-                              <div className="w-1/2">
-                                <div className='mb-4'>
-                                  <Input
-                                    onChange={handleChange}
-                                    id={`contentBlocks.${leftIndex}.sectionTitle`}
-                                    name={`contentBlocks.${leftIndex}.sectionTitle`}
-                                    type="text"
-                                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                    value={leftBlock.sectionTitle ?? ''}
-                                    label="Section title"
-                                    labelClass="!text-admin-700"
-                                  />
-                                </div>
+                            <div className="w-1/2">
+                              <div className='mb-4'>
+                                <Input
+                                  onChange={handleChange}
+                                  id={`contentBlocks.${index}.sectionTitle`}
+                                  name={`contentBlocks.${index}.sectionTitle`}
+                                  type="text"
+                                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                  value={block.sectionTitle}
+                                  label="Section title"
+                                  labelClass="!text-admin-700"
+                                />
+                              </div>
+
+                              <div className='mb-4'>
                                 <TextArea
-                                  id={`contentBlocks.${leftIndex}.text`}
-                                  name={`contentBlocks.${leftIndex}.text`}
+                                  id={`contentBlocks.${index}.text`}
+                                  name={`contentBlocks.${index}.text`}
                                   label="Text block"
-                                  value={leftBlock.text}
+                                  value={block.text}
                                   labelClass="!text-admin-700"
                                   className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
                                   onChange={handleChange}
                                 />
                               </div>
-                            )}
-
-                            {rightBlock && rightBlock.contentBlockType === 'PHOTO' && (
-                              <div className="w-1/2">
-                                <ImageLoading
-                                  articleId={projectId}
-                                  maxFiles={1}
-                                  label="Add photo"
-                                  classBlock="h-[100px]"
-                                  contentType={ArticleTypeEnum.PROJECT}
-                                  uploadedUrls={rightBlock?.files || []}
-                                  onFilesChange={files => setFieldValue(`contentBlocks.${rightIndex}.files`, files)}
-                                />
-                              </div>
-                            )}
+                            </div>
+      
+                            <div className="w-1/2">
+                              <ImageLoading
+                                articleId={projectId}
+                                maxFiles={1}
+                                label="Add photo"
+                                classBlock="h-[100px]"
+                                contentType={ArticleTypeEnum.PROJECT}
+                                uploadedUrls={block?.files || []}
+                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                              />
+                            </div>
+                    
                           </div>
 
                           <button
                             type="button"
                             onClick={() => {
-                              if (rightBlock) remove(rightIndex);
-                              if (leftBlock) remove(leftIndex);
+                              remove(index);
                             }}
                             className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                           >
@@ -326,12 +371,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       type="button"
                       onClick={() => {
                         push({
-                          contentBlockType: 'TEXT',
+                          contentBlockType: 'SECTION',
+                          sectionTitle: '',
                           text: '',
-                        });
-
-                        push({
-                          contentBlockType: 'PHOTO',
                           files: [],
                         });
                       }}
