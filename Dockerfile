@@ -21,25 +21,12 @@ ENV NEXT_PUBLIC_NEWWAVE_API_URL=$NEXT_PUBLIC_NEWWAVE_API_URL
 RUN npm run build
 
 # Stage 2: Serve the exported files with Nginx
-# FROM nginx:alpine
+FROM nginx:alpine
 
-# COPY --from=builder /app/out /usr/share/nginx/html
+COPY --from=builder /app/out /usr/share/nginx/html
 
-# COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-# EXPOSE 80
+EXPOSE 80
 
-# CMD ["nginx", "-g", "daemon off;"]
-
-# Stage 2: Run app with production server
-FROM node:20-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app ./
-
-ENV NODE_ENV=production
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]
