@@ -16,10 +16,15 @@ on:
         required: false
         default: 'latest'
 
+# Ensure the workflow itself can read packages (GHCR) and repo contents
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging  # This sets the GitHub Environment. Use 'production' here for production.
+    environment: staging
     env:
       NAMESPACE: ${{ github.event.inputs.namespace }}
       CHART_VERSION: ${{ github.event.inputs.chart_version }}
@@ -31,25 +36,48 @@ jobs:
       - name: Set Org Lowercase
         run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
+      # Optional: install kubectl (ubuntu-latest usually has it, but this makes it explicit & pinned)
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
       - name: Set up Kubeconfig
         run: |
           mkdir -p ~/.kube
+          chmod 700 ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
 
-      - name: Debug Kubeconfig
+      # Don't cat the whole kubeconfig (it can contain certs/tokens).
+      # Show only the current context for sanity.
+      - name: Debug cluster context (safe)
         run: |
-          cat ~/.kube/config
+          kubectl config current-context
+          kubectl cluster-info
+
+      - name: Ensure namespace exists
+        run: |
+          kubectl get ns "${{ env.NAMESPACE }}" >/dev/null 2>&1 || \
+          kubectl create ns "${{ env.NAMESPACE }}"
 
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
           version: 'latest'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to GitHub Container Registry for Helm
+      # Login for Helm OCI (private charts). For public charts this is harmless.
+      # Use a PAT with read:packages OR rely on GITHUB_TOKEN if the chart is in the same org and permissions allow it.
+      - name: Login to GHCR for Helm
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_PASSWORD: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
         run: |
-            echo "${{ secrets.GHCR_PAT }}" | helm registry login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          if [ -z "${GHCR_PASSWORD}" ]; then
+            echo "No GHCR_PAT or GITHUB_TOKEN available with packages:read. Add a secret GHCR_PAT with read:packages."
+            exit 1
+          fi
+          echo "${GHCR_PASSWORD}" | helm registry login ghcr.io --username "${GHCR_USER}" --password-stdin
 
       - name: Create values.yaml from Secret
         run: |
@@ -60,66 +88,59 @@ jobs:
           wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           chmod a+x /usr/local/bin/yq
 
-      - name: Debug values.yaml (without showing sensitive data)
+      - name: Validate values.yaml (structure only)
         run: |
-          echo "Verifying values.yaml file exists and is valid YAML..."
-          if [ -f ./values.yaml ]; then
-            echo "values.yaml file exists"
-            # Check if it's valid YAML without displaying the content
-            if ! yq eval ./values.yaml > /dev/null 2>&1; then
-              echo "Error: values.yaml is not valid YAML. Please check your VALUES_YAML secret."
-              exit 1
-            else
-              echo "values.yaml is valid YAML"
-              # Show structure without values
-              echo "File structure (keys only):"
-              yq eval 'keys' ./values.yaml
-            fi
-          else
-            echo "Error: values.yaml file was not created"
+          echo "Validating values.yaml..."
+          if ! yq eval ./values.yaml >/dev/null 2>&1; then
+            echo "Error: values.yaml is not valid YAML."
             exit 1
           fi
+          echo "Top-level keys:"
+          yq eval 'keys' ./values.yaml
 
-      - name: Create Docker Registry Secret
+      - name: Create/Update imagePullSecret for GHCR
         run: |
           kubectl create secret docker-registry ghcr-regcred \
             --docker-server=ghcr.io \
-            --docker-username=${{ github.repository_owner }} \
-            --docker-password=${{ secrets.GHCR_PAT }} \
-            --docker-email=rozdolskyvolodymyr@gmail.com \
-            --namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+            --docker-username="${{ github.actor }}" \
+            --docker-password="${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}" \
+            --docker-email="actions@github.com" \
+            --namespace "${{ env.NAMESPACE }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Debug OCI Registry
+      # Correct GHCR debug: use Bearer from token service and FULL repo path
+      - name: Debug OCI Registry access (optional)
+        env:
+          ORG: ${{ env.ORG }}
+          REPO_PATH: charts/newwave4-frontend-chart
+          GHCR_USER: ${{ github.actor }}
+          GHCR_PASSWORD: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          echo "Checking if we can access the OCI registry..."
-          # List repositories in the registry using the correct authentication format
-          curl -s -H "Authorization: token ${{ secrets.GHCR_PAT }}" https://ghcr.io/v2/${{ env.ORG }}/charts/tags/list || echo "Failed to list tags"
-
-          echo "Trying to pull the chart..."
-          helm pull oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart --version ${{ env.CHART_VERSION }} || echo "Failed to pull chart"
-
-          echo "For OCI repositories, we use direct OCI URLs instead of adding repositories"
-        
+          echo "Checking if we can access GHCR tags list for ${ORG}/${REPO_PATH}..."
+          SCOPE="repository:${ORG}/${REPO_PATH}:pull"
+          if [ -n "${GHCR_PASSWORD}" ]; then
+            BEARER=$(curl -s -u "${GHCR_USER}:${GHCR_PASSWORD}" \
+              "https://ghcr.io/token?service=ghcr.io&scope=${SCOPE}" | jq -r .token)
+          else
+            BEARER=$(curl -s "https://ghcr.io/token?service=ghcr.io&scope=${SCOPE}" | jq -r .token)
+          fi
+          curl -s -H "Authorization: Bearer ${BEARER}" \
+            "https://ghcr.io/v2/${ORG}/${REPO_PATH}/tags/list" || echo "Failed to list tags"
 
       - name: Helm Upgrade/Install
         run: |
           echo "Installing chart from OCI repository..."
-          helm upgrade --install newwave4-frontend oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart \
-            --version ${{ env.CHART_VERSION }} \
-            --namespace ${{ env.NAMESPACE }} \
+          helm upgrade --install newwave4-frontend \
+            oci://ghcr.io/${{ env.ORG }}/charts/newwave4-frontend-chart \
+            --version "${{ env.CHART_VERSION }}" \
+            --namespace "${{ env.NAMESPACE }}" \
+            --create-namespace \
             -f ./values.yaml \
             --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
-            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set image.tag="${{ env.IMAGE_TAG }}" \
             --set imagePullSecrets[0].name=ghcr-regcred
-          
-          # Check if the installation was successful
-          if [ $? -ne 0 ]; then
-            echo "Failed to install chart from OCI repository"
-            exit 1
-          fi
 
       - name: Cleanup Sensitive Files
         if: always()
         run: |
-          echo "Removing values.yaml file to prevent leaking sensitive information..."
-          rm -f ./values.yaml
+          shred -u ./values.yaml || rm -f ./values.yaml
