@@ -1,8 +1,8 @@
+'use client';
+
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import React from 'react';
-
-export const paypalClientId = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! };
 
 function PaypalComponent() {
   const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();

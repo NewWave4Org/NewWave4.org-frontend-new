@@ -33,13 +33,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Guard mis-cased imports
+      - name: Guard mis-cased import paths
         run: |
           set -e
+          bad=0
+          # Folder casing
           if grep -RInE "@/components/Payment/|\.\./Payment/" --include=\*.{ts,tsx,js,jsx} app components; then
-            echo "Found mis-cased imports. Use '/components/payment/' everywhere."
-            exit 1
+            echo "Found '/components/Payment/'. Use '/components/payment/'."
+            bad=1
           fi
+          # Component casing (imports vs file)
+          if grep -RIn "PayPalComponent" --include=\*.{ts,tsx,js,jsx} app components; then
+            echo "Found 'PayPalComponent' in imports. Standardize on 'PaypalComponent' OR provide shim."
+          fi
+          # Ensure required file exists with correct casing
+          if [ ! -f components/payment/PaypalComponent.tsx ]; then
+            echo "Missing components/payment/PaypalComponent.tsx (check case)."
+            bad=1
+          fi
+          exit $bad
 
       - name: Node build sanity check (Linux FS)
         uses: actions/setup-node@v4
