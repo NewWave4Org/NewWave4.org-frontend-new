@@ -33,6 +33,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Guard mis-cased imports
+        run: |
+          set -e
+          if grep -RInE "@/components/Payment/|\.\./Payment/" --include=\*.{ts,tsx,js,jsx} app components; then
+            echo "Found mis-cased imports. Use '/components/payment/' everywhere."
+            exit 1
+          fi
 
       - name: Node build sanity check (Linux FS)
         uses: actions/setup-node@v4
