@@ -7,10 +7,12 @@ on:
       - main
       - 'feature-*'
       - 'feature/*'
+      - 'fix-*'
   pull_request:
     branches:
       - 'feature-*'
       - 'feature/*'
+      - 'fix-*'
 
 jobs:
   build:
