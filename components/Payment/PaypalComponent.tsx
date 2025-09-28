@@ -3,6 +3,8 @@
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import React from 'react';
+export { default } from './PayPalComponent';
+export * from './PayPalComponent';
 
 function PaypalComponent() {
   const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();
