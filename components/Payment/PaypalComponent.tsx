@@ -3,10 +3,9 @@
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import React from 'react';
-export { default } from './PayPalComponent';
 export * from './PayPalComponent';
 
-function PaypalComponent() {
+function PayPalComponent() {
   const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();
 
   const createpaypalorderwebhook = (data: any, actions: any) => {
@@ -47,4 +46,4 @@ function PaypalComponent() {
   );
 }
 
-export default PaypalComponent;
+export default PayPalComponent;
