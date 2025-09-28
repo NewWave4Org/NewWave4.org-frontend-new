@@ -34,6 +34,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Node build sanity check (Linux FS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run build
+
       - name: Docker build for Testing
         uses: docker/build-push-action@v6
         with:
