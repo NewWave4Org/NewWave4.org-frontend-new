@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import PayPalComponent from './PayPalComponent';
+import PaypalComponent from './PaypalComponent';
 import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
@@ -136,7 +136,7 @@ const PaymentForm = () => {
       }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
           {openModal ? <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={"Paypal Gateway"}>
-            {isPaypal ? <PayPalComponent /> : <></>}
+            {isPaypal ? <PaypalComponent /> : <></>}
           </Modal> :
             <></>
           }
