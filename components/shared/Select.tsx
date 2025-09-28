@@ -3,7 +3,7 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 interface Option {
   value: string;
@@ -21,7 +21,6 @@ interface SelectProps {
   adminSelectClass?: boolean;
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -33,7 +32,6 @@ const Select: React.FC<SelectProps> = ({
   labelClass,
   adminSelectClass,
   parentClassname,
-  defaultValue,
   ...props
 }) => {
   const [field, meta] = useField(props);

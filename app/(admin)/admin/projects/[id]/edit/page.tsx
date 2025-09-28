@@ -17,7 +17,7 @@ async function EditProjectPage({params}: {params: Promise<{ id: string }>}) {
       {!Number.isNaN(id) 
         ? <ProjectContent projectId={projectId} />
         : <>
-            <div className='text-h4 mb-5'>Project wasn't created</div>
+            <div className='text-h4 mb-5'>Project wasn&apos;t created</div>
             <LinkBtn href="/admin/projects/new" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
               <ArrowLeft4Icon />
               Back to project page

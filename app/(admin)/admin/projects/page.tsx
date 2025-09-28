@@ -24,7 +24,7 @@ function ProgramsPage() {
       setCurrentPage(page);
       dispatch(getAllArticle({ page: currentPage, articleType: ArticleTypeEnum.PROJECT }));
     },
-    [dispatch],
+    [dispatch, currentPage],
   );
 
   const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => (

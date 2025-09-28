@@ -40,7 +40,7 @@ const DeleteArticle = () => {
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
         Are you sure you want to delete the article
-        <span className="font-bold"> "{currentArticle.title}"</span>?
+        <span className="font-bold"> &quot;{currentArticle.title}&quot;</span>?
       </div>
 
       {submitError && (

@@ -28,7 +28,7 @@ function useImageLoading({ articleId, contentType }: IImageLoadingProps) {
           const response = await dispatch(uploadPhoto(params)).unwrap();
           urls.push(response);
         } catch (error) {
-          console.log('error', error)
+          console.log('error', error);
           toast.error('Failed to upload files');
         }
       }

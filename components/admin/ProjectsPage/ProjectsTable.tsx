@@ -70,7 +70,7 @@ function ProjectsTable({
         title: 'project'
       }),
     );
-  }
+  };
 
   return (
     <div className="relative w-full h-full overflow-auto">

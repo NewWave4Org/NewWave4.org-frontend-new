@@ -1,7 +1,7 @@
 "use client";
 import Logo from '@/components/layout/Logo';
 import PaymentForm from '@/components/payment/PaymentForm';
-import { paypalClientId } from '@/components/Payment/PaypalComponent';
+import { paypalClientId } from '@/components/payment/PaypalComponent';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
