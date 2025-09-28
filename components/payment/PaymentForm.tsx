@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import PaypalComponent from '../payment/PaypalComponent';
+import PaypalComponent from './PaypalComponent';
 import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
