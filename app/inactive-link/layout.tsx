@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { Roboto } from 'next/font/google';
 import '../../styles/admin.css';
-import AdminLayoutGuest from '../(admin)/AdminLayoutGuest';
+
 import Logo from '@/components/layout/Logo';
 
 const roboto = Roboto({

@@ -175,7 +175,6 @@ const Article = () => {
           slides={slides}
           hasLink={false}
           slideHover={false}
-          fullWidth={true}
         />
       </div>
 

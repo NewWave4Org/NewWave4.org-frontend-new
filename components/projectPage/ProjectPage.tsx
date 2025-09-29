@@ -6,7 +6,7 @@ import { typeSocialMediaList } from "@/data/projects/typeSocialMediaList";
 
 
 function ProjectPage({project}: {project: IArticleBody}) {
-  const videoLink = project?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+
   const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE')?.text;
   const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
@@ -14,8 +14,8 @@ function ProjectPage({project}: {project: IArticleBody}) {
   const linkSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SOCIAL_MEDIA')?.socialMediaUrl;
   const nameSocialMedia = typeSocialMediaList.find(item => item.value === typeSocialMedia)?.label;
 
-  const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION')
-  console.log('projectSections', projectSections)
+  const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION');
+  console.log('projectSections', projectSections);
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
   return (

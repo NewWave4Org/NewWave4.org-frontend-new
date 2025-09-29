@@ -1,12 +1,12 @@
 'use client';
 
 import Image from "next/image";
-import CheckIcon from "../icons/symbolic/CheckIcon";
+
 import FacebookIcon from "../icons/social/FacebookIcon";
 import LinkBtn from "../shared/LinkBtn";
 import ArrowRightIcon from "../icons/navigation/ArrowRightIcon";
 import { useState } from "react";
-import { GerArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
+
 import { typeSocialMediaEnum } from "@/data/projects/typeSocialMediaList";
 import InstagramIcon from "../icons/social/InstagramIcon";
 import YoutubeIcon from "../icons/social/YoutubeIcon";
@@ -66,7 +66,7 @@ function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedi
                             {nameSocialMedia === typeSocialMediaEnum.Facebook && <FacebookIcon size="24" />}
                             {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
                             {nameSocialMedia === typeSocialMediaEnum.YouTube && <YoutubeIcon size="24" />}
-                            {nameSocialMedia === typeSocialMediaEnum.Telegram && <span className="w-6"><TelegramIcon className="w-full h-full" /></span>}
+                            {nameSocialMedia === typeSocialMediaEnum.Telegram && <TelegramIcon size="24" />}
                           </LinkBtn>
                         )}
                       </div>
@@ -88,8 +88,9 @@ function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedi
                 </div>
                 {content?.files?.length > 0 && (<div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
                   <div className="relative h-[360px] w-full">
-                    {content.files.map(file => (
+                    {content.files.map((file, idx) => (
                       <Image
+                        key={idx}
                         src={file}
                         alt={content.sectionTitle}
                         fill

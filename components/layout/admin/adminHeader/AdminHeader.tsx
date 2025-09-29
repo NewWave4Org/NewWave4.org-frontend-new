@@ -2,7 +2,7 @@ import Logo from "@/components/layout/Logo";
 import DropDown from "@/components/shared/DropDown";
 import adminLink from "./enums/enum";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import useHandleThunk from "@/utils/useHandleThunk";
+
 import { logOutAuth } from "@/store/auth/action";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";

@@ -50,7 +50,7 @@ const SetPasswordForm = ({ token }: IValidationSchema) => {
           setIsValidToken(false);
         });
     }
-  }, [token]);
+  }, [token, dispatch]);
 
   async function handleSetPassword(
     data: SetPasswordDto,

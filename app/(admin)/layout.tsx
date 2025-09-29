@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
-// import AdminLayoutClient from './AdminLayoutClient';
+
 import '../../styles/admin.css';
 import { Bounce, ToastContainer } from 'react-toastify';
-import AdminLayoutClient from './admin/layout';
+
 import ReduxProvider from './ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
 

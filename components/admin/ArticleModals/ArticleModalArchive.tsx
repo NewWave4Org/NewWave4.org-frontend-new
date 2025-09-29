@@ -27,8 +27,8 @@ function ArticleModalArchive({title}: {title?: string}) {
         setSubmitError('');
         toast.success(`${title} archived successfully`);
         dispatch(closeModal());
-        dispatch(removeArticle(currentProject.id))
-      }
+        dispatch(removeArticle(currentProject.id));
+      };
     }
 
   return (
@@ -40,7 +40,7 @@ function ArticleModalArchive({title}: {title?: string}) {
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
         Are you sure you want to archive the {title}
-        <span className="font-bold"> "{currentProject.title}"</span>?
+        <span className="font-bold"> &quot;{currentProject.title}&quot;</span>?
       </div>
 
       {submitError && (
