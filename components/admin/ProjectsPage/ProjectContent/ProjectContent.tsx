@@ -25,7 +25,6 @@ import { getUsers } from '@/store/users/actions';
 import Select from '@/components/shared/Select';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 
-
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
@@ -57,14 +56,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
     value: user.id.toString(),
     label: user.name,
   }));
-    label: user.name
-  }));
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorId: currentAuthor?.id!,
-    authorId: currentAuthor?.id ? String(currentAuthor.id) : '',
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
@@ -72,7 +68,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
       { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
       { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
       { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
-      { contentBlockType: 'SECTION', sectionTitle: '' ,text: '',  files: [] },
+      { contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [] },
     ],
   };
 
@@ -82,7 +78,12 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
     async function fetchFullProjectById() {
       try {
-        const result = await dispatch(getArticleById({id: projectId, articleType: ArticleTypeEnum.PROJECT})).unwrap();
+        const result = await dispatch(
+          getArticleById({
+            id: projectId,
+            articleType: ArticleTypeEnum.PROJECT,
+          }),
+        ).unwrap();
         setProject(result);
       } catch (error) {
         console.log('error', error);
@@ -99,7 +100,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
     }
   }, [dispatch, projectId]);
 
-
   //Action for Save the project
   async function handleSubmit(
     values: UpdateArticleFormValues,
@@ -114,9 +114,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
       setProject(result);
       if (result) {
         setSubmitError('');
-        const message = pathname.includes("/edit")
-        ? "Your project was updated successfully!"
-        : "Your project was created successfully!";
+        const message = pathname.includes('/edit')
+          ? 'Your project was updated successfully!'
+          : 'Your project was created successfully!';
         toast.success(message);
       }
     } catch (error) {
@@ -132,8 +132,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
       toast.error(errMsg);
     });
 
-    if(result) {
-      toast.success('Congratulations! Your project has been published successfully.');
+    if (result) {
+      toast.success(
+        'Congratulations! Your project has been published successfully.',
+      );
     }
   }
 
@@ -143,7 +145,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          authorId: String(project?.authorId ?? defaultFormValues.authorId),
+          authorId: project?.authorId ?? defaultFormValues.authorId,
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus:
             project?.articleStatus || defaultFormValues.articleStatus,
@@ -196,7 +198,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
             </div>
 
             <FieldArray name="contentBlocks">
-              {({push, remove}) => {
+              {({ push, remove }) => {
                 const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
                 const additionalBlocks = values.contentBlocks?.slice(6) || [];
 
@@ -231,7 +233,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       )}
                     </div>
 
-                    <div className='mb-4'>
+                    <div className="mb-4">
                       {initialBlocks[2].contentBlockType === 'LINK_TO_SITE' && (
                         <Input
                           id="contentBlocks.2.siteUrl"
@@ -245,24 +247,26 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       )}
                     </div>
 
-                    <div className='flex gap-4'>
-                      <div className='w-1/2 mb-4'>
-                        {initialBlocks[3].contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
-                          <Select 
-                            label='Change type social media (if needed)'
+                    <div className="flex gap-4">
+                      <div className="w-1/2 mb-4">
+                        {initialBlocks[3].contentBlockType ===
+                          'TYPE_SOCIAL_MEDIA' && (
+                          <Select
+                            label="Change type social media (if needed)"
                             adminSelectClass={true}
                             name="contentBlocks.3.typeSocialMedia"
                             labelClass="!text-admin-700"
                             placeholder="Media types"
                             onChange={handleChange}
                             options={typeSocialMediaList}
-                            parentClassname='h-[70px]'
+                            parentClassname="h-[70px]"
                           />
                         )}
                       </div>
 
-                      <div className='w-1/2 mb-4'>
-                        {initialBlocks[4].contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                      <div className="w-1/2 mb-4">
+                        {initialBlocks[4].contentBlockType ===
+                          'LINK_TO_SOCIAL_MEDIA' && (
                           <Input
                             id="contentBlocks.4.socialMediaUrl"
                             name="contentBlocks.4.socialMediaUrl"
@@ -281,11 +285,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       {initialBlocks[5].contentBlockType === 'SECTION' && (
                         <>
                           <div className="w-1/2 h-[442px] flex flex-col flex-1">
-                            <div className='mb-4'>
+                            <div className="mb-4">
                               <Input
                                 onChange={handleChange}
-                                id='contentBlocks.5.sectionTitle'
-                                name='contentBlocks.5.sectionTitle'
+                                id="contentBlocks.5.sectionTitle"
+                                name="contentBlocks.5.sectionTitle"
                                 type="text"
                                 className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
                                 value={initialBlocks[5].sectionTitle}
@@ -303,7 +307,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               className="!bg-background-light w-full flex-1 px-5 rounded-lg !ring-0 !max-w-full"
                               onChange={handleChange}
                             />
-                     
                           </div>
                           <div className="w-1/2 h-[442px]">
                             <ImageLoading
@@ -312,28 +315,34 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               classBlock="h-[100px]"
                               contentType={ArticleTypeEnum.PROJECT}
                               uploadedUrls={initialBlocks[5].files || []}
-                              onFilesChange={files => setFieldValue('contentBlocks.5.files', files)}
+                              onFilesChange={files =>
+                                setFieldValue('contentBlocks.5.files', files)
+                              }
                             />
                           </div>
                         </>
                       )}
                       {/* PHOTO block */}
-                      
                     </div>
 
-
                     {additionalBlocks.map((block, pairIndex) => {
-                      const index = pairIndex + 6; 
+                      const index = pairIndex + 6;
 
                       if (block.contentBlockType !== 'SECTION') {
-                        return null; 
+                        return null;
                       }
 
                       return (
-                        <div key={index} className='mb-5'>
-                          <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <div key={index} className="mb-5">
+                          <div
+                            className={`flex gap-4 mb-3 ${
+                              pairIndex % 2 === 0
+                                ? 'flex-row-reverse'
+                                : 'flex-row'
+                            }`}
+                          >
                             <div className="w-1/2">
-                              <div className='mb-4'>
+                              <div className="mb-4">
                                 <Input
                                   onChange={handleChange}
                                   id={`contentBlocks.${index}.sectionTitle`}
@@ -346,7 +355,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 />
                               </div>
 
-                              <div className='mb-4'>
+                              <div className="mb-4">
                                 <TextArea
                                   id={`contentBlocks.${index}.text`}
                                   name={`contentBlocks.${index}.text`}
@@ -358,7 +367,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 />
                               </div>
                             </div>
-      
+
                             <div className="w-1/2">
                               <ImageLoading
                                 articleId={projectId}
@@ -367,10 +376,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 classBlock="h-[100px]"
                                 contentType={ArticleTypeEnum.PROJECT}
                                 uploadedUrls={block?.files || []}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={files =>
+                                  setFieldValue(
+                                    `contentBlocks.${index}.files`,
+                                    files,
+                                  )
+                                }
                               />
                             </div>
-                    
                           </div>
 
                           <button

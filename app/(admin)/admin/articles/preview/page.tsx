@@ -1,10 +1,9 @@
 'use client';
 
-import ArticlePreview from '@/components/admin/CreateEditArticle/ArticlePreview';
+import ArticlePreview from '@/components/admin/Articles/ArticlePreview';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import Button from '@/components/shared/Button';
 import { useSearchParams, useRouter } from 'next/navigation';
-
 
 const PreviewArticlePage = () => {
   const searchParams = useSearchParams();

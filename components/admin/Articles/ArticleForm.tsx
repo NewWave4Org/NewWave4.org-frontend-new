@@ -196,7 +196,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
                   name="authorId"
                   required
                   labelClass="!text-admin-700"
-                  defaultValue={values.authorId ? String(values.authorId) : ''}
+                  // defaultValue={values.authorId ? String(values.authorId) : ''}
                   onChange={handleChange}
                   options={usersList}
                 />
