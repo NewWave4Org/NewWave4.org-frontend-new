@@ -1,5 +1,5 @@
-import ArticleContent from '@/components/admin/CreateEditArticle/ArticleContent';
-import ArticleForm from '@/components/admin/CreateEditArticle/ArticleForm';
+import ArticleContent from '@/components/admin/Articles/ArticleContent';
+import ArticleForm from '@/components/admin/Articles/ArticleForm';
 
 interface PageProps {
   params: Promise<{ id: string }>;

@@ -3,11 +3,12 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 interface Option {
-  value: string;
+  value: string | number;
   label: string;
+  disabled?: boolean;
 }
 
 interface SelectProps {
@@ -45,7 +46,10 @@ const Select: React.FC<SelectProps> = ({
   const selectedOption = options.find(o => o.value === field.value);
 
   const handleOptionClick = (option: Option) => {
-    setFieldValue(props.name, option.value, false);
+    const parsedValue =
+      typeof option.value === 'number' ? Number(option.value) : option.value;
+
+    setFieldValue(props.name, parsedValue, false);
     setIsOpen(false);
   };
 
@@ -117,8 +121,13 @@ const Select: React.FC<SelectProps> = ({
             {options.map(option => (
               <div
                 key={option.value}
-                onClick={() => handleOptionClick(option)}
-                className="px-4 py-2 text-medium2 text-font-primary cursor-pointer hover:bg-background-primary active:bg-background-secondary"
+                onClick={() => !option.disabled && handleOptionClick(option)}
+                className={`px-4 py-2 text-medium2 text-font-primary cursor-pointer 
+              ${
+                option.disabled
+                  ? 'text-grey-400 cursor-not-allowed'
+                  : 'hover:bg-background-primary active:bg-background-secondary'
+              }`}
               >
                 {option.label}
               </div>
@@ -126,8 +135,6 @@ const Select: React.FC<SelectProps> = ({
           </div>
         )}
       </div>
-
-      {/* {isOpen && <div style={{ height: '220px' }} />} */}
 
       {meta.touched && meta.error && (
         <p className={`text-small2 mt-[4px] text-status-danger-500`}>

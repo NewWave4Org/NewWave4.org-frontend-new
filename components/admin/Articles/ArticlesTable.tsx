@@ -2,7 +2,7 @@
 import { FC, ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { allArticles } from '@/store/articles/action';
+import { getAllArticle } from '@/store/article-content/action';
 import Table from '@/components/ui/Table/Table';
 import DropDown from '@/components/shared/DropDown';
 import Button from '@/components/shared/Button';
@@ -33,13 +33,13 @@ type Props = {
 
 const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const articles = useAppSelector(state => state.articles.articles);
+  const articles = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articles.totalPages);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
-    dispatch(allArticles({ page: currentPage }));
+    dispatch(getAllArticle({ page: currentPage, size: 10, articleType: 'NEWS' }));
   }, [dispatch, currentPage]);
 
   const changePage = (page: number) => setCurrentPage(page);
@@ -95,11 +95,11 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
             </th>
           </>
         )}
-        renderRow={article => {
-          const { id, newsStatus, title, views } = article;
+        renderRow={(article: Article) => {
+          const { id, articleStatus, title, views } = article;
           const status =
-            newsStatus.slice(0, 1).toUpperCase() +
-            newsStatus.toLowerCase().slice(1);
+            articleStatus.slice(0, 1).toUpperCase() +
+            articleStatus.toLowerCase().slice(1);
 
           return (
             <>

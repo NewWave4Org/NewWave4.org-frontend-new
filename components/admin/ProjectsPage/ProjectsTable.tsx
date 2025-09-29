@@ -13,7 +13,7 @@ import { openModal } from '@/store/modal/ModalSlice';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 
 import { ReactNode } from 'react';
-import { GerArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import useSortTable from '@/utils/hooks/useSortTable';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 
@@ -32,7 +32,7 @@ interface IRenderPaginationProps {
 
 interface IProjectsTableProps {
   renderPagination: (props: IRenderPaginationProps) => ReactNode;
-  projects: GerArticleByIdResponseDTO[];
+  projects: GetArticleByIdResponseDTO[];
   totalPages: number;
   currentPage: number;
   changePage: (page: number) => void;
@@ -52,7 +52,7 @@ function ProjectsTable({
     initialSortField: 'articleStatus'
   });
 
-  const handleDeleteProject = (project: GerArticleByIdResponseDTO) => {
+  const handleDeleteProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
         modalType: ModalType.DELETEPROJECT,
@@ -62,7 +62,7 @@ function ProjectsTable({
     );
   };
 
-  const handleArchivedProject = (project: GerArticleByIdResponseDTO) => {
+  const handleArchivedProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
         modalType: ModalType.ARCHIVEDARTICLE,

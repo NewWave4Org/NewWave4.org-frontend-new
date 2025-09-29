@@ -1,7 +1,8 @@
 import Button from '@/components/shared/Button';
 import { closeModal } from '@/store/modal/ModalSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { deleteArticle, allArticles } from '@/store/articles/action';
+import { deleteArticle } from '@/store/articles/action';
+import { getAllArticle } from '@/store/article-content/action';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { Article } from '@/utils/articles/type/interface';
 import { useState } from 'react';
@@ -28,7 +29,7 @@ const DeleteArticle = () => {
       setSubmitError('');
       toast.success('Article deleted successfully');
       dispatch(closeModal());
-      await dispatch(allArticles({ page: 0 }));
+      await dispatch(getAllArticle({ page: 0, size: 10, articleType: 'NEWS' }));
     }
   }
 

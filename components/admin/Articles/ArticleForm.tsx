@@ -6,7 +6,9 @@ import {
   createNewArticle,
   getArticleById,
   updateArticle,
-} from '@/store/articles/action';
+  getAllArticle,
+} from '@/store/article-content/action';
+
 import { ArticlesProjectOptions } from '@/utils/articles/type/articles-project';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { Form, Formik } from 'formik';
@@ -15,11 +17,26 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
+import { ArticleType } from '@/utils/ArticleType';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { getUsers } from '@/store/users/actions';
 
 interface newArticleDTO {
   id?: number;
-  newsTitle: string;
-  newsProjectTag: string;
+  articleType: ArticleType;
+  title: string;
+  contentBlocks: any[] | null;
+  relevantProjectId?: number;
+  authorId?: number;
+}
+
+export interface CreateNewArticleRequestDTO {
+  articleType: ArticleType;
+  title: string;
+  contentBlocks: any[] | null;
+  relevantProjectId?: number;
+  authorId?: number;
 }
 
 interface IArticleFormProps {
@@ -29,29 +46,46 @@ interface IArticleFormProps {
 const ArticleForm = ({ articleId }: IArticleFormProps) => {
   const [submitError, setSubmitError] = useState('');
   const [article, setArticle] = useState<newArticleDTO | null>(null);
+  const [projects, setProjects] = useState([]);
   const router = useRouter();
-
+  const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
+  const currentUser = useAppSelector(state => state.authUser.user);
+  const allUsers = useAppSelector(state => state.users.users);
+  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
+
+  const usersList = allUsers.map(user => ({
+    value: user.id,
+    label: user.name,
+  }));
+
   const validationSchema = Yup.object({
-    newsTitle: Yup.string().required('Title is required'),
-    newsProjectTag: Yup.string().required('Please select a project'),
+    title: Yup.string().required('Title is required'),
+    relevantProjectId: Yup.number().required('Please select a project'),
+    authorId: Yup.number().required('Author field cannot be empty'),
   });
+
+  useEffect(() => {
+    dispatch(getUsers());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!articleId) return;
 
     const fetchArticle = async () => {
       try {
-        const data = await handleThunk(
+        const data: GetArticleByIdResponseDTO = await handleThunk(
           getArticleById,
           articleId,
           setSubmitError,
         );
         setArticle({
           id: data.id,
-          newsTitle: data.title,
-          newsProjectTag: data.newsProjectTag,
+          title: data.title,
+          articleType: data.articleType,
+          relevantProjectId: 1,
+          contentBlocks: data.contentBlocks,
         });
       } catch (err) {
         toast.error('Failed to fetch article');
@@ -62,14 +96,42 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
     fetchArticle();
   }, [articleId]);
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await handleThunk(
+          getAllArticle,
+          { articleType: 'PROJECT', articleStatus: ['PUBLISHED'] },
+          setSubmitError,
+        );
+        console.log('projects: ');
+        console.log(data);
+
+        const options = data.content.map((proj: any) => ({
+          value: String(proj.id),
+          label: proj.title,
+        }));
+
+        setProjects(options);
+      } catch (err) {
+        toast.error('Failed to fetch projects');
+        console.log(err);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
   async function handleSubmit(values: newArticleDTO) {
     let result;
 
     try {
       if (values.id) {
+        console.log('update');
+
         const payload = {
-          title: values.newsTitle,
-          newsProjectTag: values.newsProjectTag,
+          title: values.title,
+          relevantProjectId: values.relevantProjectId,
         };
         result = await handleThunk(
           updateArticle,
@@ -81,6 +143,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
           toast.success('Article updated successfully');
         }
       } else {
+        console.log('createNewArticle');
         result = await handleThunk(createNewArticle, values, setSubmitError);
 
         if (result) {
@@ -91,7 +154,6 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
     } catch (err: any) {
       const message = extractErrorMessage(err?.errors ?? err?.message ?? err);
       toast.error(message);
-      // console.error('Submit error:', err);
     }
   }
 
@@ -102,8 +164,11 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
           enableReinitialize
           initialValues={{
             id: article?.id,
-            newsTitle: article?.newsTitle || '',
-            newsProjectTag: article?.newsProjectTag || '',
+            title: article?.title || '',
+            relevantProjectId: article?.relevantProjectId,
+            articleType: 'NEWS',
+            contentBlocks: article?.contentBlocks || null,
+            authorId: currentAuthor?.id,
           }}
           validationSchema={validationSchema}
           onSubmit={(values: newArticleDTO) => handleSubmit(values)}
@@ -114,17 +179,15 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
                 <Input
                   required
                   onChange={handleChange}
-                  id="newsTitle"
-                  name="newsTitle"
+                  id="title"
+                  name="title"
                   type="text"
                   className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                  value={values.newsTitle}
+                  value={values.title}
                   label="Title"
                   labelClass="!text-admin-700"
                   validationText={
-                    touched.newsTitle && errors.newsTitle
-                      ? errors.newsTitle
-                      : ''
+                    touched.title && errors.title ? errors.title : ''
                   }
                 />
               </div>
@@ -134,11 +197,34 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
                   label="Relevant Project"
                   labelClass="!text-admin-700"
                   adminSelectClass={true}
-                  name="newsProjectTag"
+                  name="relevantProjectId"
                   required
                   placeholder="Choose project"
                   onChange={handleChange}
-                  options={ArticlesProjectOptions}
+                  options={
+                    projects.length > 0
+                      ? projects
+                      : [
+                          {
+                            value: '',
+                            label: 'No published projects available',
+                            disabled: true,
+                          },
+                        ]
+                  }
+                />
+              </div>
+
+              <div className="mb-5">
+                <Select
+                  label="Change Author (if needed)"
+                  adminSelectClass={true}
+                  name="authorId"
+                  required
+                  labelClass="!text-admin-700"
+                  defaultValue={values.authorId ? String(values.authorId) : ''}
+                  onChange={handleChange}
+                  options={usersList}
                 />
               </div>
 

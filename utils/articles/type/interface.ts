@@ -3,12 +3,12 @@ import { ContentBlockType } from "./contentBlockType";
 export interface Article {
   id: number;
   articleType: string;
-  authorId: string;
+  authorId: number;
   authorName: string;
-  newsProjectTag: string;
-  newsStatus: string;
-  previewDescription: string | null;
-  previewImageUrl: string | null;
+  // newsProjectTag: string;
+  articleStatus: string;
+  // previewDescription: string | null;
+  // previewImageUrl: string | null;
   publishedAt: string | null;
   title: string;
   views: number;
@@ -70,11 +70,6 @@ export interface ContentBlockArrayRequestDTO {
   contentBlockType: ContentBlockType,
   data: string[],
   orderIndex: number
-}
-
-export interface PublishArticleRequestDTO {
-  previewImageUrl: string,
-  previewDescription: string
 }
 
 export interface ArticleFull extends Article {

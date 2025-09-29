@@ -1,6 +1,6 @@
 import { Article, ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { createSlice } from '@reduxjs/toolkit';
-import { allArticles, createContentBlock, createNewArticle, getArticleById, getArticleFullById, deleteArticle } from './action';
+import { allArticles, createNewArticle, getArticleById, deleteArticle } from './action';
 
 interface articlesState {
   articles: Article[];
@@ -15,26 +15,22 @@ const initialState: articlesState = {
   articleById: {
     id: 0,
     title: '',
-    authorId: '',
+    authorId: 0,
     articleType: 'NEWS',
     authorName: '',
-    newsProjectTag: '',
-    newsStatus: 'Draft',
-    previewDescription: '',
-    previewImageUrl: '',
+    //articleStatus: '',
+    articleStatus: 'Draft',
     publishedAt: null,
     views: 0,
   },
   articleFull: {
     id: 0,
     title: '',
-    authorId: '',
+    authorId: 0,
     articleType: 'NEWS',
     authorName: '',
-    newsProjectTag: '',
-    newsStatus: 'Draft',
-    previewDescription: '',
-    previewImageUrl: '',
+    // newsProjectTag: '',
+    articleStatus: 'Draft',
     publishedAt: null,
     views: 0,
     contentBlocks: []
@@ -53,17 +49,17 @@ const articlesSlice = createSlice({
     builder.addCase(getArticleById.fulfilled, (state, action) => {
       state.articleById = action.payload;
     });
-    builder.addCase(getArticleFullById.fulfilled, (state, action) => {
-      state.articleFull = action.payload;
-    });
+    // builder.addCase(getArticleFullById.fulfilled, (state, action) => {
+    //   state.articleFull = action.payload;
+    // });
     builder.addCase(createNewArticle.fulfilled, (state, action) => {
       state.articles.unshift(action.payload);
     });
-    builder.addCase(createContentBlock.fulfilled, (state, action) => {
-      if (state.articleFull) {
-        state.articleFull.contentBlocks.push(action.payload);
-      }
-    });
+    // builder.addCase(createContentBlock.fulfilled, (state, action) => {
+    //   if (state.articleFull) {
+    //     state.articleFull.contentBlocks.push(action.payload);
+    //   }
+    // });
     builder.addCase(deleteArticle.fulfilled, (state, action) => {
       state.articles = state.articles.filter(article => article.id !== action.payload);
     });

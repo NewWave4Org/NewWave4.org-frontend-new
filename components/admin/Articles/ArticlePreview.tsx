@@ -14,8 +14,8 @@ import {
   ArticleResponseDTO,
 } from '@/utils/articles/type/interface';
 import { toast } from 'react-toastify';
-import { getArticleFullById } from '@/store/articles/action';
-import { mapArticleResponseToFull } from '@/utils/articles/type/mapper';
+import { getArticleById } from '@/store/article-content/action';
+import { mapArticleResponseToFull, mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
 import { getArticleProjectLabel } from '@/utils/articles/type/articles-project';
 import { Slide } from '@/components/generalSlider/slidesData';
@@ -34,10 +34,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
 
     const fetchArticle = async () => {
       try {
-        const data: ArticleResponseDTO = await dispatch(
-          getArticleFullById(articleId),
+        const data = await dispatch(
+          getArticleById({id:articleId, articleType: 'NEWS'}),
         ).unwrap();
-        const articleFull: ArticleFull = mapArticleResponseToFull(data);
+        const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
         if (articleFull?.photoSlider) {
           const mappedSlides: Slide[] = articleFull.photoSlider.map(
@@ -92,7 +92,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
                   my-[10px] h-[40px] font-helv leading-[1.3]
                   whitespace-nowrap "
                 >
-                  {getArticleProjectLabel(article.newsProjectTag)}
+                  {getArticleProjectLabel(article.articleType)}
                 </div>
                 <div className="flex items-center mb-1">
                   <div className="mr-2">

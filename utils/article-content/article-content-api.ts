@@ -6,7 +6,7 @@ import IArticleApi from './type/article-content-api.interface';
 import {
   CreateNewArticleRequestDTO,
   CreateNewArticleResponseDTO,
-  GerArticleByIdResponseDTO,
+  GetArticleByIdResponseDTO,
   IGetAllArticleRequestDTO,
   IGetAllArticleResponseDTO,
   PublishArticleResponseDTO,
@@ -15,27 +15,37 @@ import {
 } from './type/interfaces';
 
 class ArticleApi implements IArticleApi {
-  async deleteArticle({id, articleType}: {id: number, articleType: ArticleType}) {
+  async deleteArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
     return request({
       method: HttpMethod.DELETE,
       url: ApiEndpoint.DELETE_ARTICLE_CONTENT(id),
-      params: {articleType}
+      params: { articleType }
     });
   }
 
-  async getArticleById({id, articleType}:{id: number, articleType: ArticleType}): Promise<GerArticleByIdResponseDTO> {
+  async getArticleById({ id, articleType }: { id: number, articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(id),
-      params: {articleType}
+      params: { articleType }
     });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    const params: Record<string, string | number> = {
+      page,
+      size,
+      articleType,
+    };
+
+    if (articleStatus?.length) {
+      params.articleStatus = articleStatus.join(',');
+    }
+
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_ALL,
-      params: { page, size, articleType },
+      params,
     });
   }
 
@@ -62,11 +72,11 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async archivedArticle({id, articleType}:{id: number, articleType: ArticleType}) {
+  async archivedArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.ARCHIVE_ARTICLE(id),
-      params: {articleType}
+      params: { articleType }
     })
   }
 }

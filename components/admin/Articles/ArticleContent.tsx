@@ -4,15 +4,12 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
 import {
-  createContentBlock,
-  createContentBlockArray,
-  deleteContentBlock,
-  getArticleFullById,
+  createNewArticle,
+  getArticleById,
   publishArticle,
-  updateContentBlock,
-  updateContentBlockArray,
-} from '@/store/articles/action';
-import { useAppDispatch } from '@/store/hook';
+  updateArticle,
+} from '@/store/article-content/action';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { Form, Formik } from 'formik';
@@ -25,6 +22,8 @@ import { UploadPhotoParams } from '@/utils/photos/photo-service';
 import PhotoUploader from '@/components/ui/PhotoUploader';
 import { deletePhoto, uploadPhoto } from '@/store/photos/action';
 import { extractErrorMessage } from '@/utils/apiErrors';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { ArticleType } from '@/utils/ArticleType';
 
 interface ArticleContentDTO {
   textblock1: string;
@@ -36,13 +35,23 @@ interface ArticleContentDTO {
   sliderPhotos?: string[];
 }
 
+export interface UpdateArticleFormValues {
+  title: string;
+  articleType: ArticleType;
+  authorId: string;
+  articleStatus: string;
+  contentBlocks: any[];
+}
+
 interface IArticleContent {
   articleId?: number;
 }
 
 const ArticleContent = ({ articleId }: IArticleContent) => {
   const dispatch = useAppDispatch();
-  const [article, setArticle] = useState<ArticleResponseDTO | null>(null);
+  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const router = useRouter();
   const pathname = usePathname();
   const isEdit = pathname.includes('/edit');
@@ -59,8 +68,8 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
     const fetchArticle = async () => {
       try {
-        const data: ArticleResponseDTO = await dispatch(
-          getArticleFullById(articleId),
+        const data = await dispatch(
+          getArticleById({ id: articleId, articleType: 'NEWS' }),
         ).unwrap();
         setArticle(data);
       } catch (err) {
@@ -74,10 +83,77 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   async function handleSaveArticleContent(values: ArticleContentDTO) {
     const saveSuccess = await saveArticleContent(values);
     if (!saveSuccess) return;
-    // router.push(`/admin/articles/`);
   }
 
   async function saveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
+    const blocks = [
+      {
+        contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK,
+        data: values.textblock1,
+      },
+      {
+        contentBlockType: ContentBlockType.TEXT,
+        data: values.textblock2,
+      },
+      {
+        contentBlockType: ContentBlockType.QUOTE,
+        data: values.quote,
+      },
+      {
+        contentBlockType: ContentBlockType.VIDEO,
+        data: values.video,
+      },
+      {
+        contentBlockType: ContentBlockType.PHOTO,
+        data: values.mainPhoto || '',
+      },
+      {
+        contentBlockType: ContentBlockType.PHOTOS_LIST,
+        data: values.photosList || [],
+      },
+      {
+        contentBlockType: ContentBlockType.PHOTOS_SLIDER,
+        data: values.sliderPhotos || [],
+      },
+    ];
+
+    try {
+      if (articleId) {
+        await dispatch(
+          updateArticle({
+            id: articleId,
+            data: {
+              title: article?.title || 'Untitled',
+              articleType: 'NEWS',
+              contentBlocks: blocks,
+              relevantProjectId: article?.relevantProjectId,
+            },
+          }),
+        ).unwrap();
+      } else {
+        await dispatch(
+          createNewArticle({
+            title: article?.title || 'Untitled',
+            articleType: 'NEWS',
+            contentBlocks: blocks,
+            relevantProjectId: article?.relevantProjectId,
+            authorId: article?.authorId,
+          }),
+        ).unwrap();
+      }
+
+      toast.success('Article content saved successfully!');
+      return true;
+    } catch (err) {
+      toast.error('Failed to save article');
+      console.error(err);
+      return false;
+    }
+  }
+
+  async function saveArticleContent2(
     values: ArticleContentDTO,
   ): Promise<boolean> {
     const blocks: {
@@ -144,59 +220,59 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           if (isArrayBlock(block.type)) {
             if (existingBlock) {
               if ((block.data as string[]).length === 0) {
-                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
+                // await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
               } else {
-                await dispatch(
-                  updateContentBlockArray({
-                    id: existingBlock.id,
-                    data: {
-                      contentBlockType: block.type,
-                      data: block.data as string[],
-                      orderIndex: block.orderIndex,
-                    },
-                  }),
-                ).unwrap();
+                // await dispatch(
+                //   updateContentBlockArray({
+                //     id: existingBlock.id,
+                //     data: {
+                //       contentBlockType: block.type,
+                //       data: block.data as string[],
+                //       orderIndex: block.orderIndex,
+                //     },
+                //   }),
+                // ).unwrap();
               }
             } else if ((block.data as string[]).length > 0) {
-              await dispatch(
-                createContentBlockArray({
-                  id: articleId!,
-                  data: {
-                    contentBlockType: block.type,
-                    data: block.data as string[],
-                    orderIndex: block.orderIndex,
-                  },
-                }),
-              ).unwrap();
+              // await dispatch(
+              //   createContentBlockArray({
+              //     id: articleId!,
+              //     data: {
+              //       contentBlockType: block.type,
+              //       data: block.data as string[],
+              //       orderIndex: block.orderIndex,
+              //     },
+              //   }),
+              // ).unwrap();
             }
           } else {
             const dataStr = block.data as string;
             if (existingBlock) {
               if (!dataStr) {
-                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
+                //   await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
               } else {
-                await dispatch(
-                  updateContentBlock({
-                    id: existingBlock.id,
-                    data: {
-                      contentBlockType: block.type,
-                      data: dataStr,
-                      orderIndex: block.orderIndex,
-                    },
-                  }),
-                ).unwrap();
+                // await dispatch(
+                //   updateContentBlock({
+                //     id: existingBlock.id,
+                //     data: {
+                //       contentBlockType: block.type,
+                //       data: dataStr,
+                //       orderIndex: block.orderIndex,
+                //     },
+                //   }),
+                // ).unwrap();
               }
             } else if (dataStr) {
-              await dispatch(
-                createContentBlock({
-                  id: articleId!,
-                  data: {
-                    contentBlockType: block.type,
-                    data: dataStr,
-                    orderIndex: block.orderIndex,
-                  },
-                }),
-              ).unwrap();
+              // await dispatch(
+              //   createContentBlock({
+              //     id: articleId!,
+              //     data: {
+              //       contentBlockType: block.type,
+              //       data: dataStr,
+              //       orderIndex: block.orderIndex,
+              //     },
+              //   }),
+              // ).unwrap();
             }
           }
 
@@ -276,20 +352,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     }
 
     try {
-      const previewDescription = values.textblock1
-        .split('\n')
-        .slice(0, 3)
-        .join('\n');
-
-      const result = await dispatch(
-        publishArticle({
-          id: articleId,
-          data: {
-            previewImageUrl: values.mainPhoto || '',
-            previewDescription: previewDescription || '',
-          },
-        }),
-      );
+      const result = await dispatch(publishArticle(articleId));
 
       if (publishArticle.rejected.match(result)) {
         const message = extractErrorMessage(result.payload);
@@ -324,17 +387,20 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           initialValues={{
             textblock1:
               article?.contentBlocks?.find(
-                b => b.contentBlockType === 'MAIN_NEWS_BLOCK',
+                b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
               )?.data || '',
             textblock2:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'TEXT')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.TEXT,
+              )?.data || '',
             quote:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'QUOTE')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.QUOTE,
+              )?.data || '',
             video:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'VIDEO')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.VIDEO,
+              )?.data || '',
             mainPhoto:
               article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.PHOTO,
@@ -432,6 +498,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 onDelete={deleteFile}
               />
 
+              <div className="mt-10">
+                <sup className="font-bold text-red-600 text-small2">*</sup>
+                <em>
+                  You must save the page before you can preview or publish it
+                </em>
+              </div>
               <div className="flex gap-x-6 mt-6">
                 <Button
                   type="submit"
@@ -449,7 +521,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   Preview
                 </Button>
 
-                {article?.newsStatus !== 'PUBLISHED' && (
+                {article?.articleStatus !== 'PUBLISHED' && (
                   <Button
                     type="button"
                     onClick={() => handlePublish(values)}
