@@ -27,7 +27,7 @@ interface IArticleFormProps {
 }
 
 const ArticleForm = ({ articleId }: IArticleFormProps) => {
-  const [submitError, setSubmitError] = useState('');
+
   const [article, setArticle] = useState<newArticleDTO | null>(null);
   const router = useRouter();
 
@@ -46,7 +46,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         const data = await handleThunk(
           getArticleById,
           articleId,
-          setSubmitError,
+          (msg) => toast.error(msg),
         );
         setArticle({
           id: data.id,
@@ -60,7 +60,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
     };
 
     fetchArticle();
-  }, [articleId]);
+  }, [articleId, handleThunk]);
 
   async function handleSubmit(values: newArticleDTO) {
     let result;
@@ -74,14 +74,14 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         result = await handleThunk(
           updateArticle,
           { id: values.id, data: payload },
-          setSubmitError,
+          (msg) => toast.error(msg),
         );
 
         if (result) {
           toast.success('Article updated successfully');
         }
       } else {
-        result = await handleThunk(createNewArticle, values, setSubmitError);
+        result = await handleThunk(createNewArticle, values, (msg) => toast.error(msg));
 
         if (result) {
           toast.success('Article created successfully');

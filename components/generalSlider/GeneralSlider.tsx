@@ -24,7 +24,6 @@ interface GeneralSliderProps {
   showDots?: boolean;
   slideHover?: boolean;
   hasLink?: boolean;
-  fullWidth?: boolean;
 }
 
 const GeneralSlider: React.FC<GeneralSliderProps> = ({
@@ -35,7 +34,6 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({
   showDots = true,
   slideHover = true,
   hasLink = true,
-  fullWidth = true,
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: loop, align: 'center' },

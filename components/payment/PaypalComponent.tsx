@@ -1,8 +1,8 @@
-import { usePaymentContext } from '@/stores/PaymentContextAPI';
-import { PayPalButtons } from '@paypal/react-paypal-js'
-import React from 'react'
+'use client';
 
-export const paypalClientId = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! };
+import { usePaymentContext } from '@/stores/PaymentContextAPI';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import React from 'react';
 
 function PaypalComponent() {
   const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();
@@ -21,15 +21,15 @@ function PaypalComponent() {
   };
 
   const onApprove = (data: any, actions: any) => {
-    return actions.order.capture().then(function (details: any) {
+    return actions.order.capture().then(() => {
       setIsPaymentApproved(true);
     });
-  }
+  };
 
   const onError = (err: any) => {
     console.error('PayPal Error:', err);
     setIsPaymentError(true);
-  }
+  };
 
   return (
     <>
@@ -42,7 +42,7 @@ function PaypalComponent() {
         />
       </div>
     </>
-  )
+  );
 }
 
-export default PaypalComponent
+export default PaypalComponent;

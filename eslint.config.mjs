@@ -13,12 +13,10 @@ const eslintConfig = [
   ...compat.config({
     extends: ['next/core-web-vitals', 'next/typescript', 'prettier'],
     rules: {
-      rules: {
-        '@typescript-eslint/no-explicit-any': 'off',
-      },
-      semi: ['error'],
-      'prefer-arrow-callback': ['error'],
-      'prefer-template': ['error'],
+      '@typescript-eslint/no-explicit-any': 'off',
+      'semi': ['error', 'always'],
+      'prefer-arrow-callback': 'error',
+      'prefer-template': 'error',
     },
   }),
 ];

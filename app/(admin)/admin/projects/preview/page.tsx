@@ -19,16 +19,16 @@ function PreviewPage() {
   const idParam = searchParams.get('id');
   const projectId = idParam ? Number(idParam) : NaN;
 
-  const [project, setProject] = useState<GerArticleByIdResponseDTO | undefined>(undefined)
+  const [project, setProject] = useState<GerArticleByIdResponseDTO | undefined>(undefined);
 
   useEffect(() => {
     async function fetchFullProjectById() {
       try {
         const result = await dispatch(getArticleById({id: projectId, articleType: ArticleTypeEnum.PROJECT})).unwrap();
 
-        setProject(result)
+        setProject(result);
       } catch (error) {
-        console.log('error', error)
+        console.log('error', error);
         toast.error('Failed to fetch project');
       }
     }
