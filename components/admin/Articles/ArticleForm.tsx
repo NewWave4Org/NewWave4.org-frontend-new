@@ -44,7 +44,6 @@ interface IArticleFormProps {
 }
 
 const ArticleForm = ({ articleId }: IArticleFormProps) => {
-  const [submitError, setSubmitError] = useState('');
   const [article, setArticle] = useState<newArticleDTO | null>(null);
   const [projects, setProjects] = useState([]);
   const router = useRouter();
@@ -78,7 +77,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         const data: GetArticleByIdResponseDTO = await handleThunk(
           getArticleById,
           articleId,
-          setSubmitError,
+          msg => toast.error(msg),
         );
         setArticle({
           id: data.id,
@@ -94,33 +93,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
     };
 
     fetchArticle();
-  }, [articleId]);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await handleThunk(
-          getAllArticle,
-          { articleType: 'PROJECT', articleStatus: ['PUBLISHED'] },
-          setSubmitError,
-        );
-        console.log('projects: ');
-        console.log(data);
-
-        const options = data.content.map((proj: any) => ({
-          value: String(proj.id),
-          label: proj.title,
-        }));
-
-        setProjects(options);
-      } catch (err) {
-        toast.error('Failed to fetch projects');
-        console.log(err);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+  }, [articleId, handleThunk]);
 
   async function handleSubmit(values: newArticleDTO) {
     let result;
@@ -136,15 +109,16 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         result = await handleThunk(
           updateArticle,
           { id: values.id, data: payload },
-          setSubmitError,
+          msg => toast.error(msg),
         );
 
         if (result) {
           toast.success('Article updated successfully');
         }
       } else {
-        console.log('createNewArticle');
-        result = await handleThunk(createNewArticle, values, setSubmitError);
+        result = await handleThunk(createNewArticle, values, msg =>
+          toast.error(msg),
+        );
 
         if (result) {
           toast.success('Article created successfully');

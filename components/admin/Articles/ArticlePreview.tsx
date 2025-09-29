@@ -54,13 +54,13 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
 
           setSlides(mappedSlides);
         }
-      } catch (err) {
+      } catch {
         toast.error('Failed to fetch article');
       }
     };
 
     fetchArticle();
-  }, [articleId]);
+  }, [articleId, dispatch]);
 
   if (!article) {
     return <div>Article not found</div>;
@@ -173,7 +173,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
             slides={slides}
             hasLink={false}
             slideHover={false}
-            fullWidth={true}
           />
         </div>
       )}

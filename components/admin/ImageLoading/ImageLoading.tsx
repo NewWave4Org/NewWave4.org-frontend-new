@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import {useDropzone} from 'react-dropzone'
+import {useDropzone} from 'react-dropzone';
 import useImageLoading from './hook/useImageLoading';
 import Image from 'next/image';
 import { ArticleType } from '@/utils/ArticleType';
@@ -48,7 +48,7 @@ function ImageLoading({ classBlock='', label='', maxFiles=1, contentType, articl
     },
     maxFiles: maxFiles,
     maxSize: MAX_FILE_SIZE,
-  })
+  });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
     <div key={file.name} className="text-red-600">
@@ -70,33 +70,35 @@ function ImageLoading({ classBlock='', label='', maxFiles=1, contentType, articl
     <div className='flex flex-col h-full'>
       {label && <div className='block text-medium2 mb-1 text-admin-700 '>{label}</div>}
 
-      {loading && <div className="mb-2 text-sm text-blue-600">Uploading...</div>}
-
       {showDropzone && (
         <div {...getRootProps()} className={`${isDragActive ? 'border-green-400' : 'border-stone-400'} ${classBlock} w-full bg-slate-50 flex flex-col items-center 
         justify-center rounded-md border-2 border-dashed  cursor-pointer hover:border-amber-500 flex-1`}>
           <input {...getInputProps()} />
-          {
-            isDragActive ?
-              <p>Drop the files here ...</p> :
-              <>
-                <p>Drag 'n' drop some files here, or click to select files</p>
-                <em>(Only *.jpeg, *.png, *.webp, *.jpg and 10Mb images will be accepted)</em>
-              </>
-          }
+          {loading ? (
+            <p className="text-medium2 mb-1 text-admin-700">Uploading... Please wait</p>
+          ) : isDragActive ? (
+            <p>Drop the files here ...</p>
+          ) : (
+            <>
+              <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
+              <em>(Only *.jpeg, *.png, *.webp, *.jpg and 10Mb images will be accepted)</em>
+            </>
+          )}
         </div>
       )}
 
       {fileRejectionItems}
 
       {uploadedUrls.length > 0 && (
-        <div className="flex gap-2 mt-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap overflow-hidden">
           {uploadedUrls.map((url, i) => (
-            <div key={i} className="relative w-24 h-24">
-              <Image src={url} alt={`uploaded-${i}`} width={200} height={200} />
+            <div key={i} className={`relative ${uploadedUrls.length > 0 ? 'w-24 h-24' : ''} `}>
+              <Image src={url} alt={`uploaded-${i}`} fill className='object-contain rounded-md' />
               <button
                 type="button"
-                className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded"
+                className="absolute -top-3 -right-3 bg-red-500 text-white p-1 
+                flex items-center justify-center rounded-full text-xl w-8 h-8
+                hover:bg-red-900 duration-500 font-bold"
                 onClick={() => handleDelete(url)}
               >
                 ×
@@ -104,7 +106,8 @@ function ImageLoading({ classBlock='', label='', maxFiles=1, contentType, articl
             </div>
           ))}
         </div>
-      )}
+      )
+    }
     </div>
   );
 }

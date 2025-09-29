@@ -22,7 +22,6 @@ interface SelectProps {
   adminSelectClass?: boolean;
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -34,7 +33,6 @@ const Select: React.FC<SelectProps> = ({
   labelClass,
   adminSelectClass,
   parentClassname,
-  defaultValue,
   ...props
 }) => {
   const [field, meta] = useField(props);
