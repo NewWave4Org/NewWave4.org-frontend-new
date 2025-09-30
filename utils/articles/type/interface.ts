@@ -5,10 +5,8 @@ export interface Article {
   articleType: string;
   authorId: number;
   authorName: string;
-  // newsProjectTag: string;
+  relevantProjectId?: number;
   articleStatus: string;
-  // previewDescription: string | null;
-  // previewImageUrl: string | null;
   publishedAt: string | null;
   title: string;
   views: number;
@@ -79,5 +77,5 @@ export interface ArticleFull extends Article {
   quote: string,
   mainText: string,
   textblock2: string,
-  video: string
+  video: string,
 }

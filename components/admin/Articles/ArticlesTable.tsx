@@ -4,21 +4,21 @@ import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getAllArticle } from '@/store/article-content/action';
 import Table from '@/components/ui/Table/Table';
-import DropDown from '@/components/shared/DropDown';
 import Button from '@/components/shared/Button';
 import PenIcon from '@/components/icons/symbolic/PenIcon';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import clsx from 'clsx';
-import { useRouter } from 'next/navigation';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { Article } from '@/utils/articles/type/interface';
 import { openModal } from '@/store/modal/ModalSlice';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
+import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
-  { id: '2', title: 'Status' },
+  { id: '2', title: 'Author name' },
   { id: '3', title: 'Views' },
+  { id: '4', title: 'Status' },
 ];
 
 type renderPaginationProps = {
@@ -36,23 +36,30 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const articles = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articles.totalPages);
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   useEffect(() => {
-    dispatch(getAllArticle({ page: currentPage, size: 10, articleType: 'NEWS' }));
+    dispatch(
+      getAllArticle({ page: currentPage, size: 10, articleType: 'NEWS' }),
+    );
   }, [dispatch, currentPage]);
 
   const changePage = (page: number) => setCurrentPage(page);
-
-  const handleAddNewArticle = () => {
-    router.push('/admin/articles/new');
-  };
 
   const handleDeleteArticle = (article: Article) => {
     dispatch(
       openModal({
         modalType: ModalType.DELETEARTICLE,
         payload: article,
+      }),
+    );
+  };
+
+  const handleArchiveArticle = (article: Article) => {
+    dispatch(
+      openModal({
+        modalType: ModalType.ARCHIVEDARTICLE,
+        payload: article,
+        title: 'article',
       }),
     );
   };
@@ -72,31 +79,22 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
             ))}
 
             <th className="pb-4 border-b  border-admin-300 flex justify-end">
-              <DropDown
-                renderBth={(_isOpen, toggle) => (
-                  <Button
-                    variant="primary"
-                    onClick={toggle}
-                    className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
-                  >
-                    <div className="flex items-center mr-[12px]">
-                      <PenIcon color="#fff" />
-                    </div>
-
-                    <span>Add new</span>
-                  </Button>
-                )}
-                items={[
-                  { label: 'Article', onClick: handleAddNewArticle },
-                  { label: 'Event' },
-                  { label: 'Program' },
-                ]}
-              />
+              <Link href="/admin/articles/new">
+                <Button
+                  variant="primary"
+                  className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
+                >
+                  <div className="flex items-center mr-[12px]">
+                    <PenIcon color="#fff" />
+                  </div>
+                  <span>Add new</span>
+                </Button>
+              </Link>
             </th>
           </>
         )}
         renderRow={(article: Article) => {
-          const { id, articleStatus, title, views } = article;
+          const { id, articleStatus, title, views, authorName } = article;
           const status =
             articleStatus.slice(0, 1).toUpperCase() +
             articleStatus.toLowerCase().slice(1);
@@ -107,6 +105,18 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 <p className="font-bold text-[18px] text-admin-700 truncate">
                   {title}
                 </p>
+              </td>
+
+              <td className="pl-[45px] py-[25px]">{authorName}</td>
+
+              <td className="pl-[45px] py-[25px]">
+                <div className="flex items-center gap-[10px]">
+                  <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
+                    {views}
+                  </p>
+
+                  <span className="text-sm text-grey-400">views</span>
+                </div>
               </td>
 
               <td className="pl-[45px] py-[25px]">
@@ -125,19 +135,9 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 </span>
               </td>
 
-              <td className="pl-[45px] py-[25px]">
-                <div className="flex items-center gap-[10px]">
-                  <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
-                    {views}
-                  </p>
-
-                  <span className="text-sm text-grey-400">views</span>
-                </div>
-              </td>
-
-              <td className="flex justify-end pr-[45px] py-[25px]">
-                <div className="flex gap-x-[40px]">
-                  <Link href={`/admin/articles/${id}/edit`}>
+              <td className="flex px-[45px] py-[25px]">
+                <div className="flex gap-x-5">
+                  <Link href={`/admin/articles/edit?id=${id}`}>
                     <Button
                       variant="tertiary"
                       className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 
@@ -160,6 +160,21 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                     </div>
                     Delete
                   </Button>
+                  {article.articleStatus === 'PUBLISHED' ? (
+                    <Button
+                      variant="tertiary"
+                      className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
+                    active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
+                      onClick={() => handleArchiveArticle(article)}
+                    >
+                      <div className="mr-1">
+                        <ArchiveIcon color="#FC8181" />
+                      </div>
+                      Archive
+                    </Button>
+                  ) : (
+                    <div />
+                  )}
                 </div>
               </td>
             </>

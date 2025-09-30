@@ -9,9 +9,8 @@ import {
   publishArticle,
   updateArticle,
 } from '@/store/article-content/action';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
-import { ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -127,6 +126,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             data: {
               title: article?.title || 'Untitled',
               articleType: 'NEWS',
+              authorId: article?.authorId,
               contentBlocks: blocks,
               relevantProjectId: article?.relevantProjectId,
             },
@@ -149,148 +149,6 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     } catch (err) {
       toast.error('Failed to save article');
       console.error(err);
-      return false;
-    }
-  }
-
-  async function saveArticleContent2(
-    values: ArticleContentDTO,
-  ): Promise<boolean> {
-    const blocks: {
-      type: ContentBlockType;
-      data: string | string[];
-      label: string;
-      orderIndex: number;
-    }[] = [
-      {
-        type: ContentBlockType.MAIN_NEWS_BLOCK,
-        data: values.textblock1,
-        label: 'Text block 1',
-        orderIndex: 1,
-      },
-      {
-        type: ContentBlockType.TEXT,
-        data: values.textblock2,
-        label: 'Text block 2',
-        orderIndex: 2,
-      },
-      {
-        type: ContentBlockType.QUOTE,
-        data: values.quote,
-        label: 'Quote',
-        orderIndex: 3,
-      },
-      {
-        type: ContentBlockType.VIDEO,
-        data: values.video,
-        label: 'Video',
-        orderIndex: 4,
-      },
-      {
-        type: ContentBlockType.PHOTO,
-        data: typeof values.mainPhoto === 'string' ? values.mainPhoto : '',
-        label: 'Main Photo',
-        orderIndex: 5,
-      },
-      {
-        type: ContentBlockType.PHOTOS_LIST,
-        data: values.photosList || [],
-        label: 'Photo List',
-        orderIndex: 6,
-      },
-      {
-        type: ContentBlockType.PHOTOS_SLIDER,
-        data: values.sliderPhotos || [],
-        label: 'Photo Slider',
-        orderIndex: 7,
-      },
-    ];
-
-    const isArrayBlock = (type: ContentBlockType) =>
-      type === ContentBlockType.PHOTOS_LIST ||
-      type === ContentBlockType.PHOTOS_SLIDER;
-
-    const results = await Promise.all(
-      blocks.map(async block => {
-        try {
-          const existingBlock = article?.contentBlocks?.find(
-            b => b.contentBlockType === block.type,
-          );
-
-          if (isArrayBlock(block.type)) {
-            if (existingBlock) {
-              if ((block.data as string[]).length === 0) {
-                // await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
-              } else {
-                // await dispatch(
-                //   updateContentBlockArray({
-                //     id: existingBlock.id,
-                //     data: {
-                //       contentBlockType: block.type,
-                //       data: block.data as string[],
-                //       orderIndex: block.orderIndex,
-                //     },
-                //   }),
-                // ).unwrap();
-              }
-            } else if ((block.data as string[]).length > 0) {
-              // await dispatch(
-              //   createContentBlockArray({
-              //     id: articleId!,
-              //     data: {
-              //       contentBlockType: block.type,
-              //       data: block.data as string[],
-              //       orderIndex: block.orderIndex,
-              //     },
-              //   }),
-              // ).unwrap();
-            }
-          } else {
-            const dataStr = block.data as string;
-            if (existingBlock) {
-              if (!dataStr) {
-                //   await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
-              } else {
-                // await dispatch(
-                //   updateContentBlock({
-                //     id: existingBlock.id,
-                //     data: {
-                //       contentBlockType: block.type,
-                //       data: dataStr,
-                //       orderIndex: block.orderIndex,
-                //     },
-                //   }),
-                // ).unwrap();
-              }
-            } else if (dataStr) {
-              // await dispatch(
-              //   createContentBlock({
-              //     id: articleId!,
-              //     data: {
-              //       contentBlockType: block.type,
-              //       data: dataStr,
-              //       orderIndex: block.orderIndex,
-              //     },
-              //   }),
-              // ).unwrap();
-            }
-          }
-
-          return { label: block.label, success: true };
-        } catch (err) {
-          return { label: block.label, success: false, error: err };
-        }
-      }),
-    );
-
-    const failedBlocks = results.filter(r => !r.success);
-
-    if (failedBlocks.length === 0) {
-      toast.success('All content blocks saved successfully!');
-      return true;
-    } else {
-      const failedNames = failedBlocks.map(b => b.label).join(', ');
-      toast.error(`Failed to save: ${failedNames}`);
       return false;
     }
   }

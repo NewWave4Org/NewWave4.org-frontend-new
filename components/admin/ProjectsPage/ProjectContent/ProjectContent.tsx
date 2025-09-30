@@ -206,7 +206,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                   <div className="mb-5">
                     {/* Base block */}
                     <div className="mb-4">
-                      {initialBlocks[0].contentBlockType === 'VIDEO' && (
+                      {initialBlocks[0]?.contentBlockType === 'VIDEO' && (
                         <Input
                           id="contentBlocks.0.videoUrl"
                           name="contentBlocks.0.videoUrl"
@@ -220,7 +220,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     </div>
 
                     <div className="mb-4">
-                      {initialBlocks[1].contentBlockType === 'QUOTE' && (
+                      {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
                         <TextArea
                           id="contentBlocks.1.text"
                           name="contentBlocks.1.text"
@@ -234,7 +234,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     </div>
 
                     <div className="mb-4">
-                      {initialBlocks[2].contentBlockType === 'LINK_TO_SITE' && (
+                      {initialBlocks[2]?.contentBlockType ===
+                        'LINK_TO_SITE' && (
                         <Input
                           id="contentBlocks.2.siteUrl"
                           name="contentBlocks.2.siteUrl"
@@ -249,7 +250,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                     <div className="flex gap-4">
                       <div className="w-1/2 mb-4">
-                        {initialBlocks[3].contentBlockType ===
+                        {initialBlocks[3]?.contentBlockType ===
                           'TYPE_SOCIAL_MEDIA' && (
                           <Select
                             label="Change type social media (if needed)"
@@ -265,7 +266,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       </div>
 
                       <div className="w-1/2 mb-4">
-                        {initialBlocks[4].contentBlockType ===
+                        {initialBlocks[4]?.contentBlockType ===
                           'LINK_TO_SOCIAL_MEDIA' && (
                           <Input
                             id="contentBlocks.4.socialMediaUrl"
@@ -282,7 +283,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                     <div className="flex gap-4 mb-4">
                       {/* TEXT block */}
-                      {initialBlocks[5].contentBlockType === 'SECTION' && (
+                      {initialBlocks[5]?.contentBlockType === 'SECTION' && (
                         <>
                           <div className="w-1/2 h-[442px] flex flex-col flex-1">
                             <div className="mb-4">

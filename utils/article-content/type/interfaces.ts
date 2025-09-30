@@ -45,8 +45,6 @@ export interface CreateNewArticleResponseDTO {
   relevant_project_id: number;
 }
 
-export interface PublishArticleResponseDTO extends CreateNewArticleResponseDTO { }
-
 export interface IGetAllArticleRequestDTO {
   page?: number;
   size?: number;
@@ -88,6 +86,7 @@ export interface UpdateArticleRequestDTO {
   data: {
     title: string;
     articleType: ArticleType;
+    authorId?: number;
     contentBlocks: any[] | null;
     relevantProjectId?: number;
   }

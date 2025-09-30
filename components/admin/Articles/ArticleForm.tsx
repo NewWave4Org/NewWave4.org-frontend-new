@@ -9,7 +9,6 @@ import {
   getAllArticle,
 } from '@/store/article-content/action';
 
-import { ArticlesProjectOptions } from '@/utils/articles/type/articles-project';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
@@ -17,7 +16,7 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
-import { ArticleType } from '@/utils/ArticleType';
+import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUsers } from '@/store/users/actions';
@@ -39,13 +38,18 @@ export interface CreateNewArticleRequestDTO {
   authorId?: number;
 }
 
+interface ProjectOption {
+  value: string | number;
+  label: string;
+}
+
 interface IArticleFormProps {
   articleId?: number;
 }
 
 const ArticleForm = ({ articleId }: IArticleFormProps) => {
   const [article, setArticle] = useState<newArticleDTO | null>(null);
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -70,20 +74,44 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
   }, [dispatch]);
 
   useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await dispatch(
+          getAllArticle({
+            articleType: ArticleTypeEnum.PROJECT,
+            articleStatus: ['PUBLISHED'],
+          }),
+        ).unwrap();
+
+        const mappedProjects = (data.content ?? []).map((project: any) => ({
+          value: project.id,
+          label: project.title,
+        }));
+        setProjects(mappedProjects);
+      } catch (err) {
+        toast.error('Failed to fetch projects');
+        console.error(err);
+      }
+    };
+
+    fetchProjects();
+  }, [dispatch]);
+
+  useEffect(() => {
     if (!articleId) return;
 
     const fetchArticle = async () => {
       try {
         const data: GetArticleByIdResponseDTO = await handleThunk(
           getArticleById,
-          articleId,
+          { id: articleId, articleType: 'NEWS' },
           msg => toast.error(msg),
         );
         setArticle({
           id: data.id,
           title: data.title,
           articleType: data.articleType,
-          relevantProjectId: 1,
+          relevantProjectId: data.relevantProjectId,
           contentBlocks: data.contentBlocks,
         });
       } catch (err) {
@@ -141,7 +169,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
             title: article?.title || '',
             relevantProjectId: article?.relevantProjectId,
             articleType: 'NEWS',
-            contentBlocks: article?.contentBlocks || null,
+            contentBlocks: article?.contentBlocks || [],
             authorId: currentAuthor?.id,
           }}
           validationSchema={validationSchema}
@@ -196,7 +224,6 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
                   name="authorId"
                   required
                   labelClass="!text-admin-700"
-                  // defaultValue={values.authorId ? String(values.authorId) : ''}
                   onChange={handleChange}
                   options={usersList}
                 />
