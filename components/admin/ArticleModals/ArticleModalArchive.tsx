@@ -1,6 +1,6 @@
 import Button from '@/components/shared/Button';
 
-import { archivedArticle } from '@/store/article-content/action';
+import { archivedArticle, getAllArticle } from '@/store/article-content/action';
 import { removeArticle } from '@/store/article-content/article-content_slice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { closeModal } from '@/store/modal/ModalSlice';
@@ -15,25 +15,38 @@ function ArticleModalArchive({title}: {title?: string}) {
   const handleThunk = useHandleThunk();
 
   const currentProject = useAppSelector(state => state.modal.payload) as IArticleBody & {id: number};
+  const currentPage = useAppSelector(state => state.modal.currentPage)
+  const articleStatus = useAppSelector(state => state.modal.articleStatus)
+  const chooseSortType = useAppSelector(state => state.modal.chooseSortType)
+  const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage)
 
   async function handleDeleteArticle() {
-      const result = await handleThunk(
-        archivedArticle,
-        currentProject.id,
-        setSubmitError,
-      );
-  
-      if (result) {
-        setSubmitError('');
-        toast.success(`${title} archived successfully`);
-        dispatch(closeModal());
-        dispatch(removeArticle(currentProject.id))
+    const result = await handleThunk(
+      archivedArticle,
+      {id: currentProject.id, articleType: currentProject.articleType},
+      setSubmitError,
+    );
+
+    if (result) {
+      setSubmitError('');
+      toast.success(`Your ${title} has been successfully archived!`);
+      dispatch(closeModal());
+      dispatch(removeArticle(currentProject.id))
+
+      if(articlesOnPage === 1) {
+        const params: any = {
+          page: currentPage,
+          articleStatus: articleStatus,
+          articleType: chooseSortType && chooseSortType !== 'all' ? chooseSortType : currentProject.articleType
+        };
+
+        dispatch(getAllArticle(params));
       }
     }
+  }
 
   return (
     <>
-      <>
       <div className="modal__header font-medium text-[22px] text-admin-700 mb-[32px]">
         Archive the {title}
       </div>
@@ -58,7 +71,6 @@ function ArticleModalArchive({title}: {title?: string}) {
           Add to archive
         </Button>
       </div>
-    </>
     </>
   );
 }

@@ -6,3 +6,11 @@ export enum ArticleTypeEnum {
   PROGRAM = 'PROGRAM',
   PROJECT = 'PROJECT'
 }
+
+export type ArticleStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export enum ArticleStatusEnum {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED'
+}

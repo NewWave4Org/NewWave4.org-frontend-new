@@ -5,7 +5,6 @@ import Input from "@/components/shared/Input";
 import { ArticleType, ArticleTypeEnum } from "@/utils/ArticleType";
 import { Form, Formik, FormikHelpers } from "formik";
 import Button from '@/components/shared/Button';
-import { useAppDispatch } from '@/store/hook';
 import { useState } from 'react';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { createNewArticle } from '@/store/article-content/action';

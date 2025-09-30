@@ -10,6 +10,7 @@ import DeleteUser from '../DeleteUser/DeleteUser';
 import DeleteArticle from '../DeleteArticle/DeleteArticle';
 
 import {ArticleModalDelete, ArticleModalArchive} from '../ArticleModals';
+import ArticleModalRestore from '../ArticleModals/ArticleModalRestore';
 
 
 const CreateNewUserValidationSchema = Yup.object({
@@ -37,6 +38,7 @@ const Modals = () => {
 
           {modalType === ModalType.DELETEPROJECT && <ArticleModalDelete title={modalTitle || ''} />}
           {modalType === ModalType.ARCHIVEDARTICLE && <ArticleModalArchive title={modalTitle} />}
+          {modalType === ModalType.ARTICLE_RESTORE && <ArticleModalRestore title={modalTitle} />}
         </Modal>
       )}
     </>

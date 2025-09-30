@@ -1,15 +1,16 @@
-import Button from '@/components/shared/Button';
+import Button from "@/components/shared/Button";
+import { getAllArticle, publishArticle } from "@/store/article-content/action";
+import { removeArticle } from "@/store/article-content/article-content_slice";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { closeModal } from "@/store/modal/ModalSlice";
+import { IArticleBody } from "@/utils/article-content/type/interfaces";
+import useHandleThunk from "@/utils/useHandleThunk";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
-import { deleteArticle, getAllArticle } from '@/store/article-content/action';
-import { removeArticle } from '@/store/article-content/article-content_slice';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { closeModal } from '@/store/modal/ModalSlice';
-import { IArticleBody } from '@/utils/article-content/type/interfaces';
-import useHandleThunk from '@/utils/useHandleThunk';
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
 
-function ArticleModalDelete({title}: {title: string}) {
+function ArticleModalRestore({title}: {title?: string}) {
+  const [submitError, setSubmitError] = useState('');
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
@@ -18,45 +19,40 @@ function ArticleModalDelete({title}: {title: string}) {
   const articleStatus = useAppSelector(state => state.modal.articleStatus)
   const chooseSortType = useAppSelector(state => state.modal.chooseSortType)
   const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage)
+  console.log('articlesOnPage', articlesOnPage)
 
-  const [submitError, setSubmitError] = useState('');
-
-  async function handleDeleteArticle() {
-    const result = await handleThunk(
-      deleteArticle,
-      {id: currentProject.id, articleType: currentProject.articleType},
-      setSubmitError,
-    );
-
-    if (result) {
-      setSubmitError('');
-      toast.success(`Your ${title} has been successfully deleted!`);
+  async function handleRestoreArticle() {
+    const result = await handleThunk(publishArticle, currentProject.id, setSubmitError);
+    
+    if(result) {
+      setSubmitError('')
+      toast.success(`Congratulations! Your ${currentProject.articleType.toLowerCase()} has been restored successfully.`)
       dispatch(closeModal());
       dispatch(removeArticle(currentProject.id))
 
       if(articlesOnPage === 1) {
         const params: any = {
           page: currentPage,
-          articleStatus: articleStatus,
-          articleType: currentProject.articleType
+          articleStatus: articleStatus
         };
 
-        if (chooseSortType && chooseSortType !== 'all') {
+        if (chooseSortType !== 'all') {
           params.articleType = chooseSortType;
         }
-
+      
         dispatch(getAllArticle(params));
       }
     }
   }
+
   return (
     <>
       <div className="modal__header font-medium text-[22px] text-admin-700 mb-[32px]">
-        Delete {title}
+        Restore the {title?.toLowerCase()} from the archive
       </div>
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
-        Are you sure you want to delete the {title}
+        Are you sure you want to restore the {title?.toLowerCase()}
         <span className="font-bold"> "{currentProject.title}"</span>?
       </div>
 
@@ -69,14 +65,14 @@ function ArticleModalDelete({title}: {title: string}) {
       <div>
         <Button
           type="submit"
-          onClick={handleDeleteArticle}
+          onClick={handleRestoreArticle}
           className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal w-full text-xl p-4 hover:opacity-[0.8] duration-500"
         >
-          Delete
+          Restore from archive
         </Button>
       </div>
     </>
   );
 }
 
-export default ArticleModalDelete;
+export default ArticleModalRestore;
