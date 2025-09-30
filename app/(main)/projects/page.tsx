@@ -7,7 +7,7 @@ import ProjectPage from "@/components/projectPage/ProjectPage";
 import { IArticleBody } from "@/utils/article-content/type/interfaces";
 
 async function ProjectsPage() {
-  const baseUrl = 'https://api.stage.newwave4.org/api/v1/' + ApiEndpoint.GET_ARTICLE_CONTENT_ALL;
+  const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;;
   const params = {
     currentPage: '1',
     articleType: ArticleTypeEnum.PROJECT.toString(),
@@ -21,11 +21,11 @@ async function ProjectsPage() {
     const response = await fetch(url, {
       method: HttpMethod.GET,
       next: { revalidate: 3600 },
-    })
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch data");
-    }
+    };
 
     const data = await response.json();
 
@@ -42,7 +42,7 @@ async function ProjectsPage() {
           ): (
             <div className="container mx-auto px-4 py-16">
               <div className="text-h3 text-font-primary font-ebGaramond text-center mb-5 max-w-[600px] mx-auto">
-                Зараз сторінка "Наші проєкти" знаходиться на етапі розробки, але зовсім скоро ми поділимося з вами результатами!
+                Зараз сторінка &quot;Наші проєкти&quot; знаходиться на етапі розробки, але зовсім скоро ми поділимося з вами результатами!
               </div>
               <div className="text-center italic">Дякуємо за терпіння!</div>
             </div>
@@ -56,8 +56,8 @@ async function ProjectsPage() {
       <div className="ProjectsPage container mx-auto px-4 py-16">
         <h1>Error loading data</h1>
       </div>
-    )
-  }
+    );
+  };
 };
 
 export default ProjectsPage;

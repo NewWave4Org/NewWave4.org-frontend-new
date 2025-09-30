@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import {useDropzone} from 'react-dropzone'
+import {useDropzone} from 'react-dropzone';
 import useImageLoading from './hook/useImageLoading';
 import Image from 'next/image';
 import { ArticleType } from '@/utils/ArticleType';
@@ -48,7 +48,7 @@ function ImageLoading({ classBlock='', label='', maxFiles=1, contentType, articl
     },
     maxFiles: maxFiles,
     maxSize: MAX_FILE_SIZE,
-  })
+  });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
     <div key={file.name} className="text-red-600">
@@ -80,7 +80,7 @@ function ImageLoading({ classBlock='', label='', maxFiles=1, contentType, articl
             <p>Drop the files here ...</p>
           ) : (
             <>
-              <p>Drag 'n' drop some files here, or click to select files</p>
+              <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
               <em>(Only *.jpeg, *.png, *.webp, *.jpg and 10Mb images will be accepted)</em>
             </>
           )}

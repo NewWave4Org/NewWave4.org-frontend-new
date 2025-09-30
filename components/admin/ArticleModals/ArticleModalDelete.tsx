@@ -57,7 +57,7 @@ function ArticleModalDelete({title}: {title: string}) {
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
         Are you sure you want to delete the {title}
-        <span className="font-bold"> "{currentProject.title}"</span>?
+        <span className="font-bold"> &quot;{currentProject.title}&quot;</span>?
       </div>
 
       {submitError && (

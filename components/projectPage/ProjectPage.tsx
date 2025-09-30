@@ -18,7 +18,6 @@ function ProjectPage({project}: {project: IArticleBody}) {
   const nameSocialMedia = typeSocialMediaList.find(item => item.value === typeSocialMedia)?.label;
 
   const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION')
-
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
   return (

@@ -6,7 +6,7 @@ import Input from '@/components/shared/Input';
 import Select from '@/components/shared/Select';
 import { closeModal } from '@/store/modal/ModalSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { getUserById, getUsers, updateUser } from '@/store/users/actions';
+import { getUserById, updateUser } from '@/store/users/actions';
 import { userUpdate } from '@/store/users/users_slice';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { UsersRoleOptions } from '@/utils/users/type/users-role';
@@ -19,7 +19,7 @@ import { AnyObjectSchema } from 'yup';
 interface newUserDTO {
   name: string;
   email: string;
-  roles: string[];
+  roles: string;
 }
 
 interface IValidationSchema {
@@ -70,7 +70,7 @@ const EditUser = ({ validationSchema }: IValidationSchema) => {
           initialValues={{
             name: userById.name,
             email: userById.email,
-            roles: userById.roles,
+            roles: Array.isArray(userById.roles) ? (userById.roles[0] || '') : (userById.roles || ''),
           }}
           enableReinitialize={true}
           validationSchema={validationSchema}
@@ -123,7 +123,6 @@ const EditUser = ({ validationSchema }: IValidationSchema) => {
                   name="roles"
                   required
                   placeholder="Choose role"
-                  defaultValue={values.roles.toString()}
                   onChange={handleChange}
                   options={UsersRoleOptions}
                 />

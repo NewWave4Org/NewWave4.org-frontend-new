@@ -3,7 +3,7 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 interface Option {
   value: string;

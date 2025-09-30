@@ -63,13 +63,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           getArticleFullById(articleId),
         ).unwrap();
         setArticle(data);
-      } catch (err) {
+      } catch {
         toast.error('Failed to fetch article');
       }
     };
 
     fetchArticle();
-  }, [articleId]);
+  }, [articleId, dispatch]);
 
   async function handleSaveArticleContent(values: ArticleContentDTO) {
     const saveSuccess = await saveArticleContent(values);

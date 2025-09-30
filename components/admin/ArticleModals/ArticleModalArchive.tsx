@@ -21,6 +21,7 @@ function ArticleModalArchive({title}: {title?: string}) {
   const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage)
 
   async function handleDeleteArticle() {
+
     const result = await handleThunk(
       archivedArticle,
       {id: currentProject.id, articleType: currentProject.articleType},
@@ -53,7 +54,7 @@ function ArticleModalArchive({title}: {title?: string}) {
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
         Are you sure you want to archive the {title}
-        <span className="font-bold"> "{currentProject.title}"</span>?
+        <span className="font-bold"> &quot;{currentProject.title}&quot;</span>?
       </div>
 
       {submitError && (

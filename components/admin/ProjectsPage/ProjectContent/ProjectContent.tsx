@@ -1,7 +1,7 @@
 'use client';
 
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
@@ -47,17 +47,17 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const currentUser = useAppSelector(state => state.authUser.user);
   const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name)
+  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
 
   const usersList = allUsers.map(user => ({
     value: user.id.toString(),
     label: user.name
-  }))
+  }));
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
-    authorId: String(currentAuthor?.id!),
+    authorId: currentAuthor?.id ? String(currentAuthor.id) : '',
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
@@ -77,21 +77,21 @@ function ProjectContent({ projectId }: { projectId: number }) {
     async function fetchFullProjectById() {
       try {
         const result = await dispatch(getArticleById({id: projectId, articleType: ArticleTypeEnum.PROJECT})).unwrap();
-        setProject(result)
+        setProject(result);
       } catch (error) {
-        console.log('error', error)
+        console.log('error', error);
         toast.error('Failed to fetch project');
       }
     }
     fetchFullProjectById();
-  }, [projectId]);
+  }, [projectId, dispatch]);
 
   //GET all users for dropdown Change Author
   useEffect(() => {
     if(projectId) {
       dispatch(getUsers());
     }
-  }, [dispatch])
+  }, [dispatch, projectId]);
 
 
   //Action for Save the project
@@ -104,10 +104,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const message = pathname.includes("/edit")
         ? "Your project was updated successfully!"
         : "Your project was created successfully!";
-        toast.success(message)
+        toast.success(message);
       }
     } catch (error) {
-      toast.error(`Something go wrong! ${error}`)
+      toast.error(`Something go wrong! ${error}`);
     } finally {
       setSubmitting(false);
     }
@@ -121,7 +121,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if(result) {
-      toast.success('Congratulations! Your project has been published successfully.')
+      toast.success('Congratulations! Your project has been published successfully.');
     }
   }
 
@@ -131,7 +131,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          authorId: project?.authorId || defaultFormValues.authorId,
+          authorId: String(project?.authorId ?? defaultFormValues.authorId),
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length
@@ -168,7 +168,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 name="authorId"
                 required
                 labelClass="!text-admin-700"
-                defaultValue={values.authorId ? String(values.authorId) : ""}
                 onChange={handleChange}
                 options={usersList}
               />
@@ -233,7 +232,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
                             name="contentBlocks.3.typeSocialMedia"
                             labelClass="!text-admin-700"
                             placeholder="Media types"
-                            defaultValue={initialBlocks[3].typeSocialMedia || ''}
                             onChange={handleChange}
                             options={typeSocialMediaList}
                             parentClassname='h-[70px]'
@@ -382,7 +380,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       Add new block pair
                     </button>
                   </div>
-                )
+                );
               }}
             </FieldArray>
 

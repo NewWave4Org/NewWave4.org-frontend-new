@@ -22,7 +22,7 @@ const CreateNewUserValidationSchema = Yup.object({
 const Modals = () => {
   const isModalOpen = useAppSelector(state => state.modal.isModalOpen);
   const modalType = useAppSelector(state => state.modal.modalType);
-  const modalTitle = useAppSelector(state => state.modal.title)
+  const modalTitle = useAppSelector(state => state.modal.title);
   return (
     <>
       {isModalOpen && (

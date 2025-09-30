@@ -25,7 +25,6 @@ function ProgramsPage() {
   useEffect(() => {
     dispatch(getAllArticle({ 
       page: currentPage, 
-      size: 2,
       articleType: ArticleTypeEnum.PROJECT, 
       articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}` 
     }));
@@ -34,6 +33,7 @@ function ProgramsPage() {
   const changePage = useCallback((page: number) => {
     setCurrentPage(page);
   }, [dispatch]);
+
 
   const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
       <Pagination
