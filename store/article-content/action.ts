@@ -28,9 +28,9 @@ export const getArticleById = createAsyncThunk('article-content/getArticleById',
   }
 });
 
-export const getAllArticle = createAsyncThunk('article-content/getAllArticle', async ({ page, size, articleType }: IGetAllArticleRequestDTO, { rejectWithValue }) => {
+export const getAllArticle = createAsyncThunk('article-content/getAllArticle', async ({ page, size, articleType, articleStatus }: IGetAllArticleRequestDTO, { rejectWithValue }) => {
   try {
-    const response = await articleContentService.getAllArticle({ page, size, articleType });
+    const response = await articleContentService.getAllArticle({ page, size, articleType, articleStatus });
 
     return response;
   } catch (error) {

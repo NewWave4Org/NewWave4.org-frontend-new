@@ -1,4 +1,4 @@
-import { ArticleType } from '@/utils/ArticleType';
+import { ArticleStatus, ArticleType } from '@/utils/ArticleType';
 import {
   CreateNewArticleRequestDTO,
   CreateNewArticleResponseDTO,
@@ -12,7 +12,7 @@ import {
 
 interface IArticleApi {
   deleteArticle: ({id, articleType}:{id: number, articleType: ArticleType}) => void;
-  getArticleById: ({id, articleType}:{id: number, articleType: ArticleType}) => Promise<GerArticleByIdResponseDTO>;
+  getArticleById: ({id, articleType}:{id: number, articleType: ArticleType }) => Promise<GerArticleByIdResponseDTO>;
   getAllArticle: (params: IGetAllArticleRequestDTO) => Promise<IGetAllArticleResponseDTO>;
   createNewArticle: (data: CreateNewArticleRequestDTO) => Promise<CreateNewArticleResponseDTO>;
   publishArticle: (id: number) => Promise<PublishArticleResponseDTO>;

@@ -1,6 +1,6 @@
 import Hero from "@/components/ui/Hero";
 import {heroData} from "@/data/projects/hero";
-import { ArticleTypeEnum } from "@/utils/ArticleType";
+import { ArticleStatusEnum, ArticleTypeEnum } from "@/utils/ArticleType";
 import { ApiEndpoint } from "@/utils/http/enums/api-endpoint";
 import HttpMethod from "@/utils/http/enums/http-method";
 import ProjectPage from "@/components/projectPage/ProjectPage";
@@ -11,7 +11,7 @@ async function ProjectsPage() {
   const params = {
     currentPage: '1',
     articleType: ArticleTypeEnum.PROJECT.toString(),
-    articleStatus: "PUBLISHED"
+    articleStatus: ArticleStatusEnum.PUBLISHED
   };
 
   const url = new URL(baseUrl);
@@ -30,11 +30,12 @@ async function ProjectsPage() {
     const data = await response.json();
 
     const projects = data.content;
+    console.log('projects', projects)
 
     return (
       <div className="ProjectsPage">
         <Hero data={heroData} />
-        {projects.lenght > 0 ? (
+        {projects.length > 0 ? (
             projects.map((project: IArticleBody, index: number) => (
               <ProjectPage key={index} project={project} />
             ))
