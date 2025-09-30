@@ -1,4 +1,4 @@
-import { ArticleType } from '@/utils/ArticleType';
+import { ArticleStatus, ArticleType } from '@/utils/ArticleType';
 import {
   CreateNewArticleRequestDTO,
   CreateNewArticleResponseDTO,

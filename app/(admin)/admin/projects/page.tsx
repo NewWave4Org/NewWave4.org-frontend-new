@@ -1,9 +1,12 @@
 'use client';
 import ProjectsTable from '@/components/admin/ProjectsPage/ProjectsTable';
 import Pagination from '@/components/shared/Pagination';
+import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { ArticleTypeEnum } from '@/utils/ArticleType';
+import { openModal } from '@/store/modal/ModalSlice';
+import { GerArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
+import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useCallback, useEffect, useState } from 'react';
 
 interface RenderPaginationProps {
@@ -19,13 +22,18 @@ function ProgramsPage() {
   const projects = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
 
-  const changePage = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      dispatch(getAllArticle({ page: currentPage, articleType: ArticleTypeEnum.PROJECT }));
-    },
-    [dispatch, currentPage],
-  );
+  useEffect(() => {
+    dispatch(getAllArticle({ 
+      page: currentPage, 
+      articleType: ArticleTypeEnum.PROJECT, 
+      articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}` 
+    }));
+  }, [dispatch, currentPage]);
+
+  const changePage = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, [dispatch]);
+
 
   const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
       <Pagination
@@ -37,9 +45,33 @@ function ProgramsPage() {
     [],
   );
 
-  useEffect(() => {
-    dispatch(getAllArticle({ page: currentPage, articleType: ArticleTypeEnum.PROJECT }));
-  }, [dispatch, currentPage]);
+  //Delete
+  const handleDeleteProject = (project: GerArticleByIdResponseDTO) => {
+    dispatch(
+      openModal({
+        modalType: ModalType.DELETEPROJECT,
+        payload: project,
+        title: 'projects',
+        currentPage: currentPage,
+        articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+        articlesOnPage: projects.length,
+      }),
+    );
+  };
+
+  //Putt to the archive
+  const handleArchivedProject = (project: GerArticleByIdResponseDTO) => {
+    dispatch(
+      openModal({
+        modalType: ModalType.ARCHIVEDARTICLE,
+        payload: project,
+        title: 'project',
+        currentPage: currentPage,
+        articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+        articlesOnPage: projects.length,
+      }),
+    );
+  }
 
   return (
     <>
@@ -49,6 +81,8 @@ function ProgramsPage() {
         totalPages={totalPages}
         changePage={changePage}
         renderPagination={renderPagination}
+        handleDeleteProject={handleDeleteProject}
+        handleArchivedProject={handleArchivedProject}
       />
     </>
   );

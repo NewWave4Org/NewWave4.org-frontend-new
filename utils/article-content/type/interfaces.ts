@@ -1,4 +1,4 @@
-import { ArticleType } from '@/utils/ArticleType';
+import { ArticleStatus, ArticleType } from '@/utils/ArticleType';
 
 export interface IArticleBody {
   title: string;
@@ -19,7 +19,8 @@ export interface GetArticleByIdResponseDTO {
   authorName: string;
   contentBlocks: any[] | null
   id: number;
-  publishedAt: string | null
+  publishedAt: string | null;
+  createdAt: string;
   title: string;
   views: number;
   relevantProjectId?: number;
@@ -48,8 +49,8 @@ export interface CreateNewArticleResponseDTO {
 export interface IGetAllArticleRequestDTO {
   page?: number;
   size?: number;
-  articleType: ArticleType;
-  articleStatus?: string[];
+  articleType?: ArticleType;
+  articleStatus?: ArticleStatus | string;
 }
 
 export interface IGetAllArticleResponseDTO {

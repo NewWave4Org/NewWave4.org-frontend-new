@@ -1,11 +1,10 @@
 import Button from '@/components/shared/Button';
 
-import { deleteArticle } from '@/store/article-content/action';
+import { deleteArticle, getAllArticle } from '@/store/article-content/action';
 import { removeArticle } from '@/store/article-content/article-content_slice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { closeModal } from '@/store/modal/ModalSlice';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
-import { ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -14,16 +13,18 @@ function ArticleModalDelete({title}: {title: string}) {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
-  const currentProject = useAppSelector(
-    state => state.modal.payload,
-  ) as IArticleBody & {id: number};
+  const currentProject = useAppSelector(state => state.modal.payload) as IArticleBody & {id: number};
+  const currentPage = useAppSelector(state => state.modal.currentPage)
+  const articleStatus = useAppSelector(state => state.modal.articleStatus)
+  const chooseSortType = useAppSelector(state => state.modal.chooseSortType)
+  const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage)
 
   const [submitError, setSubmitError] = useState('');
 
   async function handleDeleteArticle() {
     const result = await handleThunk(
       deleteArticle,
-      {id: currentProject.id, articleType: ArticleTypeEnum[title.toUpperCase() as keyof typeof ArticleTypeEnum]},
+      {id: currentProject.id, articleType: currentProject.articleType},
       setSubmitError,
     );
 
@@ -31,8 +32,22 @@ function ArticleModalDelete({title}: {title: string}) {
       setSubmitError('');
       toast.success(`Your ${title} has been successfully deleted!`);
       dispatch(closeModal());
-      dispatch(removeArticle(currentProject.id));
-    };
+      dispatch(removeArticle(currentProject.id))
+
+      if(articlesOnPage === 1) {
+        const params: any = {
+          page: currentPage,
+          articleStatus: articleStatus,
+          articleType: currentProject.articleType
+        };
+
+        if (chooseSortType && chooseSortType !== 'all') {
+          params.articleType = chooseSortType;
+        }
+
+        dispatch(getAllArticle(params));
+      }
+    }
   }
   return (
     <>

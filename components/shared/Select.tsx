@@ -14,6 +14,7 @@ interface Option {
 interface SelectProps {
   options: Option[];
   name: string;
+  useFormik?: boolean;
   label?: string;
   required?: boolean;
   placeholder?: string;
@@ -22,32 +23,68 @@ interface SelectProps {
   adminSelectClass?: boolean;
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  defaultValue?: string;
+  dropDownClass?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
   options,
   label,
+  useFormik = true,
+  onChange,
   required,
   placeholder,
   labelIcon,
   labelClass,
   adminSelectClass,
   parentClassname,
+  dropDownClass = '',
+  defaultValue,
   ...props
 }) => {
-  const [field, meta] = useField(props);
-  const { setFieldValue } = useFormikContext();
+  // const [field, meta] = useField(props);
+  // const { setFieldValue } = useFormikContext();
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find(o => o.value === field.value);
+  let field: any = {};
+  let meta: any = {};
+  let setFieldValue: any = () => {};
+
+  const [localValue, setLocalValue] = useState(defaultValue || '');
+
+  if (useFormik) {
+    try {
+      [field, meta] = useField(props);
+      setFieldValue = useFormikContext()?.setFieldValue;
+    } catch (err) {
+      console.warn(
+        'Select: Formik context not found. Falling back to uncontrolled mode.',
+      );
+      useFormik = false;
+    }
+  }
+
+  const selectedOption = options.find(o =>
+    useFormik ? o.value === field?.value : o.value === localValue,
+  );
 
   const handleOptionClick = (option: Option) => {
     const parsedValue =
       typeof option.value === 'number' ? Number(option.value) : option.value;
 
-    setFieldValue(props.name, parsedValue, false);
+    if (useFormik) {
+      setFieldValue?.(props.name, parsedValue);
+    } else {
+      setLocalValue(String(option.value));
+      onChange?.({
+        target: {
+          name: props.name,
+          value: option.value,
+        },
+      } as React.ChangeEvent<HTMLSelectElement>);
+    }
     setIsOpen(false);
   };
 
@@ -56,6 +93,19 @@ const Select: React.FC<SelectProps> = ({
       setIsOpen(false);
     }
   };
+
+  // const selectedOption = options.find(o => o.value === field.value);
+
+  // const handleOptionClick = (option: Option) => {
+  //   setFieldValue(props.name, option.value, false);
+  //   setIsOpen(false);
+  // };
+
+  // const handleBlur = (e: React.FocusEvent) => {
+  //   if (!selectRef.current?.contains(e.relatedTarget as Node)) {
+  //     setIsOpen(false);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col">
@@ -112,9 +162,10 @@ const Select: React.FC<SelectProps> = ({
         {isOpen && (
           <div
             ref={dropdownRef}
-            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom ${
-              adminSelectClass ? '!w-full' : ''
-            }`}
+            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom 
+              ${adminSelectClass ? '!w-full' : ''}
+              ${dropDownClass ? dropDownClass : ''}
+            `}
           >
             {options.map(option => (
               <div

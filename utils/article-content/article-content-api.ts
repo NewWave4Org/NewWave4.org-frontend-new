@@ -35,12 +35,9 @@ class ArticleApi implements IArticleApi {
     const params: Record<string, string | number> = {
       page,
       size,
-      articleType,
+      ...(articleType !== undefined && { articleType }),
+      ...(articleStatus !== undefined && { articleStatus }),
     };
-
-    if (articleStatus?.length) {
-      params.articleStatus = articleStatus.join(',');
-    }
 
     return request({
       method: HttpMethod.GET,
