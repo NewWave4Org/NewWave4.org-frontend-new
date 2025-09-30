@@ -31,11 +31,18 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    const params: Record<string, string | number> = {
+      page,
+      size,
+      ...(articleType !== undefined && { articleType }),
+      ...(articleStatus !== undefined && { articleStatus }),
+    };
+
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_ALL,
-      params: { page, size, articleType },
+      params,
     });
   }
 

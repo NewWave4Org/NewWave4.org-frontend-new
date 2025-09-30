@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 function NewProjectContentPage() {
   const searchParams = useSearchParams();
   const idParam = searchParams.get('id');
-  const id = idParam ? Number(idParam) : NaN;;
+  const id = idParam ? Number(idParam) : NaN;
 
   return (
     <>
