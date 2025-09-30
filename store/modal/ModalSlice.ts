@@ -1,5 +1,5 @@
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ArticleStatusEnum } from '@/utils/ArticleType';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface ModalProps {
   isModalOpen: boolean;
@@ -34,8 +34,8 @@ const modalSlice = createSlice({
       state.title = action.payload.title || null || undefined;
       state.currentPage = action.payload.currentPage;
       state.articleStatus = action.payload.articleStatus;
-      state.chooseSortType = action.payload.chooseSortTypeж
-      state.articlesOnPage = action.payload.articlesOnPage
+      state.chooseSortType = action.payload.chooseSortType;
+      state.articlesOnPage = action.payload.articlesOnPage;
     },
     closeModal: state => {
       state.isModalOpen = false;
