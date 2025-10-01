@@ -16,7 +16,11 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
-import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import {
+  ArticleStatusEnum,
+  ArticleType,
+  ArticleTypeEnum,
+} from '@/utils/ArticleType';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getUsers } from '@/store/users/actions';
@@ -79,7 +83,7 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         const data = await dispatch(
           getAllArticle({
             articleType: ArticleTypeEnum.PROJECT,
-            articleStatus: ['PUBLISHED'],
+            articleStatus: ArticleStatusEnum.PUBLISHED,
           }),
         ).unwrap();
 
@@ -133,6 +137,8 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
         const payload = {
           title: values.title,
           relevantProjectId: values.relevantProjectId,
+          authorId: values.authorId,
+          articleType: values.articleType,
         };
         result = await handleThunk(
           updateArticle,

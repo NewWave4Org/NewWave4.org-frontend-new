@@ -6,17 +6,14 @@ import Button from '@/components/shared/Button';
 
 import Table from '@/components/ui/Table/Table';
 import clsx from 'clsx';
-import { useAppDispatch } from '@/store/hook';
 import Link from 'next/link';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import { openModal } from '@/store/modal/ModalSlice';
-import ModalType from '@/components/ui/Modal/enums/modals-type';
 
 import { ReactNode } from 'react';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import useSortTable from '@/utils/hooks/useSortTable';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
-import { formatDateUk, numericDate } from '@/utils/date';
+import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum } from '@/utils/ArticleType';
 
 const TableHeader = [

@@ -17,12 +17,10 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { UploadPhotoParams } from '@/utils/photos/photo-service';
-import PhotoUploader from '@/components/ui/PhotoUploader';
-import { deletePhoto, uploadPhoto } from '@/store/photos/action';
 import { extractErrorMessage } from '@/utils/apiErrors';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleType } from '@/utils/ArticleType';
+import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import ImageLoading from '../ImageLoading/ImageLoading';
 
 interface ArticleContentDTO {
   textblock1: string;
@@ -153,34 +151,8 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     }
   }
 
-  const uploadFiles = async (files: File[]): Promise<string[]> => {
-    const urls: string[] = [];
-
-    for (const file of files) {
-      const params: UploadPhotoParams = {
-        file,
-        entityReferenceId: articleId!,
-        articleType: 'NEWS',
-      };
-
-      const response = await dispatch(uploadPhoto(params)).unwrap();
-      urls.push(response);
-    }
-    return urls;
-  };
-
-  const deleteFile = async (url: string) => {
-    await dispatch(deletePhoto(url)).unwrap();
-  };
-
   async function handlePublish(values: ArticleContentDTO) {
     if (!articleId) return;
-
-    const saveSuccess = await saveArticleContent(values);
-    if (!saveSuccess) {
-      toast.error('Failed to save article before publishing');
-      return;
-    }
 
     if (!values.mainPhoto) {
       toast.error('Main photo is required to publish');
@@ -282,7 +254,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             await handleSaveArticleContent(values);
           }}
         >
-          {({ errors, touched, handleChange, isSubmitting, values }) => (
+          {({
+            errors,
+            touched,
+            handleChange,
+            isSubmitting,
+            values,
+            setFieldValue,
+          }) => (
             <Form>
               <div className="w-full mb-2">
                 <TextArea
@@ -332,29 +311,43 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 />
               </div>
 
-              <PhotoUploader
-                label="Main Photo"
-                name="mainPhoto"
-                maxFiles={1}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-1/2 h-[442px]">
+                <ImageLoading
+                  label="Main Photo"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={1}
+                  uploadedUrls={values.mainPhoto ? [values.mainPhoto] : []}
+                  onFilesChange={urls =>
+                    setFieldValue('mainPhoto', urls[0] || '')
+                  }
+                  previewSize={300}
+                />
+              </div>
 
-              <PhotoUploader
-                label="Photo List"
-                name="photosList"
-                maxFiles={2}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-full h-[442px] my-2">
+                <ImageLoading
+                  label="Photo List"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={2}
+                  uploadedUrls={values.photosList || []}
+                  onFilesChange={urls => setFieldValue('photosList', urls)}
+                  previewSize={200}
+                />
+              </div>
 
-              <PhotoUploader
-                label="Photo Slider"
-                name="sliderPhotos"
-                maxFiles={5}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-full h-[442px]">
+                <ImageLoading
+                  label="Photo Slider"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={5}
+                  uploadedUrls={values.sliderPhotos || []}
+                  onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
+                  previewSize={200}
+                />
+              </div>
 
               <div className="mt-10">
                 <sup className="font-bold text-red-600 text-small2">*</sup>

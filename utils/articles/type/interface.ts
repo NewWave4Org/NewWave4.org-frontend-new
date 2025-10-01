@@ -1,5 +1,3 @@
-import { ContentBlockType } from "./contentBlockType";
-
 export interface Article {
   id: number;
   articleType: string;
@@ -8,6 +6,7 @@ export interface Article {
   relevantProjectId?: number;
   articleStatus: string;
   publishedAt: string | null;
+  createdAt: string | null;
   title: string;
   views: number;
 }
@@ -56,18 +55,6 @@ export interface NewArticleRequestDTO {
 
 export interface ArticleResponseDTO extends Article {
   contentBlocks: ContentBlock[];
-}
-
-export interface ContentBlockRequestDTO {
-  contentBlockType: ContentBlockType,
-  data: string,
-  orderIndex: number
-}
-
-export interface ContentBlockArrayRequestDTO {
-  contentBlockType: ContentBlockType,
-  data: string[],
-  orderIndex: number
 }
 
 export interface ArticleFull extends Article {

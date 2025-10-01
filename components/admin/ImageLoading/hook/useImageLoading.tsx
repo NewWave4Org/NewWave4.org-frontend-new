@@ -24,12 +24,15 @@ function useImageLoading({ articleId, contentType }: IImageLoadingProps) {
           articleType: contentType,
         };
 
-        try { 
+        try {
+          console.log('upload !!!!!!!!');
+          console.log(params);
           const response = await dispatch(uploadPhoto(params)).unwrap();
           urls.push(response);
         } catch (error) {
           console.log('error', error);
           toast.error('Failed to upload files');
+          return rejectWithValue({ status, message: errorMessage });
         }
       }
       return urls;

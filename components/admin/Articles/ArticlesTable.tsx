@@ -13,12 +13,14 @@ import { Article } from '@/utils/articles/type/interface';
 import { openModal } from '@/store/modal/ModalSlice';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
+import { numericDate } from '@/utils/date';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
   { id: '2', title: 'Author name' },
   { id: '3', title: 'Views' },
-  { id: '4', title: 'Status' },
+  { id: '4', title: 'Created' },
+  { id: '5', title: 'Status' },
 ];
 
 type renderPaginationProps = {
@@ -34,7 +36,7 @@ type Props = {
 const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const articles = useAppSelector(state => state.articleContent.articleContent);
-  const totalPages = useAppSelector(state => state.articles.totalPages);
+  const totalPages = useAppSelector(state => state.articleContent.totalPages);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -73,7 +75,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
         renderHeader={() => (
           <>
             {articlesHeader.map(({ id, title }) => (
-              <th key={id} className="pl-[45px] pb-4 border-b border-admin-300">
+              <th key={id} className="px-3 pb-4 border-b border-admin-300">
                 {title}
               </th>
             ))}
@@ -94,22 +96,23 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
           </>
         )}
         renderRow={(article: Article) => {
-          const { id, articleStatus, title, views, authorName } = article;
+          const { id, articleStatus, title, views, authorName, createdAt } =
+            article;
           const status =
             articleStatus.slice(0, 1).toUpperCase() +
             articleStatus.toLowerCase().slice(1);
 
           return (
             <>
-              <td className="min-w-[250px] max-w-[300px] pl-[45px] py-[25px]">
+              <td className="min-w-[250px] max-w-[300px] px-3 py-6">
                 <p className="font-bold text-[18px] text-admin-700 truncate">
                   {title}
                 </p>
               </td>
 
-              <td className="pl-[45px] py-[25px]">{authorName}</td>
+              <td className="px-3 py-6">{authorName}</td>
 
-              <td className="pl-[45px] py-[25px]">
+              <td className="px-3 py-6">
                 <div className="flex items-center gap-[10px]">
                   <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
                     {views}
@@ -119,7 +122,11 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 </div>
               </td>
 
-              <td className="pl-[45px] py-[25px]">
+              <td className="px-3 py-6 text-center">
+                {numericDate(createdAt)}
+              </td>
+
+              <td className="px-3 py-6">
                 <span
                   className={clsx(
                     'flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2',
@@ -135,7 +142,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 </span>
               </td>
 
-              <td className="flex px-[45px] py-[25px]">
+              <td className="flex px-3 py-6">
                 <div className="flex gap-x-5">
                   <Link href={`/admin/articles/edit?id=${id}`}>
                     <Button
