@@ -1,6 +1,6 @@
 'use client';
 
-import ArticleForm from '@/components/admin/CreateEditArticle/ArticleForm';
+import ArticleForm from '@/components/admin/Articles/ArticleForm';
 
 const NewArticlePage = () => {
   return (

@@ -3,7 +3,7 @@ import IArticleApi from './type/article-content-api.interface';
 import {
   CreateNewArticleRequestDTO,
   CreateNewArticleResponseDTO,
-  GerArticleByIdResponseDTO,
+  GetArticleByIdResponseDTO,
   IGetAllArticleRequestDTO,
   IGetAllArticleResponseDTO,
   PublishArticleResponseDTO,
@@ -19,12 +19,12 @@ class ArticleService implements IArticleService {
     this.articleApi = articleApi;
   }
 
-  async deleteArticle({id, articleType}:{id: number, articleType: ArticleType}) {
-    return this.articleApi.deleteArticle({id, articleType});
+  async deleteArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
+    return this.articleApi.deleteArticle({ id, articleType });
   }
 
-  async getArticleById({id, articleType}:{id: number, articleType: ArticleType}): Promise<GerArticleByIdResponseDTO> {
-    return this.articleApi.getArticleById({id, articleType});
+  async getArticleById({ id, articleType }: { id: number, articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
+    return this.articleApi.getArticleById({ id, articleType });
   }
 
   async getAllArticle({ page = 0, size = 10, articleType, articleStatus }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
@@ -43,8 +43,8 @@ class ArticleService implements IArticleService {
     return this.articleApi.updateArticle({ id, data });
   }
 
-  async archivedArticle({id, articleType}:{id: number, articleType: ArticleType}) {
-    return this.articleApi.archivedArticle({id, articleType})
+  async archivedArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
+    return this.articleApi.archivedArticle({ id, articleType })
   }
 }
 

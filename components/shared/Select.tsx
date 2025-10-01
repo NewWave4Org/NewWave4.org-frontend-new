@@ -6,8 +6,9 @@ import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
 import { ReactNode, useRef, useState } from 'react';
 
 interface Option {
-  value: string;
+  value: string | number;
   label: string;
+  disabled?: boolean;
 }
 
 interface SelectProps {
@@ -23,7 +24,7 @@ interface SelectProps {
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   defaultValue?: string;
-  dropDownClass?: string
+  dropDownClass?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -51,27 +52,32 @@ const Select: React.FC<SelectProps> = ({
   let meta: any = {};
   let setFieldValue: any = () => {};
 
-   const [localValue, setLocalValue] = useState(defaultValue || '');
+  const [localValue, setLocalValue] = useState(defaultValue || '');
 
   if (useFormik) {
     try {
       [field, meta] = useField(props);
       setFieldValue = useFormikContext()?.setFieldValue;
     } catch (err) {
-      console.warn('Select: Formik context not found. Falling back to uncontrolled mode.');
+      console.warn(
+        'Select: Formik context not found. Falling back to uncontrolled mode.',
+      );
       useFormik = false;
     }
   }
 
   const selectedOption = options.find(o =>
-    useFormik ? o.value === field?.value : o.value === localValue
+    useFormik ? o.value === field?.value : o.value === localValue,
   );
- 
+
   const handleOptionClick = (option: Option) => {
+    const parsedValue =
+      typeof option.value === 'number' ? Number(option.value) : option.value;
+
     if (useFormik) {
-      setFieldValue?.(props.name, option.value);
+      setFieldValue?.(props.name, parsedValue);
     } else {
-      setLocalValue(option.value);
+      setLocalValue(String(option.value));
       onChange?.({
         target: {
           name: props.name,
@@ -164,8 +170,13 @@ const Select: React.FC<SelectProps> = ({
             {options.map(option => (
               <div
                 key={option.value}
-                onClick={() => handleOptionClick(option)}
-                className="px-4 py-2 text-medium2 text-font-primary cursor-pointer hover:bg-background-primary active:bg-background-secondary"
+                onClick={() => !option.disabled && handleOptionClick(option)}
+                className={`px-4 py-2 text-medium2 text-font-primary cursor-pointer 
+              ${
+                option.disabled
+                  ? 'text-grey-400 cursor-not-allowed'
+                  : 'hover:bg-background-primary active:bg-background-secondary'
+              }`}
               >
                 {option.label}
               </div>
@@ -173,8 +184,6 @@ const Select: React.FC<SelectProps> = ({
           </div>
         )}
       </div>
-
-      {/* {isOpen && <div style={{ height: '220px' }} />} */}
 
       {meta.touched && meta.error && (
         <p className={`text-small2 mt-[4px] text-status-danger-500`}>

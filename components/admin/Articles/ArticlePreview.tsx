@@ -9,15 +9,11 @@ import HomeVideo from '@/components/home/HomeVideo';
 import Quote from '@/components/quote/Quote';
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@/store/hook';
-import {
-  ArticleFull,
-  ArticleResponseDTO,
-} from '@/utils/articles/type/interface';
+import { ArticleFull } from '@/utils/articles/type/interface';
 import { toast } from 'react-toastify';
-import { getArticleFullById } from '@/store/articles/action';
-import { mapArticleResponseToFull } from '@/utils/articles/type/mapper';
+import { getArticleById } from '@/store/article-content/action';
+import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
-import { getArticleProjectLabel } from '@/utils/articles/type/articles-project';
 import { Slide } from '@/components/generalSlider/slidesData';
 
 interface IArticlePreview {
@@ -26,7 +22,9 @@ interface IArticlePreview {
 
 const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(true);
   const [article, setArticle] = useState<ArticleFull | null>(null);
+  const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<Slide[]>([]);
 
   useEffect(() => {
@@ -34,10 +32,11 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
 
     const fetchArticle = async () => {
       try {
-        const data: ArticleResponseDTO = await dispatch(
-          getArticleFullById(articleId),
+        setLoading(true);
+        const data = await dispatch(
+          getArticleById({ id: articleId, articleType: 'NEWS' }),
         ).unwrap();
-        const articleFull: ArticleFull = mapArticleResponseToFull(data);
+        const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
         if (articleFull?.photoSlider) {
           const mappedSlides: Slide[] = articleFull.photoSlider.map(
@@ -56,11 +55,37 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         }
       } catch {
         toast.error('Failed to fetch article');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchArticle();
   }, [articleId, dispatch]);
+
+  useEffect(() => {
+    if (!article?.relevantProjectId) return;
+
+    const fetchProject = async () => {
+      try {
+        const project = await dispatch(
+          getArticleById({
+            id: article.relevantProjectId!,
+            articleType: 'PROJECT',
+          }),
+        ).unwrap();
+        setProjectTitle(project.title);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProject();
+  }, [article?.relevantProjectId, dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   if (!article) {
     return <div>Article not found</div>;
@@ -92,7 +117,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
                   my-[10px] h-[40px] font-helv leading-[1.3]
                   whitespace-nowrap "
                 >
-                  {getArticleProjectLabel(article.newsProjectTag)}
+                  {projectTitle}
                 </div>
                 <div className="flex items-center mb-1">
                   <div className="mr-2">
@@ -169,11 +194,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
 
       {article.photoSlider.length > 0 && (
         <div className=" max-w-[1280px] mb-[55px]">
-          <GeneralSlider
-            slides={slides}
-            hasLink={false}
-            slideHover={false}
-          />
+          <GeneralSlider slides={slides} hasLink={false} slideHover={false} />
         </div>
       )}
 

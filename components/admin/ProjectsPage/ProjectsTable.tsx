@@ -6,19 +6,15 @@ import Button from '@/components/shared/Button';
 
 import Table from '@/components/ui/Table/Table';
 import clsx from 'clsx';
-import { useAppDispatch } from '@/store/hook';
 import Link from 'next/link';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import { openModal } from '@/store/modal/ModalSlice';
-import ModalType from '@/components/ui/Modal/enums/modals-type';
 
 import { ReactNode } from 'react';
-import { GerArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import useSortTable from '@/utils/hooks/useSortTable';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
-import { formatDateUk, numericDate } from '@/utils/date';
+import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum } from '@/utils/ArticleType';
-
 
 const TableHeader = [
   { id: '1', title: 'Title' },
@@ -35,12 +31,12 @@ interface IRenderPaginationProps {
 
 interface IProjectsTableProps {
   renderPagination: (props: IRenderPaginationProps) => ReactNode;
-  projects: GerArticleByIdResponseDTO[];
+  projects: GetArticleByIdResponseDTO[];
   totalPages: number;
   currentPage: number;
   changePage: (page: number) => void;
-  handleDeleteProject: (project: GerArticleByIdResponseDTO) => void;
-  handleArchivedProject: (project: GerArticleByIdResponseDTO) => void;
+  handleDeleteProject: (project: GetArticleByIdResponseDTO) => void;
+  handleArchivedProject: (project: GetArticleByIdResponseDTO) => void;
 }
 
 function ProjectsTable({
@@ -50,16 +46,16 @@ function ProjectsTable({
   currentPage,
   changePage,
   handleArchivedProject,
-  handleDeleteProject
+  handleDeleteProject,
 }: IProjectsTableProps) {
-  const {sortVal, handleSort, sortedData} = useSortTable({
+  const { sortVal, handleSort, sortedData } = useSortTable({
     data: projects,
-    initialSortField: 'articleStatus'
+    initialSortField: 'articleStatus',
   });
 
   return (
     <div className="relative w-full h-full">
-      <div className='mb-5'>
+      <div className="mb-5">
         <Table
           classNameRow="bg-admin-100"
           className="mb-5 last:mb-0"
@@ -73,22 +69,36 @@ function ProjectsTable({
               ))}
 
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span onClick={() => handleSort("articleStatus")} className="cursor-pointer">
+                <span
+                  onClick={() => handleSort('articleStatus')}
+                  className="cursor-pointer"
+                >
                   Status
-                  <span className={`${sortVal === 'asc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
-                    hover:border-gray-500 duration-500 hover:text-admin-600`}>
+                  <span
+                    className={`${
+                      sortVal === 'asc'
+                        ? 'font-bold border-admin-600'
+                        : 'text-gray-400'
+                    } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
                     ↑
                   </span>
                   <span
-                    className={`${sortVal === 'desc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
-                    hover:border-gray-500 duration-500 hover:text-admin-600`} >
+                    className={`${
+                      sortVal === 'desc'
+                        ? 'font-bold border-admin-600'
+                        : 'text-gray-400'
+                    } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
                     ↓
                   </span>
                 </span>
               </th>
 
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
-                <Link href='/admin/projects/new'>
+                <Link href="/admin/projects/new">
                   <Button
                     variant="primary"
                     className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
@@ -103,8 +113,11 @@ function ProjectsTable({
             </>
           )}
           renderRow={project => {
-            const { id, articleStatus, title, views, authorName, createdAt } = project;
-            const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
+            const { id, articleStatus, title, views, authorName, createdAt } =
+              project;
+            const status =
+              articleStatus.slice(0, 1).toUpperCase() +
+              articleStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
@@ -113,9 +126,7 @@ function ProjectsTable({
                   </p>
                 </td>
 
-                <td className="px-3 py-6">
-                  {authorName}
-                </td>
+                <td className="px-3 py-6">{authorName}</td>
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
@@ -172,17 +183,19 @@ function ProjectsTable({
                       </div>
                       Delete
                     </Button>
-                    {articleStatus === ArticleStatusEnum.PUBLISHED && (<Button
-                      variant="tertiary"
-                      className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
+                    {articleStatus === ArticleStatusEnum.PUBLISHED && (
+                      <Button
+                        variant="tertiary"
+                        className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
                       active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
-                      onClick={() => handleArchivedProject(project)}
-                    >
-                      <div className="mr-1">
-                        <ArchiveIcon color="#FC8181" />
-                      </div>
-                      Archive
-                    </Button>)}
+                        onClick={() => handleArchivedProject(project)}
+                      >
+                        <div className="mr-1">
+                          <ArchiveIcon color="#FC8181" />
+                        </div>
+                        Archive
+                      </Button>
+                    )}
                   </div>
                 </td>
               </>

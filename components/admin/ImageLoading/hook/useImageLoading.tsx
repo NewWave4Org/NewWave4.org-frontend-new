@@ -24,7 +24,7 @@ function useImageLoading({ articleId, contentType }: IImageLoadingProps) {
           articleType: contentType,
         };
 
-        try { 
+        try {
           const response = await dispatch(uploadPhoto(params)).unwrap();
           urls.push(response);
         } catch (error) {

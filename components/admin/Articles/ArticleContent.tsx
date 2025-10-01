@@ -4,27 +4,23 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
 import {
-  createContentBlock,
-  createContentBlockArray,
-  deleteContentBlock,
-  getArticleFullById,
+  createNewArticle,
+  getArticleById,
   publishArticle,
-  updateContentBlock,
-  updateContentBlockArray,
-} from '@/store/articles/action';
+  updateArticle,
+} from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
-import { ArticleResponseDTO } from '@/utils/articles/type/interface';
 import { Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { UploadPhotoParams } from '@/utils/photos/photo-service';
-import PhotoUploader from '@/components/ui/PhotoUploader';
-import { deletePhoto, uploadPhoto } from '@/store/photos/action';
 import { extractErrorMessage } from '@/utils/apiErrors';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import ImageLoading from '../ImageLoading/ImageLoading';
 
 interface ArticleContentDTO {
   textblock1: string;
@@ -36,13 +32,23 @@ interface ArticleContentDTO {
   sliderPhotos?: string[];
 }
 
+export interface UpdateArticleFormValues {
+  title: string;
+  articleType: ArticleType;
+  authorId: string;
+  articleStatus: string;
+  contentBlocks: any[];
+}
+
 interface IArticleContent {
   articleId?: number;
 }
 
 const ArticleContent = ({ articleId }: IArticleContent) => {
   const dispatch = useAppDispatch();
-  const [article, setArticle] = useState<ArticleResponseDTO | null>(null);
+  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const router = useRouter();
   const pathname = usePathname();
   const isEdit = pathname.includes('/edit');
@@ -59,8 +65,8 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
     const fetchArticle = async () => {
       try {
-        const data: ArticleResponseDTO = await dispatch(
-          getArticleFullById(articleId),
+        const data = await dispatch(
+          getArticleById({ id: articleId, articleType: 'NEWS' }),
         ).unwrap();
         setArticle(data);
       } catch {
@@ -74,179 +80,79 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   async function handleSaveArticleContent(values: ArticleContentDTO) {
     const saveSuccess = await saveArticleContent(values);
     if (!saveSuccess) return;
-    // router.push(`/admin/articles/`);
   }
 
   async function saveArticleContent(
     values: ArticleContentDTO,
   ): Promise<boolean> {
-    const blocks: {
-      type: ContentBlockType;
-      data: string | string[];
-      label: string;
-      orderIndex: number;
-    }[] = [
+    const blocks = [
       {
-        type: ContentBlockType.MAIN_NEWS_BLOCK,
+        contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK,
         data: values.textblock1,
-        label: 'Text block 1',
-        orderIndex: 1,
       },
       {
-        type: ContentBlockType.TEXT,
+        contentBlockType: ContentBlockType.TEXT,
         data: values.textblock2,
-        label: 'Text block 2',
-        orderIndex: 2,
       },
       {
-        type: ContentBlockType.QUOTE,
+        contentBlockType: ContentBlockType.QUOTE,
         data: values.quote,
-        label: 'Quote',
-        orderIndex: 3,
       },
       {
-        type: ContentBlockType.VIDEO,
+        contentBlockType: ContentBlockType.VIDEO,
         data: values.video,
-        label: 'Video',
-        orderIndex: 4,
       },
       {
-        type: ContentBlockType.PHOTO,
-        data: typeof values.mainPhoto === 'string' ? values.mainPhoto : '',
-        label: 'Main Photo',
-        orderIndex: 5,
+        contentBlockType: ContentBlockType.PHOTO,
+        data: values.mainPhoto || '',
       },
       {
-        type: ContentBlockType.PHOTOS_LIST,
+        contentBlockType: ContentBlockType.PHOTOS_LIST,
         data: values.photosList || [],
-        label: 'Photo List',
-        orderIndex: 6,
       },
       {
-        type: ContentBlockType.PHOTOS_SLIDER,
+        contentBlockType: ContentBlockType.PHOTOS_SLIDER,
         data: values.sliderPhotos || [],
-        label: 'Photo Slider',
-        orderIndex: 7,
       },
     ];
 
-    const isArrayBlock = (type: ContentBlockType) =>
-      type === ContentBlockType.PHOTOS_LIST ||
-      type === ContentBlockType.PHOTOS_SLIDER;
+    try {
+      if (articleId) {
+        await dispatch(
+          updateArticle({
+            id: articleId,
+            data: {
+              title: article?.title || 'Untitled',
+              articleType: 'NEWS',
+              authorId: article?.authorId,
+              contentBlocks: blocks,
+              relevantProjectId: article?.relevantProjectId,
+            },
+          }),
+        ).unwrap();
+      } else {
+        await dispatch(
+          createNewArticle({
+            title: article?.title || 'Untitled',
+            articleType: 'NEWS',
+            contentBlocks: blocks,
+            relevantProjectId: article?.relevantProjectId,
+            authorId: article?.authorId,
+          }),
+        ).unwrap();
+      }
 
-    const results = await Promise.all(
-      blocks.map(async block => {
-        try {
-          const existingBlock = article?.contentBlocks?.find(
-            b => b.contentBlockType === block.type,
-          );
-
-          if (isArrayBlock(block.type)) {
-            if (existingBlock) {
-              if ((block.data as string[]).length === 0) {
-                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
-              } else {
-                await dispatch(
-                  updateContentBlockArray({
-                    id: existingBlock.id,
-                    data: {
-                      contentBlockType: block.type,
-                      data: block.data as string[],
-                      orderIndex: block.orderIndex,
-                    },
-                  }),
-                ).unwrap();
-              }
-            } else if ((block.data as string[]).length > 0) {
-              await dispatch(
-                createContentBlockArray({
-                  id: articleId!,
-                  data: {
-                    contentBlockType: block.type,
-                    data: block.data as string[],
-                    orderIndex: block.orderIndex,
-                  },
-                }),
-              ).unwrap();
-            }
-          } else {
-            const dataStr = block.data as string;
-            if (existingBlock) {
-              if (!dataStr) {
-                await dispatch(deleteContentBlock(existingBlock.id)).unwrap();
-              } else {
-                await dispatch(
-                  updateContentBlock({
-                    id: existingBlock.id,
-                    data: {
-                      contentBlockType: block.type,
-                      data: dataStr,
-                      orderIndex: block.orderIndex,
-                    },
-                  }),
-                ).unwrap();
-              }
-            } else if (dataStr) {
-              await dispatch(
-                createContentBlock({
-                  id: articleId!,
-                  data: {
-                    contentBlockType: block.type,
-                    data: dataStr,
-                    orderIndex: block.orderIndex,
-                  },
-                }),
-              ).unwrap();
-            }
-          }
-
-          return { label: block.label, success: true };
-        } catch (err) {
-          return { label: block.label, success: false, error: err };
-        }
-      }),
-    );
-
-    const failedBlocks = results.filter(r => !r.success);
-
-    if (failedBlocks.length === 0) {
-      toast.success('All content blocks saved successfully!');
+      toast.success('Article content saved successfully!');
       return true;
-    } else {
-      const failedNames = failedBlocks.map(b => b.label).join(', ');
-      toast.error(`Failed to save: ${failedNames}`);
+    } catch (err) {
+      toast.error('Failed to save article');
+      console.error(err);
       return false;
     }
   }
 
-  const uploadFiles = async (files: File[]): Promise<string[]> => {
-    const urls: string[] = [];
-
-    for (const file of files) {
-      const params: UploadPhotoParams = {
-        file,
-        entityReferenceId: articleId!,
-        articleType: 'NEWS',
-      };
-
-      const response = await dispatch(uploadPhoto(params)).unwrap();
-      urls.push(response);
-    }
-    return urls;
-  };
-
-  const deleteFile = async (url: string) => {
-    await dispatch(deletePhoto(url)).unwrap();
-  };
-
   async function handlePublish(values: ArticleContentDTO) {
     if (!articleId) return;
-
-    const saveSuccess = await saveArticleContent(values);
-    if (!saveSuccess) {
-      toast.error('Failed to save article before publishing');
-      return;
-    }
 
     if (!values.mainPhoto) {
       toast.error('Main photo is required to publish');
@@ -276,20 +182,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     }
 
     try {
-      const previewDescription = values.textblock1
-        .split('\n')
-        .slice(0, 3)
-        .join('\n');
-
-      const result = await dispatch(
-        publishArticle({
-          id: articleId,
-          data: {
-            previewImageUrl: values.mainPhoto || '',
-            previewDescription: previewDescription || '',
-          },
-        }),
-      );
+      const result = await dispatch(publishArticle(articleId));
 
       if (publishArticle.rejected.match(result)) {
         const message = extractErrorMessage(result.payload);
@@ -324,17 +217,20 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           initialValues={{
             textblock1:
               article?.contentBlocks?.find(
-                b => b.contentBlockType === 'MAIN_NEWS_BLOCK',
+                b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
               )?.data || '',
             textblock2:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'TEXT')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.TEXT,
+              )?.data || '',
             quote:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'QUOTE')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.QUOTE,
+              )?.data || '',
             video:
-              article?.contentBlocks?.find(b => b.contentBlockType === 'VIDEO')
-                ?.data || '',
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.VIDEO,
+              )?.data || '',
             mainPhoto:
               article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.PHOTO,
@@ -358,7 +254,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             await handleSaveArticleContent(values);
           }}
         >
-          {({ errors, touched, handleChange, isSubmitting, values }) => (
+          {({
+            errors,
+            touched,
+            handleChange,
+            isSubmitting,
+            values,
+            setFieldValue,
+          }) => (
             <Form>
               <div className="w-full mb-2">
                 <TextArea
@@ -408,30 +311,50 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 />
               </div>
 
-              <PhotoUploader
-                label="Main Photo"
-                name="mainPhoto"
-                maxFiles={1}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-1/2 h-[442px]">
+                <ImageLoading
+                  label="Main Photo"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={1}
+                  uploadedUrls={values.mainPhoto ? [values.mainPhoto] : []}
+                  onFilesChange={urls =>
+                    setFieldValue('mainPhoto', urls[0] || '')
+                  }
+                  previewSize={300}
+                />
+              </div>
 
-              <PhotoUploader
-                label="Photo List"
-                name="photosList"
-                maxFiles={2}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-full h-[442px] my-2">
+                <ImageLoading
+                  label="Photo List"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={2}
+                  uploadedUrls={values.photosList || []}
+                  onFilesChange={urls => setFieldValue('photosList', urls)}
+                  previewSize={200}
+                />
+              </div>
 
-              <PhotoUploader
-                label="Photo Slider"
-                name="sliderPhotos"
-                maxFiles={5}
-                onUpload={files => uploadFiles(files)}
-                onDelete={deleteFile}
-              />
+              <div className="w-full h-[442px]">
+                <ImageLoading
+                  label="Photo Slider"
+                  contentType={ArticleTypeEnum.NEWS}
+                  articleId={articleId!}
+                  maxFiles={5}
+                  uploadedUrls={values.sliderPhotos || []}
+                  onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
+                  previewSize={200}
+                />
+              </div>
 
+              <div className="mt-10">
+                <sup className="font-bold text-red-600 text-small2">*</sup>
+                <em>
+                  You must save the page before you can preview or publish it
+                </em>
+              </div>
               <div className="flex gap-x-6 mt-6">
                 <Button
                   type="submit"
@@ -449,7 +372,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   Preview
                 </Button>
 
-                {article?.newsStatus !== 'PUBLISHED' && (
+                {article?.articleStatus !== 'PUBLISHED' && (
                   <Button
                     type="button"
                     onClick={() => handlePublish(values)}

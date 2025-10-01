@@ -5,7 +5,7 @@ import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
-import { GerArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -23,19 +23,24 @@ function ProgramsPage() {
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
 
   useEffect(() => {
-    dispatch(getAllArticle({ 
-      page: currentPage, 
-      articleType: ArticleTypeEnum.PROJECT, 
-      articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}` 
-    }));
+    dispatch(
+      getAllArticle({
+        page: currentPage,
+        articleType: ArticleTypeEnum.PROJECT,
+        articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+      }),
+    );
   }, [dispatch, currentPage]);
 
-  const changePage = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, [dispatch]);
+  const changePage = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+    },
+    [dispatch],
+  );
 
-
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -46,7 +51,7 @@ function ProgramsPage() {
   );
 
   //Delete
-  const handleDeleteProject = (project: GerArticleByIdResponseDTO) => {
+  const handleDeleteProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
         modalType: ModalType.DELETEPROJECT,
@@ -60,7 +65,7 @@ function ProgramsPage() {
   };
 
   //Putt to the archive
-  const handleArchivedProject = (project: GerArticleByIdResponseDTO) => {
+  const handleArchivedProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
         modalType: ModalType.ARCHIVEDARTICLE,
@@ -71,7 +76,7 @@ function ProgramsPage() {
         articlesOnPage: projects.length,
       }),
     );
-  }
+  };
 
   return (
     <>
