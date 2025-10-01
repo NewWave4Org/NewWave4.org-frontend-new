@@ -4,9 +4,9 @@ import { ArticleType } from '@/utils/ArticleType';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const deleteArticle = createAsyncThunk('article-content/deleteArticle', async ({id, articleType}:{id: number, articleType: ArticleType}, { rejectWithValue }) => {
+export const deleteArticle = createAsyncThunk('article-content/deleteArticle', async ({ id, articleType }: { id: number, articleType: ArticleType }, { rejectWithValue }) => {
   try {
-    const response = await articleContentService.deleteArticle({id, articleType});
+    const response = await articleContentService.deleteArticle({ id, articleType });
 
     return response;
   } catch (error) {
@@ -16,9 +16,9 @@ export const deleteArticle = createAsyncThunk('article-content/deleteArticle', a
   }
 });
 
-export const getArticleById = createAsyncThunk('article-content/getArticleById', async ({id, articleType}:{id: number, articleType: ArticleType}, { rejectWithValue }) => {
+export const getArticleById = createAsyncThunk('article-content/getArticleById', async ({ id, articleType }: { id: number, articleType: ArticleType }, { rejectWithValue }) => {
   try {
-    const response = await articleContentService.getArticleById({id, articleType});
+    const response = await articleContentService.getArticleById({ id, articleType });
 
     return response;
   } catch (error) {
@@ -65,7 +65,7 @@ export const publishArticle = createAsyncThunk('article-content/publishArticle',
 });
 
 export const updateArticle = createAsyncThunk('article-content/updateArticle', async ({ id, data }: UpdateArticleRequestDTO, { rejectWithValue }) => {
-  console.log('id', id)
+  console.log('id', id);
   try {
     const response = await articleContentService.updateArticle({ id, data });
 
@@ -78,9 +78,9 @@ export const updateArticle = createAsyncThunk('article-content/updateArticle', a
 });
 
 
-export const archivedArticle = createAsyncThunk('article-content/archivedArticle', async({id, articleType}:{id: number, articleType: ArticleType}, {rejectWithValue}) => {
+export const archivedArticle = createAsyncThunk('article-content/archivedArticle', async ({ id, articleType }: { id: number, articleType: ArticleType }, { rejectWithValue }) => {
   try {
-    const response = await articleContentService.archivedArticle({id, articleType});
+    const response = await articleContentService.archivedArticle({ id, articleType });
 
     return response;
   } catch (error) {
@@ -88,4 +88,4 @@ export const archivedArticle = createAsyncThunk('article-content/archivedArticle
 
     return rejectWithValue(normalized);
   }
-})
+});

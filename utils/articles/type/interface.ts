@@ -1,15 +1,12 @@
-import { ContentBlockType } from "./contentBlockType";
-
 export interface Article {
   id: number;
   articleType: string;
-  authorId: string;
+  authorId: number;
   authorName: string;
-  newsProjectTag: string;
-  newsStatus: string;
-  previewDescription: string | null;
-  previewImageUrl: string | null;
+  relevantProjectId?: number;
+  articleStatus: string;
   publishedAt: string | null;
+  createdAt: string | null;
   title: string;
   views: number;
 }
@@ -60,23 +57,6 @@ export interface ArticleResponseDTO extends Article {
   contentBlocks: ContentBlock[];
 }
 
-export interface ContentBlockRequestDTO {
-  contentBlockType: ContentBlockType,
-  data: string,
-  orderIndex: number
-}
-
-export interface ContentBlockArrayRequestDTO {
-  contentBlockType: ContentBlockType,
-  data: string[],
-  orderIndex: number
-}
-
-export interface PublishArticleRequestDTO {
-  previewImageUrl: string,
-  previewDescription: string
-}
-
 export interface ArticleFull extends Article {
   mainPhoto: string,
   photoList: string[],
@@ -84,5 +64,5 @@ export interface ArticleFull extends Article {
   quote: string,
   mainText: string,
   textblock2: string,
-  video: string
+  video: string,
 }
