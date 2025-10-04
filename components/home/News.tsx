@@ -1,5 +1,4 @@
 'use client';
-// import { prefix } from '@/utils/prefix';
 import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
 import Button from '../shared/Button';
 import { useRouter } from 'next/navigation';
@@ -123,8 +122,6 @@ const News: React.FC<NewsProps> = ({ title = false, link, textLink }) => {
       }
 
       const data: NewsApiResponse = await response.json();
-      console.log('data');
-      console.log(data);
       const prepared = data.content.map(prepareArticle);
       setArticles(prepared);
     } catch (err: unknown) {
