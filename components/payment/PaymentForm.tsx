@@ -2,7 +2,7 @@
 
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../shared/Button';
 import Input from '../shared/Input';
 import TextArea from '../shared/TextArea';
@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import PaypalComponent from '../Payment/PaypalComponent';
+import PaypalComponent from './PaypalComponent';
 import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
@@ -68,7 +68,7 @@ const PaymentForm = () => {
         const stripe = await stripePromise;
         await stripe?.redirectToCheckout({ sessionId: data.sessionId });
       } else {
-        alert('Failed to create session: ' + data.message);
+        alert(`Failed to create session: ${  data.message}`);
       }
     } catch (error) {
       return error;
@@ -82,7 +82,7 @@ const PaymentForm = () => {
     const purpose = purposeOptions.find((item) => item.value === values.purpose);
     setPaymentDetails({
       description: purpose?.label
-    })
+    });
     if (values.paymentMethod === 'paypal') {
       setIsPaypal(true);
       setOpenModal(true);
@@ -91,7 +91,7 @@ const PaymentForm = () => {
     }
     setSubmitting(false);
     resetForm();
-  }
+  };
 
   const onModalClose = () => setOpenModal(false);
   const onApprovedModalClose = () => setIsPaymentApproved(false);
@@ -100,9 +100,9 @@ const PaymentForm = () => {
   useEffect(() => {
     if (isPaymentApproved) {
       setOpenModal(false);
-      router.push("/donation/finish")
+      router.push("/donation/finish");
     }
-  }, [isPaymentApproved])
+  }, [isPaymentApproved, router]);
 
   const handleAmountChange = (e: any) => {
     if (e.target.value === '' || isNaN(parseFloat(e.target.value))) {
@@ -111,7 +111,7 @@ const PaymentForm = () => {
       const calculatedAmount: number = parseFloat(((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2));
       setCalculatedAmount(calculatedAmount);
     }
-  }
+  };
 
   return (
     <Formik

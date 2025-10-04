@@ -1,15 +1,11 @@
 'use client';
 
-import ArticlePreview from '@/components/admin/CreateEditArticle/ArticlePreview';
+import ArticlePreview from '@/components/admin/Articles/ArticlePreview';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import Button from '@/components/shared/Button';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-const PreviewArticlePage = ({ params }: PageProps) => {
+const PreviewArticlePage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const idParam = searchParams.get('id');

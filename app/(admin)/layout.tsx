@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
-// import AdminLayoutClient from './AdminLayoutClient';
+
 import '../../styles/admin.css';
 import { Bounce, ToastContainer } from 'react-toastify';
-import AdminLayoutClient from './admin/layout';
+
 import ReduxProvider from './ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
 
@@ -26,7 +26,7 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body
-        className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative overflow-hidden`}
+        className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative`}
       >
         <ReduxProvider>
           <AuthGate>

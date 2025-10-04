@@ -1,13 +1,13 @@
 'use client';
-import AlertCheckSuccess from '@/components/icons/status/AlertCheckSuccess';
+
 import EmailIcon from '@/components/icons/symbolic/EmailIcon';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import Select from '@/components/shared/Select';
-import { closeModal } from '@/components/ui/Modal/ModalSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { closeModal } from '@/store/modal/ModalSlice';
+import { useAppDispatch } from '@/store/hook';
 import { createNewUser, getUsers } from '@/store/users/actions';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { UsersRoleOptions } from '@/utils/users/type/users-role';
@@ -39,11 +39,11 @@ const CreateNewUser = ({validationSchema}: IValidationSchema) => {
       roles: [values.roles]
     };
 
-    const result = await handleThunk(createNewUser, data, setSubmitError)
+    const result = await handleThunk(createNewUser, data, setSubmitError);
     if (result) {
       resetForm();
       setSubmitError('');
-      toast.success('Invitation sent successfully')
+      toast.success('Invitation sent successfully');
       dispatch(closeModal());
       await dispatch(getUsers());
     }

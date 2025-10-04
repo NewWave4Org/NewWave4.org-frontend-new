@@ -7,7 +7,9 @@ import * as Yup from 'yup';
 import { adminRole, emailValidation, nameValidation } from '@/utils/validation';
 import EditUser from '../EditUser/EditUser';
 import DeleteUser from '../DeleteUser/DeleteUser';
-import DeleteArticle from '../DeleteArticle/DeleteArticle';
+
+import { ArticleModalDelete, ArticleModalArchive } from '../ArticleModals';
+import ArticleModalRestore from '../ArticleModals/ArticleModalRestore';
 
 const CreateNewUserValidationSchema = Yup.object({
   email: emailValidation,
@@ -18,6 +20,7 @@ const CreateNewUserValidationSchema = Yup.object({
 const Modals = () => {
   const isModalOpen = useAppSelector(state => state.modal.isModalOpen);
   const modalType = useAppSelector(state => state.modal.modalType);
+  const modalTitle = useAppSelector(state => state.modal.title);
   return (
     <>
       {isModalOpen && (
@@ -29,7 +32,19 @@ const Modals = () => {
             <EditUser validationSchema={CreateNewUserValidationSchema} />
           )}
           {modalType === ModalType.DELETEUSER && <DeleteUser />}
-          {modalType === ModalType.DELETEARTICLE && <DeleteArticle />}
+          {modalType === ModalType.DELETEARTICLE && (
+            <ArticleModalDelete title={modalTitle || ''} />
+          )}
+
+          {modalType === ModalType.DELETEPROJECT && (
+            <ArticleModalDelete title={modalTitle || ''} />
+          )}
+          {modalType === ModalType.ARCHIVEDARTICLE && (
+            <ArticleModalArchive title={modalTitle} />
+          )}
+          {modalType === ModalType.ARTICLE_RESTORE && (
+            <ArticleModalRestore title={modalTitle} />
+          )}
         </Modal>
       )}
     </>

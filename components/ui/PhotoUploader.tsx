@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import Button from '../shared/Button';
 import Image from 'next/image';
 
-interface PhotoUploaderProps {
+export interface PhotoUploaderProps {
   name: string;
   label: string;
   maxFiles: number;
@@ -39,6 +39,22 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({
     if (selectedFiles.length + values.length > maxFiles) {
       toast.error(`You can upload a maximum of ${maxFiles} files`);
       return;
+    }
+
+    const validExtensions = ['image/png', 'image/jpeg'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    for (const file of selectedFiles) {
+      if (!validExtensions.includes(file.type)) {
+        toast.error(
+          `File "${file.name}" has an invalid format. Allowed formats: PNG, JPG.`,
+        );
+        return;
+      }
+      if (file.size > maxSize) {
+        toast.error(`File "${file.name}" is too large. Maximum size is 5 MB.`);
+        return;
+      }
     }
 
     setLoading(true);

@@ -1,73 +1,78 @@
 'use client';
 
 import Image from "next/image";
-import CheckIcon from "../icons/symbolic/CheckIcon";
+
 import FacebookIcon from "../icons/social/FacebookIcon";
 import LinkBtn from "../shared/LinkBtn";
 import ArrowRightIcon from "../icons/navigation/ArrowRightIcon";
 import { useState } from "react";
 
-interface ProjectContentCheckList {
-  id: number;
-  title: string;
-}
+import { typeSocialMediaEnum } from "@/data/projects/typeSocialMediaList";
+import InstagramIcon from "../icons/social/InstagramIcon";
+import YoutubeIcon from "../icons/social/YoutubeIcon";
+import TelegramIcon from "../icons/social/TelegramIcon";
+
 
 interface ProjectContent {
-  id: number;
-  title: string;
-  description?: string;
-  image: string;
-  linkSchool?: string;
-  linkFb?: string;
-  checkList?: ProjectContentCheckList[];
+  contentBlockType: string;
+  sectionTitle: string;
+  text: string;
+  files: [];
 }
 
 interface ProjectContentProps {
-  contentBlock: ProjectContent[];
+  contentBlock: ProjectContent[] | undefined;
+  siteLink?: string;
+  nameSocialMedia?: string;
+  linkSocialMedia?: string;
 }
 
-function ProjectContent({contentBlock}: ProjectContentProps) {
+function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedia}: ProjectContentProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
       <div className="projectsBlock__content">
         <div className="container mx-auto px-4">
-          {contentBlock.map((content, index) => {
+          {contentBlock?.map((content, index) => {
             const oddBlock = index % 2 !== 0;
             return (
-              <div key={content.id} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
-                <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px] pl-0' : ''}`}>
+              <div key={index} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
+                <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
-                    {content.title}
+                    {content?.sectionTitle}
                   </div>
                   <div>
                     <div className="text-body">
-                      {content.description}
+                      {content.text}
                     </div>
-                    
-                    {('linkSchool' in content && content.linkSchool) || ('linkFb' in content && content.linkFb) ? (
+                    {index === 0 && siteLink && (
                       <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
-                    ) : null}
-                    <div className="flex gap-x-4 mt-4">
-                      { 'linkSchool' in content &&  content.linkSchool && (
-                        <LinkBtn href={content.linkSchool} className="px-[30px]" setIsHovered={setIsHovered}>
-                          <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
-                          <div className="mt-[3px]">
-                            <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
-                          </div>
-                        </LinkBtn>
-                      )}
+                    )}
+                    {index === 0 && (siteLink || linkSocialMedia) && ( 
+                      <div className="flex gap-x-4 mt-4">
+                        {siteLink && (
+                          <LinkBtn href={siteLink} className="px-[30px]" setIsHovered={setIsHovered}>
+                            <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
+                            <div className="mt-[3px]">
+                              <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
+                            </div>
+                          </LinkBtn>
+                        )}
 
-                      { 'linkFb' in content &&  content.linkFb && (
-                        <LinkBtn href={content.linkFb} className="px-[26px]">
-                          <span className="inline-block mr-1 text-medium1">На сторінку Facebook</span>
-                          <FacebookIcon size="24" />
-                        </LinkBtn>
-                      )}
-                    </div>
+                        {linkSocialMedia && (
+                          <LinkBtn href={linkSocialMedia} className="px-[26px]">
+                            <span className="inline-block mr-1 text-medium1">На сторінку {nameSocialMedia}</span>
+                            {nameSocialMedia === typeSocialMediaEnum.Facebook && <FacebookIcon size="24" />}
+                            {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
+                            {nameSocialMedia === typeSocialMediaEnum.YouTube && <YoutubeIcon size="24" />}
+                            {nameSocialMedia === typeSocialMediaEnum.Telegram && <TelegramIcon size="24" />}
+                          </LinkBtn>
+                        )}
+                      </div>
+                    )}
 
-                    {'checkList' in content && content.checkList && (
+                    {/* {'checkList' in content && content.checkList && (
                       <div>
                         {content.checkList.map((item) => (
                           <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4 text-font-primary">
@@ -78,21 +83,22 @@ function ProjectContent({contentBlock}: ProjectContentProps) {
                           </div>
                         ))}
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
-                <div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
+                {content?.files?.length > 0 && (<div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
                   <div className="relative h-[360px] w-full">
-                   
+                    {content.files.map((file, idx) => (
                       <Image
-                        src={content.image}
-                        alt={content.title}
+                        key={idx}
+                        src={file}
+                        alt={content.sectionTitle}
                         fill
-                        style={{ objectFit: 'cover' }}
+                        className="object-cover"
                       />
-                   
+                    ))}
                   </div>
-                </div>
+                </div>)}
               </div>
             );
           })}

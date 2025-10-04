@@ -1,7 +1,8 @@
-import { ArticleFull, ArticleResponseDTO } from "@/utils/articles/type/interface";
+import { ArticleFull } from "@/utils/articles/type/interface";
 import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
+import { GetArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
 
-export function mapArticleResponseToFull(dto: ArticleResponseDTO): ArticleFull {
+export function mapGetArticleByIdResponseToFull(dto: GetArticleByIdResponseDTO): ArticleFull {
     return {
         ...dto,
         mainPhoto:

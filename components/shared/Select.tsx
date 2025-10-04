@@ -3,16 +3,18 @@
 import { useField, useFormikContext } from 'formik';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import ArrowUp4Icon from '../icons/navigation/ArrowUp4Icon';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 interface Option {
-  value: string;
+  value: string | number;
   label: string;
+  disabled?: boolean;
 }
 
 interface SelectProps {
   options: Option[];
   name: string;
+  useFormik?: boolean;
   label?: string;
   required?: boolean;
   placeholder?: string;
@@ -22,30 +24,67 @@ interface SelectProps {
   parentClassname?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   defaultValue?: string;
+  dropDownClass?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
   options,
   label,
+  useFormik = true,
+  onChange,
   required,
   placeholder,
   labelIcon,
   labelClass,
   adminSelectClass,
   parentClassname,
+  dropDownClass = '',
   defaultValue,
   ...props
 }) => {
-  const [field, meta] = useField(props);
-  const { setFieldValue } = useFormikContext();
+  // const [field, meta] = useField(props);
+  // const { setFieldValue } = useFormikContext();
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find(o => o.value === field.value);
+  let field: any = {};
+  let meta: any = {};
+  let setFieldValue: any = () => {};
+
+  const [localValue, setLocalValue] = useState(defaultValue || '');
+
+  if (useFormik) {
+    try {
+      [field, meta] = useField(props);
+      setFieldValue = useFormikContext()?.setFieldValue;
+    } catch (err) {
+      console.warn(
+        'Select: Formik context not found. Falling back to uncontrolled mode.',
+      );
+      useFormik = false;
+    }
+  }
+
+  const selectedOption = options.find(o =>
+    useFormik ? o.value === field?.value : o.value === localValue,
+  );
 
   const handleOptionClick = (option: Option) => {
-    setFieldValue(props.name, option.value, false);
+    const parsedValue =
+      typeof option.value === 'number' ? Number(option.value) : option.value;
+
+    if (useFormik) {
+      setFieldValue?.(props.name, parsedValue);
+    } else {
+      setLocalValue(String(option.value));
+      onChange?.({
+        target: {
+          name: props.name,
+          value: option.value,
+        },
+      } as React.ChangeEvent<HTMLSelectElement>);
+    }
     setIsOpen(false);
   };
 
@@ -54,6 +93,19 @@ const Select: React.FC<SelectProps> = ({
       setIsOpen(false);
     }
   };
+
+  // const selectedOption = options.find(o => o.value === field.value);
+
+  // const handleOptionClick = (option: Option) => {
+  //   setFieldValue(props.name, option.value, false);
+  //   setIsOpen(false);
+  // };
+
+  // const handleBlur = (e: React.FocusEvent) => {
+  //   if (!selectRef.current?.contains(e.relatedTarget as Node)) {
+  //     setIsOpen(false);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col">
@@ -110,15 +162,21 @@ const Select: React.FC<SelectProps> = ({
         {isOpen && (
           <div
             ref={dropdownRef}
-            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom ${
-              adminSelectClass ? '!w-full' : ''
-            }`}
+            className={`z-10 w-[256px] mt-1 bg-grey-50 rounded-lg shadow-custom 
+              ${adminSelectClass ? '!w-full' : ''}
+              ${dropDownClass ? dropDownClass : ''}
+            `}
           >
             {options.map(option => (
               <div
                 key={option.value}
-                onClick={() => handleOptionClick(option)}
-                className="px-4 py-2 text-medium2 text-font-primary cursor-pointer hover:bg-background-primary active:bg-background-secondary"
+                onClick={() => !option.disabled && handleOptionClick(option)}
+                className={`px-4 py-2 text-medium2 text-font-primary cursor-pointer 
+              ${
+                option.disabled
+                  ? 'text-grey-400 cursor-not-allowed'
+                  : 'hover:bg-background-primary active:bg-background-secondary'
+              }`}
               >
                 {option.label}
               </div>
@@ -126,8 +184,6 @@ const Select: React.FC<SelectProps> = ({
           </div>
         )}
       </div>
-
-      {/* {isOpen && <div style={{ height: '220px' }} />} */}
 
       {meta.touched && meta.error && (
         <p className={`text-small2 mt-[4px] text-status-danger-500`}>

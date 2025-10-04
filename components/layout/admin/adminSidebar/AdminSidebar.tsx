@@ -6,8 +6,6 @@ import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
-import { ROLES } from '@/data/admin/roles/Roles';
-import { useState } from 'react';
 
 const adminMenu = [
   {
@@ -18,44 +16,28 @@ const adminMenu = [
     allowedToAdmin: true,
   },
   {
+    id: '2',
+    title: 'Pages',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_PAGES,
+    allowedToAdmin: false,
+  },
+  {
     id: '3',
-    title: 'Articles Management',
+    title: 'Articles',
     icon: <ArticlesIcon />,
-    allowedToAdmin: true,
-
-    submenu: [
-      {
-        id: '1',
-        title: 'News',
-        icon: <></>,
-        href: adminLinkSidebar.ADMIN_ARTICLES,
-        allowedToAdmin: false,
-      },
-      {
-        id: '2',
-        title: 'Events V.2',
-        icon: <ArticlesIcon />,
-        href: adminLinkSidebar.ADMIN_ARTICLES,
-        allowedToAdmin: false,
-      },
-      {
-        id: '2',
-        title: 'Pages',
-        icon: <PagesIcon />,
-        href: adminLinkSidebar.ADMIN_PAGES,
-        allowedToAdmin: false,
-      },
-      {
-        id: '4',
-        title: 'Archived Pages (V.2)',
-        icon: <></>,
-        href: adminLinkSidebar.ADMIN_ARTICLES,
-        allowedToAdmin: false,
-      }
-    ]
+    href: adminLinkSidebar.ADMIN_ARTICLES,
+    allowedToAdmin: false,
   },
   {
     id: '4',
+    title: 'Projects',
+    icon: <ArticlesIcon />,
+    href: adminLinkSidebar.ADMIN_PROJECTS,
+    allowedToAdmin: false,
+  },
+  {
+    id: '5',
     title: 'Archived page',
     icon: <BasketIcon />,
     href: adminLinkSidebar.ADMIN_ARCHIVE,

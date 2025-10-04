@@ -2,7 +2,7 @@ import Logo from "@/components/layout/Logo";
 import DropDown from "@/components/shared/DropDown";
 import adminLink from "./enums/enum";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import useHandleThunk from "@/utils/useHandleThunk";
+
 import { logOutAuth } from "@/store/auth/action";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ const AdminHeader = () => {
   }
 
   return (
-    <div className="header bg-background-darkBlue800">
+    <div className="header bg-background-darkBlue800 fixed top-0 w-full z-10">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-2">
           <Logo textColor="text-white" />

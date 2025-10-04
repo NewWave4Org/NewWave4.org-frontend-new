@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/store/hook';
 import { getUserInfo } from '@/store/auth/action';
 import Loading from '@/components/admin/Loading/Loading';
-import { ROLES } from '@/data/admin/roles/Roles';
-import { getRedirectPathByRole } from '@/utils/getRedirectPathByRole';
+
 
 const AuthGate = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -28,10 +27,10 @@ const AuthGate = ({ children }: { children: React.ReactNode }) => {
 
       setLoading(false);
 
-      const userRole = result.payload?.roles || [];
+      // const userRole = result.payload?.roles || [];
 
-      const redirectPath = getRedirectPathByRole(userRole);
-      router.replace(redirectPath);
+      // const redirectPath = getRedirectPathByRole(userRole);
+      // router.replace(redirectPath);
     };
 
     loadUser();

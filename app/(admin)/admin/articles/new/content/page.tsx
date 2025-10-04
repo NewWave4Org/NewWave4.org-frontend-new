@@ -1,6 +1,6 @@
 'use client';
 
-import ArticleContent from '@/components/admin/CreateEditArticle/ArticleContent';
+import ArticleContent from '@/components/admin/Articles/ArticleContent';
 import { useSearchParams } from 'next/navigation';
 
 const NewArticleContentPage = () => {
