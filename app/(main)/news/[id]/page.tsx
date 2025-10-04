@@ -25,7 +25,6 @@ const fetchArticle = async (
   )}`;
   const url = new URL(baseUrl);
   url.search = new URLSearchParams({ articleType: type }).toString();
-  console.log('Fetch URL:', url.toString());
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`Failed to fetch ${type.toLowerCase()}`);
   return res.json();
