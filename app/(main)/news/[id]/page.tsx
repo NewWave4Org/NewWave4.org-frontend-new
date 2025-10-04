@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
@@ -11,10 +14,7 @@ import { ArticleFull } from '@/utils/articles/type/interface';
 import { Slide } from '@/components/generalSlider/slidesData';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
-
-interface ArticlePageProps {
-  params: Promise<{ id: string }>;
-}
+import { useParams } from 'next/navigation';
 
 const fetchArticle = async (
   id: number,
@@ -25,50 +25,65 @@ const fetchArticle = async (
   )}`;
   const url = new URL(baseUrl);
   url.search = new URLSearchParams({ articleType: type }).toString();
-
-  console.log('Fetching article from URL:', url.toString());
-  const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
+  const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`Failed to fetch ${type.toLowerCase()}`);
   return res.json();
 };
 
-export default async function Article({ params }: ArticlePageProps) {
-  const { id } = await params;
-  const articleId = Number(id);
+export default function Article() {
+  const params = useParams();
+  const articleId = Number(params.id);
 
-  let article: ArticleFull | null = null;
-  let projectTitle = '';
-  let slides: Slide[] = [];
+  const [article, setArticle] = useState<ArticleFull | null>(null);
+  const [projectTitle, setProjectTitle] = useState('');
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  try {
-    const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS);
-    article = mapGetArticleByIdResponseToFull(articleData);
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        setLoading(true);
+        const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS);
+        const mapped = mapGetArticleByIdResponseToFull(articleData);
+        setArticle(mapped);
 
-    if (article?.relevantProjectId) {
-      const projectData = await fetchArticle(
-        article.relevantProjectId,
-        ArticleTypeEnum.PROJECT,
-      );
-      projectTitle = projectData?.title || '';
-    }
+        if (mapped?.relevantProjectId) {
+          const projectData = await fetchArticle(
+            mapped.relevantProjectId,
+            ArticleTypeEnum.PROJECT,
+          );
+          setProjectTitle(projectData?.title || '');
+        }
 
-    if (article?.photoSlider) {
-      slides = article.photoSlider.filter(Boolean).map((src, index) => ({
-        id: index,
-        src,
-        srchover: src,
-        alt: `Slide ${index + 1}`,
-        title: article?.title || '',
-        text: '',
-        link: '',
-      }));
-    }
-  } catch (error) {
-    console.error('Error fetching article:', error);
-    return <div>Article not found</div>;
-  }
+        if (mapped?.photoSlider) {
+          const slidesData = mapped.photoSlider
+            .filter(Boolean)
+            .map((src, index) => ({
+              id: index,
+              src,
+              srchover: src,
+              alt: `Slide ${index + 1}`,
+              title: mapped.title || '',
+              text: '',
+              link: '',
+            }));
+          setSlides(slidesData);
+        }
+      } catch (err) {
+        console.error('Error fetching article:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!article) return <div>Article not found</div>;
+    loadArticle();
+  }, [articleId]);
+
+  if (isNaN(articleId)) return <div>Invalid article ID</div>;
+  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (error || !article) return <div>Article not found</div>;
 
   return (
     <div className="article_page pt-[145px]">
