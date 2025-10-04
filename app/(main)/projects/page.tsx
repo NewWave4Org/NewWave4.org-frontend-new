@@ -20,7 +20,8 @@ async function ProjectsPage() {
   try {
     const response = await fetch(url, {
       method: HttpMethod.GET,
-      next: { revalidate: 3600 },
+      //Cache
+      // next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
