@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { getAllArticle } from '@/store/article-content/action';
@@ -36,20 +36,38 @@ type Props = {
 
 const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [refresh, setRefresh] = useState(false);
   const articles = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
+  const fetchArticles = useCallback(() => {
     dispatch(
       getAllArticle({
         page: currentPage,
-        size: 10,
+        size: 5,
         articleType: ArticleTypeEnum.NEWS,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
       }),
     );
   }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles, refresh]);
+
+  const prevArticlesCount = useRef(articles.length);
+
+  useEffect(() => {
+    if (articles.length < prevArticlesCount.current) {
+      if (articles.length === 0 && currentPage > 0) {
+        setCurrentPage(prev => prev - 1);
+      } else {
+        setRefresh(prev => !prev);
+      }
+    }
+    prevArticlesCount.current = articles.length;
+  }, [articles, currentPage]);
 
   const changePage = (page: number) => setCurrentPage(page);
 

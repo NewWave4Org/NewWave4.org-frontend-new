@@ -1,7 +1,6 @@
 'use client';
 
 import ArticleContent from '@/components/admin/Articles/ArticleContent';
-import ArticleForm from '@/components/admin/Articles/ArticleForm';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import LinkBtn from '@/components/shared/LinkBtn';
 import { useSearchParams } from 'next/navigation';
@@ -23,8 +22,6 @@ const EditArticlePage = () => {
         <ArrowLeft4Icon color="white" />
         Back to all articles
       </LinkBtn>
-      <h4 className="text-h4 mb-3">Edit article</h4>
-      <ArticleForm articleId={articleId} />
       <h4 className="text-h4 mb-3 mt-3">Edit article content</h4>
       <ArticleContent articleId={articleId} />
     </>

@@ -1,28 +1,35 @@
 'use client';
-import EditIcon from '@/components/icons/symbolic/EditIcon';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
 import {
-  createNewArticle,
+  getAllArticle,
   getArticleById,
   publishArticle,
   updateArticle,
 } from '@/store/article-content/action';
-import { useAppDispatch } from '@/store/hook';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
-import { usePathname } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import {
+  ArticleStatusEnum,
+  ArticleType,
+  ArticleTypeEnum,
+} from '@/utils/ArticleType';
 import ImageLoading from '../ImageLoading/ImageLoading';
+import Select from '@/components/shared/Select';
+import { getUsers } from '@/store/users/actions';
 
 interface ArticleContentDTO {
+  title: string;
+  relevantProjectId?: number;
+  authorId?: number;
   textblock1: string;
   textblock2: string;
   quote: string;
@@ -30,6 +37,11 @@ interface ArticleContentDTO {
   mainPhoto: string[];
   photosList?: string[];
   sliderPhotos?: string[];
+}
+
+interface ProjectOption {
+  value: string | number;
+  label: string;
 }
 
 export interface UpdateArticleFormValues {
@@ -49,11 +61,22 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
     null,
   );
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
   const router = useRouter();
-  const pathname = usePathname();
-  const isEdit = pathname.includes('/edit');
+
+  const currentUser = useAppSelector(state => state.authUser.user);
+  const allUsers = useAppSelector(state => state.users.users);
+  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
+
+  const usersList = allUsers.map(user => ({
+    value: user.id,
+    label: user.name,
+  }));
 
   const validationSchema = Yup.object({
+    title: Yup.string().required('Title is required'),
+    relevantProjectId: Yup.number().required('Please select a project'),
+    authorId: Yup.number().required('Author field cannot be empty'),
     textblock1: Yup.string().required('Text block 1 is required'),
     textblock2: Yup.string(),
     quote: Yup.string(),
@@ -62,6 +85,34 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
       .of(Yup.string().url('Main photo must be a valid URL'))
       .min(1, 'Main photo is required'),
   });
+
+  useEffect(() => {
+    dispatch(getUsers());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await dispatch(
+          getAllArticle({
+            articleType: ArticleTypeEnum.PROJECT,
+            articleStatus: ArticleStatusEnum.PUBLISHED,
+          }),
+        ).unwrap();
+
+        const mappedProjects = (data.content ?? []).map((project: any) => ({
+          value: project.id,
+          label: project.title,
+        }));
+        setProjects(mappedProjects);
+      } catch (err) {
+        toast.error('Failed to fetch projects');
+        console.error(err);
+      }
+    };
+
+    fetchProjects();
+  }, [dispatch]);
 
   useEffect(() => {
     if (!articleId) return;
@@ -134,22 +185,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           updateArticle({
             id: articleId,
             data: {
-              title: article?.title || 'Untitled',
-              articleType: 'NEWS',
-              authorId: article?.authorId,
+              title: values.title,
+              articleType: ArticleTypeEnum.NEWS,
+              authorId: Number(values.authorId),
+              relevantProjectId: Number(values.relevantProjectId),
               contentBlocks: blocks,
-              relevantProjectId: article?.relevantProjectId,
             },
-          }),
-        ).unwrap();
-      } else {
-        await dispatch(
-          createNewArticle({
-            title: article?.title || 'Untitled',
-            articleType: 'NEWS',
-            contentBlocks: blocks,
-            relevantProjectId: article?.relevantProjectId,
-            authorId: article?.authorId,
           }),
         ).unwrap();
       }
@@ -217,16 +258,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   return (
     <>
       <div className="modal__body">
-        {!isEdit && (
-          <div className="flex mb-3">
-            <EditIcon />
-            <h4 className="text-h5 pl-2">{article?.title}</h4>
-          </div>
-        )}
-
         <Formik
           enableReinitialize
           initialValues={{
+            title: article?.title || '',
+            authorId: currentAuthor?.id,
+            relevantProjectId: article?.relevantProjectId,
             textblock1:
               article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
@@ -277,6 +314,58 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             setFieldValue,
           }) => (
             <Form>
+              <div className="mb-5">
+                <Input
+                  required
+                  onChange={handleChange}
+                  id="title"
+                  name="title"
+                  type="text"
+                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                  value={values.title}
+                  label="Title"
+                  labelClass="!text-admin-700"
+                  validationText={
+                    touched.title && errors.title ? errors.title : ''
+                  }
+                />
+              </div>
+
+              <div className="mb-5">
+                <Select
+                  label="Relevant Project"
+                  labelClass="!text-admin-700"
+                  adminSelectClass={true}
+                  name="relevantProjectId"
+                  required
+                  placeholder="Choose project"
+                  onChange={handleChange}
+                  options={
+                    projects.length > 0
+                      ? projects
+                      : [
+                          {
+                            value: '',
+                            label: 'No published projects available',
+                            disabled: true,
+                          },
+                        ]
+                  }
+                />
+              </div>
+
+              <div className="mb-5">
+                <Select
+                  label="Change Author (if needed)"
+                  adminSelectClass={true}
+                  name="authorId"
+                  required
+                  labelClass="!text-admin-700"
+                  onChange={handleChange}
+                  options={usersList}
+                />
+              </div>
+
               <div className="w-full mb-2">
                 <TextArea
                   id="textblock1"
