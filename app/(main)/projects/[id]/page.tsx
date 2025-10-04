@@ -1,18 +1,12 @@
+"use client";
 
-export async function generateStaticParams() {
-  const data = [{ id: 1 }, { id: 2 }, { id: 3 }];
+import { useParams } from "next/navigation";
 
-  return data.map((item) => {
-    return {
-      id: item.id.toString()
-    }
-  })
-}
-
-function ProjectDetails({ params }: any) {
+function ProjectDetails() {
+  const { id } = useParams();
   return (
     <div>
-      <span>{params.id.toString()}</span>
+      <span>{id}</span>
     </div>
   )
 }
