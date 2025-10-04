@@ -7,6 +7,8 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   className?: string;
   labelClass?: string;
+  required?: boolean;
+  validationText?: string;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -16,6 +18,8 @@ const TextArea: React.FC<TextAreaProps> = ({
   onChange,
   className,
   labelClass,
+  required = false,
+  validationText,
   ...props
 }) => {
   return (
@@ -25,6 +29,9 @@ const TextArea: React.FC<TextAreaProps> = ({
         className={`block text-medium2 text-grey-500 mb-1  ${labelClass} `}
       >
         {label}
+        {required && (
+          <span className="text-status-danger-500 text-body"> *</span>
+        )}
       </label>
       <textarea
         id={id}
@@ -37,6 +44,9 @@ const TextArea: React.FC<TextAreaProps> = ({
         focus:outline-none focus:ring-2 focus:ring-status-info-500 `}
         {...props}
       />
+      {validationText && (
+        <div className="text-red-600 text-sm mt-1">{validationText}</div>
+      )}
     </div>
   );
 };
