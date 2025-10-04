@@ -13,8 +13,11 @@ interface IImageLoading {
   onFilesChange?: (urls: string[]) => void;
   classBlock?: string;
   label?: string;
+  note?: string;
+  required?: boolean;
   maxFiles?: number;
   previewSize?: number;
+  validationText?: string;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -22,11 +25,14 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 function ImageLoading({
   classBlock = '',
   label = '',
+  note = '',
   maxFiles = 1,
+  required = false,
   contentType,
   articleId,
   uploadedUrls = [],
   previewSize = 96,
+  validationText = '',
   onFilesChange,
 }: IImageLoading) {
   const { uploadFiles, deleteFile } = useImageLoading({
@@ -93,8 +99,14 @@ function ImageLoading({
   return (
     <div className="flex flex-col h-full">
       {label && (
-        <div className="block text-medium2 mb-1 text-admin-700 ">{label}</div>
+        <div className="block text-medium2 mb-1 text-admin-700 ">
+          {label}
+          {required && (
+            <span className="text-status-danger-500 text-body"> *</span>
+          )}
+        </div>
       )}
+      {note && <p className="text-xs text-gray-500 italic my-1">{note}</p>}
 
       {showDropzone && (
         <div
@@ -163,6 +175,11 @@ function ImageLoading({
                 </button>
               </div>
             ))}
+        </div>
+      )}
+      {validationText && (
+        <div className="text-status-danger-500 text-sm mt-2">
+          {validationText}
         </div>
       )}
     </div>

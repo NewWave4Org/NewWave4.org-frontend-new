@@ -27,7 +27,7 @@ interface ArticleContentDTO {
   textblock2: string;
   quote: string;
   video: string;
-  mainPhoto?: string | null;
+  mainPhoto: string[];
   photosList?: string[];
   sliderPhotos?: string[];
 }
@@ -54,10 +54,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   const isEdit = pathname.includes('/edit');
 
   const validationSchema = Yup.object({
-    textblock1: Yup.string(),
+    textblock1: Yup.string().required('Text block 1 is required'),
     textblock2: Yup.string(),
     quote: Yup.string(),
     video: Yup.string().url('Must be a valid URL').nullable(),
+    mainPhoto: Yup.array()
+      .of(Yup.string().url('Main photo must be a valid URL'))
+      .min(1, 'Main photo is required'),
   });
 
   useEffect(() => {
@@ -78,6 +81,15 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   }, [articleId, dispatch]);
 
   async function handleSaveArticleContent(values: ArticleContentDTO) {
+    if (!values.textblock1 || values.textblock1.trim() === '') {
+      toast.error('Text block 1 is required');
+      return;
+    }
+    if (!values.mainPhoto || values.mainPhoto.length === 0) {
+      toast.error('Main photo is required');
+      return;
+    }
+
     const saveSuccess = await saveArticleContent(values);
     if (!saveSuccess) return;
   }
@@ -231,10 +243,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.VIDEO,
               )?.data || '',
-            mainPhoto:
-              article?.contentBlocks?.find(
+            mainPhoto: (() => {
+              const data = article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.PHOTO,
-              )?.data || '',
+              )?.data;
+              return Array.isArray(data) ? data : data ? [data] : [];
+            })(),
             photosList: (() => {
               const data = article?.contentBlocks?.find(
                 b => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
@@ -267,10 +281,16 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 <TextArea
                   id="textblock1"
                   label="Text block 1"
+                  required
                   className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
                   labelClass=" !text-admin-700"
                   value={values.textblock1}
                   onChange={handleChange}
+                  validationText={
+                    touched.textblock1 && errors.textblock1
+                      ? errors.textblock1
+                      : ''
+                  }
                 />
               </div>
 
@@ -314,20 +334,25 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               <div className="w-1/2 h-[442px]">
                 <ImageLoading
                   label="Main Photo"
+                  required
                   contentType={ArticleTypeEnum.NEWS}
                   articleId={articleId!}
                   maxFiles={1}
-                  uploadedUrls={values.mainPhoto ? [values.mainPhoto] : []}
-                  onFilesChange={urls =>
-                    setFieldValue('mainPhoto', urls[0] || '')
-                  }
+                  uploadedUrls={values.mainPhoto || []}
+                  onFilesChange={urls => setFieldValue('mainPhoto', urls)}
                   previewSize={300}
+                  validationText={
+                    touched.mainPhoto && errors.mainPhoto
+                      ? (errors.mainPhoto as string)
+                      : ''
+                  }
                 />
               </div>
 
               <div className="w-full h-[442px] my-2">
                 <ImageLoading
                   label="Photo List"
+                  note=" You can upload 1 or 2 photos here."
                   contentType={ArticleTypeEnum.NEWS}
                   articleId={articleId!}
                   maxFiles={2}
@@ -340,6 +365,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               <div className="w-full h-[442px]">
                 <ImageLoading
                   label="Photo Slider"
+                  note="Minimum 3 and maximum 5 photos."
                   contentType={ArticleTypeEnum.NEWS}
                   articleId={articleId!}
                   maxFiles={5}

@@ -26,29 +26,18 @@ function ProgramsPage() {
     dispatch(
       getAllArticle({
         page: currentPage,
+        size: 3,
         articleType: ArticleTypeEnum.PROJECT,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
       }),
     );
   }, [dispatch, currentPage]);
 
-  const changePage = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-    },
-    [dispatch],
-  );
+  const changePage = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
-  const renderPagination = useCallback(
-    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        changePage={changePage}
-      />
-    ),
-    [],
-  );
+  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
 
   //Delete
   const handleDeleteProject = (project: GetArticleByIdResponseDTO) => {

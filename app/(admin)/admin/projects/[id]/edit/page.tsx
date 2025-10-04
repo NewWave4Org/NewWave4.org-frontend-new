@@ -3,7 +3,6 @@
 import ProjectContent from '@/components/admin/ProjectsPage/ProjectContent/ProjectContent';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import Button from '@/components/shared/Button';
-import LinkBtn from '@/components/shared/LinkBtn';
 import { useParams, useRouter } from 'next/navigation';
 
 function EditProjectPage() {
@@ -26,7 +25,7 @@ function EditProjectPage() {
         <ProjectContent projectId={projectId} />
       ) : (
         <>
-          <div className="text-h4 mb-5">Project wasn't created</div>
+          <div className="text-h4 mb-5">Project wasn&apos;t created</div>
           <Button
             onClick={() => router.back()}
             className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
