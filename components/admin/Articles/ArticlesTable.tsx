@@ -14,6 +14,7 @@ import { openModal } from '@/store/modal/ModalSlice';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 import { numericDate } from '@/utils/date';
+import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
@@ -41,7 +42,12 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
 
   useEffect(() => {
     dispatch(
-      getAllArticle({ page: currentPage, size: 10, articleType: 'NEWS' }),
+      getAllArticle({
+        page: currentPage,
+        size: 10,
+        articleType: ArticleTypeEnum.NEWS,
+        articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+      }),
     );
   }, [dispatch, currentPage]);
 

@@ -1,93 +1,152 @@
 'use client';
 
-import { prefix } from '@/utils/prefix';
+import { useEffect, useState } from 'react';
 import Card from '../shared/Card';
 import Pagination from '../ui/Pagination/Pagination';
+import { ArticleTypeEnum, ArticleStatusEnum } from '@/utils/ArticleType';
+import HttpMethod from '@/utils/http/enums/http-method';
+import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
 
-const newsContent = [
-  {
-    id: 1,
-    src: `${prefix}/news/news1.jpg`,
-    title: 'Зустріч українців',
-    text: '10 жовтня, відбулася зустріч представників української і проукраїнської громади цієї околиці Брукліна, НЙ з  найбільш впливовим сенатором-демократом Чаком Шумером. Його реакція на дії Путіна в Україні і, на терористичні атаки московських окупантів, здійснені у ці дні, була такою ж сповненою гніву, як кожного з нас українців. Підготовлені нами питання про визнання Росії – державою-терористом на офіційному рівні, про кваліфікацію воєнних злочинів Росії в Україні геноцидом, про надання ще більше зброї Україні знаходили глибоке розуміння і запевнення в тому, що  він, як справжній друг України, прикладе до цього всіх зусиль.v',
-  },
-  {
-    id: 2,
-    src: `${prefix}/news/news2.jpg`,
-    title:
-      'Український фестиваль втретє відбувся у Брукліні, в районі Брайтона',
-    text: 'Першого червня відбувся наш фестиваль "Ангели тримають небо", зорганізований ВГО "Нова українська хвиля" та заснованою нашою організацією школою українознавства "Нова хвилька". ',
-  },
-  {
-    id: 3,
-    src: `${prefix}/news/news3.jpg`,
-    title: 'Відзначення Дня Злуки в Українському Інституті Америки',
-    text: 'Відзначення Дня Злуки в Українському Інституті Америки, в Нью Йорку, стало також доброю нагодою висловити вдячність Постійному Представникові України до ООН Сергію Кислиці за його вагомий внесок у боротьбі за Українські інтереси на дипломатичному фронті та за чудову співпрацю з громадою.',
-  },
-  {
-    id: 4,
-    src: `${prefix}/news/news1.jpg`,
-    title: 'Зустріч українців Брукліна з сенатором Шумером',
-    text: '10 жовтня, відбулася зустріч представників української і проукраїнської громади цієї околиці Брукліна, НЙ з  найбільш впливовим сенатором-демократом Чаком Шумером. Його реакція на дії Путіна в Україні і, на терористичні атаки московських окупантів, здійснені у ці дні, була такою ж сповненою гніву, як кожного з нас українців. Підготовлені нами питання про визнання Росії – державою-терористом на офіційному рівні, про кваліфікацію воєнних злочинів Росії в Україні геноцидом, про надання ще більше зброї Україні знаходили глибоке розуміння і запевнення в тому, що  він, як справжній друг України, прикладе до цього всіх зусиль.v',
-  },
-  {
-    id: 5,
-    src: `${prefix}/news/news2.jpg`,
-    title:
-      'Український фестиваль втретє відбувся у Брукліні, в районі Брайтона',
-    text: 'Першого червня відбувся наш фестиваль "Ангели тримають небо", зорганізований ВГО "Нова українська хвиля" та заснованою нашою організацією школою українознавства "Нова хвилька". ',
-  },
-  {
-    id: 6,
-    src: `${prefix}/news/news3.jpg`,
-    title: 'Відзначення Дня Злуки в Українському Інституті Америки',
-    text: 'Відзначення Дня Злуки в Українському Інституті Америки, в Нью Йорку, стало також доброю нагодою висловити вдячність Постійному Представникові України до ООН Сергію Кислиці за його вагомий внесок у боротьбі за Українські інтереси на дипломатичному фронті та за чудову співпрацю з громадою.',
-  },
-  {
-    id: 7,
-    src: `${prefix}/news/news1.jpg`,
-    title: 'Зустріч українців Брукліна з сенатором Шумером',
-    text: '10 жовтня, відбулася зустріч представників української і проукраїнської громади цієї околиці Брукліна, НЙ з  найбільш впливовим сенатором-демократом Чаком Шумером. Його реакція на дії Путіна в Україні і, на терористичні атаки московських окупантів, здійснені у ці дні, була такою ж сповненою гніву, як кожного з нас українців. Підготовлені нами питання про визнання Росії – державою-терористом на офіційному рівні, про кваліфікацію воєнних злочинів Росії в Україні геноцидом, про надання ще більше зброї Україні знаходили глибоке розуміння і запевнення в тому, що  він, як справжній друг України, прикладе до цього всіх зусиль.v',
-  },
-  {
-    id: 8,
-    src: `${prefix}/news/news2.jpg`,
-    title:
-      'Український фестиваль втретє відбувся у Брукліні, в районі Брайтона',
-    text: 'Першого червня відбувся наш фестиваль "Ангели тримають небо", зорганізований ВГО "Нова українська хвиля" та заснованою нашою організацією школою українознавства "Нова хвилька". ',
-  },
-  {
-    id: 9,
-    src: `${prefix}/news/news3.jpg`,
-    title: 'Відзначення Дня Злуки в Українському Інституті Америки',
-    text: 'Відзначення Дня Злуки в Українському Інституті Америки, в Нью Йорку, стало також доброю нагодою висловити вдячність Постійному Представникові України до ООН Сергію Кислиці за його вагомий внесок у боротьбі за Українські інтереси на дипломатичному фронті та за чудову співпрацю з громадою.',
-  },
-];
+interface ContentBlock {
+  contentBlockType: string;
+  data: any;
+}
 
-const NewsContent: React.FC = () => {
+interface Article {
+  id: number;
+  title: string;
+  contentBlocks: ContentBlock[];
+  publishedAt: string;
+}
+
+interface PreparedArticle {
+  id: number;
+  title: string;
+  text: string;
+  imageSrc: string;
+  publishedAt: string;
+}
+
+const prepareArticle = (article: Article): PreparedArticle => {
+  const mainTextBlock = article.contentBlocks.find(
+    block =>
+      block.contentBlockType === 'MAIN_NEWS_BLOCK' ||
+      block.contentBlockType === 'TEXT',
+  );
+  const text = mainTextBlock ? mainTextBlock.data : '';
+
+  const photoBlock = article.contentBlocks.find(
+    block => block.contentBlockType === 'PHOTO' && block.data,
+  );
+
+  const imageSrc = photoBlock
+    ? typeof photoBlock.data === 'string'
+      ? photoBlock.data
+      : Array.isArray(photoBlock.data)
+      ? photoBlock.data[0]
+      : ''
+    : '';
+
+  return {
+    id: article.id,
+    title: article.title,
+    text,
+    imageSrc,
+    publishedAt: article.publishedAt,
+  };
+};
+
+interface NewsContentProps {
+  activeFilter: number;
+}
+
+const NewsContent: React.FC<NewsContentProps> = ({
+  activeFilter,
+}: NewsContentProps) => {
+  const [articles, setArticles] = useState<PreparedArticle[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  const pageSize = 9;
+
+  const fetchArticles = async (page: number) => {
+    try {
+      setLoading(true);
+      const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
+      const params = {
+        currentPage: page.toString(),
+        size: pageSize.toString(),
+        articleType: ArticleTypeEnum.NEWS,
+        articleStatus: ArticleStatusEnum.PUBLISHED,
+      };
+
+      const url = new URL(baseUrl);
+      url.search = new URLSearchParams(params).toString();
+
+      const response = await fetch(url, {
+        method: HttpMethod.GET,
+        next: { revalidate: 3600 },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const data = await response.json();
+
+      const mappedArticles: PreparedArticle[] =
+        data.content.map(prepareArticle);
+      console.log(data.content);
+      setArticles(mappedArticles);
+
+      const totalElements = data.totalElements || mappedArticles.length;
+      setTotalPages(Math.ceil(totalElements / pageSize));
+    } catch (err) {
+      console.error('Error fetching articles:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles(currentPage);
+  }, [currentPage]);
+
   return (
     <>
       <div className="newsBlocks">
         <div className="container px-4 mx-auto">
           <div className="flex flex-wrap mx-[-12px]">
-            {newsContent.map(card => (
-              <div
-                className="my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock"
-                key={card.id}
-              >
-                <Card
-                  link={`/news/${card.id}`}
-                  imageSrc={card.src}
-                  title={card.title}
-                  text={card.text}
-                />
+            {loading ? (
+              <div className="w-full text-center py-8 text-gray-500">
+                Loading...
+                {activeFilter}
               </div>
-            ))}
+            ) : (
+              articles.map(article => (
+                <div
+                  className="my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock"
+                  key={article.id}
+                >
+                  <Card
+                    link={`/news/${article.id}`}
+                    imageSrc={article.imageSrc || undefined}
+                    title={article.title}
+                    text={article.text}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      <Pagination />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={page => setCurrentPage(page)}
+      />
     </>
   );
 };

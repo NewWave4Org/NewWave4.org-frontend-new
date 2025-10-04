@@ -37,11 +37,14 @@ async function ProjectsPage() {
       <div className="ProjectsPage">
         <Hero data={heroData} />
         {projects.length > 0 ? (
-          projects.map((project: IArticleBody, index: number) => <ProjectPage key={index} project={project} />)
+          projects.map((project: IArticleBody, index: number) => (
+            <ProjectPage key={index} project={project} />
+          ))
         ) : (
           <div className="container mx-auto px-4 py-16">
             <div className="text-h3 text-font-primary font-ebGaramond text-center mb-5 max-w-[600px] mx-auto">
-              Зараз сторінка &quot;Наші проєкти&quot; знаходиться на етапі розробки, але зовсім скоро ми поділимося з вами результатами!
+              Зараз сторінка &quot;Наші проєкти&quot; знаходиться на етапі
+              розробки, але зовсім скоро ми поділимося з вами результатами!
             </div>
             <div className="text-center italic">Дякуємо за терпіння!</div>
           </div>
