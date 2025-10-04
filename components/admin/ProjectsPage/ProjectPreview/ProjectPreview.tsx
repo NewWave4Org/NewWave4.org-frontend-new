@@ -1,11 +1,10 @@
-import ProjectContent from "@/components/projectsBlock/ProjectContent";
-import ProjectHeader from "@/components/projectsBlock/ProjectHeader";
-import Quote from "@/components/quote/Quote";
-import { typeSocialMediaList } from "@/data/projects/typeSocialMediaList";
-import { GerArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
+import ProjectContent from '@/components/projectsBlock/ProjectContent';
+import ProjectHeader from '@/components/projectsBlock/ProjectHeader';
+import Quote from '@/components/quote/Quote';
+import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 
-function ProjectPreview({project}: {project: GerArticleByIdResponseDTO | undefined}) {
-
+function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | undefined }) {
   const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE')?.text;
   const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
@@ -22,8 +21,8 @@ function ProjectPreview({project}: {project: GerArticleByIdResponseDTO | undefin
     <div className="bg-background-primary">
       <ProjectHeader title={project?.title} className="!mb-0" />
       <ProjectContent contentBlock={firstTwoBlocks} />
-      {quoteText && <Quote quote={quoteText} className="text-font-primary"/>}
-      <ProjectContent contentBlock={otherBlocks}  siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} />
+      {quoteText && <Quote quote={quoteText} className="text-font-primary" />}
+      <ProjectContent contentBlock={otherBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} />
     </div>
   );
 }
