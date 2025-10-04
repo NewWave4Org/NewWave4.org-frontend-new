@@ -14,7 +14,7 @@ const programSlidesData: ProgramSlideProps[] = [
         id: 1,
         imgSrc: `${prefix}/programs/program2.jpg`,
         alt: 'Slide 1',
-        link: '/projects',
+        link: '/projects/1',
         title: 'Українські дні в Конгресі: Наші пріоритети на 2025',
         text: `Українсько-американська громада закликає Сполучені Штати вжити наступних заходів: 
   Визнати росію державою-спонсором тероризму.
@@ -26,7 +26,7 @@ const programSlidesData: ProgramSlideProps[] = [
         id: 2,
         imgSrc: `${prefix}/programs//program3.jpg`,
         alt: 'Slide 2',
-        link: '/projects',
+        link: '/projects/2',
         title: 'Український фестиваль в Брайтоні',
         text: `Запрошуємо вас зануритися в атмосферу справжнього українського свята! На фестивалі ви зможете насолодитися виступами українських музикантів 
   і танцюристів, скуштувати національні страви та 
@@ -37,7 +37,7 @@ const programSlidesData: ProgramSlideProps[] = [
         id: 3,
         imgSrc: `${prefix}/programs/programs.png`,
         alt: 'Slide 3',
-        link: '/projects',
+        link: '/projects/3',
         title: 'Розпишу я писанку - намалюю долю',
         text: `Великодній оберіг, що несе в собі історію, культуру та силу українського народу. \n
   Під час майстер-класу ви навчитеся старовинним технікам розпису, створите власний унікальний оберіг та долучитеся до збору коштів на підтримку військових.
@@ -47,7 +47,7 @@ const programSlidesData: ProgramSlideProps[] = [
         id: 4,
         imgSrc: `${prefix}/programs/program1.png`,
         alt: 'Slide 4',
-        link: '/projects',
+        link: '/projects/4',
         title: 'Культурно-благодійний тур з виставою "Ненароджені для війни"',
         text: 'Неприбуткова організація Ukrainian New Wave та Український Конгресовий Комітет Америки (UCCA) презентують культурний тур за участю воїнів 3-ї окремої штурмової бригади з театральною постановкою "Ненароджені для війни".',
     },
