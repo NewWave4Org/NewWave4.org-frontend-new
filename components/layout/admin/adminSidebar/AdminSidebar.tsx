@@ -7,6 +7,7 @@ import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
 import { ROLES } from '@/data/admin/roles/Roles';
+import { useState } from 'react';
 
 const adminMenu = [
   {
@@ -17,18 +18,41 @@ const adminMenu = [
     allowedToAdmin: true,
   },
   {
-    id: '2',
-    title: 'Pages',
-    icon: <PagesIcon />,
-    href: adminLinkSidebar.ADMIN_PAGES,
-    allowedToAdmin: false,
-  },
-  {
     id: '3',
-    title: 'Articles',
+    title: 'Articles Management',
     icon: <ArticlesIcon />,
-    href: adminLinkSidebar.ADMIN_ARTICLES,
-    allowedToAdmin: false,
+    allowedToAdmin: true,
+
+    submenu: [
+      {
+        id: '1',
+        title: 'News',
+        icon: <></>,
+        href: adminLinkSidebar.ADMIN_ARTICLES,
+        allowedToAdmin: false,
+      },
+      {
+        id: '2',
+        title: 'Events V.2',
+        icon: <ArticlesIcon />,
+        href: adminLinkSidebar.ADMIN_ARTICLES,
+        allowedToAdmin: false,
+      },
+      {
+        id: '2',
+        title: 'Pages',
+        icon: <PagesIcon />,
+        href: adminLinkSidebar.ADMIN_PAGES,
+        allowedToAdmin: false,
+      },
+      {
+        id: '4',
+        title: 'Archived Pages (V.2)',
+        icon: <></>,
+        href: adminLinkSidebar.ADMIN_ARTICLES,
+        allowedToAdmin: false,
+      }
+    ]
   },
   {
     id: '4',
@@ -43,6 +67,7 @@ const AdminSidebar = () => {
   const pathName = usePathname();
   const currentUser = useAppSelector(state => state.authUser.user);
   const currentUserRole = currentUser?.roles;
+  const [selectedIndex, setSelectedIndex] = useState<any>(null);
 
   const isAdmin =
     currentUserRole?.includes('ROLE_ADMIN') ||
@@ -57,20 +82,44 @@ const AdminSidebar = () => {
               if (link.allowedToAdmin) return isAdmin;
               return true;
             })
-            .map(link => {
+            .map((link, index) => {
               const isActive =
                 pathName === link.href || pathName.startsWith(`${link.href}/`);
+              const isOpen = selectedIndex === index;
+
+              const handleSelectedIndex = (index: number) => {
+                if (selectedIndex === index) {
+                  setSelectedIndex(null);
+                } else {
+                  setSelectedIndex(index);
+                }
+              }
+
               return (
-                <Link
-                  key={link.id}
-                  href={link.href}
-                  className={`text-primary-800 flex items-center py-1 my-5 ${
-                    isActive ? 'font-black' : ''
-                  }`}
-                >
-                  <div className="mr-[13px]">{link.icon}</div>
-                  {link.title}
-                </Link>
+                <div key={link.id}>
+                  {link.href ? <Link
+                    href={link.href}
+                    className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''
+                      }`}
+                  >
+                    <div className="mr-[13px]">{link.icon}</div>
+                    {link.title}
+                  </Link>
+                    :
+                    <div title='click the option to expand' className='flex cursor-pointer' onClick={() => handleSelectedIndex(index)}>
+                      <div className="mr-[13px]">{link.icon}</div>
+                      <span>{link.title}</span>
+                    </div>}
+                  {link.submenu && isOpen && link.submenu.map((item, index) => {
+                    return (
+                      <Link key={item.id + index} href={item.href}
+                        className={`text-primary-800 flex items-center py-1 my-5 ml-5 ${isActive ? 'font-black' : ''
+                          }`}>
+                        <div className="mr-[13px]">{link.icon}</div>
+                        {item.title}</Link>
+                    )
+                  })}
+                </div>
               );
             })}
         </div>

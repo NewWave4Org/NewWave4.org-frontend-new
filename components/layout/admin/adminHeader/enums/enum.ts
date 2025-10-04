@@ -13,6 +13,7 @@ const adminLinkSidebar = {
   ADMIN_PAGES: '/admin/pages',
   ADMIN_ARTICLES: '/admin/articles',
   ADMIN_ARCHIVE: '/admin/archive',
+  ADMIN_PROGRAMS_PAGES: 'admin/programs-pages'
 } as const;
 
 type adminLinkSidebar =
