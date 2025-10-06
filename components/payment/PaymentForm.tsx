@@ -17,6 +17,7 @@ import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
+import axios from 'axios';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -46,13 +47,13 @@ const PaymentForm = () => {
   const router = useRouter();
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
+  console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
     const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL);
 
       const response = await axiosOpenInstance.post('/payments/stripe-checkout-session', {
         name,
