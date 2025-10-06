@@ -121,7 +121,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
             {loading ? (
               <div className="w-full text-center py-8 text-gray-500">
                 Loading...
-                {activeFilter}
+                {/* {activeFilter} */}
               </div>
             ) : (
               articles.map(article => (

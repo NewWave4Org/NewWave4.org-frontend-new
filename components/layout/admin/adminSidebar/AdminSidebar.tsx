@@ -1,6 +1,6 @@
 import ArticlesIcon from '@/components/icons/symbolic/ArticlesIcon';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import PagesIcon from '@/components/icons/symbolic/PagesIcon';
+// import PagesIcon from '@/components/icons/symbolic/PagesIcon';
 import UsersIcon from '@/components/icons/symbolic/UsersIcon';
 import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
@@ -15,13 +15,13 @@ const adminMenu = [
     href: adminLinkSidebar.ADMIN_USERS,
     allowedToAdmin: true,
   },
-  {
-    id: '2',
-    title: 'Pages',
-    icon: <PagesIcon />,
-    href: adminLinkSidebar.ADMIN_PAGES,
-    allowedToAdmin: false,
-  },
+  // {
+  //   id: '2',
+  //   title: 'Pages',
+  //   icon: <PagesIcon />,
+  //   href: adminLinkSidebar.ADMIN_PAGES,
+  //   allowedToAdmin: false,
+  // },
   {
     id: '3',
     title: 'Articles',
