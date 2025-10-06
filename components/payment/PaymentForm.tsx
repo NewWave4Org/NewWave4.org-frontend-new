@@ -16,6 +16,7 @@ import PaypalComponent from './PaypalComponent';
 import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
+import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -51,24 +52,29 @@ const PaymentForm = () => {
     const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
+      console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL);
+
+      const response = await axiosOpenInstance.post('/payments/stripe-checkout-session', {
+        name,
+        amount: calculatedAmount,
+        description: purpose?.label
+      })
+      const data = await response.data;
+      /**
+       *       const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name,
-          amount: calculatedAmount,
-          description: purpose?.label
-        }),
+        body: JSON.stringify(),
       });
       const data = await response.json();
-
+       */
       if (data.sessionId) {
         const stripe = await stripePromise;
         await stripe?.redirectToCheckout({ sessionId: data.sessionId });
       } else {
-        alert(`Failed to create session: ${  data.message}`);
+        alert(`Failed to create session: ${data.message}`);
       }
     } catch (error) {
       return error;
