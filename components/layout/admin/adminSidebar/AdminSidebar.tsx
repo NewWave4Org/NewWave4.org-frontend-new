@@ -49,6 +49,7 @@ const AdminSidebar = () => {
   const pathName = usePathname();
   const currentUser = useAppSelector(state => state.authUser.user);
   const currentUserRole = currentUser?.roles;
+  const [selectedIndex, setSelectedIndex] = useState<any>(null);
 
   const isAdmin =
     currentUserRole?.includes('ROLE_ADMIN') ||
@@ -63,20 +64,44 @@ const AdminSidebar = () => {
               if (link.allowedToAdmin) return isAdmin;
               return true;
             })
-            .map(link => {
+            .map((link, index) => {
               const isActive =
                 pathName === link.href || pathName.startsWith(`${link.href}/`);
+              const isOpen = selectedIndex === index;
+
+              const handleSelectedIndex = (index: number) => {
+                if (selectedIndex === index) {
+                  setSelectedIndex(null);
+                } else {
+                  setSelectedIndex(index);
+                }
+              }
+
               return (
-                <Link
-                  key={link.id}
-                  href={link.href}
-                  className={`text-primary-800 flex items-center py-1 my-5 ${
-                    isActive ? 'font-black' : ''
-                  }`}
-                >
-                  <div className="mr-[13px]">{link.icon}</div>
-                  {link.title}
-                </Link>
+                <div key={link.id}>
+                  {link.href ? <Link
+                    href={link.href}
+                    className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''
+                      }`}
+                  >
+                    <div className="mr-[13px]">{link.icon}</div>
+                    {link.title}
+                  </Link>
+                    :
+                    <div title='click the option to expand' className='flex cursor-pointer' onClick={() => handleSelectedIndex(index)}>
+                      <div className="mr-[13px]">{link.icon}</div>
+                      <span>{link.title}</span>
+                    </div>}
+                  {link.submenu && isOpen && link.submenu.map((item, index) => {
+                    return (
+                      <Link key={item.id + index} href={item.href}
+                        className={`text-primary-800 flex items-center py-1 my-5 ml-5 ${isActive ? 'font-black' : ''
+                          }`}>
+                        <div className="mr-[13px]">{link.icon}</div>
+                        {item.title}</Link>
+                    )
+                  })}
+                </div>
               );
             })}
         </div>
