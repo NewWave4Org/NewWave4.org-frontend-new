@@ -74,19 +74,22 @@ const NewsContent: React.FC<NewsContentProps> = ({
     try {
       setLoading(true);
       const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
-      const params = {
+      const params: Record<string, string> = {
         currentPage: page.toString(),
         size: pageSize.toString(),
         articleType: ArticleTypeEnum.NEWS,
         articleStatus: ArticleStatusEnum.PUBLISHED,
       };
 
+      if (activeFilter !== 0) {
+        params['relevantProjectId'] = activeFilter.toString();
+      }
+
       const url = new URL(baseUrl);
       url.search = new URLSearchParams(params).toString();
 
       const response = await fetch(url, {
         method: HttpMethod.GET,
-        next: { revalidate: 3600 },
       });
 
       if (!response.ok) {
@@ -111,7 +114,19 @@ const NewsContent: React.FC<NewsContentProps> = ({
 
   useEffect(() => {
     fetchArticles(currentPage);
-  }, [currentPage]);
+  }, [currentPage, activeFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
+
+  if (!loading && articles.length === 0) {
+    return (
+      <div className="container px-4 mx-auto">
+        Наразі новин немає. Слідкуйте за оновленнями.
+      </div>
+    );
+  }
 
   return (
     <>
@@ -121,7 +136,6 @@ const NewsContent: React.FC<NewsContentProps> = ({
             {loading ? (
               <div className="w-full text-center py-8 text-gray-500">
                 Loading...
-                {/* {activeFilter} */}
               </div>
             ) : (
               articles.map(article => (
@@ -142,11 +156,13 @@ const NewsContent: React.FC<NewsContentProps> = ({
         </div>
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={page => setCurrentPage(page)}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={page => setCurrentPage(page)}
+        />
+      )}
     </>
   );
 };

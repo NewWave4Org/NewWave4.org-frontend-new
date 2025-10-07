@@ -27,23 +27,25 @@ function UsersTable({ users }: UsersProps) {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.authUser.user);
 
-  const {sortVal, handleSort, sortedData} = useSortTable({
+  const { sortVal, handleSort, sortedData } = useSortTable({
     data: users,
   });
 
-  const onlyContentManager = currentUser?.roles.length === 1 && currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
+  const onlyContentManager =
+    currentUser?.roles.length === 1 &&
+    currentUser.roles[0] === 'ROLE_CONTENT_MANAGER';
 
   function handleDeleteUser(user: UserItem) {
     dispatch(
       openModal({
-        modalType: ModalType.DELETEUSER,
+        modalType: ModalType.DELETE_USER,
         payload: user,
       }),
     );
   }
 
   function handleEditUser(user: UserItem) {
-    dispatch(openModal({ modalType: ModalType.EDITUSER }));
+    dispatch(openModal({ modalType: ModalType.EDIT_USER }));
     dispatch(getUserById({ id: user.id }));
   }
 
@@ -79,20 +81,39 @@ function UsersTable({ users }: UsersProps) {
           renderHeader={() => (
             <>
               {TableHeader.map(({ id, title }) => (
-                <th key={id} className={`${id === '1' ? 'pl-6' : ''} pb-4 px-2 border-b  border-admin-300`}>
+                <th
+                  key={id}
+                  className={`${
+                    id === '1' ? 'pl-6' : ''
+                  } pb-4 px-2 border-b  border-admin-300`}
+                >
                   {title}
                 </th>
               ))}
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span onClick={() => handleSort("verificatedUser")} className="cursor-pointer">
+                <span
+                  onClick={() => handleSort('verificatedUser')}
+                  className="cursor-pointer"
+                >
                   Status
-                  <span className={`${sortVal === 'asc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
-                    hover:border-gray-500 duration-500 hover:text-admin-600`}>
+                  <span
+                    className={`${
+                      sortVal === 'asc'
+                        ? 'font-bold border-admin-600'
+                        : 'text-gray-400'
+                    } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
                     ↑
                   </span>
                   <span
-                    className={`${sortVal === 'desc' ? 'font-bold border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
-                    hover:border-gray-500 duration-500 hover:text-admin-600`} >
+                    className={`${
+                      sortVal === 'desc'
+                        ? 'font-bold border-admin-600'
+                        : 'text-gray-400'
+                    } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
                     ↓
                   </span>
                 </span>
@@ -104,7 +125,7 @@ function UsersTable({ users }: UsersProps) {
                     className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
                     onClick={() =>
                       dispatch(
-                        openModal({ modalType: ModalType.CREATENEWUSER }),
+                        openModal({ modalType: ModalType.CREATE_NEW_USER }),
                       )
                     }
                   >

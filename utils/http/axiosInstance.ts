@@ -17,4 +17,4 @@ export const axiosOpenInstance = axios.create({
     'Content-Type': 'application/json',
     Accept: 'application/json',
   },
-})
+});

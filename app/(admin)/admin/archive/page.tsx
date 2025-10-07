@@ -7,7 +7,10 @@ import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
-import { GetArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
+import {
+  GetArticleByIdResponseDTO,
+  IGetAllArticleRequestDTO,
+} from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -74,7 +77,7 @@ function ArchivePage() {
   const handleDelete = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
-        modalType: ModalType.DELETEPROJECT,
+        modalType: ModalType.DELETE_PROJECT,
         payload: project,
         title: project.articleType,
         currentPage: currentPage,
@@ -85,16 +88,41 @@ function ArchivePage() {
     );
   };
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        changePage={changePage}
+      />
+    ),
+    [],
+  );
 
   return (
     <>
       <div className="mb-5 flex items-center">
         <span className="font-semibold mr-2">Show:</span>
-        <Select options={sortTypes} name="sortTypes" defaultValue={sortTypes[0].value} useFormik={false} onChange={handleSortChange} dropDownClass="absolute" parentClassname="!h-10 py-3" />
+        <Select
+          options={sortTypes}
+          name="sortTypes"
+          defaultValue={sortTypes[0].value}
+          useFormik={false}
+          onChange={handleSortChange}
+          dropDownClass="absolute"
+          parentClassname="!h-10 py-3"
+        />
       </div>
 
-      <ArchivedPageTable articles={projects} currentPage={currentPage} totalPages={totalPages} changePage={changePage} renderPagination={renderPagination} handleRestore={handleRestore} handleDelete={handleDelete} />
+      <ArchivedPageTable
+        articles={projects}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        changePage={changePage}
+        renderPagination={renderPagination}
+        handleRestore={handleRestore}
+        handleDelete={handleDelete}
+      />
     </>
   );
 }

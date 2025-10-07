@@ -74,7 +74,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const handleDeleteArticle = (article: Article) => {
     dispatch(
       openModal({
-        modalType: ModalType.DELETEARTICLE,
+        modalType: ModalType.DELETE_ARTICLE,
         payload: article,
       }),
     );
@@ -83,7 +83,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const handleArchiveArticle = (article: Article) => {
     dispatch(
       openModal({
-        modalType: ModalType.ARCHIVEDARTICLE,
+        modalType: ModalType.ARCHIVED_ARTICLE,
         payload: article,
         title: 'article',
       }),
