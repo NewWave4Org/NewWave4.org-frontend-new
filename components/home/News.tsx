@@ -92,7 +92,7 @@ const News: React.FC<NewsProps> = ({ title = false, link, textLink }) => {
       const response = await fetch(url, {
         method: HttpMethod.GET,
       });
-      console.log(response);
+
       if (!response.ok) {
         throw new Error(`Помилка завантаження новин: ${response.status}`);
       }
