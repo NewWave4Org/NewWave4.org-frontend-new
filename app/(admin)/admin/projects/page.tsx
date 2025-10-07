@@ -37,13 +37,22 @@ function ProgramsPage() {
     setCurrentPage(page);
   }, []);
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        changePage={changePage}
+      />
+    ),
+    [],
+  );
 
   //Delete
   const handleDeleteProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
-        modalType: ModalType.DELETEPROJECT,
+        modalType: ModalType.DELETE_PROJECT,
         payload: project,
         title: 'projects',
         currentPage: currentPage,
@@ -57,7 +66,7 @@ function ProgramsPage() {
   const handleArchivedProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
-        modalType: ModalType.ARCHIVEDARTICLE,
+        modalType: ModalType.ARCHIVED_ARTICLE,
         payload: project,
         title: 'project',
         currentPage: currentPage,
