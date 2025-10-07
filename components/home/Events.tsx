@@ -7,7 +7,7 @@ const Events: React.FC = () => {
   const router = useRouter();
   return (
     <section>
-      <div className='container mx-auto px-4'>
+      <div className="container mx-auto px-4">
         <div className="flex flex-col gap-y-6 w-full">
           <div className="flex justify-end w-full">
             <Button
@@ -21,7 +21,7 @@ const Events: React.FC = () => {
               </span>
             </Button>
           </div>
-          <div className="flex gap-x-6 h-[304px] items-center justify-center">
+          <div className="flex gap-x-6 items-center justify-center">
             <div className="text-grey-700 text-quote">
               Незабаром тут будуть події
             </div>

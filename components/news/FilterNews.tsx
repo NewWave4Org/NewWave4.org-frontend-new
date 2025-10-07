@@ -37,7 +37,6 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
 
         const response = await fetch(url, {
           method: HttpMethod.GET,
-          next: { revalidate: 3600 },
         });
 
         if (!response.ok) {
