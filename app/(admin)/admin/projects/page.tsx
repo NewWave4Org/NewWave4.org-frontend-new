@@ -52,7 +52,7 @@ function ProgramsPage() {
   const handleDeleteProject = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
-        modalType: ModalType.DELETE_PROJECT,
+        modalType: ModalType.DELETE_ARTICLE,
         payload: project,
         title: 'projects',
         currentPage: currentPage,
