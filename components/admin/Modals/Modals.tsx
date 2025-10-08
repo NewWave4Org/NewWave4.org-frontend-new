@@ -25,21 +25,21 @@ const Modals = () => {
     <>
       {isModalOpen && (
         <Modal modalType={modalType} isModalOpen={isModalOpen}>
-          {modalType === ModalType.CREATENEWUSER && (
+          {modalType === ModalType.CREATE_NEW_USER && (
             <CreateNewUser validationSchema={CreateNewUserValidationSchema} />
           )}
-          {modalType === ModalType.EDITUSER && (
+          {modalType === ModalType.EDIT_USER && (
             <EditUser validationSchema={CreateNewUserValidationSchema} />
           )}
-          {modalType === ModalType.DELETEUSER && <DeleteUser />}
-          {modalType === ModalType.DELETEARTICLE && (
+          {modalType === ModalType.DELETE_USER && <DeleteUser />}
+          {modalType === ModalType.DELETE_ARTICLE && (
             <ArticleModalDelete title={modalTitle || ''} />
           )}
 
-          {modalType === ModalType.DELETEPROJECT && (
+          {/* {modalType === ModalType.DELETE_PROJECT && (
             <ArticleModalDelete title={modalTitle || ''} />
-          )}
-          {modalType === ModalType.ARCHIVEDARTICLE && (
+          )} */}
+          {modalType === ModalType.ARCHIVED_ARTICLE && (
             <ArticleModalArchive title={modalTitle} />
           )}
           {modalType === ModalType.ARTICLE_RESTORE && (

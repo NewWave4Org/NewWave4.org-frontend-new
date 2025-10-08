@@ -77,7 +77,7 @@ function ArchivePage() {
   const handleDelete = (project: GetArticleByIdResponseDTO) => {
     dispatch(
       openModal({
-        modalType: ModalType.DELETE_PROJECT,
+        modalType: ModalType.DELETE_ARTICLE,
         payload: project,
         title: project.articleType,
         currentPage: currentPage,
