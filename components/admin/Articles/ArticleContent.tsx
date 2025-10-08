@@ -84,6 +84,17 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     mainPhoto: Yup.array()
       .of(Yup.string().url('Main photo must be a valid URL'))
       .min(1, 'Main photo is required'),
+    sliderPhotos: Yup.array()
+      .of(Yup.string().url('Invalid image URL'))
+      .test(
+        'min-files-if-any',
+        'You must upload at least 3 images for slider',
+        value => {
+          if (!value) return true;
+          if (value.length === 0) return true;
+          return value.length >= 3;
+        },
+      ),
   });
 
   useEffect(() => {
@@ -461,6 +472,11 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   uploadedUrls={values.sliderPhotos || []}
                   onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
                   previewSize={200}
+                  validationText={
+                    touched.sliderPhotos && errors.sliderPhotos
+                      ? (errors.sliderPhotos as string)
+                      : ''
+                  }
                 />
               </div>
 
