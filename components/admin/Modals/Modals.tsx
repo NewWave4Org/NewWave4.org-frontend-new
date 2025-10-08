@@ -36,9 +36,6 @@ const Modals = () => {
             <ArticleModalDelete title={modalTitle || ''} />
           )}
 
-          {/* {modalType === ModalType.DELETE_PROJECT && (
-            <ArticleModalDelete title={modalTitle || ''} />
-          )} */}
           {modalType === ModalType.ARCHIVED_ARTICLE && (
             <ArticleModalArchive title={modalTitle} />
           )}
