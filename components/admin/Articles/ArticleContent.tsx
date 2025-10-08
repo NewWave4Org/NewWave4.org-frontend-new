@@ -458,6 +458,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   contentType={ArticleTypeEnum.NEWS}
                   articleId={articleId!}
                   maxFiles={5}
+                  minFiles={3}
                   uploadedUrls={values.sliderPhotos || []}
                   onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
                   previewSize={200}

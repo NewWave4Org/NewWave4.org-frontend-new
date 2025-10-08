@@ -16,6 +16,7 @@ interface IImageLoading {
   note?: string;
   required?: boolean;
   maxFiles?: number;
+  minFiles?: number;
   previewSize?: number;
   validationText?: string;
 }
@@ -27,6 +28,7 @@ function ImageLoading({
   label = '',
   note = '',
   maxFiles = 1,
+  minFiles = 0,
   required = false,
   contentType,
   articleId,
@@ -180,6 +182,11 @@ function ImageLoading({
       {validationText && (
         <div className="text-status-danger-500 text-sm mt-2">
           {validationText}
+        </div>
+      )}
+      {minFiles > 0 && uploadedUrls.length < minFiles && (
+        <div className="text-status-danger-500 text-sm mt-2">
+          You must upload at least {minFiles} images.
         </div>
       )}
     </div>
