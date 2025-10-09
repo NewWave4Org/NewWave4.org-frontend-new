@@ -1,6 +1,7 @@
 import { ArticleStatus, ArticleType } from '@/utils/ArticleType';
 
 export interface IArticleBody {
+  id: number;
   title: string;
   articleType: ArticleType;
   articleStatus: string;
@@ -17,7 +18,7 @@ export interface GetArticleByIdResponseDTO {
   articleType: ArticleType;
   authorId: number;
   authorName: string;
-  contentBlocks: any[] | null
+  contentBlocks: any[] | null;
   id: number;
   publishedAt: string | null;
   createdAt: string;
@@ -27,11 +28,11 @@ export interface GetArticleByIdResponseDTO {
 }
 
 export interface CreateNewArticleRequestDTO {
-  articleType: ArticleType,
-  title: string,
-  contentBlocks: any[] | null,
-  relevantProjectId?: number,
-  authorId?: number
+  articleType: ArticleType;
+  title: string;
+  contentBlocks: any[] | null;
+  relevantProjectId?: number;
+  authorId?: number;
 }
 export interface CreateNewArticleResponseDTO {
   id: number;
@@ -51,6 +52,7 @@ export interface IGetAllArticleRequestDTO {
   size?: number;
   articleType?: ArticleType;
   articleStatus?: ArticleStatus | string;
+  relevantProjectId?: number | null;
 }
 
 export interface IGetAllArticleResponseDTO {
@@ -90,7 +92,7 @@ export interface UpdateArticleRequestDTO {
     authorId?: number;
     contentBlocks: any[] | null;
     relevantProjectId?: number;
-  }
+  };
 }
 export interface UpdateArticleResponseDTO {
   title: string;

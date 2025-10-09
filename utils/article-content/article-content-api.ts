@@ -9,34 +9,34 @@ import {
   GetArticleByIdResponseDTO,
   IGetAllArticleRequestDTO,
   IGetAllArticleResponseDTO,
-  PublishArticleResponseDTO,
   UpdateArticleRequestDTO,
   UpdateArticleResponseDTO,
 } from './type/interfaces';
 
 class ArticleApi implements IArticleApi {
-  async deleteArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
+  async deleteArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
     return request({
       method: HttpMethod.DELETE,
       url: ApiEndpoint.DELETE_ARTICLE_CONTENT(id),
-      params: { articleType }
+      params: { articleType },
     });
   }
 
-  async getArticleById({ id, articleType }: { id: number, articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
+  async getArticleById({ id, articleType }: { id: number; articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(id),
-      params: { articleType }
+      params: { articleType },
     });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
     const params: Record<string, string | number> = {
       page,
       size,
       ...(articleType !== undefined && { articleType }),
       ...(articleStatus !== undefined && { articleStatus }),
+      ...(relevantProjectId !== undefined && { articleStatus }),
     };
 
     return request({
@@ -54,7 +54,7 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async publishArticle(id: number): Promise<PublishArticleResponseDTO> {
+  async publishArticle(id: number): Promise<UpdateArticleResponseDTO> {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.PUBLISH_ARTICLE_CONTENT(id),
@@ -69,12 +69,12 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async archivedArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
+  async archivedArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.ARCHIVE_ARTICLE(id),
-      params: { articleType }
-    })
+      params: { articleType },
+    });
   }
 }
 

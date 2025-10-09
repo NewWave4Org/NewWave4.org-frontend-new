@@ -4,9 +4,8 @@ import { Roboto } from 'next/font/google';
 import '../../styles/admin.css';
 import { Bounce, ToastContainer } from 'react-toastify';
 
-import ReduxProvider from './ReduxProvider';
+import ReduxProvider from '../../store/ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
-
 
 const RobotoFont = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -25,13 +24,11 @@ export default function AdminLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative`}
-      >
+      <body className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative`}>
         <ReduxProvider>
           <AuthGate>
             {children}
-            
+
             <ToastContainer
               position="top-right"
               autoClose={5000}
