@@ -142,18 +142,20 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     fetchArticle();
   }, [articleId, dispatch]);
 
-  async function handleSaveArticleContent(values: ArticleContentDTO) {
+  async function handleSaveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
     if (!values.textblock1 || values.textblock1.trim() === '') {
       toast.error('Text block 1 is required');
-      return;
+      return false;
     }
     if (!values.mainPhoto || values.mainPhoto.length === 0) {
       toast.error('Main photo is required');
-      return;
+      return false;
     }
 
     const saveSuccess = await saveArticleContent(values);
-    if (!saveSuccess) return;
+    return saveSuccess;
   }
 
   async function saveArticleContent(
@@ -270,6 +272,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     <>
       <div className="modal__body">
         <Formik
+          validateOnMount
           enableReinitialize
           initialValues={{
             title: article?.title || '',
@@ -312,8 +315,11 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             })(),
           }}
           validationSchema={validationSchema}
-          onSubmit={async (values: ArticleContentDTO) => {
-            await handleSaveArticleContent(values);
+          onSubmit={async (values, { resetForm }) => {
+            const success = await handleSaveArticleContent(values);
+            if (success) {
+              resetForm({ values });
+            }
           }}
         >
           {({
@@ -321,8 +327,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             touched,
             handleChange,
             isSubmitting,
+            dirty,
             values,
             setFieldValue,
+            setFieldTouched,
           }) => (
             <Form>
               <div className="mb-5">
@@ -388,7 +396,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   onChange={handleChange}
                   validationText={
                     touched.textblock1 && errors.textblock1
-                      ? errors.textblock1
+                      ? (errors.textblock1 as string)
                       : ''
                   }
                 />
@@ -426,7 +434,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   label="Video"
                   labelClass="!text-admin-700"
                   validationText={
-                    touched.video && errors.video ? errors.video : ''
+                    touched.video && errors.video
+                      ? (errors.video as string)
+                      : ''
                   }
                 />
               </div>
@@ -439,7 +449,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   articleId={articleId!}
                   maxFiles={1}
                   uploadedUrls={values.mainPhoto || []}
-                  onFilesChange={urls => setFieldValue('mainPhoto', urls)}
+                  onFilesChange={urls => {
+                    setFieldValue('mainPhoto', urls);
+                    setFieldTouched('mainPhoto', true, false);
+                  }}
                   previewSize={300}
                   validationText={
                     touched.mainPhoto && errors.mainPhoto
@@ -470,7 +483,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   articleId={articleId!}
                   maxFiles={5}
                   uploadedUrls={values.sliderPhotos || []}
-                  onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
+                  onFilesChange={urls => {
+                    setFieldValue('sliderPhotos', urls);
+                    setFieldTouched('sliderPhotos', true, false);
+                  }}
                   previewSize={200}
                   validationText={
                     touched.sliderPhotos && errors.sliderPhotos
@@ -489,6 +505,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               <div className="flex gap-x-6 mt-6">
                 <Button
                   type="submit"
+                  title={isSubmitting ? 'Submitting...' : ''}
                   disabled={isSubmitting}
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
                 >
@@ -497,6 +514,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
                 <Button
                   type="button"
+                  disabled={dirty || isSubmitting}
+                  title={
+                    dirty
+                      ? 'Please save the changes'
+                      : isSubmitting
+                      ? 'Submitting...'
+                      : ''
+                  }
                   onClick={handlePreview}
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                 >
@@ -506,6 +531,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 {article?.articleStatus !== 'PUBLISHED' && (
                   <Button
                     type="button"
+                    title={
+                      dirty
+                        ? 'Please save the changes'
+                        : isSubmitting
+                        ? 'Submitting...'
+                        : ''
+                    }
+                    disabled={dirty || isSubmitting}
                     onClick={() => handlePublish(values)}
                     className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                   >
