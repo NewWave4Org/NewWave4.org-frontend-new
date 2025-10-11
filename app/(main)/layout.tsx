@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Subscribe from '@/components/layout/Subscribe';
 import { EB_Garamond } from 'next/font/google';
+import ReduxProvider from '@/store/ReduxProvider';
 
 const helveticaFont = localFont({
   src: [
@@ -44,13 +45,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}
-      >
-        <Header />
-        <main className="flex-1 overflow-hidden">{children}</main>
-        <Subscribe />
-        <Footer />
+      <body className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}>
+        <ReduxProvider>
+          <Header />
+          <main className="flex-1 overflow-hidden">{children}</main>
+          <Subscribe />
+          <Footer />
+        </ReduxProvider>
       </body>
     </html>
   );

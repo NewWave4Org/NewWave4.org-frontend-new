@@ -12,6 +12,7 @@ interface NewsProps {
   title?: string;
   link: string;
   textLink: string;
+  projectId?: number;
 }
 
 interface NewsApiResponse {
@@ -68,7 +69,12 @@ const prepareArticle = (article: Article): PreparedArticle => {
   };
 };
 
-const News: React.FC<NewsProps> = ({ title = false, link, textLink }) => {
+const News: React.FC<NewsProps> = ({
+  title = false,
+  link,
+  textLink,
+  projectId,
+}) => {
   const router = useRouter();
   const [articles, setArticles] = useState<PreparedArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -80,11 +86,14 @@ const News: React.FC<NewsProps> = ({ title = false, link, textLink }) => {
 
     try {
       const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
-      const params = {
+      const params: Record<string, string> = {
         size: '3',
         articleType: ArticleTypeEnum.NEWS,
         articleStatus: ArticleStatusEnum.PUBLISHED,
       };
+      if (projectId) {
+        params.relevantProjectId = String(projectId);
+      }
 
       const url = new URL(baseUrl);
       url.search = new URLSearchParams(params).toString();

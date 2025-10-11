@@ -4,7 +4,7 @@ import { Roboto } from 'next/font/google';
 import '../../styles/admin.css';
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ReduxProvider from '../(admin)/ReduxProvider';
+import ReduxProvider from '../../store/ReduxProvider';
 import AdminLayoutGuest from '../(admin)/AdminLayoutGuest';
 
 const roboto = Roboto({
@@ -17,11 +17,7 @@ export const metadata: Metadata = {
   title: 'Login | Admin panel',
 };
 
-export default function AdminPublicLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AdminPublicLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
@@ -29,19 +25,7 @@ export default function AdminPublicLayout({
           <AdminLayoutGuest>{children}</AdminLayoutGuest>
         </ReduxProvider>
 
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-          transition={Bounce}
-        />
+        <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" transition={Bounce} />
       </body>
     </html>
   );

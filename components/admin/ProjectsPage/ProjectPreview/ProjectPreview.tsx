@@ -14,6 +14,8 @@ function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | unde
 
   const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION');
 
+  const projectVideoUrl = project?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
 
@@ -22,7 +24,7 @@ function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | unde
       <ProjectHeader title={project?.title} className="!mb-0" />
       <ProjectContent contentBlock={firstTwoBlocks} />
       {quoteText && <Quote quote={quoteText} className="text-font-primary" />}
-      <ProjectContent contentBlock={otherBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} />
+      <ProjectContent contentBlock={otherBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} projectVideoUrl={projectVideoUrl} />
     </div>
   );
 }
