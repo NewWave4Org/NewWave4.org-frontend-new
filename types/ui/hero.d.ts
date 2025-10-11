@@ -4,6 +4,7 @@ interface HeroData {
 }
 
 interface HeroProps {
+  baseClassname?: string;
   data: {
     uk: HeroData;
     en: HeroData | null;
