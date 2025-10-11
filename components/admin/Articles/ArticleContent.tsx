@@ -142,18 +142,20 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     fetchArticle();
   }, [articleId, dispatch]);
 
-  async function handleSaveArticleContent(values: ArticleContentDTO) {
+  async function handleSaveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
     if (!values.textblock1 || values.textblock1.trim() === '') {
       toast.error('Text block 1 is required');
-      return;
+      return false;
     }
     if (!values.mainPhoto || values.mainPhoto.length === 0) {
       toast.error('Main photo is required');
-      return;
+      return false;
     }
 
     const saveSuccess = await saveArticleContent(values);
-    if (!saveSuccess) return;
+    return saveSuccess;
   }
 
   async function saveArticleContent(
@@ -313,8 +315,11 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             })(),
           }}
           validationSchema={validationSchema}
-          onSubmit={async (values: ArticleContentDTO) => {
-            await handleSaveArticleContent(values);
+          onSubmit={async (values, { resetForm }) => {
+            const success = await handleSaveArticleContent(values);
+            if (success) {
+              resetForm({ values });
+            }
           }}
         >
           {({
@@ -322,7 +327,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             touched,
             handleChange,
             isSubmitting,
-            isValid,
+            dirty,
             values,
             setFieldValue,
             setFieldTouched,
@@ -391,7 +396,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   onChange={handleChange}
                   validationText={
                     touched.textblock1 && errors.textblock1
-                      ? errors.textblock1
+                      ? (errors.textblock1 as string)
                       : ''
                   }
                 />
@@ -429,7 +434,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   label="Video"
                   labelClass="!text-admin-700"
                   validationText={
-                    touched.video && errors.video ? errors.video : ''
+                    touched.video && errors.video
+                      ? (errors.video as string)
+                      : ''
                   }
                 />
               </div>
@@ -498,14 +505,8 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               <div className="flex gap-x-6 mt-6">
                 <Button
                   type="submit"
-                  title={
-                    !isValid
-                      ? 'Please fill in all required fields correctly'
-                      : isSubmitting
-                      ? 'Submitting...'
-                      : ''
-                  }
-                  disabled={!isValid || isSubmitting}
+                  title={isSubmitting ? 'Submitting...' : ''}
+                  disabled={isSubmitting}
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
                 >
                   Save
@@ -513,10 +514,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
                 <Button
                   type="button"
-                  disabled={!isValid || isSubmitting}
+                  disabled={dirty || isSubmitting}
                   title={
-                    !isValid
-                      ? 'Please fill in all required fields correctly'
+                    dirty
+                      ? 'Please save the changes'
                       : isSubmitting
                       ? 'Submitting...'
                       : ''
@@ -531,13 +532,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   <Button
                     type="button"
                     title={
-                      !isValid
-                        ? 'Please fill in all required fields correctly'
+                      dirty
+                        ? 'Please save the changes'
                         : isSubmitting
                         ? 'Submitting...'
                         : ''
                     }
-                    disabled={!isValid || isSubmitting}
+                    disabled={dirty || isSubmitting}
                     onClick={() => handlePublish(values)}
                     className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                   >
