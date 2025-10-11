@@ -4,8 +4,9 @@ import ProjectHeader from '../projectsBlock/ProjectHeader';
 import Quote from '../quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
+import NewsEvents from '../home/NewsEvents';
 
-function ProjectPage({ project }: { project: IArticleBody }) {
+function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; relevantProjectId: number }) {
   const videoLink = project?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const embedUrl = convertYoutubeUrlToEmbed(videoLink);
 
@@ -19,6 +20,7 @@ function ProjectPage({ project }: { project: IArticleBody }) {
   const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION');
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
+
   return (
     <>
       <ProjectHeader title={project.title} className="!mb-0" />
@@ -35,13 +37,13 @@ function ProjectPage({ project }: { project: IArticleBody }) {
       </div>
 
       {videoLink && embedUrl && (
-        <div className="mb-6">
-          <iframe src={embedUrl} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
+        <div className="container mx-auto px-4 py-16">
+          <div className="mb-6">
+            <iframe src={embedUrl} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
+          </div>
         </div>
       )}
-      {/* <div className="mb-6">
-        <NewsEvents textLink="Всі новини школи" link="" titleEvents="Новини та події школи" />
-      </div> */}
+      <NewsEvents textLink="Всі новини школи" link="" titleEvents="Новини та події школи" projectId={relevantProjectId} />
     </>
   );
 }

@@ -1,17 +1,17 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 
-import FacebookIcon from "../icons/social/FacebookIcon";
-import LinkBtn from "../shared/LinkBtn";
-import ArrowRightIcon from "../icons/navigation/ArrowRightIcon";
-import { useState } from "react";
+import FacebookIcon from '../icons/social/FacebookIcon';
+import LinkBtn from '../shared/LinkBtn';
+import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
+import { useState } from 'react';
 
-import { typeSocialMediaEnum } from "@/data/projects/typeSocialMediaList";
-import InstagramIcon from "../icons/social/InstagramIcon";
-import YoutubeIcon from "../icons/social/YoutubeIcon";
-import TelegramIcon from "../icons/social/TelegramIcon";
-
+import { typeSocialMediaEnum } from '@/data/projects/typeSocialMediaList';
+import InstagramIcon from '../icons/social/InstagramIcon';
+import YoutubeIcon from '../icons/social/YoutubeIcon';
+import TelegramIcon from '../icons/social/TelegramIcon';
+import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 
 interface ProjectContent {
   contentBlockType: string;
@@ -25,10 +25,12 @@ interface ProjectContentProps {
   siteLink?: string;
   nameSocialMedia?: string;
   linkSocialMedia?: string;
+  projectVideoUrl?: string;
 }
 
-function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedia}: ProjectContentProps) {
+function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMedia, projectVideoUrl }: ProjectContentProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const videoLink = convertYoutubeUrlToEmbed(projectVideoUrl!);
 
   return (
     <>
@@ -39,23 +41,17 @@ function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedi
             return (
               <div key={index} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
                 <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
-                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">
-                    {content?.sectionTitle}
-                  </div>
+                  <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
                   <div>
-                    <div className="text-body">
-                      {content.text}
-                    </div>
-                    {index === 0 && siteLink && (
-                      <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>
-                    )}
-                    {index === 0 && (siteLink || linkSocialMedia) && ( 
+                    <div className="text-body">{content.text}</div>
+                    {index === 0 && siteLink && <div className="mt-6 text-font-primary text-body">Дізнатися більше:</div>}
+                    {index === 0 && (siteLink || linkSocialMedia) && (
                       <div className="flex gap-x-4 mt-4">
                         {siteLink && (
                           <LinkBtn href={siteLink} className="px-[30px]" setIsHovered={setIsHovered}>
                             <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
                             <div className="mt-[3px]">
-                              <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? "white" : "#3D5EA7"} />
+                              <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? 'white' : '#3D5EA7'} />
                             </div>
                           </LinkBtn>
                         )}
@@ -86,22 +82,19 @@ function ProjectContent({contentBlock, siteLink, nameSocialMedia, linkSocialMedi
                     )} */}
                   </div>
                 </div>
-                {content?.files?.length > 0 && (<div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
-                  <div className="relative h-[360px] w-full">
-                    {content.files.map((file, idx) => (
-                      <Image
-                        key={idx}
-                        src={file}
-                        alt={content.sectionTitle}
-                        fill
-                        className="object-cover"
-                      />
-                    ))}
+                {content?.files?.length > 0 && (
+                  <div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
+                    <div className="relative h-[360px] w-full">
+                      {content.files.map((file, idx) => (
+                        <Image key={idx} src={file} alt={content.sectionTitle} fill className="object-cover" />
+                      ))}
+                    </div>
                   </div>
-                </div>)}
+                )}
               </div>
             );
           })}
+          {videoLink && projectVideoUrl && <iframe src={videoLink} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />}
         </div>
       </div>
     </>

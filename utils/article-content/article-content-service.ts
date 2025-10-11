@@ -6,7 +6,6 @@ import {
   GetArticleByIdResponseDTO,
   IGetAllArticleRequestDTO,
   IGetAllArticleResponseDTO,
-  PublishArticleResponseDTO,
   UpdateArticleRequestDTO,
   UpdateArticleResponseDTO,
 } from './type/interfaces';
@@ -19,23 +18,23 @@ class ArticleService implements IArticleService {
     this.articleApi = articleApi;
   }
 
-  async deleteArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
+  async deleteArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
     return this.articleApi.deleteArticle({ id, articleType });
   }
 
-  async getArticleById({ id, articleType }: { id: number, articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
+  async getArticleById({ id, articleType }: { id: number; articleType: ArticleType }): Promise<GetArticleByIdResponseDTO> {
     return this.articleApi.getArticleById({ id, articleType });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
-    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus });
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId });
   }
 
   async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {
     return this.articleApi.createNewArticle(data);
   }
 
-  async publishArticle(id: number): Promise<PublishArticleResponseDTO> {
+  async publishArticle(id: number): Promise<UpdateArticleResponseDTO> {
     return this.articleApi.publishArticle(id);
   }
 
@@ -43,8 +42,8 @@ class ArticleService implements IArticleService {
     return this.articleApi.updateArticle({ id, data });
   }
 
-  async archivedArticle({ id, articleType }: { id: number, articleType: ArticleType }) {
-    return this.articleApi.archivedArticle({ id, articleType })
+  async archivedArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
+    return this.articleApi.archivedArticle({ id, articleType });
   }
 }
 
