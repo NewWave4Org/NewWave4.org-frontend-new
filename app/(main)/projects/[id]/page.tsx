@@ -1,83 +1,73 @@
+// app/page.tsx
+import Image from "next/image";
+import { siteContent } from "@/utils/constants/programobject";
 import Hero from "@/components/ui/Hero";
-import { heroData } from "@/data/projects/hero";
-import { ArticleStatusEnum, ArticleTypeEnum } from "@/utils/ArticleType";
-import { programObject } from "@/utils/constants/programobject";
-import { ApiEndpoint } from "@/utils/http/enums/api-endpoint";
+import { prefix } from "@/utils/prefix";
 
-export default function ProgramPagebyId() {
-  const {
-    title,
-    description,
-    cta,
-    highlights,
-    schedule,
-    video,
-    otherPrograms,
-  } = programObject;
+export default function HomePage() {
+  const { hero, congress, nato, gallery, priorities, program, video, morePrograms } = siteContent;
 
-  const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
-  const params = {
-    currentPage: '1',
-    articleType: ArticleTypeEnum.PROJECT.toString(),
-    articleStatus: ArticleStatusEnum.PUBLISHED,
+  const heroData = {
+    uk: {
+      title: hero.title,
+      img: `${prefix}/hero/about.svg`,
+    },
+    en: {
+      title: "About us",
+      img: `${prefix}/hero/about.svg`,
+    }
   };
 
   return (
-    <div className="p-6 space-y-10">
-      {/* Title + CTA */}
-      <Hero baseClassname="!flex !justify-start !items-end !p-[100px]" data={heroData} />
-      <header className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-blue-900">{title}</h1>
-        <p className="text-gray-700 max-w-2xl mx-auto">{description}</p>
-        <div className="flex justify-center gap-4 mt-4">
-          <button className="bg-blue-900 text-white px-5 py-2 rounded-lg hover:bg-blue-800">
-            {cta.donateLabel}
-          </button>
-          <span className="text-gray-600 font-medium">{cta.dateRange}</span>
-        </div>
-      </header>
+    <main className="font-sans text-gray-800">
+      {/* Hero Section */}
+      <Hero data={heroData} baseClassname="flex justify-start !items-end !p-[100px]" />
 
-      {/* Highlights */}
-      <section className="space-y-6">
-        {highlights.map((h, idx) => (
-          <div
-            key={idx}
-            className="bg-white shadow rounded-lg p-6 space-y-3 border"
-          >
-            <h2 className="text-xl font-semibold text-gray-800">{h.heading}</h2>
-            {"text" in h && <p className="text-gray-700">{h.text}</p>}
-            {"list" in h && (
-              <ul className="list-disc list-inside text-gray-700 space-y-1">
-                {h.list?.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
+      {/* Congress Section */}
+      <section className="py-12 px-6 md:px-16 bg-yellow-50">
+        <p className="text-sm text-gray-600">{congress.date}</p>
+        <h2 className="text-2xl font-semibold mt-2">{congress.title}</h2>
+        <p className="mt-4 text-gray-700">{congress.description}</p>
+        <button className="mt-4 bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-600">
+          {congress.button.text}
+        </button>
       </section>
 
-      {/* Schedule */}
-      <section>
-        <h2 className="text-2xl font-semibold text-blue-900 mb-4">Програма заходів</h2>
-        <div className="space-y-6">
-          {schedule.map((day, idx) => (
-            <div key={idx} className="bg-white shadow rounded-lg p-6 border">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                {day.date}
-              </h3>
-              <ul className="space-y-2">
-                {day.events.map((event, eIdx) => (
-                  <li key={eIdx} className="flex justify-between text-gray-700">
-                    <span>
-                      <span className="font-medium">{event.time}</span> —{" "}
-                      {event.title}
-                    </span>
-                    {event.location && (
-                      <span className="italic text-gray-500">
-                        {event.location}
-                      </span>
-                    )}
+      {/* NATO Section */}
+      <section className="py-16 px-6 md:px-16 flex flex-col md:flex-row items-center gap-8">
+        <div className="flex-1">
+          <h3 className="text-2xl font-semibold mb-4">{nato.title}</h3>
+          <p className="text-gray-700 leading-relaxed">{nato.text}</p>
+        </div>
+        <div className="flex-1">
+          <Image src={nato.image} alt="NATO meeting" width={600} height={400} className="rounded-lg shadow" />
+        </div>
+      </section>
+
+      {/* Priorities Section */}
+      <section className="bg-gray-50 py-12 px-6 md:px-16">
+        <h3 className="text-2xl font-semibold mb-6">{priorities.title}</h3>
+        <ul className="grid md:grid-cols-2 gap-4 list-disc list-inside">
+          {priorities.goals.map((goal, i) => (
+            <li key={i}>{goal}</li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Program Section */}
+      <section className="py-16 px-6 md:px-16 bg-white flex flex-col md:flex-row gap-8">
+        <div className="flex-1">
+          <Image src={program.image} alt="Program flag" width={600} height={400} className="rounded-lg shadow" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-2xl font-semibold mb-4">{program.title}</h3>
+          {program.events.map((event, i) => (
+            <div key={i} className="mb-6">
+              <h4 className="font-bold text-lg text-blue-700">{event.date}</h4>
+              <ul className="mt-2 text-gray-700">
+                {event.schedule.map((item, j) => (
+                  <li key={j} className="text-sm">
+                    {item.time} — {item.title}
                   </li>
                 ))}
               </ul>
@@ -86,53 +76,43 @@ export default function ProgramPagebyId() {
         </div>
       </section>
 
-      {/* Video */}
-      <section>
-        <h2 className="text-2xl font-semibold text-blue-900 mb-4">Відео</h2>
-        <div className="aspect-video w-full max-w-3xl mx-auto">
-          <iframe
-            className="w-full h-full rounded-lg shadow"
-            src={video.url}
-            title="Program video"
-            allowFullScreen
-          />
+      {/* Video Section */}
+      <section className="py-16 bg-gray-100 flex justify-center items-center">
+        <div className="w-[80%] h-[400px] bg-gray-300 flex justify-center items-center text-xl text-gray-600">
+          ВІДЕО
         </div>
       </section>
 
-      {/* Other programs */}
-      <section>
-        <h2 className="text-2xl font-semibold text-blue-900 mb-4">
-          Інші ПРОГРАМИ
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-6">
-          {otherPrograms.map((p, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-5 rounded-lg shadow border hover:shadow-md transition"
-            >
-              <span className="block text-sm text-gray-500">{p.month}</span>
-              <h3 className="text-lg font-semibold text-gray-800">{p.title}</h3>
+      {/* More Programs */}
+      <section className="py-12 px-6 md:px-16 bg-yellow-50">
+        <h3 className="text-2xl font-semibold mb-6">Інші програми</h3>
+        <div className="grid md:grid-cols-3 gap-6">
+          {morePrograms.map((p, i) => (
+            <div key={i} className="bg-white rounded-lg shadow hover:shadow-lg transition">
+              <Image src={p.image} alt={p.title} width={400} height={250} className="rounded-t-lg" />
+              <div className="p-4">
+                <p className="text-xs text-gray-500">{p.date}</p>
+                <h4 className="font-semibold mt-2">{p.title}</h4>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="bg-blue-50 rounded-lg p-6 text-center space-y-4">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Будьте в курсі наших новин та подій
-        </h2>
-        <div className="flex justify-center gap-2 max-w-md mx-auto">
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8 text-center">
+        <p>Будьте в курсі наших новин та подій</p>
+        <div className="mt-4">
           <input
             type="email"
             placeholder="Введіть Ваш email"
-            className="flex-1 px-4 py-2 border rounded-lg"
+            className="px-3 py-2 rounded-l-md text-black"
           />
-          <button className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800">
-            Підписатися
+          <button className="bg-yellow-500 px-4 py-2 rounded-r-md hover:bg-yellow-600">
+            Підписатись
           </button>
         </div>
-      </section>
-    </div>
+      </footer>
+    </main>
   );
 }
