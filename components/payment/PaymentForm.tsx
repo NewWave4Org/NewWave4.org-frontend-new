@@ -17,8 +17,7 @@ import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
-import logger from 'nexlog'
-import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS } from '@/env';
+import axios from 'axios';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -47,10 +46,8 @@ const PaymentForm = () => {
   const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
-  const stripePromise = typeof window !== "undefined"
-    ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!)
-    : loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
-  logger.info('loading the stripe key' + process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!)
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
+  console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL!);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
@@ -74,9 +71,7 @@ const PaymentForm = () => {
       });
       const data = await response.json();
        */
-
       if (data.sessionId) {
-        logger.info('loading the data' + data);
         const stripe = await stripePromise;
         await stripe?.redirectToCheckout({ sessionId: data.sessionId });
       } else {

@@ -1,14 +1,13 @@
 "use client";
 import Logo from '@/components/layout/Logo';
 import PaymentForm from '@/components/payment/PaymentForm';
-import { NEXT_PUBLIC_PAYPAL_CLIENT_ID, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS } from '@/env';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
 const DonationPage = () => {
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS! || NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
-  const paypalOptions = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! || NEXT_PUBLIC_PAYPAL_CLIENT_ID };
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
+  const paypalOptions = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! };
   return (
     <PayPalScriptProvider options={paypalOptions}>
       <Elements stripe={stripePromise}>
