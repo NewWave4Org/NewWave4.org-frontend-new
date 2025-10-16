@@ -1,7 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["nexlog"],
   images: { unoptimized: true },
   trailingSlash: false,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
