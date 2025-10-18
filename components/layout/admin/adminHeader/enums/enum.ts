@@ -13,10 +13,10 @@ const adminLinkSidebar = {
   ADMIN_PAGES: '/admin/pages',
   ADMIN_ARTICLES: '/admin/articles',
   ADMIN_PROJECTS: '/admin/projects',
+  ADMIN_PROGRAMS: '/admin/programs',
   ADMIN_ARCHIVE: '/admin/archive',
 } as const;
 
-type adminLinkSidebar =
-  (typeof adminLinkSidebar)[keyof typeof adminLinkSidebar];
+type adminLinkSidebar = (typeof adminLinkSidebar)[keyof typeof adminLinkSidebar];
 
 export { adminLinkSidebar };

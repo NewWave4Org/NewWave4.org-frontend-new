@@ -11,8 +11,7 @@ import { setAuthData } from '@/store/auth/auth_slice';
 import { getUserInfo, logOutAuth } from '@/store/auth/action';
 
 axios.defaults.baseURL = `${prefix}`;
-axios.defaults.headers.post['Content-Type'] =
-  'application/x-www-form-urlencoded';
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 export const refreshAccessToken = async () => {
   console.log('refreshAccessToken');
@@ -73,10 +72,7 @@ export async function request<T>(options: RequestOptions) {
   } catch (error: unknown) {
     const err = error as AxiosError;
 
-    if (
-      (err?.response?.status === 401 || err?.response?.status === 403) &&
-      !options._retry
-    ) {
+    if ((err?.response?.status === 401 || err?.response?.status === 403) && !options._retry) {
       options._retry = true;
 
       const refreshed = await refreshAccessToken();
