@@ -133,3 +133,8 @@ body {
   .slide-btn {
     @apply absolute top-1/2 w-[60px] h-[60px] opacity-70 -translate-y-1/2 p-3 bg-primary-400 transition rounded-full z-20;
   }
+
+
+  .react-calendar-datetime-picker  {
+    background: transparent !important;
+  }

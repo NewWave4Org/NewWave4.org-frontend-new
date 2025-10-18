@@ -1,8 +1,8 @@
 'use client';
 
 import * as Yup from 'yup';
-import { emailValidation, passwordValidation } from "@/utils/validation";
-import LogIn from "@/components/admin/LogIn/LogIn";
+import { emailValidation, passwordValidation } from '@/utils/validation';
+import LogIn from '@/components/admin/UserActions/LogIn/LogIn';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -10,10 +10,7 @@ const validationSchema = Yup.object({
 });
 
 const AdminLogIn = () => {
-
-  return (
-    <LogIn validationSchema={validationSchema} />
-  );
+  return <LogIn validationSchema={validationSchema} />;
 };
 
 export default AdminLogIn;

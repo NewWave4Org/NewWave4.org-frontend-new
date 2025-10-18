@@ -1,11 +1,11 @@
-import Logo from "@/components/layout/Logo";
-import DropDown from "@/components/shared/DropDown";
-import adminLink from "./enums/enum";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
+import Logo from '@/components/layout/Logo';
+import DropDown from '@/components/shared/DropDown';
+import adminLink from './enums/enum';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 
-import { logOutAuth } from "@/store/auth/action";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { logOutAuth } from '@/store/auth/action';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
@@ -27,11 +27,12 @@ const AdminHeader = () => {
   }
 
   return (
-    <div className="header bg-background-darkBlue800 fixed top-0 w-full z-10">
+    <div className="header bg-background-darkBlue800 fixed top-0 w-full z-[9999]">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-2">
           <Logo textColor="text-white" />
-          {isAuthenticated && ( <div>
+          {isAuthenticated && (
+            <div>
               <DropDown
                 renderBth={(isOpen, toggle) => (
                   <button onClick={toggle} className="text-white">
@@ -41,12 +42,13 @@ const AdminHeader = () => {
                 classNameItem=""
                 classNameMenu="right-0 w-[200px]"
                 items={[
-                  { label: "Профіль", href: adminLink.PROFILE, isLink: true },
-                  { label: "Налаштування", href: adminLink.SETTINGS, isLink: true },
-                  { label: "Вихід", href: '#', isLink: false, onClick: handleLogOut },
+                  { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
+                  { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
+                  { label: 'Вихід', href: '#', isLink: false, onClick: handleLogOut },
                 ]}
               />
-            </div>)}
+            </div>
+          )}
         </div>
       </div>
     </div>
