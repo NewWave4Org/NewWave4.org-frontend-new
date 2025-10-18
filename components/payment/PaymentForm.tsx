@@ -47,7 +47,7 @@ const PaymentForm = () => {
   const router = useRouter();
 
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
-  console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL);
+  console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL!);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;

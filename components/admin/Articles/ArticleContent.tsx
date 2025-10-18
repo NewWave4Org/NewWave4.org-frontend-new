@@ -123,18 +123,18 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     fetchArticle();
   }, [articleId, dispatch]);
 
-  async function handleSaveArticleContent(values: ArticleContentDTO) {
+  async function handleSaveArticleContent(values: ArticleContentDTO): Promise<boolean> {
     if (!values.textblock1 || values.textblock1.trim() === '') {
       toast.error('Text block 1 is required');
-      return;
+      return false;
     }
     if (!values.mainPhoto || values.mainPhoto.length === 0) {
       toast.error('Main photo is required');
-      return;
+      return false;
     }
 
     const saveSuccess = await saveArticleContent(values);
-    if (!saveSuccess) return;
+    return saveSuccess;
   }
 
   async function saveArticleContent(values: ArticleContentDTO): Promise<boolean> {
@@ -241,6 +241,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     <>
       <div className="modal__body">
         <Formik
+          validateOnMount
           enableReinitialize
           initialValues={{
             title: article?.title || '',
@@ -265,11 +266,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             })(),
           }}
           validationSchema={validationSchema}
-          onSubmit={async (values: ArticleContentDTO) => {
-            await handleSaveArticleContent(values);
+          onSubmit={async (values, { resetForm }) => {
+            const success = await handleSaveArticleContent(values);
+            if (success) {
+              resetForm({ values });
+            }
           }}
         >
-          {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
+          {({ errors, touched, handleChange, isSubmitting, dirty, values, setFieldValue, setFieldTouched }) => (
             <Form>
               <div className="mb-5">
                 <Input
@@ -322,7 +326,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   labelClass=" !text-admin-700"
                   value={values.textblock1}
                   onChange={handleChange}
-                  validationText={touched.textblock1 && errors.textblock1 ? errors.textblock1 : ''}
+                  validationText={touched.textblock1 && errors.textblock1 ? (errors.textblock1 as string) : ''}
                 />
               </div>
 
@@ -350,7 +354,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   value={values.video}
                   label="Video"
                   labelClass="!text-admin-700"
-                  validationText={touched.video && errors.video ? errors.video : ''}
+                  validationText={touched.video && errors.video ? (errors.video as string) : ''}
                 />
               </div>
 
@@ -362,7 +366,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   articleId={articleId!}
                   maxFiles={1}
                   uploadedUrls={values.mainPhoto || []}
-                  onFilesChange={urls => setFieldValue('mainPhoto', urls)}
+                  onFilesChange={urls => {
+                    setFieldValue('mainPhoto', urls);
+                    setFieldTouched('mainPhoto', true, false);
+                  }}
                   previewSize={300}
                   validationText={touched.mainPhoto && errors.mainPhoto ? (errors.mainPhoto as string) : ''}
                 />
@@ -389,7 +396,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   articleId={articleId!}
                   maxFiles={5}
                   uploadedUrls={values.sliderPhotos || []}
-                  onFilesChange={urls => setFieldValue('sliderPhotos', urls)}
+                  onFilesChange={urls => {
+                    setFieldValue('sliderPhotos', urls);
+                    setFieldTouched('sliderPhotos', true, false);
+                  }}
                   previewSize={200}
                   validationText={touched.sliderPhotos && errors.sliderPhotos ? (errors.sliderPhotos as string) : ''}
                 />
@@ -400,16 +410,33 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 <em>You must save the page before you can preview or publish it</em>
               </div>
               <div className="flex gap-x-6 mt-6">
-                <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+                <Button
+                  type="submit"
+                  title={isSubmitting ? 'Submitting...' : ''}
+                  disabled={isSubmitting}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+                >
                   Save
                 </Button>
 
-                <Button type="button" onClick={handlePreview} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                <Button
+                  type="button"
+                  disabled={dirty || isSubmitting}
+                  title={dirty ? 'Please save the changes' : isSubmitting ? 'Submitting...' : ''}
+                  onClick={handlePreview}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
                   Preview
                 </Button>
 
                 {article?.articleStatus !== 'PUBLISHED' && (
-                  <Button type="button" onClick={() => handlePublish(values)} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                  <Button
+                    type="button"
+                    title={dirty ? 'Please save the changes' : isSubmitting ? 'Submitting...' : ''}
+                    disabled={dirty || isSubmitting}
+                    onClick={() => handlePublish(values)}
+                    className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                  >
                     Publish
                   </Button>
                 )}
