@@ -1,11 +1,38 @@
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+import { EB_Garamond, Roboto } from 'next/font/google';
 
 import '../../styles/admin.css';
 import { Bounce, ToastContainer } from 'react-toastify';
 
 import ReduxProvider from '../../store/ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
+import localFont from 'next/font/local';
+
+const ebGaramondFont = EB_Garamond({
+  weight: ['500', '600'],
+  subsets: ['latin'],
+  variable: '--font-ebGaramond',
+});
+const helveticaFont = localFont({
+  src: [
+    {
+      path: '../../styles/fonts/HelveticaNeue-Light.woff',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../styles/fonts/HelveticaNeue-Roman.woff',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../styles/fonts/HelveticaNeue-Medium.woff',
+      weight: '500',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-helvetica',
+});
 
 const RobotoFont = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -24,7 +51,7 @@ export default function AdminLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${RobotoFont.variable} antialiased flex flex-col min-h-screen relative`}>
+      <body className={`${RobotoFont.variable} ${helveticaFont.variable} ${ebGaramondFont.variable} antialiased flex flex-col min-h-screen relative`}>
         <ReduxProvider>
           <AuthGate>
             {children}
