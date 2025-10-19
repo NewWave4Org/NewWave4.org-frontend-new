@@ -18,6 +18,8 @@ import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 import axios from 'axios';
+import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS } from '@/env';
+import logger from 'nexlog';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -46,8 +48,8 @@ const PaymentForm = () => {
   const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
-  console.log(process.env.NEXT_PUBLIC_NEWWAVE_API_URL!);
+  const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
+  logger.info('variable from env keys' + JSON.stringify(process.env));
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
