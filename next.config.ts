@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // don't transpile `nexlog` - use the package's published builds/exports
+  // transpilePackages: ['nexlog'],
   images: { unoptimized: true },
   trailingSlash: false,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
