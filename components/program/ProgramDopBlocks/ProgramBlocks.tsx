@@ -3,7 +3,7 @@ import ProgramBlockItem from './ProgramBlockItem';
 
 function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] }) {
   return (
-    <div className="program-block-dop">
+    <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
         <h4 className="preheader !text-font-primary lg:mb-10 mb-6">Інші програми</h4>
 

@@ -28,24 +28,12 @@ interface PreparedArticle {
 }
 
 const prepareArticle = (article: Article): PreparedArticle => {
-  const mainTextBlock = article.contentBlocks.find(
-    block =>
-      block.contentBlockType === 'MAIN_NEWS_BLOCK' ||
-      block.contentBlockType === 'TEXT',
-  );
+  const mainTextBlock = article.contentBlocks.find(block => block.contentBlockType === 'MAIN_NEWS_BLOCK' || block.contentBlockType === 'TEXT');
   const text = mainTextBlock ? mainTextBlock.data : '';
 
-  const photoBlock = article.contentBlocks.find(
-    block => block.contentBlockType === 'PHOTO' && block.data,
-  );
+  const photoBlock = article.contentBlocks.find(block => block.contentBlockType === 'PHOTO' && block.data);
 
-  const imageSrc = photoBlock
-    ? typeof photoBlock.data === 'string'
-      ? photoBlock.data
-      : Array.isArray(photoBlock.data)
-      ? photoBlock.data[0]
-      : ''
-    : '';
+  const imageSrc = photoBlock ? (typeof photoBlock.data === 'string' ? photoBlock.data : Array.isArray(photoBlock.data) ? photoBlock.data[0] : '') : '';
 
   return {
     id: article.id,
@@ -60,9 +48,7 @@ interface NewsContentProps {
   activeFilter: number;
 }
 
-const NewsContent: React.FC<NewsContentProps> = ({
-  activeFilter,
-}: NewsContentProps) => {
+const NewsContent: React.FC<NewsContentProps> = ({ activeFilter }: NewsContentProps) => {
   const [articles, setArticles] = useState<PreparedArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -98,8 +84,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
 
       const data = await response.json();
 
-      const mappedArticles: PreparedArticle[] =
-        data.content.map(prepareArticle);
+      const mappedArticles: PreparedArticle[] = data.content.map(prepareArticle);
       console.log(data.content);
       setArticles(mappedArticles);
 
@@ -121,11 +106,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
   }, [activeFilter]);
 
   if (!loading && articles.length === 0) {
-    return (
-      <div className="container px-4 mx-auto">
-        Наразі новин немає. Слідкуйте за оновленнями.
-      </div>
-    );
+    return <div className="container px-4 mx-auto">Наразі новин немає. Слідкуйте за оновленнями.</div>;
   }
 
   return (
@@ -134,21 +115,11 @@ const NewsContent: React.FC<NewsContentProps> = ({
         <div className="container px-4 mx-auto">
           <div className="flex flex-wrap mx-[-12px]">
             {loading ? (
-              <div className="w-full text-center py-8 text-gray-500">
-                Loading...
-              </div>
+              <div className="w-full text-center py-8 text-gray-500">Loading...</div>
             ) : (
               articles.map(article => (
-                <div
-                  className="my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock"
-                  key={article.id}
-                >
-                  <Card
-                    link={`/news/${article.id}`}
-                    imageSrc={article.imageSrc || undefined}
-                    title={article.title}
-                    text={article.text}
-                  />
+                <div className="my-4 px-[12px] w-full md:w-1/2 lg:w-1/3 newsBlock" key={article.id}>
+                  <Card link={`/news/${article.id}`} imageSrc={article.imageSrc || undefined} title={article.title} text={article.text} />
                 </div>
               ))
             )}
@@ -156,13 +127,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
         </div>
       </div>
 
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={page => setCurrentPage(page)}
-        />
-      )}
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={page => setCurrentPage(page)} />}
     </>
   );
 };
