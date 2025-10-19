@@ -1,3 +1,3 @@
 export const NEXT_PUBLIC_PAYPAL_CLIENT_ID = 'AcYMVKpTFomZEjyd0_gSRoGC6zvAfx3oY6edYgxb4cX39I4CGUeEQhBelMyqkNUstm87W4uIQxheNtad';
 export const NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS = 'pk_test_51RaG5lBHy8UoqeVFEuWPYeskQWj0ST4plObwRJnZjeYytQFn04A8ioKqkzdFhXtya5mLi60NA3rfoScEE3p8Yrpw00YtQuj53w';
-export const NEXT_PUBLIC_NEWWAVE_API_URL = 'http://localhost:8080';
+// export const NEXT_PUBLIC_NEWWAVE_API_URL = 'http://localhost:8080';
