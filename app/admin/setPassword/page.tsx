@@ -1,6 +1,6 @@
 'use client';
 
-import SetPasswordForm from '@/components/admin/SetPasswordForm/SetPasswordForm';
+import SetPasswordForm from '@/components/admin/UserActions/SetPasswordForm/SetPasswordForm';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 

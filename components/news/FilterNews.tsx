@@ -72,19 +72,8 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
     <div className="filterNews mb-[14px]">
       <div className="filterNews__inner">
         <div className="container px-4 mx-auto">
-          <ul className="filterNews__items flex lg:px-[32px] px-0 lg:justify-between justify-start bg-background-primary lg:flex-nowrap flex-wrap">
-            {loading ? (
-              <li className="px-4 py-2 text-gray-500">Loading...</li>
-            ) : (
-              filterItems.map(item => (
-                <FilterItem
-                  key={item.id}
-                  item={item}
-                  handleFilterActive={handleFilterActive}
-                  activeFilter={activeFilter}
-                />
-              ))
-            )}
+          <ul className="filterNews__items flex lg:px-[32px] px-0 justify-start bg-background-primary lg:flex-nowrap flex-wrap">
+            {loading ? <li className="px-4 py-2 text-gray-500">Loading...</li> : filterItems.map(item => <FilterItem key={item.id} item={item} handleFilterActive={handleFilterActive} activeFilter={activeFilter} />)}
           </ul>
         </div>
       </div>

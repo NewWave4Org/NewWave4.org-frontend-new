@@ -9,14 +9,10 @@ function EditProjectPage() {
   const { id } = useParams();
   const projectId = Number(id);
   const router = useRouter();
-  console.log('projectId', projectId);
 
   return (
     <>
-      <Button
-        onClick={() => router.back()}
-        className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10"
-      >
+      <Button onClick={() => router.back()} className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10">
         <ArrowLeft4Icon color="white" />
         Back
       </Button>
@@ -26,10 +22,7 @@ function EditProjectPage() {
       ) : (
         <>
           <div className="text-h4 mb-5">Project wasn&apos;t created</div>
-          <Button
-            onClick={() => router.back()}
-            className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
-          >
+          <Button onClick={() => router.back()} className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
             <ArrowLeft4Icon />
             Back
           </Button>

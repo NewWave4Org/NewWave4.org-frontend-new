@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/store/hook';
 import { getUserInfo } from '@/store/auth/action';
-import Loading from '@/components/admin/Loading/Loading';
-
+import Loading from '@/components/admin/helperComponents/Loading/Loading';
 
 const AuthGate = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
