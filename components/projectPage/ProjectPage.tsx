@@ -1,6 +1,6 @@
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
-import ProjectContent from '../projectsBlock/ProjectContent';
-import ProjectHeader from '../projectsBlock/ProjectHeader';
+import ProjectContent from './ProjectContent';
+import ProjectHeader from './ProjectHeader';
 import Quote from '../quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
@@ -43,7 +43,8 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
           </div>
         </div>
       )}
-      <NewsEvents textLink="Всі новини школи" link="" titleEvents="Новини та події школи" projectId={relevantProjectId} />
+
+      <NewsEvents textLink="Всі новини школи" link="/news" titleEvents="Новини та події школи" projectId={relevantProjectId} />
     </>
   );
 }

@@ -114,7 +114,7 @@ const News: React.FC<NewsProps> = ({ title = false, link, textLink, projectId })
         <div className=" flex flex-col gap-y-6">
           <div className={`flex  w-full ${title ? 'justify-between items-center' : 'justify-end'}`}>
             {title && <div className="font-preheader uppercase">{title}</div>}
-            <Button variant="tertiary" size="small" onClick={() => router.push(`${link}?`)}>
+            <Button variant="tertiary" size="small" onClick={() => router.push(projectId ? `${link}?projectId=${projectId}` : link)}>
               <span className="flex items-center gap-x-2">
                 {textLink} <ArrowRightIcon size="20px" color="#3D5EA7" />
               </span>
