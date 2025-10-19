@@ -54,7 +54,6 @@ const PaymentForm = () => {
     const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-
       const response = await axiosOpenInstance.post('/payments/stripe-checkout-session', {
         name,
         amount: calculatedAmount,
