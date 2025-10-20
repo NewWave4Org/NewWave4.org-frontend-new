@@ -18,7 +18,7 @@ function ProgramSchedule({ schedulePoster, scheduleTitle = 'Програма з�
         )}
         <div className="w-1/2">
           <div className="p-12">
-            <h2 className="font-ebGaramond text-4xl font-semibold mb-8 text-font-primary">{scheduleTitle}</h2>
+            <h2 className="font-ebGaramond text-4xl font-semibold mb-8 text-font-primary">{scheduleTitle ? scheduleTitle : 'Програма заходів'}</h2>
             <div className="flex flex-col gap-4">
               {scheduleInfo?.map((scheduleItem, index) => (
                 <ProgramScheduleItem key={index} scheduleItem={scheduleItem} />
