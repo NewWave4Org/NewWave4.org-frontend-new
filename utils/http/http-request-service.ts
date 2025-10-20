@@ -1,5 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { prefix } from '../prefix';
+import { AxiosError, AxiosResponse } from 'axios';
 import { axiosInstance } from './axiosInstance';
 
 import { RequestOptions } from './type/interface';
@@ -7,16 +6,12 @@ import buildRequestConfig from './buildRequestConfig';
 import { normalizeApiError } from './normalizeApiError';
 import { ApiEndpoint } from './enums/api-endpoint';
 import { toast } from 'react-toastify';
-import { setAuthData } from '@/store/auth/auth_slice';
 import { getUserInfo, logOutAuth } from '@/store/auth/action';
-
-axios.defaults.baseURL = `${prefix}`;
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 export const refreshAccessToken = async () => {
   console.log('refreshAccessToken');
   try {
-    await axios.post(ApiEndpoint.REFRESHTOKEN, {}, { withCredentials: true });
+    await axiosInstance.post(ApiEndpoint.REFRESHTOKEN, {}, { withCredentials: true, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, });
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -47,7 +42,7 @@ export const refreshAccessToken = async () => {
 };
 
 export async function request<T>(options: RequestOptions) {
-  const { method, url, body, params, config, accessToken } = options;
+  const { method, url, body, params, config } = options;
 
   try {
     const requestConfig = buildRequestConfig({
