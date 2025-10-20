@@ -138,9 +138,22 @@ function ProgramContent({ programId }: { programId: number }) {
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     console.log('values', values);
+
+    const filteredBlocks = values.contentBlocks.filter(block => {
+      if (block.contentBlockType === 'SECTION_WITH_PHOTO') {
+        return !(block.sectionTitle === '' || block.text === '' || block.files.length === 0);
+      }
+
+      if (block.contentBlockType === 'SECTION_WITH_TEXT') {
+        return !(block.sectionTitle === '' || block.text1 === '' || block.text2 === '');
+      }
+
+      return true;
+    });
+
     const normalized = {
       ...values,
-      contentBlocks: values.contentBlocks.map(block => {
+      contentBlocks: filteredBlocks.map(block => {
         if (block.contentBlockType === 'SCHEDULE_INFO') {
           const fixTime = (t: any) => ({
             hour: t?.hour || '',
@@ -513,7 +526,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                   insert(insertPosition + 1, {
                                     contentBlockType: 'SECTION_WITH_TEXT',
                                     sectionTitle: '',
-                                    text: '',
+                                    text1: '',
+                                    text2: '',
                                   })
                                 }
                                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"

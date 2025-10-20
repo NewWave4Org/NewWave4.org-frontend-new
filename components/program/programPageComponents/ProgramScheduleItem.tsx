@@ -25,9 +25,7 @@ interface IScheduleItem {
 }
 
 function ProgramScheduleItem({ scheduleItem }: { scheduleItem: IScheduleItem }) {
-  const scheduleItemDate = scheduleItem?.date;
-  const dateNumberFormat = new Date(scheduleItemDate.year, scheduleItemDate.month - 1, scheduleItemDate.day);
-  const formattedDate = format(new Date(dateNumberFormat), 'd MMMM', { locale: uk });
+  const formattedDate = scheduleItem?.date ? format(new Date(scheduleItem.date.year, scheduleItem.date.month - 1, scheduleItem.date.day), 'd MMMM', { locale: uk }) : '';
 
   return (
     <div className="schedule-item">
