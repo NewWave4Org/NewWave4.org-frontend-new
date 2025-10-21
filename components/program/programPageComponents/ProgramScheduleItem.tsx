@@ -35,14 +35,14 @@ function ProgramScheduleItem({ scheduleItem }: { scheduleItem: IScheduleItem }) 
       </div>
       <div className="ml-10 flex items-baseline">
         <div className="min-w-24 mr-2 font-medium text-medium font-helvetica text-font-primary whitespace-nowrap">
-          {scheduleItem?.startTime && (
+          {scheduleItem?.startTime && scheduleItem.startTime.hour && (
             <>
               {scheduleItem.startTime.hour}
               {scheduleItem.startTime.minute && `:${scheduleItem.startTime.minute}`}
               {scheduleItem.startTime.period && ` ${scheduleItem.endTime.period.toLowerCase()}`}
             </>
           )}
-          {scheduleItem?.endTime && (
+          {scheduleItem?.endTime && scheduleItem.endTime.hour && (
             <>
               {' - '}
               {scheduleItem.endTime.hour}

@@ -139,21 +139,21 @@ function ProgramContent({ programId }: { programId: number }) {
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     console.log('values', values);
 
-    const filteredBlocks = values.contentBlocks.filter(block => {
-      if (block.contentBlockType === 'SECTION_WITH_PHOTO') {
-        return !(block.sectionTitle === '' || block.text === '' || block.files.length === 0);
-      }
+    // const filteredBlocks = values.contentBlocks.filter(block => {
+    //   if (block.contentBlockType === 'SECTION_WITH_PHOTO') {
+    //     return !(block.sectionTitle === '' || block.text === '' || block.files.length === 0);
+    //   }
 
-      if (block.contentBlockType === 'SECTION_WITH_TEXT') {
-        return !(block.sectionTitle === '' || block.text1 === '' || block.text2 === '');
-      }
+    //   if (block.contentBlockType === 'SECTION_WITH_TEXT') {
+    //     return !(block.sectionTitle === '' || block.text1 === '' || block.text2 === '');
+    //   }
 
-      return true;
-    });
+    //   return true;
+    // });
 
     const normalized = {
       ...values,
-      contentBlocks: filteredBlocks.map(block => {
+      contentBlocks: values.contentBlocks.map(block => {
         if (block.contentBlockType === 'SCHEDULE_INFO') {
           const fixTime = (t: any) => ({
             hour: t?.hour || '',
@@ -413,7 +413,7 @@ function ProgramContent({ programId }: { programId: number }) {
                               <ImageLoading
                                 articleId={programId}
                                 maxFiles={1}
-                                label="Add schedule photo"
+                                label="Add schedule photo (This photo will be the main photo in the program card)"
                                 classBlock="min-h-[300px]"
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
