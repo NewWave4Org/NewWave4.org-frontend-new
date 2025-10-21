@@ -33,7 +33,7 @@ function ProgramBlocksWithPhotos({ contentBlock, videoURL }: IProgramContentProp
               </div>
             );
           })}
-          {videoLink && videoURL && (
+          {videoLink && (
             <div className="lg:mb-20 mb-10">
               <iframe src={videoLink} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
             </div>

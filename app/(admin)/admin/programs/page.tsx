@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface RenderPaginationProps {
   currentPage: number;
@@ -19,11 +19,12 @@ interface RenderPaginationProps {
 function ProgramsPage() {
   const dispatch = useAppDispatch();
   const [currentPage, setCurrentPage] = useState(0);
+  const [refreshData, setRefreshData] = useState(false);
 
   const programs = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
 
-  useEffect(() => {
+  const fetchAllPrograms = useCallback(() => {
     dispatch(
       getAllArticle({
         page: currentPage,
@@ -32,6 +33,23 @@ function ProgramsPage() {
       }),
     );
   }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    fetchAllPrograms();
+  }, [fetchAllPrograms, refreshData]);
+
+  const prevArticlesCount = useRef(programs.length);
+
+  useEffect(() => {
+    if (programs.length < prevArticlesCount.current) {
+      if (programs.length === 0 && currentPage > 0) {
+        setCurrentPage(prev => prev - 1);
+      } else {
+        setRefreshData(prev => !prev);
+      }
+    }
+    prevArticlesCount.current = programs.length;
+  }, [programs, currentPage]);
 
   const changePage = useCallback((page: number) => {
     setCurrentPage(page);
