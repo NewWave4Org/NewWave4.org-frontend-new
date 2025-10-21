@@ -39,7 +39,7 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
       <div className="container mx-auto px-4">
         {subTitleProgram && descriptionProgram && <ProgramFirstBlocks title={subTitleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">
-          {filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0 && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />}
+          {(filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0) || (videoURL.length > 0 && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />)}
           {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}
           {filteredScheduleInfo && filteredScheduleInfo.length > 0 && <ProgramSchedule schedulePoster={schedulePoster} scheduleTitle={scheduleTitle} scheduleInfo={filteredScheduleInfo} />}
         </div>
