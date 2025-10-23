@@ -1,6 +1,5 @@
 import Logo from '@/components/layout/Logo';
 import DropDown from '@/components/shared/DropDown';
-import adminLink from './enums/enum';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 
 import { logOutAuth } from '@/store/auth/action';
@@ -42,8 +41,8 @@ const AdminHeader = () => {
                 classNameItem=""
                 classNameMenu="right-0 w-[200px]"
                 items={[
-                  { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
-                  { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
+                  // { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
+                  // { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
                   { label: 'Вихід', href: '#', isLink: false, onClick: handleLogOut },
                 ]}
               />

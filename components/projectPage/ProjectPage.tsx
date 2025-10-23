@@ -21,10 +21,22 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
 
+  let linkBlockIndex: number | null = null;
+  let linkInOtherBlocks = false;
+
+  if (otherBlocks && otherBlocks.length > 0) {
+    linkBlockIndex = 0;
+    linkInOtherBlocks = true;
+  } else if (firstTwoBlocks && firstTwoBlocks.length === 1) {
+    linkBlockIndex = 0;
+  } else if (firstTwoBlocks && firstTwoBlocks.length === 2) {
+    linkBlockIndex = 1;
+  }
+
   return (
     <>
       <ProjectHeader title={project.title} className="!mb-0" />
-      <ProjectContent contentBlock={firstTwoBlocks} />
+      <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
       {quoteText && (
         <div className="container mx-auto px-4">
@@ -32,9 +44,11 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
         </div>
       )}
 
-      <div className="mb-6">
-        <ProjectContent contentBlock={otherBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} />
-      </div>
+      {otherBlocks && otherBlocks?.length > 0 && (
+        <div className="mb-6">
+          <ProjectContent contentBlock={otherBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={linkInOtherBlocks ? linkBlockIndex : null} />
+        </div>
+      )}
 
       {videoLink && embedUrl && (
         <div className="container mx-auto px-4 py-16">
@@ -44,7 +58,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
         </div>
       )}
 
-      <NewsEvents textLink="Всі новини школи" link="/news" titleEvents="Новини та події школи" projectId={relevantProjectId} />
+      <NewsEvents textLink="Всі новини проекту" link="/news" titleEvents="Новини та події проекту" projectId={relevantProjectId} />
     </>
   );
 }
