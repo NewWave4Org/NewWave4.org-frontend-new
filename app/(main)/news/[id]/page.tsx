@@ -6,7 +6,6 @@ import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
-import HomeVideo from '@/components/home/HomeVideo';
 import Quote from '@/components/quote/Quote';
 import { formatDateUk } from '@/utils/date';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
@@ -15,6 +14,7 @@ import { Slide } from '@/components/generalSlider/slidesData';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
 import { useParams } from 'next/navigation';
+import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 
 const fetchArticle = async (
   id: number,
@@ -39,6 +39,7 @@ export default function Article() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
   useEffect(() => {
     const loadArticle = async () => {
@@ -54,6 +55,10 @@ export default function Article() {
             ArticleTypeEnum.PROJECT,
           );
           setProjectTitle(projectData?.title || '');
+        }
+
+        if (mapped.video) {
+          setArticleVideoUrl(convertYoutubeUrlToEmbed(mapped.video));
         }
 
         if (mapped?.photoSlider) {
@@ -200,9 +205,14 @@ export default function Article() {
           </div>
         )}
 
-        {article.video && (
+        {article.video && articleVideoUrl && (
           <div className="mb-[80px]">
-            <HomeVideo videoUrl={article.video} />
+            <iframe
+              src={articleVideoUrl}
+              allowFullScreen
+              loading="lazy"
+              className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
+            />
           </div>
         )}
       </div>
