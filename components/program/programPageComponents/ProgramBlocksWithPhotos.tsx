@@ -9,6 +9,8 @@ interface IProgramContentProps {
 function ProgramBlocksWithPhotos({ contentBlock, videoURL }: IProgramContentProps) {
   const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
+  console.log('contentBlock', contentBlock);
+
   return (
     <>
       <div className="content">
