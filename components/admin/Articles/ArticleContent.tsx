@@ -2,7 +2,12 @@
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
-import { getAllArticle, getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getAllArticle,
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { Form, Formik } from 'formik';
@@ -12,7 +17,11 @@ import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import {
+  ArticleStatusEnum,
+  ArticleType,
+  ArticleTypeEnum,
+} from '@/utils/ArticleType';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Select from '@/components/shared/Select';
 import { getUsers } from '@/store/users/actions';
@@ -49,7 +58,9 @@ interface IArticleContent {
 
 const ArticleContent = ({ articleId }: IArticleContent) => {
   const dispatch = useAppDispatch();
-  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const router = useRouter();
 
@@ -70,14 +81,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     textblock2: Yup.string(),
     quote: Yup.string(),
     video: Yup.string().url('Must be a valid URL').nullable(),
-    mainPhoto: Yup.array().of(Yup.string().url('Main photo must be a valid URL')).min(1, 'Main photo is required'),
-    sliderPhotos: Yup.array()
-      .of(Yup.string().url('Invalid image URL'))
-      .test('min-files-if-any', 'You must upload at least 3 images for slider', value => {
-        if (!value) return true;
-        if (value.length === 0) return true;
-        return value.length >= 3;
-      }),
+    mainPhoto: Yup.array()
+      .of(Yup.string().url('Main photo must be a valid URL'))
+      .min(1, 'Main photo is required'),
+    sliderPhotos: Yup.array().of(Yup.string().url('Invalid image URL')),
   });
 
   useEffect(() => {
@@ -113,7 +120,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
     const fetchArticle = async () => {
       try {
-        const data = await dispatch(getArticleById({ id: articleId, articleType: 'NEWS' })).unwrap();
+        const data = await dispatch(
+          getArticleById({ id: articleId, articleType: 'NEWS' }),
+        ).unwrap();
         setArticle(data);
       } catch {
         toast.error('Failed to fetch article');
@@ -123,7 +132,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     fetchArticle();
   }, [articleId, dispatch]);
 
-  async function handleSaveArticleContent(values: ArticleContentDTO): Promise<boolean> {
+  async function handleSaveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
     if (!values.textblock1 || values.textblock1.trim() === '') {
       toast.error('Text block 1 is required');
       return false;
@@ -137,7 +148,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     return saveSuccess;
   }
 
-  async function saveArticleContent(values: ArticleContentDTO): Promise<boolean> {
+  async function saveArticleContent(
+    values: ArticleContentDTO,
+  ): Promise<boolean> {
     const blocks = [
       {
         contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK,
@@ -207,7 +220,15 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
       return;
     }
 
-    const nonEmptyBlocks = [values.textblock1, values.textblock2, values.quote, values.video, values.mainPhoto, ...(values.photosList || []), ...(values.sliderPhotos || [])]
+    const nonEmptyBlocks = [
+      values.textblock1,
+      values.textblock2,
+      values.quote,
+      values.video,
+      values.mainPhoto,
+      ...(values.photosList || []),
+      ...(values.sliderPhotos || []),
+    ]
       .flatMap(block => (Array.isArray(block) ? block : [block]))
       .filter(block => block && block.toString().trim() !== '');
 
@@ -247,21 +268,39 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             title: article?.title || '',
             authorId: currentAuthor?.id,
             relevantProjectId: article?.relevantProjectId,
-            textblock1: article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK)?.data || '',
-            textblock2: article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.TEXT)?.data || '',
-            quote: article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.QUOTE)?.data || '',
-            video: article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.VIDEO)?.data || '',
+            textblock1:
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+              )?.data || '',
+            textblock2:
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.TEXT,
+              )?.data || '',
+            quote:
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.QUOTE,
+              )?.data || '',
+            video:
+              article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.VIDEO,
+              )?.data || '',
             mainPhoto: (() => {
-              const data = article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.PHOTO)?.data;
+              const data = article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTO,
+              )?.data;
               return Array.isArray(data) ? data : data ? [data] : [];
             })(),
             photosList: (() => {
-              const data = article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.PHOTOS_LIST)?.data;
+              const data = article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
+              )?.data;
               return Array.isArray(data) ? data : [];
             })(),
 
             sliderPhotos: (() => {
-              const data = article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER)?.data;
+              const data = article?.contentBlocks?.find(
+                b => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
+              )?.data;
               return Array.isArray(data) ? data : [];
             })(),
           }}
@@ -273,7 +312,16 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             }
           }}
         >
-          {({ errors, touched, handleChange, isSubmitting, dirty, values, setFieldValue, setFieldTouched }) => (
+          {({
+            errors,
+            touched,
+            handleChange,
+            isSubmitting,
+            dirty,
+            values,
+            setFieldValue,
+            setFieldTouched,
+          }) => (
             <Form>
               <div className="mb-5">
                 <Input
@@ -286,7 +334,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   value={values.title}
                   label="Title"
                   labelClass="!text-admin-700"
-                  validationText={touched.title && errors.title ? errors.title : ''}
+                  validationText={
+                    touched.title && errors.title ? errors.title : ''
+                  }
                 />
               </div>
 
@@ -314,7 +364,15 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
               </div>
 
               <div className="mb-5">
-                <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+                <Select
+                  label="Change Author (if needed)"
+                  adminSelectClass={true}
+                  name="authorId"
+                  required
+                  labelClass="!text-admin-700"
+                  onChange={handleChange}
+                  options={usersList}
+                />
               </div>
 
               <div className="w-full mb-2">
@@ -326,12 +384,23 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   labelClass=" !text-admin-700"
                   value={values.textblock1}
                   onChange={handleChange}
-                  validationText={touched.textblock1 && errors.textblock1 ? (errors.textblock1 as string) : ''}
+                  validationText={
+                    touched.textblock1 && errors.textblock1
+                      ? (errors.textblock1 as string)
+                      : ''
+                  }
                 />
               </div>
 
               <div className="w-full mb-2">
-                <TextArea id="quote" label="Quote" className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full" labelClass=" !text-admin-700" value={values.quote} onChange={handleChange} />
+                <TextArea
+                  id="quote"
+                  label="Quote"
+                  className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
+                  labelClass=" !text-admin-700"
+                  value={values.quote}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="w-full mb-2">
@@ -354,7 +423,11 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   value={values.video}
                   label="Video"
                   labelClass="!text-admin-700"
-                  validationText={touched.video && errors.video ? (errors.video as string) : ''}
+                  validationText={
+                    touched.video && errors.video
+                      ? (errors.video as string)
+                      : ''
+                  }
                 />
               </div>
 
@@ -371,7 +444,11 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                     setFieldTouched('mainPhoto', true, false);
                   }}
                   previewSize={300}
-                  validationText={touched.mainPhoto && errors.mainPhoto ? (errors.mainPhoto as string) : ''}
+                  validationText={
+                    touched.mainPhoto && errors.mainPhoto
+                      ? (errors.mainPhoto as string)
+                      : ''
+                  }
                 />
               </div>
 
@@ -401,13 +478,19 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                     setFieldTouched('sliderPhotos', true, false);
                   }}
                   previewSize={200}
-                  validationText={touched.sliderPhotos && errors.sliderPhotos ? (errors.sliderPhotos as string) : ''}
+                  validationText={
+                    touched.sliderPhotos && errors.sliderPhotos
+                      ? (errors.sliderPhotos as string)
+                      : ''
+                  }
                 />
               </div>
 
               <div className="mt-10">
                 <sup className="font-bold text-red-600 text-small2">*</sup>
-                <em>You must save the page before you can preview or publish it</em>
+                <em>
+                  You must save the page before you can preview or publish it
+                </em>
               </div>
               <div className="flex gap-x-6 mt-6">
                 <Button
@@ -422,7 +505,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 <Button
                   type="button"
                   disabled={dirty || isSubmitting}
-                  title={dirty ? 'Please save the changes' : isSubmitting ? 'Submitting...' : ''}
+                  title={
+                    dirty
+                      ? 'Please save the changes'
+                      : isSubmitting
+                      ? 'Submitting...'
+                      : ''
+                  }
                   onClick={handlePreview}
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                 >
@@ -432,7 +521,13 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                 {article?.articleStatus !== 'PUBLISHED' && (
                   <Button
                     type="button"
-                    title={dirty ? 'Please save the changes' : isSubmitting ? 'Submitting...' : ''}
+                    title={
+                      dirty
+                        ? 'Please save the changes'
+                        : isSubmitting
+                        ? 'Submitting...'
+                        : ''
+                    }
                     disabled={dirty || isSubmitting}
                     onClick={() => handlePublish(values)}
                     className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
