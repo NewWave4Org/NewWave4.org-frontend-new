@@ -137,19 +137,7 @@ function ProgramContent({ programId }: { programId: number }) {
   }, [dispatch, programId]);
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-    console.log('values', values);
-
-    // const filteredBlocks = values.contentBlocks.filter(block => {
-    //   if (block.contentBlockType === 'SECTION_WITH_PHOTO') {
-    //     return !(block.sectionTitle === '' || block.text === '' || block.files.length === 0);
-    //   }
-
-    //   if (block.contentBlockType === 'SECTION_WITH_TEXT') {
-    //     return !(block.sectionTitle === '' || block.text1 === '' || block.text2 === '');
-    //   }
-
-    //   return true;
-    // });
+    // console.log('values', values);
 
     const normalized = {
       ...values,
@@ -236,8 +224,8 @@ function ProgramContent({ programId }: { programId: number }) {
               {({ push, remove, insert }) => {
                 const sectionIndexes = values.contentBlocks.map((b, i) => (b.contentBlockType === 'SECTION_WITH_PHOTO' || b.contentBlockType === 'SECTION_WITH_TEXT' ? i : -1)).filter(i => i !== -1);
 
-                const dateProgramIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'DATE_PROGRAM');
-                const insertPosition = sectionIndexes.length > 0 ? sectionIndexes[sectionIndexes.length - 1] : dateProgramIndex !== -1 ? dateProgramIndex : values.contentBlocks.length - 1;
+                const videoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'VIDEO');
+                const insertPosition = sectionIndexes.length > 0 ? sectionIndexes[sectionIndexes.length - 1] : videoIndex !== -1 ? videoIndex : values.contentBlocks.length - 1;
 
                 const lastPerformanceBlock = [...values.contentBlocks]
                   .map((b, i) => (b.contentBlockType === 'SCHEDULE_INFO' ? i : -1))
