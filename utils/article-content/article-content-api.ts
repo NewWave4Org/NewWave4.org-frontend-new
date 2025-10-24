@@ -36,7 +36,7 @@ class ArticleApi implements IArticleApi {
       size,
       ...(articleType !== undefined && { articleType }),
       ...(articleStatus !== undefined && { articleStatus }),
-      ...(relevantProjectId !== undefined && { articleStatus }),
+      ...(relevantProjectId !== null && { relevantProjectId }),
     };
 
     return request({
