@@ -192,7 +192,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         </div>
       </div>
 
-      {article.photoSlider.length > 0 && (
+      {article.photoSlider.length > 2 && (
         <div className=" max-w-[1280px] mb-[55px]">
           <GeneralSlider slides={slides} hasLink={false} slideHover={false} />
         </div>

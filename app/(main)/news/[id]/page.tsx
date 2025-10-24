@@ -199,7 +199,7 @@ export default function Article() {
           </div>
         )}
 
-        {slides.length > 0 && (
+        {slides.length > 2 && (
           <div className="max-w-[1280px] mb-[55px]">
             <GeneralSlider slides={slides} hasLink={false} slideHover={false} />
           </div>
