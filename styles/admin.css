@@ -33,6 +33,10 @@ body {
   font-weight: 900;
 }
 
+.title-row {
+  @apply font-bold text-[18px] text-admin-700 break-words whitespace-normal;
+}
+
 .modal {
   pointer-events: none;
   position: fixed;
