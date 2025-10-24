@@ -5,7 +5,6 @@ import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
-import HomeVideo from '@/components/home/HomeVideo';
 import Quote from '@/components/quote/Quote';
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@/store/hook';
@@ -15,6 +14,7 @@ import { getArticleById } from '@/store/article-content/action';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
 import { Slide } from '@/components/generalSlider/slidesData';
+import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 
 interface IArticlePreview {
   articleId?: number;
@@ -26,6 +26,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const [article, setArticle] = useState<ArticleFull | null>(null);
   const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
   useEffect(() => {
     if (!articleId) return;
@@ -38,6 +39,9 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         ).unwrap();
         const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
+        if (articleFull.video) {
+          setArticleVideoUrl(convertYoutubeUrlToEmbed(articleFull.video));
+        }
         if (articleFull?.photoSlider) {
           const mappedSlides: Slide[] = articleFull.photoSlider.map(
             (item, index) => ({
@@ -198,9 +202,14 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         </div>
       )}
 
-      {article.video && (
+      {article.video && articleVideoUrl && (
         <div className="mb-[80px]">
-          <HomeVideo videoUrl={article.video} />
+          <iframe
+            src={articleVideoUrl}
+            allowFullScreen
+            loading="lazy"
+            className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
+          />
         </div>
       )}
     </div>
