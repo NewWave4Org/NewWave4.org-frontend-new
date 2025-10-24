@@ -1,21 +1,13 @@
 'use client';
 
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import EditIcon from '@/components/icons/symbolic/EditIcon';
 import RestoreIcon from '@/components/icons/symbolic/RestoreIcon';
 import Button from '@/components/shared/Button';
-import Select from '@/components/shared/Select';
-import ModalType from '@/components/ui/Modal/enums/modals-type';
 import Table from '@/components/ui/Table/Table';
-
-import { useAppDispatch } from '@/store/hook';
-import { openModal } from '@/store/modal/ModalSlice';
-import { GerArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { numericDate } from '@/utils/date';
 
-import Link from 'next/link';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 
 const TableHeader = [
   { id: '1', title: 'Title', classBlock: '' },
@@ -32,15 +24,23 @@ interface IRenderPaginationProps {
 
 interface IArchivedTableProps {
   renderPagination: (props: IRenderPaginationProps) => ReactNode;
-  articles: GerArticleByIdResponseDTO[];
+  articles: GetArticleByIdResponseDTO[];
   totalPages: number;
   currentPage: number;
   changePage: (page: number) => void;
-  handleRestore: (project: GerArticleByIdResponseDTO) => void;
-  handleDelete: (project: GerArticleByIdResponseDTO) => void;
+  handleRestore: (project: GetArticleByIdResponseDTO) => void;
+  handleDelete: (project: GetArticleByIdResponseDTO) => void;
 }
 
-function ArchivedPageTable({ renderPagination, articles, totalPages, currentPage, changePage, handleRestore, handleDelete }: IArchivedTableProps) {
+function ArchivedPageTable({
+  renderPagination,
+  articles,
+  totalPages,
+  currentPage,
+  changePage,
+  handleRestore,
+  handleDelete,
+}: IArchivedTableProps) {
   return (
     <div className="relative w-full h-full">
       <div className="mb-5">
@@ -51,39 +51,55 @@ function ArchivedPageTable({ renderPagination, articles, totalPages, currentPage
           renderHeader={() => (
             <>
               {TableHeader.map(({ id, title, classBlock }) => (
-                <th key={id} className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}>
+                <th
+                  key={id}
+                  className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}
+                >
                   {title}
                 </th>
               ))}
 
-              <th className="px-3 pb-4 border-b  border-admin-300 text-center">Status</th>
+              <th className="px-3 pb-4 border-b  border-admin-300 text-center">
+                Status
+              </th>
 
-              <th className="px-3 pb-4 border-b  border-admin-300 text-center">Actions</th>
+              <th className="px-3 pb-4 border-b  border-admin-300 text-center">
+                Actions
+              </th>
             </>
           )}
           renderRow={project => {
-            const { id, articleStatus, title, views, authorName, createdAt, articleType } = project;
-            const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
+            const { articleStatus, title, views, authorName, createdAt } =
+              project;
+            const status =
+              articleStatus.slice(0, 1).toUpperCase() +
+              articleStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
-                  <p className="font-bold text-[18px] text-admin-700 truncate">{title}</p>
+                  <p className="title-row">{title}</p>
                 </td>
 
                 <td className="px-3 py-6">{authorName}</td>
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
-                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">{views}</p>
+                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
+                      {views}
+                    </p>
 
                     {/* <span className="text-sm text-grey-400">views</span> */}
                   </div>
                 </td>
 
-                <td className="px-3 py-6 text-center">{numericDate(createdAt)}</td>
+                <td className="px-3 py-6 text-center">
+                  {numericDate(createdAt)}
+                </td>
 
                 <td className="px-3 py-6 text-center">
-                  <span className="inline-block bg-gray-300 text-black w-[120px] px-3 py-1 rounded-full border-2">{status}</span>
+                  <span className="inline-block bg-gray-300 text-black w-[120px] px-3 py-1 rounded-full border-2">
+                    {status}
+                  </span>
                 </td>
 
                 <td className="pr-3 py-6">
@@ -118,7 +134,8 @@ function ArchivedPageTable({ renderPagination, articles, totalPages, currentPage
         ></Table>
       </div>
 
-      {articles?.length > 0 && renderPagination({ currentPage, totalPages, changePage })}
+      {articles?.length > 0 &&
+        renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );
 }
