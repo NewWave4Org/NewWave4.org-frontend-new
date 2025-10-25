@@ -1,22 +1,13 @@
 'use client';
 
-import BasketIcon from "@/components/icons/symbolic/BasketIcon";
-import EditIcon from "@/components/icons/symbolic/EditIcon";
-import RestoreIcon from "@/components/icons/symbolic/RestoreIcon";
-import Button from "@/components/shared/Button";
-import Select from "@/components/shared/Select";
-import ModalType from "@/components/ui/Modal/enums/modals-type";
-import Table from "@/components/ui/Table/Table";
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
+import RestoreIcon from '@/components/icons/symbolic/RestoreIcon';
+import Button from '@/components/shared/Button';
+import Table from '@/components/ui/Table/Table';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { numericDate } from '@/utils/date';
 
-import { useAppDispatch } from "@/store/hook";
-import { openModal } from "@/store/modal/ModalSlice";
-import { GerArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
-import { ArticleStatusEnum, ArticleTypeEnum } from "@/utils/ArticleType";
-import { numericDate } from "@/utils/date";
-
-import Link from "next/link";
-import { ReactNode, useEffect, useState } from "react";
-
+import { ReactNode } from 'react';
 
 const TableHeader = [
   { id: '1', title: 'Title', classBlock: '' },
@@ -33,28 +24,37 @@ interface IRenderPaginationProps {
 
 interface IArchivedTableProps {
   renderPagination: (props: IRenderPaginationProps) => ReactNode;
-  articles: GerArticleByIdResponseDTO[];
+  articles: GetArticleByIdResponseDTO[];
   totalPages: number;
   currentPage: number;
   changePage: (page: number) => void;
-  handleRestore: (project: GerArticleByIdResponseDTO) => void;
-  handleDelete: (project: GerArticleByIdResponseDTO) => void;
+  handleRestore: (project: GetArticleByIdResponseDTO) => void;
+  handleDelete: (project: GetArticleByIdResponseDTO) => void;
 }
 
-
-
-function ArchivedPageTable({renderPagination, articles, totalPages, currentPage, changePage, handleRestore, handleDelete}: IArchivedTableProps) {
+function ArchivedPageTable({
+  renderPagination,
+  articles,
+  totalPages,
+  currentPage,
+  changePage,
+  handleRestore,
+  handleDelete,
+}: IArchivedTableProps) {
   return (
     <div className="relative w-full h-full">
-      <div className='mb-5'>
-        <Table 
+      <div className="mb-5">
+        <Table
           classNameRow="bg-admin-100"
           className="mb-5 last:mb-0"
           data={articles}
           renderHeader={() => (
             <>
               {TableHeader.map(({ id, title, classBlock }) => (
-                <th key={id} className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}>
+                <th
+                  key={id}
+                  className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}
+                >
                   {title}
                 </th>
               ))}
@@ -68,21 +68,19 @@ function ArchivedPageTable({renderPagination, articles, totalPages, currentPage,
               </th>
             </>
           )}
-
           renderRow={project => {
-            const { id, articleStatus, title, views, authorName, createdAt, articleType } = project;
-            const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
+            const { articleStatus, title, views, authorName, createdAt } =
+              project;
+            const status =
+              articleStatus.slice(0, 1).toUpperCase() +
+              articleStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
-                  <p className="font-bold text-[18px] text-admin-700 truncate">
-                    {title}
-                  </p>
+                  <p className="title-row">{title}</p>
                 </td>
 
-                <td className="px-3 py-6">
-                  {authorName}
-                </td>
+                <td className="px-3 py-6">{authorName}</td>
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
@@ -99,25 +97,13 @@ function ArchivedPageTable({renderPagination, articles, totalPages, currentPage,
                 </td>
 
                 <td className="px-3 py-6 text-center">
-                  <span className='inline-block bg-gray-300 text-black w-[120px] px-3 py-1 rounded-full border-2'>
+                  <span className="inline-block bg-gray-300 text-black w-[120px] px-3 py-1 rounded-full border-2">
                     {status}
                   </span>
                 </td>
 
                 <td className="pr-3 py-6">
                   <div className="flex gap-x-3 justify-end">
-                    <Link href={`/admin/${articleType === ArticleTypeEnum.PROJECT ? 'projects' : articleType.toLowerCase()}/${id}/edit`}>
-                      <Button
-                        variant="tertiary"
-                        className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 
-                    active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
-                      >
-                        <div className="mr-1">
-                          <EditIcon />
-                        </div>
-                        Edit
-                      </Button>
-                    </Link>
                     <Button
                       variant="tertiary"
                       className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
@@ -129,28 +115,26 @@ function ArchivedPageTable({renderPagination, articles, totalPages, currentPage,
                       </div>
                       Delete
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => handleRestore(project)}
                       variant="tertiary"
                       className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md
                       active:bg-transparent active:!text-admin-700 hover:shadow-lg duration-500"
                     >
-                        <div className="mr-1">
-                          <RestoreIcon color="#2b8a58" />
-                        </div>
-                        Restore
+                      <div className="mr-1">
+                        <RestoreIcon color="#2b8a58" />
+                      </div>
+                      Restore
                     </Button>
                   </div>
                 </td>
               </>
             );
           }}
-        >
-
-        </Table>
+        ></Table>
       </div>
 
-      {articles?.length > 0  &&
+      {articles?.length > 0 &&
         renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );

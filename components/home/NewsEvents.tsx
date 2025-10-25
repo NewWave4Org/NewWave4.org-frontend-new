@@ -2,7 +2,7 @@ import { Tab, Tabs } from '../shared/Tabs';
 import Events from './Events';
 import News from './News';
 
-const NewsEvents = ({ textLink = 'Всі новини', link = '/news', titleEvents = 'Новини та події', projectId }: { textLink?: string; link?: string; titleEvents?: string; projectId?: number }) => {
+const NewsEvents = ({ textLink = 'Всі новини', link = '/news', titleEvents = 'Новини та події', projectId }: { textLink?: string; link: string; titleEvents?: string; projectId?: number }) => {
   return (
     <section className="news-section">
       <div className="container mx-auto px-4">

@@ -27,7 +27,8 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
 
         const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
         const params = {
-          currentPage: '1',
+          page: '0',
+          size: '10',
           articleType: ArticleTypeEnum.PROJECT,
           articleStatus: ArticleStatusEnum.PUBLISHED,
         };
@@ -44,7 +45,6 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
         }
 
         const data = await response.json();
-
         const mappedProjects: Item[] = data.content.map((proj: any) => ({
           id: proj.id,
           title: proj.title,
@@ -72,8 +72,19 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
     <div className="filterNews mb-[14px]">
       <div className="filterNews__inner">
         <div className="container px-4 mx-auto">
-          <ul className="filterNews__items flex lg:px-[32px] px-0 justify-start bg-background-primary lg:flex-nowrap flex-wrap">
-            {loading ? <li className="px-4 py-2 text-gray-500">Loading...</li> : filterItems.map(item => <FilterItem key={item.id} item={item} handleFilterActive={handleFilterActive} activeFilter={activeFilter} />)}
+          <ul className="filterNews__items flex lg:px-[32px] px-0 justify-start bg-background-primary flex-wrap">
+            {loading ? (
+              <li className="px-4 py-2 text-gray-500">Loading...</li>
+            ) : (
+              filterItems.map(item => (
+                <FilterItem
+                  key={item.id}
+                  item={item}
+                  handleFilterActive={handleFilterActive}
+                  activeFilter={activeFilter}
+                />
+              ))
+            )}
           </ul>
         </div>
       </div>

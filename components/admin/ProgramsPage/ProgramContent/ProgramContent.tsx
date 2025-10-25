@@ -137,7 +137,8 @@ function ProgramContent({ programId }: { programId: number }) {
   }, [dispatch, programId]);
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-    console.log('values', values);
+    // console.log('values', values);
+
     const normalized = {
       ...values,
       contentBlocks: values.contentBlocks.map(block => {
@@ -223,8 +224,8 @@ function ProgramContent({ programId }: { programId: number }) {
               {({ push, remove, insert }) => {
                 const sectionIndexes = values.contentBlocks.map((b, i) => (b.contentBlockType === 'SECTION_WITH_PHOTO' || b.contentBlockType === 'SECTION_WITH_TEXT' ? i : -1)).filter(i => i !== -1);
 
-                const dateProgramIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'DATE_PROGRAM');
-                const insertPosition = sectionIndexes.length > 0 ? sectionIndexes[sectionIndexes.length - 1] : dateProgramIndex !== -1 ? dateProgramIndex : values.contentBlocks.length - 1;
+                const videoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'VIDEO');
+                const insertPosition = sectionIndexes.length > 0 ? sectionIndexes[sectionIndexes.length - 1] : videoIndex !== -1 ? videoIndex : values.contentBlocks.length - 1;
 
                 const lastPerformanceBlock = [...values.contentBlocks]
                   .map((b, i) => (b.contentBlockType === 'SCHEDULE_INFO' ? i : -1))
@@ -400,7 +401,7 @@ function ProgramContent({ programId }: { programId: number }) {
                               <ImageLoading
                                 articleId={programId}
                                 maxFiles={1}
-                                label="Add schedule photo"
+                                label="Add schedule photo (This photo will be the main photo in the program card)"
                                 classBlock="min-h-[300px]"
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
@@ -513,7 +514,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                   insert(insertPosition + 1, {
                                     contentBlockType: 'SECTION_WITH_TEXT',
                                     sectionTitle: '',
-                                    text: '',
+                                    text1: '',
+                                    text2: '',
                                   })
                                 }
                                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"

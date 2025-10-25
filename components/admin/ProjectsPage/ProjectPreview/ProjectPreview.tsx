@@ -1,5 +1,5 @@
-import ProjectContent from '@/components/projectsBlock/ProjectContent';
-import ProjectHeader from '@/components/projectsBlock/ProjectHeader';
+import ProjectContent from '@/components/projectPage/ProjectContent';
+import ProjectHeader from '@/components/projectPage/ProjectHeader';
 import Quote from '@/components/quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';

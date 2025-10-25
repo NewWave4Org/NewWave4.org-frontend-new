@@ -75,7 +75,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
       setLoading(true);
       const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
       const params: Record<string, string> = {
-        currentPage: page.toString(),
+        page: (page - 1).toString(),
         size: pageSize.toString(),
         articleType: ArticleTypeEnum.NEWS,
         articleStatus: ArticleStatusEnum.PUBLISHED,

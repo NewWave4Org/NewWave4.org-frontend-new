@@ -129,9 +129,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
           return (
             <>
               <td className="min-w-[250px] max-w-[300px] px-3 py-6">
-                <p className="font-bold text-[18px] text-admin-700 truncate">
-                  {title}
-                </p>
+                <p className="title-row">{title}</p>
               </td>
 
               <td className="px-3 py-6">{authorName}</td>
@@ -166,7 +164,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 </span>
               </td>
 
-              <td className="flex px-3 py-6">
+              <td className="px-3 py-6 align-middle">
                 <div className="flex gap-x-5">
                   <Link href={`/admin/articles/edit?id=${id}`}>
                     <Button

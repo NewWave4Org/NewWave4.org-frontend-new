@@ -13,12 +13,24 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
   const descriptionProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.text;
 
   const blocksWithPhoto = program?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
+  const filteredBlocksWithPhoto = blocksWithPhoto?.filter(item => {
+    return item.sectionTitle !== '' || item.text !== '' || item.files.length > 0;
+  });
+
   const blocksWithText = program?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
+  const filteredBlocksWithText = blocksWithText?.filter(item => {
+    return item.sectionTitle !== '' || item.text1 !== '' || item.text2 !== '';
+  });
+
   const videoURL = program?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
 
   const schedulePoster = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
   const scheduleTitle = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.title;
+
   const scheduleInfo = program?.contentBlocks?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
+  const filteredScheduleInfo = scheduleInfo?.filter(item => {
+    return item.location !== '' || item.title !== '';
+  });
 
   return (
     <>
@@ -26,9 +38,9 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
       <div className="container mx-auto px-4">
         {subTitleProgram && descriptionProgram && <ProgramFirstBlocks title={subTitleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">
-          {blocksWithPhoto && blocksWithPhoto?.length > 0 && blocksWithPhoto[0].sectionTitle.length > 0 && <ProgramBlocksWithPhotos contentBlock={blocksWithPhoto} videoURL={videoURL} />}
-          {blocksWithText && blocksWithText?.length > 0 && blocksWithText[0].sectionTitle.length > 0 && <ProgramBlocksWithText contentBlock={blocksWithText} />}
-          {scheduleInfo && scheduleInfo.length > 0 && <ProgramSchedule schedulePoster={schedulePoster} scheduleTitle={scheduleTitle} scheduleInfo={scheduleInfo} />}
+          {((filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0) || (videoURL && videoURL.length > 0)) && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />}
+          {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}
+          {filteredScheduleInfo && filteredScheduleInfo.length > 0 && <ProgramSchedule schedulePoster={schedulePoster} scheduleTitle={scheduleTitle} scheduleInfo={filteredScheduleInfo} />}
         </div>
       </div>
     </>
