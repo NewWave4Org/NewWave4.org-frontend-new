@@ -50,12 +50,6 @@ const PaymentForm = () => {
 
   const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      logger.info('variable from env keys' + JSON.stringify(process.env));
-    }
-  }, []);
-
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
     const purpose = purposeOptions.find((item) => item.value === paymentDetails.purpose);
