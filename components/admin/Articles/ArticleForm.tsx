@@ -60,10 +60,9 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
 
   const currentUser = useAppSelector(state => state.authUser.user);
   const allUsers = useAppSelector(state => state.users.users);
-  const verifiedUsers = allUsers.filter(user => user.verificatedUser === true);
   const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
 
-  const usersList = verifiedUsers.map(user => ({
+  const usersList = allUsers.map(user => ({
     value: user.id,
     label: user.name,
   }));
