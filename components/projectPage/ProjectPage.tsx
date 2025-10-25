@@ -58,7 +58,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
         </div>
       )}
 
-      <NewsEvents textLink="Всі новини проекту" link="/news" titleEvents="Новини та події проекту" projectId={relevantProjectId} />
+      <NewsEvents textLink="Всі новини проєкту" link="/news" titleEvents="Новини та події проєкту" projectId={relevantProjectId} />
     </>
   );
 }
