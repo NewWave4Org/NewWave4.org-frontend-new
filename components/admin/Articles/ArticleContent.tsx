@@ -62,6 +62,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
     null,
   );
   const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
   const router = useRouter();
 
   const currentUser = useAppSelector(state => state.authUser.user);
@@ -308,6 +309,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           onSubmit={async (values, { resetForm }) => {
             const success = await handleSaveArticleContent(values);
             if (success) {
+              setSliderPhotosChanged(false);
               resetForm({ values });
             }
           }}
@@ -474,8 +476,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   maxFiles={5}
                   uploadedUrls={values.sliderPhotos || []}
                   onFilesChange={urls => {
+                    if (urls.length < (values.sliderPhotos?.length || 0)) {
+                      setSliderPhotosChanged(true);
+                    } else {
+                      setSliderPhotosChanged(false);
+                    }
                     setFieldValue('sliderPhotos', urls);
-                    setFieldTouched('sliderPhotos', true, false);
                   }}
                   previewSize={200}
                   validationText={
@@ -484,6 +490,14 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                       : ''
                   }
                 />
+                {sliderPhotosChanged && (
+                  <div className="mt-2">
+                    <em className="text-red-600">
+                      The photo will be permanently deleted only after saving
+                      the changes.
+                    </em>
+                  </div>
+                )}
               </div>
 
               <div className="mt-10">
