@@ -25,6 +25,7 @@ import {
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Select from '@/components/shared/Select';
 import { getUsers } from '@/store/users/actions';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 interface ArticleContentDTO {
   title: string;
@@ -491,10 +492,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   }
                 />
                 {sliderPhotosChanged && (
-                  <div className="mt-2">
+                  <div className="mt-2 flex gap-x-1">
+                    <WarningIcon />
                     <em className="text-red-600">
-                      The photo will be permanently deleted only after saving
-                      the changes.
+                      Warning: Click “Save” to permanently delete the photo.
                     </em>
                   </div>
                 )}
