@@ -16,12 +16,6 @@ COPY . .
 # Copy .env from root
 COPY .env .env
 
-
-# To debug 
-RUN echo "DEBUG: PayPal=$NEXT_PUBLIC_PAYPAL_CLIENT_ID" && \
-    echo "DEBUG: Stripe=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS" && \
-    echo "DEBUG: API=$NEXT_PUBLIC_NEWWAVE_API_URL"
-
 # Build (lint/type checks should be ignored in next.config.*)
 RUN npm run build
 
