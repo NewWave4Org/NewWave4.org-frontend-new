@@ -32,7 +32,6 @@ jobs:
           echo "NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}" >> .env
           echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}" >> .env
           echo "NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}" >> .env
-          cat .env
 
       - name: GHCR Login
         uses: docker/login-action@v3
