@@ -27,13 +27,60 @@ jobs:
       - name: Set Org Lowercase
         run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: Node setup
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+      - name: Check secrets & Generate .env file
+        run: |
+          echo "NEXT_PUBLIC_BASE_PATH=" > .env
+          echo "NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}" >> .env
+          echo "NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}" >> .env
 
-      # Docker Build & Push
-      - name: Docker build & push
+      - name: GHCR Login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Guard mis-cased import paths
+        run: |
+          set -e
+          bad=0
+          # Folder casing
+          if grep -RInE "@/components/Payment/|\.\./Payment/" --include=\*.{ts,tsx,js,jsx} app components; then
+            echo "Found '/components/Payment/'. Use '/components/payment/'."
+            bad=1
+          fi
+          # Component casing (imports vs file)
+          if grep -RIn "PayPalComponent" --include=\*.{ts,tsx,js,jsx} app components; then
+            echo "Found 'PayPalComponent' in imports. Standardize on 'PaypalComponent' OR provide shim."
+          fi
+          # Ensure required file exists with correct casing
+          if [ ! -f components/payment/PaypalComponent.tsx ]; then
+            echo "Missing components/payment/PaypalComponent.tsx (check case)."
+            bad=1
+          fi
+          exit $bad
+
+      - name: Docker build for Testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+
+      - name: Docker Image Testing
+        run: |
+          docker images
+          docker run --name newwave4-frontend-app -d -p 3000:3000 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+
+          export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newwave4-frontend-app)
+          echo $IP
+
+          echo Testing Image URL using wget
+          wget -q -O - 127.0.0.1:3000 | grep "New Wave"
+
+      - name: Docker push
+
+        # if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
           context: .

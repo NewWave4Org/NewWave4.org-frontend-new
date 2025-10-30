@@ -1,4 +1,3 @@
-import { useAppSelector } from '@/store/hook';
 import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
@@ -8,7 +7,6 @@ import {
   UpdateUserRequestDTO,
   UserByIdRequestDTO,
   UserByIdResponseDTO,
-  UserItem,
   UserResponseDTO,
 } from './type/interface';
 import { IUsersApi } from './type/users-api.interface';

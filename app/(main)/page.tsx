@@ -10,8 +10,11 @@ import slides from '@/components/generalSlider/slidesData';
 import Programs from '@/components/home/programs/Programs';
 
 const HomePage = () => {
+  console.log(process.env);
+  console.log('process.env');
   return (
     <div>
+      <h2>{process.env.NEXT_PUBLIC_NEWWAVE_API_URL}</h2>
       <GeneralSlider slides={slides} />
       <WhoWeAre />
       <OurMission />

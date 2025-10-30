@@ -15,13 +15,13 @@ import ModalType from '@/components/ui/Modal/enums/modals-type';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import useSortTable from '@/utils/hooks/useSortTable';
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
   { id: '2', title: 'Author name' },
   { id: '3', title: 'Views' },
   { id: '4', title: 'Created' },
-  { id: '5', title: 'Status' },
 ];
 
 type renderPaginationProps = {
@@ -40,6 +40,11 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
   const articles = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
   const dispatch = useAppDispatch();
+
+  const { sortVal, handleSort, sortedData } = useSortTable<Article>({
+    data: articles,
+    initialSortField: 'articleStatus',
+  });
 
   const fetchArticles = useCallback(() => {
     dispatch(
@@ -95,7 +100,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
       <Table
         classNameRow="bg-admin-100"
         className="mb-5 last:mb-0"
-        data={articles}
+        data={sortedData}
         renderHeader={() => (
           <>
             {articlesHeader.map(({ id, title }) => (
@@ -103,6 +108,35 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                 {title}
               </th>
             ))}
+
+            <th className="pb-4 px-2 border-b  border-admin-300">
+              <span
+                onClick={() => handleSort('articleStatus')}
+                className="cursor-pointer"
+              >
+                Status
+                <span
+                  className={`${
+                    sortVal === 'asc'
+                      ? 'font-bold border-admin-600'
+                      : 'text-gray-400'
+                  } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                >
+                  ↑
+                </span>
+                <span
+                  className={`${
+                    sortVal === 'desc'
+                      ? 'font-bold border-admin-600'
+                      : 'text-gray-400'
+                  } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                >
+                  ↓
+                </span>
+              </span>
+            </th>
 
             <th className="pb-4 border-b  border-admin-300 flex justify-end">
               <Link href="/admin/articles/new">

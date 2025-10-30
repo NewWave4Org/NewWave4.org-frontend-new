@@ -14,21 +14,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
-# Build-time environment variables for Next.js
-ARG NEXT_PUBLIC_PAYPAL_CLIENT_ID
-ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS
-ARG NEXT_PUBLIC_NEWWAVE_API_URL
-
-# Expose them to Next.js build
-ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
-ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS
-ENV NEXT_PUBLIC_NEWWAVE_API_URL=$NEXT_PUBLIC_NEWWAVE_API_URL
-ENV NEXT_PUBLIC_BASE_PATH=""
-
-# Debug build-time envs (optional)
-RUN echo "DEBUG: PayPal=$NEXT_PUBLIC_PAYPAL_CLIENT_ID" && \
-    echo "DEBUG: Stripe=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS" && \
-    echo "DEBUG: API=$NEXT_PUBLIC_NEWWAVE_API_URL"
+# Copy .env from root
+COPY .env .env
 
 # Build Next.js app
 RUN npm run build
@@ -42,9 +29,10 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy build artifacts
+# Bring in build artifacts and .env
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/.env .env
 
 EXPOSE 3000
 CMD ["npx", "next", "start", "-p", "3000"]
