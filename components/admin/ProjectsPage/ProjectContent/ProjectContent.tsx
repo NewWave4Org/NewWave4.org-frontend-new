@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
@@ -12,19 +12,23 @@ import Button from '@/components/shared/Button';
 import TextArea from '@/components/shared/TextArea';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import LinkBtn from '@/components/shared/LinkBtn';
-import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import Input from '@/components/shared/Input';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
-import { getUsers } from '@/store/users/actions';
 import Select from '@/components/shared/Select';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
+import { useUsers } from '@/utils/hooks/useUsers';
 
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
-  authorId: number;
+  authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
 }
@@ -39,22 +43,26 @@ function ProjectContent({ projectId }: { projectId: number }) {
   const handleThunk = useHandleThunk();
   const pathname = usePathname();
 
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const [submitError, setSubmitError] = useState('');
 
-  const currentUser = useAppSelector(state => state.authUser.user);
-  const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
+  const { usersList, currentAuthor } = useUsers(true);
+  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
-  const usersList = allUsers.map(user => ({
-    value: user.id.toString(),
-    label: user.name,
-  }));
+  useEffect(() => {
+    if (project?.authorId) {
+      setDefaultAuthorId(project.authorId);
+    } else if (currentAuthor?.id) {
+      setDefaultAuthorId(currentAuthor.id);
+    }
+  }, [project?.authorId, currentAuthor]);
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
-    authorId: currentAuthor?.id!,
+    authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
@@ -87,21 +95,23 @@ function ProjectContent({ projectId }: { projectId: number }) {
     fetchFullProjectById();
   }, [projectId, dispatch]);
 
-  //GET all users for dropdown Change Author
-  useEffect(() => {
-    if (projectId) {
-      dispatch(getUsers());
-    }
-  }, [dispatch, projectId]);
-
   //Action for Save the project
-  async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+  async function handleSubmit(
+    values: UpdateArticleFormValues,
+    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  ) {
     try {
-      const result = await handleThunk(updateArticle, { id: projectId, data: values }, setSubmitError);
+      const result = await handleThunk(
+        updateArticle,
+        { id: projectId, data: values },
+        setSubmitError,
+      );
       setProject(result);
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
+        const message = pathname.includes('/edit')
+          ? 'Your project was updated successfully!'
+          : 'Your project was created successfully!';
         toast.success(message);
       }
     } catch (error) {
@@ -118,7 +128,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if (result) {
-      toast.success('Congratulations! Your project has been published successfully.');
+      toast.success(
+        'Congratulations! Your project has been published successfully.',
+      );
     }
   }
 
@@ -128,15 +140,27 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          authorId: project?.authorId ?? defaultFormValues.authorId,
+          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: project?.articleType || defaultFormValues.articleType,
-          articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
+          articleStatus:
+            project?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks:
+            Array.isArray(project?.contentBlocks) &&
+            project.contentBlocks.length
+              ? project.contentBlocks
+              : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
+        {({
+          errors,
+          touched,
+          handleChange,
+          isSubmitting,
+          values,
+          setFieldValue,
+        }) => (
           <Form>
             <div className="mb-5">
               <Input
@@ -150,12 +174,22 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 value={values?.title || ''}
                 label="Project title"
                 labelClass="!text-admin-700"
-                validationText={touched.title && errors.title ? errors.title : ''}
+                validationText={
+                  touched.title && errors.title ? errors.title : ''
+                }
               />
             </div>
 
             <div className="mb-5">
-              <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+              <Select
+                label="Change Author (if needed)"
+                adminSelectClass={true}
+                name="authorId"
+                required
+                labelClass="!text-admin-700"
+                onChange={handleChange}
+                options={usersList}
+              />
             </div>
 
             <FieldArray name="contentBlocks">
@@ -195,7 +229,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     </div>
 
                     <div className="mb-4">
-                      {initialBlocks[2]?.contentBlockType === 'LINK_TO_SITE' && (
+                      {initialBlocks[2]?.contentBlockType ===
+                        'LINK_TO_SITE' && (
                         <Input
                           id="contentBlocks.2.siteUrl"
                           name="contentBlocks.2.siteUrl"
@@ -210,7 +245,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                     <div className="flex gap-4">
                       <div className="w-1/2 mb-4">
-                        {initialBlocks[3]?.contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
+                        {initialBlocks[3]?.contentBlockType ===
+                          'TYPE_SOCIAL_MEDIA' && (
                           <Select
                             label="Change type social media (if needed)"
                             adminSelectClass={true}
@@ -225,7 +261,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       </div>
 
                       <div className="w-1/2 mb-4">
-                        {initialBlocks[4]?.contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                        {initialBlocks[4]?.contentBlockType ===
+                          'LINK_TO_SOCIAL_MEDIA' && (
                           <Input
                             id="contentBlocks.4.socialMediaUrl"
                             name="contentBlocks.4.socialMediaUrl"
@@ -275,7 +312,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               contentType={ArticleTypeEnum.PROJECT}
                               uploadedUrls={initialBlocks[5].files || []}
                               positionBlockImg={true}
-                              onFilesChange={files => setFieldValue('contentBlocks.5.files', files)}
+                              onFilesChange={files =>
+                                setFieldValue('contentBlocks.5.files', files)
+                              }
                             />
                           </div>
                         </>
@@ -292,7 +331,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                       return (
                         <div key={index} className="mb-5">
-                          <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                          <div
+                            className={`flex gap-4 mb-3 ${
+                              pairIndex % 2 === 0
+                                ? 'flex-row-reverse'
+                                : 'flex-row'
+                            }`}
+                          >
                             <div className="w-1/2">
                               <div className="mb-4">
                                 <Input
@@ -329,7 +374,12 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 contentType={ArticleTypeEnum.PROJECT}
                                 uploadedUrls={block?.files || []}
                                 positionBlockImg={true}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={files =>
+                                  setFieldValue(
+                                    `contentBlocks.${index}.files`,
+                                    files,
+                                  )
+                                }
                               />
                             </div>
                           </div>
@@ -367,24 +417,43 @@ function ProjectContent({ projectId }: { projectId: number }) {
               }}
             </FieldArray>
 
-            {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
+            {submitError && (
+              <div className="text-red-700 text-medium1 mt-4">
+                {' '}
+                {submitError}
+              </div>
+            )}
 
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              <em>You must save the page before you can preview or publish it</em>
+              <em>
+                You must save the page before you can preview or publish it
+              </em>
             </div>
 
             <div className="flex gap-x-6 mt-2">
-              <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
                 Save
               </Button>
 
-              <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+              <LinkBtn
+                href={`/admin/projects/preview?id=${projectId}`}
+                targetLink="_self"
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+              >
                 Preview
               </LinkBtn>
 
               {project?.articleStatus !== 'PUBLISHED' && (
-                <Button onClick={() => handlePublish(projectId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                <Button
+                  onClick={() => handlePublish(projectId)}
+                  type="button"
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
                   Publish
                 </Button>
               )}

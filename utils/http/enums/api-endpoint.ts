@@ -1,6 +1,7 @@
 const ApiEndpoint = {
   LOGIN: 'auth/login',
   USERS: 'users',
+  USERS_SEARCH: 'users/search',
   GETUSERINFO: 'auth/getuserinfo',
   RESET_PASSWORD: 'users/reset-password',
   LOGOUT: 'auth/logout',

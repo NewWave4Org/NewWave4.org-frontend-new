@@ -19,6 +19,22 @@ class UserApi implements IUsersApi {
     });
   }
 
+  async searchUsers(isUserVerificated?: boolean): Promise<UserResponseDTO> {
+    const params: Record<string, string> = {};
+
+    if (isUserVerificated !== undefined) {
+      console.log("5555");
+      console.log(isUserVerificated);
+      params.isUserVerificated = String(isUserVerificated);
+    }
+
+    return request({
+      method: HttpMethod.GET,
+      url: ApiEndpoint.USERS_SEARCH,
+      params,
+    });
+  }
+
   async getUserById(data: UserByIdRequestDTO): Promise<UserByIdResponseDTO> {
     const { id } = data;
     return request({

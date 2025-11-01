@@ -11,10 +11,8 @@ function UsersPage() {
   const users = useAppSelector(state => state.users.users);
 
   useEffect(() => {
-    if (!users.length) {
-      dispatch(getUsers());
-    }
-  }, [dispatch, users.length]);
+    dispatch(getUsers());
+  }, [dispatch]);
 
   return <UsersTable users={users} />;
 }

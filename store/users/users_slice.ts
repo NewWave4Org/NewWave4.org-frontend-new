@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createNewUser, getUserById, getUsers } from './actions';
+import { getUserById, getUsers, searchUsers } from './actions';
 import { UserItem } from '@/utils/users/type/interface';
 
 interface UserState {
@@ -44,17 +44,20 @@ const userSlice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(getUsers.fulfilled, (state, action) => {
-      state.users = action.payload.content;
-    });
-    builder.addCase(getUserById.fulfilled, (state, action) => {
-      state.userById = action.payload;
+    builder
+      .addCase(getUsers.fulfilled, (state, action) => {
+        state.users = action.payload.content;
+      })
+      .addCase(searchUsers.fulfilled, (state, action) => {
+        state.users = action.payload.content;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.userById = action.payload;
 
-      const updated = action.payload;
-      const idx = state.users.findIndex(u => u.id === updated.id);
-      if (idx >= 0) state.users[idx] = updated;
-    });
-    builder.addCase(createNewUser.fulfilled, (state, action) => {});
+        const updated = action.payload;
+        const idx = state.users.findIndex(u => u.id === updated.id);
+        if (idx >= 0) state.users[idx] = updated;
+      });
   },
 });
 
