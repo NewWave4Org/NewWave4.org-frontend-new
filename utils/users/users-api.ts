@@ -23,8 +23,6 @@ class UserApi implements IUsersApi {
     const params: Record<string, string> = {};
 
     if (isUserVerificated !== undefined) {
-      console.log("5555");
-      console.log(isUserVerificated);
       params.isUserVerificated = String(isUserVerificated);
     }
 
