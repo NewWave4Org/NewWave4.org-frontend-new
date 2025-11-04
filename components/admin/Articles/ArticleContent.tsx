@@ -124,7 +124,6 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
           getArticleById({ id: articleId, articleType: 'NEWS' }),
         ).unwrap();
         setArticle(data);
-        console.log(`authorId:${data.authorId}`);
       } catch {
         toast.error('Failed to fetch article');
       }
