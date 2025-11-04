@@ -5,6 +5,7 @@ import {
   NewUserRequestDTO,
   UpdateUserRequestDTO,
   UserByIdRequestDTO,
+  UserResponseDTO,
 } from '@/utils/users/type/interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -21,6 +22,20 @@ export const getUsers = createAsyncThunk(
     }
   },
 );
+
+export const searchUsers = createAsyncThunk<UserResponseDTO, boolean | undefined>(
+  'users/searchUsers',
+  async (isUserVerificated, { rejectWithValue }) => {
+    try {
+      const response = await userService.searchUsers(isUserVerificated);
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  }
+);
+
 
 export const getUserById = createAsyncThunk(
   'users/getUserById',

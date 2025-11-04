@@ -22,8 +22,8 @@ import {
   ArticleTypeEnum,
 } from '@/utils/ArticleType';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { getUsers } from '@/store/users/actions';
+import { useAppDispatch } from '@/store/hook';
+import { useUsers } from '@/utils/hooks/useUsers';
 
 interface newArticleDTO {
   id?: number;
@@ -58,24 +58,13 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
-  const currentUser = useAppSelector(state => state.authUser.user);
-  const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
-
-  const usersList = allUsers.map(user => ({
-    value: user.id,
-    label: user.name,
-  }));
+  const { usersList, currentAuthor } = useUsers(true);
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
     relevantProjectId: Yup.number().required('Please select a project'),
     authorId: Yup.number().required('Author field cannot be empty'),
   });
-
-  useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -132,8 +121,6 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
 
     try {
       if (values.id) {
-        console.log('update');
-
         const payload = {
           title: values.title,
           relevantProjectId: values.relevantProjectId,

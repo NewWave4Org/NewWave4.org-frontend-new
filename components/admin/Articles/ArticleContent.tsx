@@ -8,7 +8,7 @@ import {
   publishArticle,
   updateArticle,
 } from '@/store/article-content/action';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
@@ -24,8 +24,8 @@ import {
 } from '@/utils/ArticleType';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Select from '@/components/shared/Select';
-import { getUsers } from '@/store/users/actions';
 import WarningIcon from '@/components/icons/status/WarningIcon';
+import { useUsers } from '@/utils/hooks/useUsers';
 
 interface ArticleContentDTO {
   title: string;
@@ -66,14 +66,8 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
   const router = useRouter();
 
-  const currentUser = useAppSelector(state => state.authUser.user);
-  const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
-
-  const usersList = allUsers.map(user => ({
-    value: user.id,
-    label: user.name,
-  }));
+  const { usersList, currentAuthor } = useUsers(true);
+  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
@@ -90,8 +84,12 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   });
 
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    if (article?.authorId) {
+      setDefaultAuthorId(article.authorId);
+    } else if (currentAuthor?.id) {
+      setDefaultAuthorId(currentAuthor.id);
+    }
+  }, [article?.authorId, currentAuthor]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -263,279 +261,264 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
   return (
     <>
       <div className="modal__body">
-        <Formik
-          validateOnMount
-          enableReinitialize
-          initialValues={{
-            title: article?.title || '',
-            authorId: currentAuthor?.id,
-            relevantProjectId: article?.relevantProjectId,
-            textblock1:
-              article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-              )?.data || '',
-            textblock2:
-              article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.TEXT,
-              )?.data || '',
-            quote:
-              article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.QUOTE,
-              )?.data || '',
-            video:
-              article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.VIDEO,
-              )?.data || '',
-            mainPhoto: (() => {
-              const data = article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.PHOTO,
-              )?.data;
-              return Array.isArray(data) ? data : data ? [data] : [];
-            })(),
-            photosList: (() => {
-              const data = article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
-              )?.data;
-              return Array.isArray(data) ? data : [];
-            })(),
+        {defaultAuthorId !== undefined && (
+          <Formik
+            validateOnMount
+            enableReinitialize
+            initialValues={{
+              title: article?.title || '',
+              authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+              relevantProjectId: article?.relevantProjectId,
+              textblock1:
+                article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+                )?.data || '',
+              textblock2:
+                article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.TEXT,
+                )?.data || '',
+              quote:
+                article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.QUOTE,
+                )?.data || '',
+              video:
+                article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.VIDEO,
+                )?.data || '',
+              mainPhoto: (() => {
+                const data = article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.PHOTO,
+                )?.data;
+                return Array.isArray(data) ? data : data ? [data] : [];
+              })(),
+              photosList: (() => {
+                const data = article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
+                )?.data;
+                return Array.isArray(data) ? data : [];
+              })(),
 
-            sliderPhotos: (() => {
-              const data = article?.contentBlocks?.find(
-                b => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
-              )?.data;
-              return Array.isArray(data) ? data : [];
-            })(),
-          }}
-          validationSchema={validationSchema}
-          onSubmit={async (values, { resetForm }) => {
-            const success = await handleSaveArticleContent(values);
-            if (success) {
-              setSliderPhotosChanged(false);
-              resetForm({ values });
-            }
-          }}
-        >
-          {({
-            errors,
-            touched,
-            handleChange,
-            isSubmitting,
-            dirty,
-            values,
-            setFieldValue,
-            setFieldTouched,
-          }) => (
-            <Form>
-              <div className="mb-5">
-                <Input
-                  required
-                  onChange={handleChange}
-                  id="title"
-                  name="title"
-                  type="text"
-                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                  value={values.title}
-                  label="Title"
-                  labelClass="!text-admin-700"
-                  validationText={
-                    touched.title && errors.title ? errors.title : ''
-                  }
-                />
-              </div>
-
-              <div className="mb-5">
-                <Select
-                  label="Relevant Project"
-                  labelClass="!text-admin-700"
-                  adminSelectClass={true}
-                  name="relevantProjectId"
-                  required
-                  placeholder="Choose project"
-                  onChange={handleChange}
-                  options={
-                    projects.length > 0
-                      ? projects
-                      : [
-                          {
-                            value: '',
-                            label: 'No published projects available',
-                            disabled: true,
-                          },
-                        ]
-                  }
-                />
-              </div>
-
-              <div className="mb-5">
-                <Select
-                  label="Change Author (if needed)"
-                  adminSelectClass={true}
-                  name="authorId"
-                  required
-                  labelClass="!text-admin-700"
-                  onChange={handleChange}
-                  options={usersList}
-                />
-              </div>
-
-              <div className="w-full mb-2">
-                <TextArea
-                  id="textblock1"
-                  label="Text block 1"
-                  required
-                  className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                  labelClass=" !text-admin-700"
-                  value={values.textblock1}
-                  onChange={handleChange}
-                  validationText={
-                    touched.textblock1 && errors.textblock1
-                      ? (errors.textblock1 as string)
-                      : ''
-                  }
-                />
-              </div>
-
-              <div className="w-full mb-2">
-                <TextArea
-                  id="quote"
-                  label="Quote"
-                  className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                  labelClass=" !text-admin-700"
-                  value={values.quote}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="w-full mb-2">
-                <TextArea
-                  id="textblock2"
-                  label="Text block 2"
-                  className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                  labelClass=" !text-admin-700"
-                  value={values.textblock2}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="mb-5">
-                <Input
-                  onChange={handleChange}
-                  id="video"
-                  type="text"
-                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                  value={values.video}
-                  label="Video"
-                  labelClass="!text-admin-700"
-                  validationText={
-                    touched.video && errors.video
-                      ? (errors.video as string)
-                      : ''
-                  }
-                />
-              </div>
-
-              <div className="w-1/2 h-[442px]">
-                <ImageLoading
-                  label="Main Photo"
-                  required
-                  contentType={ArticleTypeEnum.NEWS}
-                  articleId={articleId!}
-                  maxFiles={1}
-                  uploadedUrls={values.mainPhoto || []}
-                  onFilesChange={urls => {
-                    setFieldValue('mainPhoto', urls);
-                    setFieldTouched('mainPhoto', true, false);
-                  }}
-                  previewSize={300}
-                  validationText={
-                    touched.mainPhoto && errors.mainPhoto
-                      ? (errors.mainPhoto as string)
-                      : ''
-                  }
-                />
-              </div>
-
-              <div className="w-full h-[442px] my-2">
-                <ImageLoading
-                  label="Photo List"
-                  note=" You can upload 1 or 2 photos here."
-                  contentType={ArticleTypeEnum.NEWS}
-                  articleId={articleId!}
-                  maxFiles={2}
-                  uploadedUrls={values.photosList || []}
-                  onFilesChange={urls => setFieldValue('photosList', urls)}
-                  previewSize={200}
-                />
-              </div>
-
-              <div className="w-full h-[442px]">
-                <ImageLoading
-                  label="Photo Slider"
-                  note="Minimum 3 and maximum 5 photos."
-                  contentType={ArticleTypeEnum.NEWS}
-                  articleId={articleId!}
-                  maxFiles={5}
-                  uploadedUrls={values.sliderPhotos || []}
-                  onFilesChange={urls => {
-                    if (urls.length < (values.sliderPhotos?.length || 0)) {
-                      setSliderPhotosChanged(true);
-                    } else {
-                      setSliderPhotosChanged(false);
+              sliderPhotos: (() => {
+                const data = article?.contentBlocks?.find(
+                  b => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
+                )?.data;
+                return Array.isArray(data) ? data : [];
+              })(),
+            }}
+            validationSchema={validationSchema}
+            onSubmit={async (values, { resetForm }) => {
+              const success = await handleSaveArticleContent(values);
+              if (success) {
+                setSliderPhotosChanged(false);
+                resetForm({ values });
+              }
+            }}
+          >
+            {({
+              errors,
+              touched,
+              handleChange,
+              isSubmitting,
+              dirty,
+              values,
+              setFieldValue,
+              setFieldTouched,
+            }) => (
+              <Form>
+                <div className="mb-5">
+                  <Input
+                    required
+                    onChange={handleChange}
+                    id="title"
+                    name="title"
+                    type="text"
+                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                    value={values.title}
+                    label="Title"
+                    labelClass="!text-admin-700"
+                    validationText={
+                      touched.title && errors.title ? errors.title : ''
                     }
-                    setFieldValue('sliderPhotos', urls);
-                  }}
-                  previewSize={200}
-                  validationText={
-                    touched.sliderPhotos && errors.sliderPhotos
-                      ? (errors.sliderPhotos as string)
-                      : ''
-                  }
-                />
-                {sliderPhotosChanged && (
-                  <div className="mt-2 flex gap-x-1">
-                    <WarningIcon />
-                    <em className="text-red-600">
-                      Warning: Click “Save” to permanently delete the photo.
-                    </em>
-                  </div>
-                )}
-              </div>
+                  />
+                </div>
 
-              <div className="mt-10">
-                <sup className="font-bold text-red-600 text-small2">*</sup>
-                <em>
-                  You must save the page before you can preview or publish it
-                </em>
-              </div>
-              <div className="flex gap-x-6 mt-6">
-                <Button
-                  type="submit"
-                  title={isSubmitting ? 'Submitting...' : ''}
-                  disabled={isSubmitting}
-                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
-                >
-                  Save
-                </Button>
+                <div className="mb-5">
+                  <Select
+                    label="Relevant Project"
+                    labelClass="!text-admin-700"
+                    adminSelectClass={true}
+                    name="relevantProjectId"
+                    required
+                    placeholder="Choose project"
+                    onChange={handleChange}
+                    options={
+                      projects.length > 0
+                        ? projects
+                        : [
+                            {
+                              value: '',
+                              label: 'No published projects available',
+                              disabled: true,
+                            },
+                          ]
+                    }
+                  />
+                </div>
 
-                <Button
-                  type="button"
-                  disabled={dirty || isSubmitting}
-                  title={
-                    dirty
-                      ? 'Please save the changes'
-                      : isSubmitting
-                      ? 'Submitting...'
-                      : ''
-                  }
-                  onClick={handlePreview}
-                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
-                >
-                  Preview
-                </Button>
+                <div className="mb-5">
+                  <Select
+                    label="Change Author (if needed)"
+                    adminSelectClass={true}
+                    name="authorId"
+                    required
+                    labelClass="!text-admin-700"
+                    onChange={handleChange}
+                    options={usersList}
+                  />
+                </div>
 
-                {article?.articleStatus !== 'PUBLISHED' && (
+                <div className="w-full mb-2">
+                  <TextArea
+                    id="textblock1"
+                    label="Text block 1"
+                    required
+                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
+                    labelClass=" !text-admin-700"
+                    value={values.textblock1}
+                    onChange={handleChange}
+                    validationText={
+                      touched.textblock1 && errors.textblock1
+                        ? (errors.textblock1 as string)
+                        : ''
+                    }
+                  />
+                </div>
+
+                <div className="w-full mb-2">
+                  <TextArea
+                    id="quote"
+                    label="Quote"
+                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
+                    labelClass=" !text-admin-700"
+                    value={values.quote}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="w-full mb-2">
+                  <TextArea
+                    id="textblock2"
+                    label="Text block 2"
+                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
+                    labelClass=" !text-admin-700"
+                    value={values.textblock2}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="mb-5">
+                  <Input
+                    onChange={handleChange}
+                    id="video"
+                    type="text"
+                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                    value={values.video}
+                    label="Video"
+                    labelClass="!text-admin-700"
+                    validationText={
+                      touched.video && errors.video
+                        ? (errors.video as string)
+                        : ''
+                    }
+                  />
+                </div>
+
+                <div className="w-1/2 h-[442px]">
+                  <ImageLoading
+                    label="Main Photo"
+                    required
+                    contentType={ArticleTypeEnum.NEWS}
+                    articleId={articleId!}
+                    maxFiles={1}
+                    uploadedUrls={values.mainPhoto || []}
+                    onFilesChange={urls => {
+                      setFieldValue('mainPhoto', urls);
+                      setFieldTouched('mainPhoto', true, false);
+                    }}
+                    previewSize={300}
+                    validationText={
+                      touched.mainPhoto && errors.mainPhoto
+                        ? (errors.mainPhoto as string)
+                        : ''
+                    }
+                  />
+                </div>
+
+                <div className="w-full h-[442px] my-2">
+                  <ImageLoading
+                    label="Photo List"
+                    note=" You can upload 1 or 2 photos here."
+                    contentType={ArticleTypeEnum.NEWS}
+                    articleId={articleId!}
+                    maxFiles={2}
+                    uploadedUrls={values.photosList || []}
+                    onFilesChange={urls => setFieldValue('photosList', urls)}
+                    previewSize={200}
+                  />
+                </div>
+
+                <div className="w-full h-[442px]">
+                  <ImageLoading
+                    label="Photo Slider"
+                    note="Minimum 3 and maximum 5 photos."
+                    contentType={ArticleTypeEnum.NEWS}
+                    articleId={articleId!}
+                    maxFiles={5}
+                    uploadedUrls={values.sliderPhotos || []}
+                    onFilesChange={urls => {
+                      if (urls.length < (values.sliderPhotos?.length || 0)) {
+                        setSliderPhotosChanged(true);
+                      } else {
+                        setSliderPhotosChanged(false);
+                      }
+                      setFieldValue('sliderPhotos', urls);
+                    }}
+                    previewSize={200}
+                    validationText={
+                      touched.sliderPhotos && errors.sliderPhotos
+                        ? (errors.sliderPhotos as string)
+                        : ''
+                    }
+                  />
+                  {sliderPhotosChanged && (
+                    <div className="mt-2 flex gap-x-1">
+                      <WarningIcon />
+                      <em className="text-red-600">
+                        Warning: Click “Save” to permanently delete the photo.
+                      </em>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-10">
+                  <sup className="font-bold text-red-600 text-small2">*</sup>
+                  <em>
+                    You must save the page before you can preview or publish it
+                  </em>
+                </div>
+                <div className="flex gap-x-6 mt-6">
+                  <Button
+                    type="submit"
+                    title={isSubmitting ? 'Submitting...' : ''}
+                    disabled={isSubmitting}
+                    className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+                  >
+                    Save
+                  </Button>
+
                   <Button
                     type="button"
+                    disabled={dirty || isSubmitting}
                     title={
                       dirty
                         ? 'Please save the changes'
@@ -543,17 +526,34 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                         ? 'Submitting...'
                         : ''
                     }
-                    disabled={dirty || isSubmitting}
-                    onClick={() => handlePublish(values)}
+                    onClick={handlePreview}
                     className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                   >
-                    Publish
+                    Preview
                   </Button>
-                )}
-              </div>
-            </Form>
-          )}
-        </Formik>
+
+                  {article?.articleStatus !== 'PUBLISHED' && (
+                    <Button
+                      type="button"
+                      title={
+                        dirty
+                          ? 'Please save the changes'
+                          : isSubmitting
+                          ? 'Submitting...'
+                          : ''
+                      }
+                      disabled={dirty || isSubmitting}
+                      onClick={() => handlePublish(values)}
+                      className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                    >
+                      Publish
+                    </Button>
+                  )}
+                </div>
+              </Form>
+            )}
+          </Formik>
+        )}
       </div>
     </>
   );

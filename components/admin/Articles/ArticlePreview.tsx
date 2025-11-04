@@ -192,7 +192,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         {article.quote && <Quote quote={article.quote} />}
 
         <div className="mb-[56px]">
-          <p>{article.textblock2}</p>
+          <p className="text-font-primary text-body">{article.textblock2}</p>
         </div>
       </div>
 

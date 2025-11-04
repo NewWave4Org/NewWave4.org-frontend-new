@@ -9,6 +9,7 @@ import {
 
 interface IUsersApi {
   getUsers: () => Promise<UserResponseDTO>;
+  searchUsers: (isUserVerificated?: boolean) => Promise<UserResponseDTO>;
   getUserById: (data: UserByIdRequestDTO) => Promise<UserByIdResponseDTO>;
   createNewUser: (data: NewUserRequestDTO) => void;
   deleteUser: (data: DeleteUserRequestDTO) => void;
