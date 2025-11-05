@@ -34,9 +34,15 @@ const FinishPage = () => {
           ...datafromlocal
         })
       });
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('donationformdata')
+      }
       return await data.json();
     } catch (error) {
       console.warn(`payment didn't saved to DB`, error);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('donationformdata')
+      }
       return error;
     }
   }
