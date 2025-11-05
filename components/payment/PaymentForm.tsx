@@ -18,7 +18,6 @@ import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { loadStripe } from '@stripe/stripe-js';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS } from '@/env';
-import logger from 'nexlog';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -99,8 +98,10 @@ const PaymentForm = () => {
     values: any,
     { setSubmitting, resetForm }: any,
   ) => {
-    setAmount(values.amount);
     const purpose = purposeOptions.find(item => item.value === values.purpose);
+    console.log(values, purpose?.label);
+    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }))
+    setAmount(values.amount);
     setPaymentDetails({
       description: purpose?.label,
     });
