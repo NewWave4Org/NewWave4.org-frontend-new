@@ -20,36 +20,36 @@ interface IToolbar {
 }
 
 function Toolbar({ editorState, setEditorState }: IToolbar) {
-  const [url, setUrl] = useState('');
-  const [showLinkInput, setShowLinkInput] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const savedSelection = useRef<ReturnType<typeof editorState.getSelection> | null>(null);
+  // const [url, setUrl] = useState('');
+  // const [showLinkInput, setShowLinkInput] = useState(false);
+  // const inputRef = useRef<HTMLInputElement>(null);
+  // const savedSelection = useRef<ReturnType<typeof editorState.getSelection> | null>(null);
 
-  useEffect(() => {
-    if (showLinkInput && inputRef.current) {
-      // Небольшая задержка чтобы выделение успело сохраниться
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 0);
-    }
-  }, [showLinkInput]);
+  // useEffect(() => {
+  //   if (showLinkInput && inputRef.current) {
+  //     // Небольшая задержка чтобы выделение успело сохраниться
+  //     setTimeout(() => {
+  //       inputRef.current?.focus();
+  //     }, 0);
+  //   }
+  // }, [showLinkInput]);
 
-  const handleAddLink = () => {
-    const selection = savedSelection.current;
+  // const handleAddLink = () => {
+  //   const selection = savedSelection.current;
 
-    if (!selection || selection.isCollapsed() || !url.trim()) {
-      alert('Сначала выдели текст и введи ссылку');
-      return;
-    }
+  //   if (!selection || selection.isCollapsed() || !url.trim()) {
+  //     alert('Сначала выдели текст и введи ссылку');
+  //     return;
+  //   }
 
-    AddLink(editorState, setEditorState, url, selection);
+  //   AddLink(editorState, setEditorState, url, selection);
 
-    // setEditorState(newEditorState);
-    savedSelection.current = null;
-    setUrl('');
-    setShowLinkInput(false);
-    savedSelection.current = null;
-  };
+  //   // setEditorState(newEditorState);
+  //   savedSelection.current = null;
+  //   setUrl('');
+  //   setShowLinkInput(false);
+  //   savedSelection.current = null;
+  // };
 
   const applyStyle = (e: React.MouseEvent, style: string, method: IMethod) => {
     e.preventDefault();
