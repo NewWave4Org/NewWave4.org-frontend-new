@@ -9,6 +9,8 @@ import { stateToHTML } from 'draft-js-export-html';
 export function convertDraftToHTML(rawState: any): string {
   if (!rawState) return '';
 
+  console.log('rawState', rawState);
+
   const options = {
     inlineStyles: {
       HIGHLIGHT: {
@@ -23,15 +25,22 @@ export function convertDraftToHTML(rawState: any): string {
         element: 'span',
         style: { textTransform: 'lowercase' },
       },
-      CODEBLOCK: {
-        element: 'code',
-        style: {
-          fontFamily: '"fira-code", monospace',
-          backgroundColor: '#ffeff0',
-          padding: '2px 4px',
-          borderRadius: '3px',
-        },
-      },
+    },
+
+    blockStyleFn: block => {
+      const type = block.getType();
+      switch (type) {
+        case 'centerAlign':
+          return { element: 'p', attributes: { class: 'text-center' } };
+        case 'leftAlign':
+          return { element: 'p', attributes: { class: 'text-left' } };
+        case 'rightAlign':
+          return { element: 'p', attributes: { class: 'text-right' } };
+        case 'blockQuote':
+          return { element: 'blockquote', attributes: { class: 'blockquote' } };
+        default:
+          return { element: 'p' };
+      }
     },
   };
 
