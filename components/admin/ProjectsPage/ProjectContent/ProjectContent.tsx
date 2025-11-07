@@ -341,7 +341,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       return (
                         <div key={index} className="mb-5">
                           <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div className="w-1/2">
+                            <div className="w-1/2 h-[442px] flex flex-col">
                               <div className="mb-4">
                                 <Input
                                   onChange={handleChange}

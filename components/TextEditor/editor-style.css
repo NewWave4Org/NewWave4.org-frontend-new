@@ -13,7 +13,9 @@
   background: rgb(237, 242, 247);
   padding: 1rem;
   color: black;
-  min-height: 175px;
+  height: 175px;
+  overflow: hidden;
+  overflow-y: auto;
 }
 
 .toolbar-grid {

@@ -10,7 +10,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
   const videoLink = project?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const embedUrl = convertYoutubeUrlToEmbed(videoLink);
 
-  const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE')?.text;
+  const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
   const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
   const typeSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'TYPE_SOCIAL_MEDIA')?.typeSocialMedia;
