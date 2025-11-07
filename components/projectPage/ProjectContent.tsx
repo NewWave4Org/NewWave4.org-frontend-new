@@ -4,12 +4,14 @@ import Image from 'next/image';
 
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import ProjectContentLinks from './ProjectContentLinks';
+import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 
 interface ProjectContent {
   contentBlockType: string;
   sectionTitle: string;
   text: string;
   files: [];
+  editorState?: any;
 }
 
 interface ProjectContentProps {
@@ -18,7 +20,7 @@ interface ProjectContentProps {
   nameSocialMedia?: string;
   linkSocialMedia?: string;
   projectVideoUrl?: string;
-  showLinksInIndex: number | null;
+  showLinksInIndex?: number | null;
 }
 
 function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMedia, projectVideoUrl, showLinksInIndex }: ProjectContentProps) {
@@ -30,13 +32,17 @@ function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMed
         <div className="container mx-auto px-4">
           {contentBlock?.map((content, index) => {
             const oddBlock = index % 2 !== 0;
+            const htmlText = convertDraftToHTML(content?.editorState);
 
             return (
               <div key={index} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
                 <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
                   <div>
-                    <div className="text-body">{content.text}</div>
+                    <div className="text-body">
+                      <div dangerouslySetInnerHTML={{ __html: htmlText }} />
+                    </div>
+
                     {showLinksInIndex === index && (siteLink || linkSocialMedia) && (
                       <ProjectContentLinks siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} index={index} showLinksInIndex={showLinksInIndex} />
                     )}

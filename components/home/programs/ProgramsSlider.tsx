@@ -50,7 +50,7 @@ const ProgramsSlider = () => {
     if (programs?.length) {
       const mapped = programs.map(program => ({
         id: program.id,
-        imgSrc: program.contentBlocks.find(block => block.contentBlockType === 'SCHEDULE_POSTER')?.files?.[0] || '',
+        imgSrc: program.contentBlocks.find(block => block.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
         alt: `Slide for ${program.title}`,
         link: `/program/${program.id}`,
         title: program.title || '',

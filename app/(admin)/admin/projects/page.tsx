@@ -1,13 +1,14 @@
 'use client';
 import ProjectsTable from '@/components/admin/ProjectsPage/ProjectsTable';
 import Pagination from '@/components/shared/Pagination';
+import Select from '@/components/shared/Select';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArticleSortEnum, ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface RenderPaginationProps {
   currentPage: number;
@@ -15,10 +16,20 @@ interface RenderPaginationProps {
   changePage: (page: number) => void;
 }
 
+const sortTypes = [
+  { value: ArticleSortEnum.PUBLISHED, label: ArticleSortEnum.PUBLISHED },
+  { value: ArticleSortEnum.DRAFT, label: ArticleSortEnum.DRAFT },
+  { value: ArticleSortEnum.NEW_FIRST, label: ArticleSortEnum.NEW_FIRST },
+  { value: ArticleSortEnum.OLD_FIRST, label: ArticleSortEnum.OLD_FIRST },
+];
+
 function ProgramsPage() {
   const dispatch = useAppDispatch();
   const [currentPage, setCurrentPage] = useState(0);
   const [refreshData, setRefreshData] = useState(false);
+
+  const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
+  const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
 
   const projects = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
@@ -29,9 +40,11 @@ function ProgramsPage() {
         page: currentPage,
         articleType: ArticleTypeEnum.PROJECT,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+        sortByStatus: chooseSortStatusType,
+        sortByCreatedAtDescending: chooseSortDateType,
       }),
     );
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, chooseSortStatusType, chooseSortDateType]);
 
   useEffect(() => {
     fetchAllProjects();
@@ -84,6 +97,24 @@ function ProgramsPage() {
     );
   };
 
+  function handleSortChange(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortStatusType(value === 'true');
+    setCurrentPage(0);
+  }
+
+  function handleSortByDate(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortDateType(value === 'true');
+    setCurrentPage(0);
+  }
+
   return (
     <>
       <ProjectsTable
@@ -94,6 +125,10 @@ function ProgramsPage() {
         renderPagination={renderPagination}
         handleDeleteProject={handleDeleteProject}
         handleArchivedProject={handleArchivedProject}
+        sortStatusVal={chooseSortStatusType}
+        handleStatusSort={handleSortChange}
+        chooseSortDateType={chooseSortDateType}
+        handleSortByDate={handleSortByDate}
       />
     </>
   );
