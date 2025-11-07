@@ -30,13 +30,16 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
-    const params: Record<string, string | number> = {
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    const params: Record<string, string | number | boolean> = {
       page,
       size,
       ...(articleType !== undefined && { articleType }),
       ...(articleStatus !== undefined && { articleStatus }),
       ...(relevantProjectId !== null && { relevantProjectId }),
+      ...(sortByStatus !== null && { sortByStatus }),
+      ...(sortByCreatedAtDescending !== null && { sortByCreatedAtDescending }),
+      ...(excludeArticleId !== null && { excludeArticleId }),
     };
 
     return request({

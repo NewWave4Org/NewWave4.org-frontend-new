@@ -26,8 +26,8 @@ class ArticleService implements IArticleService {
     return this.articleApi.getArticleById({ id, articleType });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
-    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId });
+  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId });
   }
 
   async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {

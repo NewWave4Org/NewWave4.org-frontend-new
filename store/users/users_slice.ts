@@ -5,6 +5,7 @@ import { UserItem } from '@/utils/users/type/interface';
 interface UserState {
   users: UserItem[];
   userById: UserItem;
+  usersSearch: UserItem[];
 }
 
 const initialState: UserState = {
@@ -18,6 +19,7 @@ const initialState: UserState = {
     verificatedUser: false,
     lastInvitationSentAt: '',
   },
+  usersSearch: [],
 };
 
 const userSlice = createSlice({
