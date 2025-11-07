@@ -100,7 +100,7 @@ function TextEditor({ value, onChange }: TextEditorProps) {
       <div ref={toolbarRef}>
         <Toolbar editorState={editorState} setEditorState={setEditorState} />
       </div>
-      <div className="editor-container flex flex-col flex-1">
+      <div className="editor-container">
         <Editor
           ref={editor}
           placeholder="Write Here"

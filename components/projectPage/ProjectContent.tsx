@@ -39,25 +39,13 @@ function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMed
                 <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
                   <div>
-                    <div className="text-body">
+                    <div className="text-body text-font-primary">
                       <div dangerouslySetInnerHTML={{ __html: htmlText }} />
                     </div>
 
                     {showLinksInIndex === index && (siteLink || linkSocialMedia) && (
                       <ProjectContentLinks siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} index={index} showLinksInIndex={showLinksInIndex} />
                     )}
-                    {/* {'checkList' in content && content.checkList && (
-                      <div>
-                        {content.checkList.map((item) => (
-                          <div key={item.id} className="flex items-center text-body [&:not(:last-child)]:mb-4 text-font-primary">
-                            <span className="mr-2">
-                              <CheckIcon />
-                            </span>
-                            {item.title}
-                          </div>
-                        ))}
-                      </div>
-                    )} */}
                   </div>
                 </div>
                 {content?.files?.length > 0 && (

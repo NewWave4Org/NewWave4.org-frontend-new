@@ -328,7 +328,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <ImageLoading
                                     articleId={programId}
                                     maxFiles={1}
-                                    label="Add photo"
+                                    label="Add photo (This photo will be the main photo in the program card)"
                                     classBlock="h-[100px]"
                                     previewSize={200}
                                     positionBlockImg={true}
@@ -413,7 +413,7 @@ function ProgramContent({ programId }: { programId: number }) {
                               <ImageLoading
                                 articleId={programId}
                                 maxFiles={1}
-                                label="Add schedule photo (This photo will be the main photo in the program card)"
+                                label="Add schedule photo"
                                 classBlock="min-h-[300px]"
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
