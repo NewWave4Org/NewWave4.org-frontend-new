@@ -14,7 +14,7 @@ const Header = () => {
   useEffect(() => {
     function handleMobile() {
       const windowWidth = window.innerWidth;
-      if(windowWidth <= 1024) {
+      if (windowWidth <= 1024) {
         setIsMobile(true);
       } else {
         setIsMobile(false);
@@ -25,7 +25,7 @@ const Header = () => {
 
     window.addEventListener('resize', handleMobile);
 
-    return() => {
+    return () => {
       window.removeEventListener('resize', handleMobile);
     };
   }, []);
@@ -38,40 +38,37 @@ const Header = () => {
   return (
     <>
       <header className={` header header-position ${isMenuShow ? 'menuOpen' : ''}`}>
-
-          <Logo />
-          {!isMobile &&
-            <div className={`flex items-center justify-between flex-1`}>
-              <div className='mx-auto'>
-                <Menu />
-              </div>
-              <div className="flex items-center lg:order-2 gap-x-4">
-                <button type="button" className="language-btn bg-white/60 rounded-lg">
-                  UA
-                  <ArrowDown4Icon size="16" color="#0F1B40" />
-                </button>
-                <Link href="/donation" className="donate-btn">
-                  Donate
-                </Link>
-              </div>
+        <Logo />
+        {!isMobile && (
+          <div className={`flex items-center justify-between flex-1`}>
+            <div className="mx-auto">
+              <Menu />
             </div>
-          }
-          {isMobile && 
-            <div className={`hamburger hamburger--squeeze ${isActive ? 'is-active' : ''}`} onClick={handleToggleMenu}>
-              <span className="hamburger-box">
-                <div className="hamburger-inner"></div>
-              </span>
+            <div className="flex items-center lg:order-2 gap-x-4">
+              <button type="button" className="language-btn bg-white/60 rounded-lg">
+                UA
+                <ArrowDown4Icon size="16" color="#0F1B40" />
+              </button>
+              <Link href="/donation" className="donate-btn">
+                Donate
+              </Link>
             </div>
-          }
-
-        
+          </div>
+        )}
+        {isMobile && (
+          <div className={`hamburger hamburger--squeeze ${isActive ? 'is-active' : ''}`} onClick={handleToggleMenu}>
+            <span className="hamburger-box">
+              <div className="hamburger-inner"></div>
+            </span>
+          </div>
+        )}
       </header>
 
-      {isMobile &&
+      {isMobile && (
         <div className={`${isMobile ? 'headerMobile' : ''} ${isMenuShow ? 'headerShowMobile' : ''}`}>
           <Menu />
-          <div className="flex items-center lg:order-2 gap-x-4">
-            <button type="button" className="language-btn">
+          <div className="flex items-start md:flex-row flex-col lg:order-2 gap-x-4 mt-5">
+            <button type="button" className="language-btn md:mb-0 mb-3 bg-white/60 rounded-lg !w-[80px]">
               UA
               <ArrowDown4Icon size="16" color="#0F1B40" />
             </button>
@@ -80,7 +77,7 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      }
+      )}
     </>
   );
 };

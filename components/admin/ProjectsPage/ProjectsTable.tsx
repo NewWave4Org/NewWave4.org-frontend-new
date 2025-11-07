@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import useSortTable from '@/utils/hooks/useSortTable';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
@@ -20,7 +20,6 @@ const TableHeader = [
   { id: '1', title: 'Title' },
   { id: '2', title: 'Author name' },
   { id: '3', title: 'Views' },
-  { id: '4', title: 'Created (mm/dd/yy)' },
 ];
 
 interface IRenderPaginationProps {
@@ -37,6 +36,10 @@ interface IProjectsTableProps {
   changePage: (page: number) => void;
   handleDeleteProject: (project: GetArticleByIdResponseDTO) => void;
   handleArchivedProject: (project: GetArticleByIdResponseDTO) => void;
+  sortStatusVal: boolean;
+  handleStatusSort: (e: React.ChangeEvent<HTMLSpanElement>) => void;
+  chooseSortDateType: boolean;
+  handleSortByDate: (e: React.ChangeEvent<HTMLSpanElement>) => void;
 }
 
 function ProjectsTable({
@@ -47,19 +50,18 @@ function ProjectsTable({
   changePage,
   handleArchivedProject,
   handleDeleteProject,
+  handleStatusSort,
+  sortStatusVal,
+  chooseSortDateType,
+  handleSortByDate,
 }: IProjectsTableProps) {
-  const { sortVal, handleSort, sortedData } = useSortTable({
-    data: projects,
-    initialSortField: 'articleStatus',
-  });
-
   return (
     <div className="relative w-full h-full">
       <div className="mb-5">
         <Table
           classNameRow="bg-admin-100"
           className="mb-5 last:mb-0"
-          data={sortedData}
+          data={projects}
           renderHeader={() => (
             <>
               {TableHeader.map(({ id, title }) => (
@@ -69,27 +71,38 @@ function ProjectsTable({
               ))}
 
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span
-                  onClick={() => handleSort('articleStatus')}
-                  className="cursor-pointer"
-                >
-                  Status
+                <span onClick={e => handleSortByDate(e)} className="cursor-pointer">
+                  Created (mm/dd/yy)
                   <span
-                    className={`${
-                      sortVal === 'asc'
-                        ? 'font-bold border-admin-600'
-                        : 'text-gray-400'
-                    } p-1 rounded-md border-gray-300 border ml-1 
+                    data-value="true"
+                    className={`${chooseSortDateType === true ? 'font-bold !border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
                     hover:border-gray-500 duration-500 hover:text-admin-600`}
                   >
                     ↑
                   </span>
                   <span
-                    className={`${
-                      sortVal === 'desc'
-                        ? 'font-bold border-admin-600'
-                        : 'text-gray-400'
-                    } p-1 rounded-md border-gray-300 border ml-1 
+                    data-value="false"
+                    className={`${chooseSortDateType === false ? 'font-bold !border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
+                    ↓
+                  </span>
+                </span>
+              </th>
+
+              <th className="pb-4 px-2 border-b  border-admin-300">
+                <span onClick={e => handleStatusSort(e)} className="cursor-pointer">
+                  Status
+                  <span
+                    data-value="true"
+                    className={`${sortStatusVal === true ? 'font-bold !border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                  >
+                    ↑
+                  </span>
+                  <span
+                    data-value="false"
+                    className={`${sortStatusVal === false ? 'font-bold !border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 
                     hover:border-gray-500 duration-500 hover:text-admin-600`}
                   >
                     ↓
@@ -99,10 +112,7 @@ function ProjectsTable({
 
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 <Link href="/admin/projects/new">
-                  <Button
-                    variant="primary"
-                    className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
-                  >
+                  <Button variant="primary" className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]">
                     <div className="flex items-center mr-[12px]">
                       <PenIcon color="#fff" />
                     </div>
@@ -113,11 +123,8 @@ function ProjectsTable({
             </>
           )}
           renderRow={project => {
-            const { id, articleStatus, title, views, authorName, createdAt } =
-              project;
-            const status =
-              articleStatus.slice(0, 1).toUpperCase() +
-              articleStatus.toLowerCase().slice(1);
+            const { id, articleStatus, title, views, authorName, createdAt } = project;
+            const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
@@ -128,29 +135,20 @@ function ProjectsTable({
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
-                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
-                      {views}
-                    </p>
+                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">{views}</p>
 
                     {/* <span className="text-sm text-grey-400">views</span> */}
                   </div>
                 </td>
 
-                <td className="px-3 py-6 text-center">
-                  {numericDate(createdAt)}
-                </td>
+                <td className="px-3 py-6 text-center">{numericDate(createdAt)}</td>
 
                 <td className="px-3 py-6">
                   <span
-                    className={clsx(
-                      'flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2',
-                      {
-                        'border-status-success-500 text-status-success-500':
-                          articleStatus === ArticleStatusEnum.PUBLISHED,
-                        'border-status-danger-500 text-status-danger-500':
-                          articleStatus === ArticleStatusEnum.DRAFT,
-                      },
-                    )}
+                    className={clsx('flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2', {
+                      'border-status-success-500 text-status-success-500': articleStatus === ArticleStatusEnum.PUBLISHED,
+                      'border-status-danger-500 text-status-danger-500': articleStatus === ArticleStatusEnum.DRAFT,
+                    })}
                   >
                     {status}
                   </span>
@@ -202,8 +200,7 @@ function ProjectsTable({
         />
       </div>
 
-      {renderPagination &&
-        renderPagination({ currentPage, totalPages, changePage })}
+      {renderPagination && renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );
 }

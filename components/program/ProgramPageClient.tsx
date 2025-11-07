@@ -57,6 +57,7 @@ function ProgramPageClient() {
             size: 3,
             articleType: ArticleTypeEnum.PROGRAM,
             articleStatus: ArticleStatusEnum.PUBLISHED,
+            excludeArticleId: programId,
           }),
         ).unwrap();
 
@@ -68,7 +69,7 @@ function ProgramPageClient() {
     }
 
     fetchDopPrograms();
-  }, [dispatch]);
+  }, [dispatch, programId]);
 
   return (
     <>
