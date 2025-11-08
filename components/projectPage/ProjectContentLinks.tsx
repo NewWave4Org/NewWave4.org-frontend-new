@@ -26,7 +26,7 @@ function ProjectContentLinks({ index, siteLink, linkSocialMedia, nameSocialMedia
         <div className="flex gap-x-4 mt-4">
           {siteLink && (
             <LinkBtn href={siteLink} className="px-[30px]" setIsHovered={setIsHovered}>
-              <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт школи</span>
+              <span className="mr-1 text-medium1 inline-block mt-[-2px]">На сайт</span>
               <div className="mt-[3px]">
                 <ArrowRightIcon size="20" className="hover:duration-500 duration-500" color={isHovered ? 'white' : '#3D5EA7'} />
               </div>
