@@ -4,11 +4,8 @@ import Quote from '@/components/quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 
-import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
-
 function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | undefined }) {
-  const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE')?.editorState;
-  const htmlQuote = convertDraftToHTML(quoteText);
+  const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
 
   const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
@@ -41,7 +38,7 @@ function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | unde
 
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && <Quote quote={htmlQuote} className="text-font-primary" />}
+      {quoteText && <Quote quote={quoteText} className="text-font-primary" />}
 
       <ProjectContent
         contentBlock={otherBlocks}

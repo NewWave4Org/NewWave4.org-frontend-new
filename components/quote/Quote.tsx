@@ -3,6 +3,7 @@ import React from 'react';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 
 const Quote = ({ quote, className }: { quote: any; className?: string }) => {
+  console.log('quote', quote);
   const bgTopUrl = `${prefix}/icons/NewsQuoteTop.svg`;
   const bgBottomUrl = `${prefix}/icons/NewsQuoteBottom.svg`;
 
