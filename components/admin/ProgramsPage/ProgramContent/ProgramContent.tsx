@@ -6,8 +6,7 @@ import LinkBtn from '@/components/shared/LinkBtn';
 import Select from '@/components/shared/Select';
 import TextArea from '@/components/shared/TextArea';
 import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { getUsers } from '@/store/users/actions';
+import { useAppDispatch } from '@/store/hook';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
@@ -19,11 +18,12 @@ import * as Yup from 'yup';
 import DatePicker from '../../helperComponents/DatePicker/DatePicker';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import TimePicker from '../../helperComponents/TimePicker/TimePicker';
+import { useUsers } from '@/utils/hooks/useUsers';
 
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
-  authorId: number;
+  authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
 }
@@ -80,30 +80,49 @@ function ProgramContent({ programId }: { programId: number }) {
   const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
 
-  const currentUser = useAppSelector(state => state.authUser.user);
-  const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
+  const { usersList, currentAuthor } = useUsers(true);
+  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
-  const usersList = allUsers.map(user => ({
-    value: user.id.toString(),
-    label: user.name,
-  }));
+  useEffect(() => {
+    if (program?.authorId) {
+      setDefaultAuthorId(program.authorId);
+    } else if (currentAuthor?.id) {
+      setDefaultAuthorId(currentAuthor.id);
+    }
+  }, [program?.authorId, currentAuthor]);
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROGRAM,
-    authorId: currentAuthor?.id!,
+    authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'SUB_TITLE_PROGRAM', text: '' },
       { contentBlockType: 'DESCRIPTION_PROGRAM', text: '' },
       { contentBlockType: 'DATE_PROGRAM', date: '' },
       { contentBlockType: 'VIDEO', videoUrl: '' },
-      { contentBlockType: 'SECTION_WITH_PHOTO', sectionTitle: '', text: '', files: [] },
-      { contentBlockType: 'SECTION_WITH_TEXT', sectionTitle: '', text1: '', text2: '' },
+      {
+        contentBlockType: 'SECTION_WITH_PHOTO',
+        sectionTitle: '',
+        text: '',
+        files: [],
+      },
+      {
+        contentBlockType: 'SECTION_WITH_TEXT',
+        sectionTitle: '',
+        text1: '',
+        text2: '',
+      },
       { contentBlockType: 'SCHEDULE_TITLE', title: '' },
       { contentBlockType: 'SCHEDULE_POSTER', files: [] },
-      { contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, title: '', location: '' },
+      {
+        contentBlockType: 'SCHEDULE_INFO',
+        date: '',
+        startTime: { hour: '', minute: '', period: 'AM' },
+        endTime: { hour: '', minute: '', period: 'AM' },
+        title: '',
+        location: '',
+      },
     ],
   };
 
@@ -128,13 +147,6 @@ function ProgramContent({ programId }: { programId: number }) {
 
     fetchFullProgramById();
   }, [programId, dispatch]);
-
-  //GET all users for dropdown Change Author
-  useEffect(() => {
-    if (programId) {
-      dispatch(getUsers());
-    }
-  }, [dispatch, programId]);
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     // console.log('values', values);
@@ -190,7 +202,7 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
-          authorId: program?.authorId ?? defaultFormValues.authorId,
+          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
           articleStatus: program?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(program?.contentBlocks) && program.contentBlocks.length ? program.contentBlocks : defaultFormValues.contentBlocks,
@@ -316,7 +328,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <ImageLoading
                                     articleId={programId}
                                     maxFiles={1}
-                                    label="Add photo"
+                                    label="Add photo (This photo will be the main photo in the program card)"
                                     classBlock="h-[100px]"
                                     previewSize={200}
                                     positionBlockImg={true}
@@ -401,7 +413,7 @@ function ProgramContent({ programId }: { programId: number }) {
                               <ImageLoading
                                 articleId={programId}
                                 maxFiles={1}
-                                label="Add schedule photo (This photo will be the main photo in the program card)"
+                                label="Add schedule photo"
                                 classBlock="min-h-[300px]"
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}

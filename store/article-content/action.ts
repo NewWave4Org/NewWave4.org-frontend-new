@@ -28,17 +28,20 @@ export const getArticleById = createAsyncThunk('article-content/getArticleById',
   }
 });
 
-export const getAllArticle = createAsyncThunk('article-content/getAllArticle', async ({ page, size, articleType, articleStatus, relevantProjectId }: IGetAllArticleRequestDTO, { rejectWithValue }) => {
-  try {
-    const response = await articleContentService.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId });
+export const getAllArticle = createAsyncThunk(
+  'article-content/getAllArticle',
+  async ({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId }: IGetAllArticleRequestDTO, { rejectWithValue }) => {
+    try {
+      const response = await articleContentService.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId });
 
-    return response;
-  } catch (error) {
-    const normalized = normalizeApiError(error);
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
 
-    return rejectWithValue(normalized);
-  }
-});
+      return rejectWithValue(normalized);
+    }
+  },
+);
 
 export const createNewArticle = createAsyncThunk('article-content/createNewArticle', async (data: CreateNewArticleRequestDTO, { rejectWithValue }) => {
   try {

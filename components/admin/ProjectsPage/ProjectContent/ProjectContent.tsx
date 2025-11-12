@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 
 import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import Button from '@/components/shared/Button';
-import TextArea from '@/components/shared/TextArea';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import LinkBtn from '@/components/shared/LinkBtn';
 import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
@@ -17,14 +16,16 @@ import Input from '@/components/shared/Input';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
-import { getUsers } from '@/store/users/actions';
 import Select from '@/components/shared/Select';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
+import { useUsers } from '@/utils/hooks/useUsers';
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import TextEditor from '@/components/TextEditor/TextEditor';
 
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
-  authorId: number;
+  authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
 }
@@ -41,28 +42,32 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
+  const [editorKey, setEditorKey] = useState('');
+  const [editorStates, setEditorStates] = useState<Record<number, EditorState>>({});
 
-  const currentUser = useAppSelector(state => state.authUser.user);
-  const allUsers = useAppSelector(state => state.users.users);
-  const currentAuthor = allUsers.find(user => user.name === currentUser?.name);
+  const { usersList, currentAuthor } = useUsers(true);
+  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
-  const usersList = allUsers.map(user => ({
-    value: user.id.toString(),
-    label: user.name,
-  }));
+  useEffect(() => {
+    if (project?.authorId) {
+      setDefaultAuthorId(project.authorId);
+    } else if (currentAuthor?.id) {
+      setDefaultAuthorId(currentAuthor.id);
+    }
+  }, [project?.authorId, currentAuthor]);
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
-    authorId: currentAuthor?.id!,
+    authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
-      { contentBlockType: 'QUOTE', text: '' },
+      { contentBlockType: 'QUOTE', text: '', editorState: null },
       { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
       { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
       { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
-      { contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [] },
+      { contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
     ],
   };
 
@@ -79,6 +84,30 @@ function ProjectContent({ projectId }: { projectId: number }) {
           }),
         ).unwrap();
         setProject(result);
+
+        if (!result?.contentBlocks) return;
+
+        const initialEditors: Record<number, EditorState> = {};
+
+        result.contentBlocks.forEach((block, index) => {
+          if (block.text || block.editorState) {
+            try {
+              if (block.editorState) {
+                const content = convertFromRaw(block.editorState);
+                initialEditors[index] = EditorState.createWithContent(content);
+              } else {
+                initialEditors[index] = EditorState.createEmpty();
+              }
+            } catch (err: any) {
+              console.log('err', err);
+              initialEditors[index] = EditorState.createEmpty();
+            }
+          }
+        });
+
+        setEditorStates(initialEditors);
+
+        setEditorKey(prev => prev + 1);
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch project');
@@ -87,18 +116,12 @@ function ProjectContent({ projectId }: { projectId: number }) {
     fetchFullProjectById();
   }, [projectId, dispatch]);
 
-  //GET all users for dropdown Change Author
-  useEffect(() => {
-    if (projectId) {
-      dispatch(getUsers());
-    }
-  }, [dispatch, projectId]);
-
   //Action for Save the project
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     try {
       const result = await handleThunk(updateArticle, { id: projectId, data: values }, setSubmitError);
       setProject(result);
+
       if (result) {
         setSubmitError('');
         const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
@@ -122,13 +145,22 @@ function ProjectContent({ projectId }: { projectId: number }) {
     }
   }
 
+  const handleEditorChange = (index: number, newState: EditorState, setFieldValue: any) => {
+    setEditorStates(prev => ({ ...prev, [index]: newState }));
+    const content = newState.getCurrentContent();
+    const raw = convertToRaw(content);
+
+    setFieldValue(`contentBlocks.${index}.editorState`, raw);
+    setFieldValue(`contentBlocks.${index}.text`, content.getPlainText());
+  };
+
   return (
     <div>
       <Formik<UpdateArticleFormValues>
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          authorId: project?.authorId ?? defaultFormValues.authorId,
+          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
@@ -163,6 +195,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
                 const additionalBlocks = values.contentBlocks?.slice(6) || [];
 
+                // const editorState = editorStates[index] || EditorState.createEmpty();
+
                 return (
                   <div className="mb-5">
                     {/* Base block */}
@@ -181,7 +215,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     </div>
 
                     <div className="mb-4">
-                      {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
+                      {/* {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
                         <TextArea
                           id="contentBlocks.1.text"
                           name="contentBlocks.1.text"
@@ -191,6 +225,26 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           value={initialBlocks[1].text}
                           onChange={handleChange}
                         />
+                      )} */}
+                      {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
+                        <div>
+                          <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
+                          <TextEditor
+                            // value={quoteEditorState}
+                            key={editorKey}
+                            // resetKey={projectId}
+                            // onChange={newState => {
+                            //   setQuoteEditorState(newState);
+                            //   const content = newState.getCurrentContent();
+                            //   const rawContent = convertToRaw(content);
+
+                            //   setFieldValue(`contentBlocks.1.editorState`, rawContent);
+                            //   setFieldValue(`contentBlocks.1.text`, content.getPlainText());
+                            // }}
+                            value={editorStates[1] || EditorState.createEmpty()}
+                            onChange={newState => handleEditorChange(1, newState, setFieldValue)}
+                          />
+                        </div>
                       )}
                     </div>
 
@@ -256,16 +310,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 labelClass="!text-admin-700"
                               />
                             </div>
-
-                            <TextArea
-                              id="contentBlocks.5.text"
-                              name="contentBlocks.5.text"
-                              label="Text block"
-                              value={initialBlocks[5].text}
-                              labelClass="!text-admin-700"
-                              className="!bg-background-light w-full flex-1 px-5 rounded-lg !ring-0 !max-w-full"
-                              onChange={handleChange}
-                            />
+                            <div className="flex-1 flex flex-col">
+                              <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                              <TextEditor key={editorKey} value={editorStates[5] || EditorState.createEmpty()} onChange={newState => handleEditorChange(5, newState, setFieldValue)} />
+                            </div>
                           </div>
                           <div className="w-1/2 h-[442px]">
                             <ImageLoading
@@ -293,7 +341,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       return (
                         <div key={index} className="mb-5">
                           <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div className="w-1/2">
+                            <div className="w-1/2 h-[442px] flex flex-col">
                               <div className="mb-4">
                                 <Input
                                   onChange={handleChange}
@@ -307,20 +355,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 />
                               </div>
 
-                              <div className="mb-4">
-                                <TextArea
-                                  id={`contentBlocks.${index}.text`}
-                                  name={`contentBlocks.${index}.text`}
-                                  label="Text block"
-                                  value={block.text}
-                                  labelClass="!text-admin-700"
-                                  className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
-                                  onChange={handleChange}
-                                />
+                              <div className="flex-1 flex flex-col">
+                                <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                <TextEditor value={editorStates[index] || EditorState.createEmpty()} onChange={newState => handleEditorChange(index, newState, setFieldValue)} />
                               </div>
                             </div>
 
-                            <div className="w-1/2">
+                            <div className="w-1/2 h-[442px]">
                               <ImageLoading
                                 articleId={projectId}
                                 maxFiles={1}

@@ -10,7 +10,7 @@ function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] }) {
         <div className="flex flex-col lg:flex-row -ml-3 -mr-3">
           {dopPrograms.map(item => {
             const description = item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM').text;
-            const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
+            const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SECTION_WITH_PHOTO')?.files;
 
             return <ProgramBlockItem key={item.id} title={item.title} description={description} id={item.id} imageSrc={imageSrc} />;
           })}

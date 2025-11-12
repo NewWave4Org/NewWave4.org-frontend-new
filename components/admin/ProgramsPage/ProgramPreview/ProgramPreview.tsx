@@ -36,7 +36,7 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
     <>
       <ProgramHeader title={program?.title} classNameParent="!mb-0" />
       <div className="container mx-auto px-4">
-        {subTitleProgram && descriptionProgram && <ProgramFirstBlocks title={subTitleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
+        {(subTitleProgram || descriptionProgram) && <ProgramFirstBlocks title={subTitleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">
           {((filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0) || (videoURL && videoURL.length > 0)) && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />}
           {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}

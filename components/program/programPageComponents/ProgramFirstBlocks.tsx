@@ -31,13 +31,13 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
       <div className=" bg-background-secondary flex-1 flex lg:justify-end justify-center">
         <div className="lg:max-w-[708px] max-w-full md:py-12 md:px-24 py-6 px-12">
           <div className="container">
-            <h2 className="text-h2 text-font-primary font-ebGaramond">{title}</h2>
+            <h2 className="lg:text-h2 text-h5 text-font-primary font-ebGaramond">{title}</h2>
           </div>
         </div>
       </div>
       <div className=" bg-font-white items-center flex-1 flex justify-start relative">
         <span className="bg-accent-300 rounded-tr-[4px] rounded-br-[4px] font-helv text-base text-font-primary py-1.5 px-4 font-medium absolute left-0 top-8">{`${formattedDateFrom} - ${formattedDateTo}`}</span>
-        <div className="lg:max-w-[732px] max-w-full md:px-24 md:py-[70px] py-6 px-12 ">
+        <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:py-[70px] pt-[100px] pb-[50px] px-12 ">
           <div className="container">
             <p className="text-body text-font-primary">{description}</p>
             <div className="mt-4 flex">

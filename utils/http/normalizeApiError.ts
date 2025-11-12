@@ -5,9 +5,9 @@ export function normalizeApiError(error: unknown): ApiError {
   if (error instanceof AxiosError) {
     const row = error.response?.data as ServerErrorData;
     return {
-      status: row.status,
-      errors: row.errors,
-      timestamp: row.timestamp,
+      status: row?.status,
+      errors: row?.errors,
+      timestamp: row?.timestamp,
     };
   }
 

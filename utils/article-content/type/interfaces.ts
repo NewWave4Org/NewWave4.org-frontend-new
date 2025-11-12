@@ -53,6 +53,9 @@ export interface IGetAllArticleRequestDTO {
   articleType?: ArticleType;
   articleStatus?: ArticleStatus | string;
   relevantProjectId?: number | null;
+  sortByStatus?: boolean;
+  sortByCreatedAtDescending?: boolean;
+  excludeArticleId?: number;
 }
 
 export interface IGetAllArticleResponseDTO {

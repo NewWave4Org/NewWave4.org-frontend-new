@@ -27,14 +27,20 @@ const AdminHeader = () => {
 
   return (
     <div className="header bg-background-darkBlue800 fixed top-0 w-full z-[9999]">
-      <div className="container mx-auto px-4">
+      <div className="lg:container max-w-full mx-auto px-4">
         <div className="flex justify-between items-center py-2">
           <Logo textColor="text-white" />
           {isAuthenticated && (
             <div>
               <DropDown
                 renderBth={(isOpen, toggle) => (
-                  <button onClick={toggle} className="text-white">
+                  <button
+                    onClick={toggle}
+                    className="text-white !bg-transparent rounded-xl px-4 py-2 
+                    shadow-[0_0_10px_rgba(255,255,255,0.5)]
+                    hover:shadow-[0_0_15px_rgba(255,255,255,0.8)]
+                    duration-500"
+                  >
                     {currentUserName}
                   </button>
                 )}
@@ -43,7 +49,7 @@ const AdminHeader = () => {
                 items={[
                   // { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
                   // { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
-                  { label: 'Вихід', href: '#', isLink: false, onClick: handleLogOut },
+                  { label: 'Log out', href: '#', isLink: false, onClick: handleLogOut },
                 ]}
               />
             </div>

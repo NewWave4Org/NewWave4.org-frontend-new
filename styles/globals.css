@@ -266,6 +266,25 @@ body {
   transform: rotate(-90deg);
 }
 
+
+.projectsBlock__content ul li {
+  position: relative;
+  padding-left: 40px;
+}
+.projectsBlock__content ul li:before {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  background: url('./check-Icon.svg') no-repeat;
+}
+.projectsBlock__content ol {
+  list-style: auto;
+  padding-left: 20px;
+}
 /* List */
 
 @layer utilities {

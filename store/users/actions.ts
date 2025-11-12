@@ -1,83 +1,73 @@
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { userService } from '@/utils/users';
-import {
-  DeleteUserRequestDTO,
-  NewUserRequestDTO,
-  UpdateUserRequestDTO,
-  UserByIdRequestDTO,
-} from '@/utils/users/type/interface';
+import { DeleteUserRequestDTO, NewUserRequestDTO, UpdateUserRequestDTO, UserByIdRequestDTO, UserResponseDTO } from '@/utils/users/type/interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const getUsers = createAsyncThunk(
-  'users/getUsers',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await userService.getUsers();
+export const getUsers = createAsyncThunk('users/getUsers', async (_, { rejectWithValue }) => {
+  try {
+    const response = await userService.getUsers();
 
-      return response;
-    } catch (error) {
-      const normalized = normalizeApiError(error);
-      return rejectWithValue(normalized);
-    }
-  },
-);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});
 
-export const getUserById = createAsyncThunk(
-  'users/getUserById',
-  async (data: UserByIdRequestDTO, { rejectWithValue }) => {
-    try {
-      const response = await userService.getUserById(data);
+export const searchUsers = createAsyncThunk<UserResponseDTO, boolean | undefined>('users/searchUsers', async (isUserVerificated, { rejectWithValue }) => {
+  try {
+    const response = await userService.searchUsers(isUserVerificated);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});
 
-      return response;
-    } catch (error) {
-      const normalized = normalizeApiError(error);
+export const getUserById = createAsyncThunk('users/getUserById', async (data: UserByIdRequestDTO, { rejectWithValue }) => {
+  try {
+    const response = await userService.getUserById(data);
 
-      return rejectWithValue(normalized);
-    }
-  },
-);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
 
-export const createNewUser = createAsyncThunk(
-  'users/createNew',
-  async (data: NewUserRequestDTO, { rejectWithValue }) => {
-    try {
-      const response = await userService.createNewUser(data);
+    return rejectWithValue(normalized);
+  }
+});
 
-      return response;
-    } catch (error) {
-      const normalized = normalizeApiError(error);
+export const createNewUser = createAsyncThunk('users/createNew', async (data: NewUserRequestDTO, { rejectWithValue }) => {
+  try {
+    const response = await userService.createNewUser(data);
 
-      return rejectWithValue(normalized);
-    }
-  },
-);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
 
-export const deleteUser = createAsyncThunk(
-  'users/deleteUser',
-  async (data: DeleteUserRequestDTO, { rejectWithValue }) => {
-    try {
-      const response = await userService.deleteUser(data);
+    return rejectWithValue(normalized);
+  }
+});
 
-      return response;
-    } catch (error) {
-      const normalized = normalizeApiError(error);
+export const deleteUser = createAsyncThunk('users/deleteUser', async (data: DeleteUserRequestDTO, { rejectWithValue }) => {
+  try {
+    const response = await userService.deleteUser(data);
 
-      return rejectWithValue(normalized);
-    }
-  },
-);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
 
-export const updateUser = createAsyncThunk(
-  'user/updateUser',
-  async (data: UpdateUserRequestDTO, { rejectWithValue }) => {
-    try {
-      const response = await userService.updateUser(data);
+    return rejectWithValue(normalized);
+  }
+});
 
-      return response;
-    } catch (error) {
-      const normalized = normalizeApiError(error);
+export const updateUser = createAsyncThunk('user/updateUser', async (data: UpdateUserRequestDTO, { rejectWithValue }) => {
+  try {
+    const response = await userService.updateUser(data);
 
-      return rejectWithValue(normalized);
-    }
-  },
-);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+
+    return rejectWithValue(normalized);
+  }
+});
