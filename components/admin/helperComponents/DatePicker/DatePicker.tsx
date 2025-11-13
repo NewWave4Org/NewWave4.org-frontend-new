@@ -23,7 +23,7 @@ interface IDatePicker {
   pickerId: string;
   pickerPlaceholder?: string;
   pickerValue?: IPickerValue;
-  pickerType?: string;
+  pickerType?: 'single' | 'range';
   pickerLocal?: string;
   pickerWithTime?: boolean;
   pickerSnowWeekend?: boolean;
@@ -33,26 +33,26 @@ function DatePicker({ name, pickerId, pickerValue, pickerType = 'single', picker
   const { setFieldValue } = useFormikContext();
 
   // min date from now
-  const today = new Date();
-  const minDate = {
-    year: today.getFullYear(),
-    month: today.getMonth() + 1,
-    day: today.getDate(),
-    hour: 0,
-    minute: 0,
-  };
+  // const today = new Date();
+  // const minDate = {
+  //   year: today.getFullYear(),
+  //   month: today.getMonth() + 1,
+  //   day: today.getDate(),
+  //   hour: 0,
+  //   minute: 0,
+  // };
 
   // min date from value pickerValue
-  const pickerValueFrom = {
-    year: pickerValue?.from?.year,
-    month: pickerValue?.from?.month,
-    day: pickerValue?.from?.day,
-    hour: 0,
-    minute: 0,
-  };
+  // const pickerValueFrom = {
+  //   year: pickerValue?.from?.year,
+  //   month: pickerValue?.from?.month,
+  //   day: pickerValue?.from?.day,
+  //   hour: 0,
+  //   minute: 0,
+  // };
 
   // min date for calendar if we have value from pickerValue than min date = pickerValueFrom or minDate
-  const minDateValue = pickerValue ? pickerValueFrom : minDate;
+  // const minDateValue = pickerValue ? pickerValueFrom : minDate;
 
   const safeInitValue = useMemo(() => {
     if (pickerType === 'range') {
@@ -65,13 +65,14 @@ function DatePicker({ name, pickerId, pickerValue, pickerType = 'single', picker
   return (
     <DtPicker
       onChange={val => setFieldValue(name, val)}
+      // onChange={val => console.log('val', val)}
       type={pickerType}
       local={pickerLocal}
       showWeekend={pickerSnowWeekend}
       showTimeInput={false}
       withTime={pickerWithTime}
       inputId={pickerId}
-      minDate={minDateValue}
+      // minDate={minDateValue}
       placeholder={pickerPlaceholder}
       inputClass="bg-background-light w-full !h-[50px] !px-5 !rounded-lg !ring-0 py-4 !border-0 text-dark !text-left"
       daysClass="custom-days"

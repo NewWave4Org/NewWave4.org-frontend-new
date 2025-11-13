@@ -25,6 +25,7 @@ export interface GetArticleByIdResponseDTO {
   title: string;
   views: number;
   relevantProjectId?: number;
+  customCreationDate: string;
 }
 
 export interface CreateNewArticleRequestDTO {

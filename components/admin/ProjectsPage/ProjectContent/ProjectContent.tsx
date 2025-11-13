@@ -21,6 +21,9 @@ import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { useUsers } from '@/utils/hooks/useUsers';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
+import DatePicker from '../../helperComponents/DatePicker/DatePicker';
+import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
+import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -28,6 +31,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
+  customCreationDate: any;
 }
 
 const validationSchema = Yup.object({
@@ -60,6 +64,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+    customCreationDate: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
       { contentBlockType: 'VIDEO', videoUrl: '' },
@@ -118,8 +123,15 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   //Action for Save the project
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+    let payload = { ...values };
+
+    payload = {
+      ...values,
+      customCreationDate: convertToISO(values.customCreationDate),
+    };
+
     try {
-      const result = await handleThunk(updateArticle, { id: projectId, data: values }, setSubmitError);
+      const result = await handleThunk(updateArticle, { id: projectId, data: payload }, setSubmitError);
       setProject(result);
 
       if (result) {
@@ -161,6 +173,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+          customCreationDate: project?.customCreationDate || defaultFormValues.customCreationDate,
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
@@ -184,6 +197,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 labelClass="!text-admin-700"
                 validationText={touched.title && errors.title ? errors.title : ''}
               />
+            </div>
+
+            <div className="mb-5">
+              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
             </div>
 
             <div className="mb-5">
