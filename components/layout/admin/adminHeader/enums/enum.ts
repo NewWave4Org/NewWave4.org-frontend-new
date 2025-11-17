@@ -12,6 +12,7 @@ const adminLinkSidebar = {
   ADMIN_USERS: '/admin/users',
   ADMIN_PAGES: '/admin/pages',
   ADMIN_ARTICLES: '/admin/articles',
+  ADMIN_EVENTS: '/admin/events',
   ADMIN_PROJECTS: '/admin/projects',
   ADMIN_PROGRAMS: '/admin/programs',
   ADMIN_ARCHIVE: '/admin/archive',

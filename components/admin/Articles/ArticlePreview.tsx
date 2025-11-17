@@ -34,9 +34,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const data = await dispatch(
-          getArticleById({ id: articleId, articleType: 'NEWS' }),
-        ).unwrap();
+        const data = await dispatch(getArticleById({ id: articleId })).unwrap();
         const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
         if (articleFull.video) {
@@ -75,7 +73,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         const project = await dispatch(
           getArticleById({
             id: article.relevantProjectId!,
-            articleType: 'PROJECT',
+            // articleType: 'PROJECT',
           }),
         ).unwrap();
         setProjectTitle(project.title);
