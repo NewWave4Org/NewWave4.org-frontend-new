@@ -27,6 +27,12 @@ import Select from '@/components/shared/Select';
 import WarningIcon from '@/components/icons/status/WarningIcon';
 import { useUsers } from '@/utils/hooks/useUsers';
 
+const getTypeName = (type: ArticleTypeEnum) =>
+  type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
+
+const getTypePath = (type: ArticleTypeEnum) =>
+  type === ArticleTypeEnum.EVENT ? 'events' : 'articles';
+
 interface ArticleContentDTO {
   title: string;
   relevantProjectId?: number;
@@ -55,9 +61,10 @@ export interface UpdateArticleFormValues {
 
 interface IArticleContent {
   articleId?: number;
+  articleType: ArticleTypeEnum;
 }
 
-const ArticleContent = ({ articleId }: IArticleContent) => {
+const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const dispatch = useAppDispatch();
   const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
     null,
@@ -120,17 +127,17 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
 
     const fetchArticle = async () => {
       try {
-        const data = await dispatch(
-          getArticleById({ id: articleId, articleType: 'NEWS' }),
-        ).unwrap();
+        const data = await dispatch(getArticleById({ id: articleId })).unwrap();
         setArticle(data);
+        // console.log('data');
+        // console.log(data);
       } catch {
-        toast.error('Failed to fetch article');
+        toast.error(`Failed to fetch ${getTypeName(articleType)}`);
       }
     };
 
     fetchArticle();
-  }, [articleId, dispatch]);
+  }, [articleId, articleType, dispatch]);
 
   async function handleSaveArticleContent(
     values: ArticleContentDTO,
@@ -189,7 +196,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             id: articleId,
             data: {
               title: values.title,
-              articleType: ArticleTypeEnum.NEWS,
+              articleType,
               authorId: Number(values.authorId),
               relevantProjectId: Number(values.relevantProjectId),
               contentBlocks: blocks,
@@ -198,10 +205,10 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
         ).unwrap();
       }
 
-      toast.success('Article content saved successfully!');
+      toast.success(`${getTypeName(articleType)} content saved successfully!`);
       return true;
     } catch (err) {
-      toast.error('Failed to save article');
+      toast.error(`Failed to save ${getTypeName(articleType)}`);
       console.error(err);
       return false;
     }
@@ -233,7 +240,9 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
       .filter(block => block && block.toString().trim() !== '');
 
     if (nonEmptyBlocks.length < 3) {
-      toast.error('Article must have at least 3 content blocks');
+      toast.error(
+        `${getTypeName(articleType)} must have at least 3 content blocks`,
+      );
       return;
     }
 
@@ -246,16 +255,16 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
         return;
       }
 
-      toast.success('Article published successfully!');
-      router.push('/admin/articles');
+      toast.success(`${getTypeName(articleType)} published successfully!`);
+      router.push(`/admin/${getTypePath(articleType)}`);
     } catch (err: any) {
       const message = extractErrorMessage(err?.errors ?? err?.message ?? err);
-      toast.error(message || 'Failed to publish article');
+      toast.error(message || `Failed to publish ${getTypeName(articleType)}`);
     }
   }
 
   async function handlePreview() {
-    router.push(`/admin/articles/preview?id=${articleId}`);
+    router.push(`/admin/${getTypePath(articleType)}/preview?id=${articleId}`);
   }
 
   return (
@@ -267,6 +276,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
             enableReinitialize
             initialValues={{
               title: article?.title || '',
+              articleType: articleType,
               authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
               relevantProjectId: article?.relevantProjectId,
               textblock1:
@@ -437,7 +447,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   <ImageLoading
                     label="Main Photo"
                     required
-                    contentType={ArticleTypeEnum.NEWS}
+                    contentType={articleType}
                     articleId={articleId!}
                     maxFiles={1}
                     uploadedUrls={values.mainPhoto || []}
@@ -458,7 +468,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   <ImageLoading
                     label="Photo List"
                     note=" You can upload 1 or 2 photos here."
-                    contentType={ArticleTypeEnum.NEWS}
+                    contentType={articleType}
                     articleId={articleId!}
                     maxFiles={2}
                     uploadedUrls={values.photosList || []}
@@ -471,7 +481,7 @@ const ArticleContent = ({ articleId }: IArticleContent) => {
                   <ImageLoading
                     label="Photo Slider"
                     note="Minimum 3 and maximum 5 photos."
-                    contentType={ArticleTypeEnum.NEWS}
+                    contentType={articleType}
                     articleId={articleId!}
                     maxFiles={5}
                     uploadedUrls={values.sliderPhotos || []}

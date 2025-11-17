@@ -19,8 +19,7 @@ export function useUsers(isUserVerificated?: boolean) {
         [users],
     );
 
-    console.log('usersList', usersList, usersList.map(u => typeof u.value));
-
+    // console.log('usersList', usersList, usersList.map(u => typeof u.value));
 
     const currentUser = useAppSelector(state => state.authUser.user);
     const currentAuthor = users.find(user => user.name === currentUser?.name);
