@@ -23,6 +23,8 @@ import DatePicker from '../../helperComponents/DatePicker/DatePicker';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import TimePicker from '../../helperComponents/TimePicker/TimePicker';
 import { useUsers } from '@/utils/hooks/useUsers';
+import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
+import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -30,6 +32,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
+  customCreationDate: any;
 }
 
 const validationSchema = Yup.object({
@@ -107,6 +110,7 @@ function ProgramContent({ programId }: { programId: number }) {
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROGRAM,
+    customCreationDate: convertFromISO(new Date()),
     authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
     articleStatus: '',
     contentBlocks: [
@@ -160,14 +164,10 @@ function ProgramContent({ programId }: { programId: number }) {
     fetchFullProgramById();
   }, [programId, dispatch]);
 
-  async function handleSubmit(
-    values: UpdateArticleFormValues,
-    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
-  ) {
-    // console.log('values', values);
-
+  async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     const normalized = {
       ...values,
+      customCreationDate: convertToISO(values.customCreationDate),
       contentBlocks: values.contentBlocks.map(block => {
         if (block.contentBlockType === 'SCHEDULE_INFO') {
           const fixTime = (t: any) => ({
@@ -185,6 +185,8 @@ function ProgramContent({ programId }: { programId: number }) {
         return block;
       }),
     };
+
+    console.log('normalized', normalized);
 
     try {
       const result = await handleThunk(
@@ -225,6 +227,7 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
+          customCreationDate: program?.customCreationDate || defaultFormValues.customCreationDate,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
           articleStatus:
@@ -266,15 +269,12 @@ function ProgramContent({ programId }: { programId: number }) {
             </div>
 
             <div className="mb-5">
-              <Select
-                label="Change Author (if needed)"
-                adminSelectClass={true}
-                name="authorId"
-                required
-                labelClass="!text-admin-700"
-                onChange={handleChange}
-                options={usersList}
-              />
+              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
+            </div>
+
+            <div className="mb-5">
+              <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
             </div>
 
             <FieldArray name="contentBlocks">
