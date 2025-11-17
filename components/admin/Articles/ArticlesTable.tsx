@@ -15,13 +15,22 @@ import ModalType from '@/components/ui/Modal/enums/modals-type';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import useSortTable from '@/utils/hooks/useSortTable';
+
+const getAdminPath = (
+  articleType: ArticleTypeEnum,
+  action: 'new' | 'edit',
+  id?: number,
+) => {
+  const base = articleType === ArticleTypeEnum.EVENT ? 'events' : 'articles';
+  return action === 'new'
+    ? `/admin/${base}/new`
+    : `/admin/${base}/edit?id=${id}`;
+};
 
 const articlesHeader = [
   { id: '1', title: 'Title' },
   { id: '2', title: 'Author name' },
   { id: '3', title: 'Views' },
-  { id: '4', title: 'Created' },
 ];
 
 type renderPaginationProps = {
@@ -32,30 +41,38 @@ type renderPaginationProps = {
 
 type Props = {
   renderPagination: (props: renderPaginationProps) => ReactNode;
+  articleType: ArticleTypeEnum;
 };
 
-const ArticlesTable: FC<Props> = ({ renderPagination }) => {
+const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const articles = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
   const dispatch = useAppDispatch();
 
-  const { sortVal, handleSort, sortedData } = useSortTable<Article>({
-    data: articles,
-    initialSortField: 'articleStatus',
-  });
+  const [chooseSortStatusType, setChooseSortStatusType] =
+    useState<boolean>(true);
+  const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
 
   const fetchArticles = useCallback(() => {
     dispatch(
       getAllArticle({
         page: currentPage,
-        size: 5,
-        articleType: ArticleTypeEnum.NEWS,
+        size: 10,
+        articleType,
+        sortByStatus: chooseSortStatusType ?? undefined,
+        sortByCreatedAtDescending: chooseSortDateType ?? undefined,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
       }),
     );
-  }, [dispatch, currentPage]);
+  }, [
+    dispatch,
+    currentPage,
+    chooseSortDateType,
+    chooseSortStatusType,
+    articleType,
+  ]);
 
   useEffect(() => {
     fetchArticles();
@@ -81,6 +98,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
       openModal({
         modalType: ModalType.DELETE_ARTICLE,
         payload: article,
+        title: articleType === ArticleTypeEnum.EVENT ? 'event' : 'article',
       }),
     );
   };
@@ -90,17 +108,40 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
       openModal({
         modalType: ModalType.ARCHIVED_ARTICLE,
         payload: article,
-        title: 'article',
+        title: articleType === ArticleTypeEnum.EVENT ? 'event' : 'article',
       }),
     );
   };
+
+  function handleSortChange(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortStatusType(value === 'true');
+    setCurrentPage(0);
+
+    console.log(
+      'Fetching articles, sortByCreatedAtDescending:',
+      chooseSortDateType,
+    );
+  }
+
+  function handleSortByDate(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortDateType(value === 'true');
+    setCurrentPage(0);
+  }
 
   return (
     <div className="relative w-full h-full overflow-auto">
       <Table
         classNameRow="bg-admin-100"
         className="mb-5 last:mb-0"
-        data={sortedData}
+        data={articles}
         renderHeader={() => (
           <>
             {articlesHeader.map(({ id, title }) => (
@@ -111,14 +152,15 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
 
             <th className="pb-4 px-2 border-b  border-admin-300">
               <span
-                onClick={() => handleSort('articleStatus')}
+                onClick={e => handleSortByDate(e)}
                 className="cursor-pointer"
               >
-                Status
+                Created
                 <span
+                  data-value="true"
                   className={`${
-                    sortVal === 'asc'
-                      ? 'font-bold border-admin-600'
+                    chooseSortDateType === true
+                      ? 'font-bold !border-admin-600'
                       : 'text-gray-400'
                   } p-1 rounded-md border-gray-300 border ml-1 
                     hover:border-gray-500 duration-500 hover:text-admin-600`}
@@ -126,9 +168,41 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
                   ↑
                 </span>
                 <span
+                  data-value="false"
                   className={`${
-                    sortVal === 'desc'
-                      ? 'font-bold border-admin-600'
+                    chooseSortDateType === false
+                      ? 'font-bold !border-admin-600'
+                      : 'text-gray-400'
+                  } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                >
+                  ↓
+                </span>
+              </span>
+            </th>
+
+            <th className="pb-4 px-2 border-b  border-admin-300">
+              <span
+                onClick={e => handleSortChange(e)}
+                className="cursor-pointer"
+              >
+                Status
+                <span
+                  data-value="true"
+                  className={`${
+                    chooseSortStatusType === true
+                      ? 'font-bold !border-admin-600'
+                      : 'text-gray-400'
+                  } p-1 rounded-md border-gray-300 border ml-1 
+                    hover:border-gray-500 duration-500 hover:text-admin-600`}
+                >
+                  ↑
+                </span>
+                <span
+                  data-value="false"
+                  className={`${
+                    chooseSortStatusType === false
+                      ? 'font-bold !border-admin-600'
                       : 'text-gray-400'
                   } p-1 rounded-md border-gray-300 border ml-1 
                     hover:border-gray-500 duration-500 hover:text-admin-600`}
@@ -139,7 +213,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
             </th>
 
             <th className="pb-4 border-b  border-admin-300 flex justify-end">
-              <Link href="/admin/articles/new">
+              <Link href={getAdminPath(articleType, 'new')}>
                 <Button
                   variant="primary"
                   className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
@@ -200,7 +274,7 @@ const ArticlesTable: FC<Props> = ({ renderPagination }) => {
 
               <td className="px-3 py-6 align-middle">
                 <div className="flex gap-x-5">
-                  <Link href={`/admin/articles/edit?id=${id}`}>
+                  <Link href={getAdminPath(articleType, 'edit', id)}>
                     <Button
                       variant="tertiary"
                       className="!text-admin-700 !py-2 bg-white h-auto flex items-center font-bold shadow-md 

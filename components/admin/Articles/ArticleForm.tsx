@@ -1,41 +1,40 @@
 'use client';
+
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import Select from '@/components/shared/Select';
-import {
-  createNewArticle,
-  getArticleById,
-  updateArticle,
-  getAllArticle,
-} from '@/store/article-content/action';
 
-import useHandleThunk from '@/utils/useHandleThunk';
 import { Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
-import { extractErrorMessage } from '@/utils/apiErrors';
+
 import {
-  ArticleStatusEnum,
-  ArticleType,
-  ArticleTypeEnum,
-} from '@/utils/ArticleType';
-import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+  createNewArticle,
+  getAllArticle,
+} from '@/store/article-content/action';
+
+import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import { extractErrorMessage } from '@/utils/apiErrors';
+
 import { useAppDispatch } from '@/store/hook';
+import useHandleThunk from '@/utils/useHandleThunk';
 import { useUsers } from '@/utils/hooks/useUsers';
 
-interface newArticleDTO {
-  id?: number;
-  articleType: ArticleType;
-  title: string;
-  contentBlocks: any[] | null;
-  relevantProjectId?: number;
-  authorId?: number;
-}
+const getContentPath = (articleType: ArticleTypeEnum, id: number) => {
+  const base = articleType === ArticleTypeEnum.EVENT ? 'events' : 'articles';
+  return `/admin/${base}/new/content?id=${id}`;
+};
 
-export interface CreateNewArticleRequestDTO {
-  articleType: ArticleType;
+const getSuccessMessage = (articleType: ArticleTypeEnum) => {
+  return articleType === ArticleTypeEnum.EVENT
+    ? 'Event created successfully'
+    : 'Article created successfully';
+};
+
+interface newArticleDTO {
+  articleType: string;
   title: string;
   contentBlocks: any[] | null;
   relevantProjectId?: number;
@@ -47,12 +46,11 @@ interface ProjectOption {
   label: string;
 }
 
-interface IArticleFormProps {
-  articleId?: number;
+interface ArticleFormProps {
+  articleType: ArticleTypeEnum;
 }
 
-const ArticleForm = ({ articleId }: IArticleFormProps) => {
-  const [article, setArticle] = useState<newArticleDTO | null>(null);
+const ArticleForm = ({ articleType }: ArticleFormProps) => {
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -80,71 +78,30 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
           value: project.id,
           label: project.title,
         }));
+
         setProjects(mappedProjects);
       } catch (err) {
         toast.error('Failed to fetch projects');
-        console.error(err);
+        console.log(err);
       }
     };
 
     fetchProjects();
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!articleId) return;
-
-    const fetchArticle = async () => {
-      try {
-        const data: GetArticleByIdResponseDTO = await handleThunk(
-          getArticleById,
-          { id: articleId, articleType: 'NEWS' },
-          msg => toast.error(msg),
-        );
-        setArticle({
-          id: data.id,
-          title: data.title,
-          articleType: data.articleType,
-          relevantProjectId: data.relevantProjectId,
-          contentBlocks: data.contentBlocks,
-        });
-      } catch (err) {
-        toast.error('Failed to fetch article');
-        console.log(err);
-      }
-    };
-
-    fetchArticle();
-  }, [articleId, handleThunk]);
-
   async function handleSubmit(values: newArticleDTO) {
-    let result;
-
     try {
-      if (values.id) {
-        const payload = {
-          title: values.title,
-          relevantProjectId: values.relevantProjectId,
-          authorId: values.authorId,
-          articleType: values.articleType,
-        };
-        result = await handleThunk(
-          updateArticle,
-          { id: values.id, data: payload },
-          msg => toast.error(msg),
-        );
+      const result = await handleThunk(
+        createNewArticle,
+        { ...values, articleType },
+        msg => toast.error(msg),
+      );
 
-        if (result) {
-          toast.success('Article updated successfully');
-        }
-      } else {
-        result = await handleThunk(createNewArticle, values, msg =>
-          toast.error(msg),
+      if (result) {
+        toast.success(getSuccessMessage(values.articleType as ArticleTypeEnum));
+        router.push(
+          getContentPath(values.articleType as ArticleTypeEnum, result.id),
         );
-
-        if (result) {
-          toast.success('Article created successfully');
-          router.push(`/admin/articles/new/content?id=${result.id}`);
-        }
       }
     } catch (err: any) {
       const message = extractErrorMessage(err?.errors ?? err?.message ?? err);
@@ -153,89 +110,87 @@ const ArticleForm = ({ articleId }: IArticleFormProps) => {
   }
 
   return (
-    <>
-      <div className="modal__body">
-        <Formik
-          enableReinitialize
-          initialValues={{
-            id: article?.id,
-            title: article?.title || '',
-            relevantProjectId: article?.relevantProjectId,
-            articleType: 'NEWS',
-            contentBlocks: article?.contentBlocks || [],
-            authorId: currentAuthor?.id,
-          }}
-          validationSchema={validationSchema}
-          onSubmit={(values: newArticleDTO) => handleSubmit(values)}
-        >
-          {({ errors, touched, handleChange, isSubmitting, values }) => (
-            <Form>
-              <div className="mb-5">
-                <Input
-                  required
-                  onChange={handleChange}
-                  id="title"
-                  name="title"
-                  type="text"
-                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                  value={values.title}
-                  label="Title"
-                  labelClass="!text-admin-700"
-                  validationText={
-                    touched.title && errors.title ? errors.title : ''
-                  }
-                />
-              </div>
+    <div className="modal__body">
+      <Formik
+        enableReinitialize
+        initialValues={{
+          title: '',
+          relevantProjectId: undefined,
+          articleType,
+          contentBlocks: [],
+          authorId: currentAuthor?.id,
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ errors, touched, handleChange, isSubmitting, values }) => (
+          <Form>
+            {/* Title */}
+            <div className="mb-5">
+              <Input
+                required
+                onChange={handleChange}
+                id="title"
+                name="title"
+                type="text"
+                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                value={values.title}
+                label="Title"
+                labelClass="!text-admin-700"
+                validationText={
+                  touched.title && errors.title ? errors.title : ''
+                }
+              />
+            </div>
 
-              <div className="mb-5">
-                <Select
-                  label="Relevant Project"
-                  labelClass="!text-admin-700"
-                  adminSelectClass={true}
-                  name="relevantProjectId"
-                  required
-                  placeholder="Choose project"
-                  onChange={handleChange}
-                  options={
-                    projects.length > 0
-                      ? projects
-                      : [
-                          {
-                            value: '',
-                            label: 'No published projects available',
-                            disabled: true,
-                          },
-                        ]
-                  }
-                />
-              </div>
+            {/* Project */}
+            <div className="mb-5">
+              <Select
+                label="Relevant Project"
+                labelClass="!text-admin-700"
+                adminSelectClass={true}
+                name="relevantProjectId"
+                required
+                placeholder="Choose project"
+                onChange={handleChange}
+                options={
+                  projects.length > 0
+                    ? projects
+                    : [
+                        {
+                          value: '',
+                          label: 'No published projects available',
+                          disabled: true,
+                        },
+                      ]
+                }
+              />
+            </div>
 
-              <div className="mb-5">
-                <Select
-                  label="Change Author (if needed)"
-                  adminSelectClass={true}
-                  name="authorId"
-                  required
-                  labelClass="!text-admin-700"
-                  onChange={handleChange}
-                  options={usersList}
-                />
-              </div>
+            {/* Author */}
+            <div className="mb-5">
+              <Select
+                label="Author"
+                adminSelectClass={true}
+                name="authorId"
+                required
+                labelClass="!text-admin-700"
+                onChange={handleChange}
+                options={usersList}
+              />
+            </div>
 
-              <div>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
-                >
-                  Save
-                </Button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
-    </>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8]"
+            >
+              Save
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 };
 
