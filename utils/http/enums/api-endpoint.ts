@@ -22,7 +22,12 @@ const ApiEndpoint = {
   CREATE_ARTICLE_CONTENT: `article/private`,
   PUBLISH_ARTICLE_CONTENT: (id: number) => `article/private/${id}/publish-article`,
   UPDATE_ARTICLE_CONTENT: (id: number) => `article/private/${id}`,
-  ARCHIVE_ARTICLE: (id: number) => `article/private/${id}/archive`
+  ARCHIVE_ARTICLE: (id: number) => `article/private/${id}/archive`,
+
+  // API GLOBAL BLOCKS
+  CREATE_GLOBAL_SECTIONS: 'pages/private/global-section',
+  GET_ALL_GLOBAL_SECTIONS: 'pages/public/global-section/get-all',
+  GET_GLOBAL_SECTION_BY_KEY: (key: string) => `pages/public/global-section/${key}`,
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];
