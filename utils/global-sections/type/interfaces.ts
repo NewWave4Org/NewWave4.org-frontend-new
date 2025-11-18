@@ -10,3 +10,8 @@ export interface IGlobalSectionsRequestDTO {
   title: string;
   contentBlocks: any[];
 }
+
+export interface IGlobalSectionRequestPutDTO {
+  title: string;
+  contentBlocks: any[];
+}

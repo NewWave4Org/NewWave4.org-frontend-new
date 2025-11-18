@@ -1,3 +1,4 @@
+import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
 import EditIcon from '@/components/icons/symbolic/EditIcon';
 import Button from '@/components/shared/Button';
 import Table from '@/components/ui/Table/Table';
@@ -10,9 +11,9 @@ const TableHeader = [
 
 function GlobalSectionsPage() {
   const TableSections = [
-    { id: 'social-links', title: 'Social links' },
-    { id: 'mission', title: 'Our mission' },
-    { id: 'partners', title: 'Our partners' },
+    { id: GlobalSectionsType.OUR_SOCIAL_LINKS, title: 'Social links' },
+    { id: GlobalSectionsType.OUR_MISSION, title: 'Our mission' },
+    { id: GlobalSectionsType.OUR_PARTNERS, title: 'Our partners' },
   ];
 
   return (

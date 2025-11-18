@@ -1,6 +1,6 @@
 import IGlobalSectionsAPI from './type/global-sections-api.interface';
 import IGlobalSectionsServices from './type/global-sections-services.interface';
-import { IGlobalSectionsRequestDTO } from './type/interfaces';
+import { IGlobalSectionRequestPutDTO, IGlobalSectionsRequestDTO } from './type/interfaces';
 
 class GlobalSectionService implements IGlobalSectionsServices {
   private globalSection: IGlobalSectionsAPI;
@@ -19,6 +19,10 @@ class GlobalSectionService implements IGlobalSectionsServices {
 
   async getGlobalSectionByKey(key: string) {
     return this.globalSection.getGlobalSectionByKey(key);
+  }
+
+  async updateGlobalSection(id: number, data: IGlobalSectionRequestPutDTO) {
+    return this.globalSection.updateGlobalSection(id, data);
   }
 }
 

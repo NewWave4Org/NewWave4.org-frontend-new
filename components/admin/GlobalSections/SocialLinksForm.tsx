@@ -6,7 +6,7 @@ import { GlobalSectionsType } from './enum/types';
 import Button from '@/components/shared/Button';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { useEffect, useState } from 'react';
-import { createdGlobalSection, getGlobalSectionByKey } from '@/store/global-sections/action';
+import { createdGlobalSection, getGlobalSectionByKey, updateGlobalSection } from '@/store/global-sections/action';
 import { toast } from 'react-toastify';
 import { useAppDispatch } from '@/store/hook';
 import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
@@ -35,6 +35,8 @@ function SocialLinksForm() {
 
   const handleThunk = useHandleThunk();
 
+  const isUpdate = Boolean(socialLinks?.key);
+
   const initialValues = {
     title: 'Our social links',
     key: GlobalSectionsType.OUR_SOCIAL_LINKS,
@@ -48,9 +50,15 @@ function SocialLinksForm() {
         const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_SOCIAL_LINKS)).unwrap();
 
         setSocialLinks(result);
-      } catch (error) {
+      } catch (error: any) {
+        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+          console.log('Section does not exist yet → creating new one');
+          setSocialLinks(null);
+          return;
+        }
+
         console.log('error', error);
-        toast.error('Failed to fetch social link');
+        toast.error('Failed to fetch partners');
       }
     }
 
@@ -58,16 +66,26 @@ function SocialLinksForm() {
   }, [dispatch]);
 
   async function handleSubmit(values: ISocialLinksValues) {
+    console.log('Submitted:', values);
+
     try {
-      const result = await handleThunk(createdGlobalSection, values, setSubmitError);
+      let result;
+
+      if (isUpdate) {
+        // UPDATE
+        result = await handleThunk(updateGlobalSection, { id: socialLinks!.id, data: values }, setSubmitError);
+      } else {
+        // CREATE
+        result = await handleThunk(createdGlobalSection, values, setSubmitError);
+      }
 
       if (result) {
         setSocialLinks(result);
         setSubmitError('');
-        toast.success('Your social links were updated successfully!');
+        toast.success(isUpdate ? 'Section updated successfully!' : 'Section created successfully!');
       }
     } catch (error) {
-      toast.error(`Something go wrong! ${error}`);
+      toast.error(`Something went wrong! ${error}`);
     }
   }
 
@@ -112,7 +130,7 @@ function SocialLinksForm() {
             {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
 
             <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-              {isSubmitting ? 'Loading...' : 'Save'}
+              {isSubmitting ? 'Loading...' : isUpdate ? 'Update' : 'Save'}
             </Button>
           </Form>
         )}

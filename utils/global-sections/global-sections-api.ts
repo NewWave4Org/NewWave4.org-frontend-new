@@ -2,7 +2,7 @@ import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
 import IGlobalSectionsAPI from './type/global-sections-api.interface';
-import { IGlobalSectionsRequestDTO } from './type/interfaces';
+import { IGlobalSectionRequestPutDTO, IGlobalSectionsRequestDTO } from './type/interfaces';
 
 class GlobalSectionAPI implements IGlobalSectionsAPI {
   async createdGlobalSections(data: IGlobalSectionsRequestDTO) {
@@ -24,6 +24,14 @@ class GlobalSectionAPI implements IGlobalSectionsAPI {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_GLOBAL_SECTION_BY_KEY(key),
+    });
+  }
+
+  async updateGlobalSection(id: number, data: IGlobalSectionRequestPutDTO) {
+    return request({
+      method: HttpMethod.PUT,
+      url: ApiEndpoint.UPDATE_GLOBAL_SECTION(id),
+      body: data,
     });
   }
 }
