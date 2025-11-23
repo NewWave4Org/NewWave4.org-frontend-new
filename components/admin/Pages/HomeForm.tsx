@@ -124,10 +124,10 @@ function HomeForm() {
       return;
     }
 
-    // if (!firstSlider.files || !Array.isArray(firstSlider.files) || firstSlider.files.length === 0) {
-    //   toast.error('First slider must contain image!');
-    //   return;
-    // }
+    if (!firstSlider.files || !Array.isArray(firstSlider.files) || firstSlider.files.length === 0) {
+      toast.error('First slider must contain image!');
+      return;
+    }
 
     try {
       let result;
