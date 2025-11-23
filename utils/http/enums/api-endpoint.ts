@@ -29,6 +29,11 @@ const ApiEndpoint = {
   GET_ALL_GLOBAL_SECTIONS: 'pages/public/global-section/get-all',
   GET_GLOBAL_SECTION_BY_KEY: (key: string) => `pages/public/global-section/${key}`,
   UPDATE_GLOBAL_SECTION: (id: number) => `pages/private/global-section/${id}`,
+
+  //API PAGES
+  CREATE_PAGES: `pages/private`,
+  GET_PAGES: (pageType: string) => `pages/public/${pageType}`,
+  UPDATE_PAGES: (id: number) => `pages/private/${id}`,
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];

@@ -7,9 +7,10 @@ import Image from 'next/image';
 import { ArticleType } from '@/utils/ArticleType';
 import clsx from 'clsx';
 import { GlobalSectionsType } from '../../GlobalSections/enum/types';
+import { PagesType } from '../../Pages/enum/types';
 
 interface IImageLoading {
-  contentType: ArticleType | GlobalSectionsType;
+  contentType: ArticleType | GlobalSectionsType | PagesType;
   articleId: number;
   uploadedUrls?: string[];
   onFilesChange?: (urls: string[]) => void;
