@@ -3,7 +3,7 @@ import { CreateNewArticleRequestDTO, CreateNewArticleResponseDTO, GetArticleById
 
 interface IArticleService {
   deleteArticle: ({ id, articleType }: { id: number; articleType: ArticleType }) => void;
-  getArticleById: ({ id, articleType }: { id: number; articleType: ArticleType }) => Promise<GetArticleByIdResponseDTO>;
+  getArticleById: ({ id }: { id: number; }) => Promise<GetArticleByIdResponseDTO>;
   getAllArticle: (params: IGetAllArticleRequestDTO) => Promise<IGetAllArticleResponseDTO>;
   createNewArticle: (data: CreateNewArticleRequestDTO) => Promise<CreateNewArticleResponseDTO>;
   publishArticle: (id: number) => Promise<UpdateArticleResponseDTO>;

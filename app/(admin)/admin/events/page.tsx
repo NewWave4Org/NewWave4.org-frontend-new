@@ -3,11 +3,11 @@ import ArticlesTable from '@/components/admin/Articles/ArticlesTable';
 import Pagination from '@/components/shared/Pagination';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 
-const ArticlesListPage = () => {
+const EventsListPage = () => {
   return (
     <>
       <ArticlesTable
-        articleType={ArticleTypeEnum.NEWS}
+        articleType={ArticleTypeEnum.EVENT}
         renderPagination={({ currentPage, totalPages, changePage }) => (
           <Pagination
             currentPage={currentPage}
@@ -20,4 +20,4 @@ const ArticlesListPage = () => {
   );
 };
 
-export default ArticlesListPage;
+export default EventsListPage;
