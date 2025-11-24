@@ -1,3 +1,5 @@
+import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
+import { PagesType } from '@/components/admin/Pages/enum/types';
 import { useAppDispatch } from '@/store/hook';
 import { deletePhoto, uploadPhoto } from '@/store/photos/action';
 import { ArticleType } from '@/utils/ArticleType';
@@ -7,7 +9,7 @@ import { toast } from 'react-toastify';
 
 interface IImageLoadingProps {
   articleId: number;
-  contentType: ArticleType;
+  contentType: ArticleType | GlobalSectionsType | PagesType;
 }
 
 function useImageLoading({ articleId, contentType }: IImageLoadingProps) {

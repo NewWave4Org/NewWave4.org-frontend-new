@@ -7,7 +7,7 @@ import OpenEyeIcon from '../icons/symbolic/OpenEyeIcon';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   id: string;
   label: string;
-  value: string;
+  value?: string | number;
   maxLength?: number;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   icon?: boolean;
@@ -15,17 +15,11 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   required?: boolean;
   validationText?: string;
   classname?: string;
-  state?:
-    | 'default'
-    | 'hover'
-    | 'filled'
-    | 'active'
-    | 'success'
-    | 'error'
-    | 'disabled';
-  labelIcon?: React.ReactNode,
-  labelClass?: string,
-  passwordIcon?: boolean
+  state?: 'default' | 'hover' | 'filled' | 'active' | 'success' | 'error' | 'disabled';
+  labelIcon?: React.ReactNode;
+  labelClass?: string;
+  passwordIcon?: boolean;
+  checked?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -43,13 +37,13 @@ const Input: React.FC<InputProps> = ({
   labelIcon,
   labelClass,
   passwordIcon,
+  checked,
   ...props
 }) => {
   const { type, ...rest } = props;
 
   const getStateClasses = () => {
-    if (state === 'error' || validationText)
-      return 'ring-1 ring-status-danger-500';
+    if (state === 'error' || validationText) return 'ring-1 ring-status-danger-500';
     switch (state) {
       case 'hover':
         return 'ring-grey-600';
@@ -77,33 +71,28 @@ const Input: React.FC<InputProps> = ({
     setShowPassword(prev => !prev);
   };
 
+  const isCheckbox = type === 'checkbox';
+
   return (
     <>
       {label && (
         <label
           htmlFor={id}
-          className={`block text-medium2 mb-1 ${
-              state === 'disabled' ? 'text-grey-300' : 'text-grey-500'
-            }
+          className={`block text-medium2 mb-1 ${state === 'disabled' ? 'text-grey-300' : 'text-grey-500'}
             ${labelIcon ? 'flex items-center' : ''}
             ${labelClass}
           `}
         >
-          {labelIcon && (
-            <span className="mr-[10px]">
-              {labelIcon}
-            </span>
-          )}
+          {labelIcon && <span className="mr-[10px]">{labelIcon}</span>}
           {label}
-          {required && (
-            <span className="text-status-danger-500 text-body"> *</span>
-          )}
+          {required && <span className="text-status-danger-500 text-body"> *</span>}
         </label>
       )}
       <div className="relative">
         <input
           id={id}
-          value={value}
+          value={isCheckbox ? undefined : value}
+          checked={isCheckbox ? checked : undefined}
           maxLength={maxLength}
           onChange={onChange}
           className={`${className}  w-[264px] h-[56px] p-4 text-medium2 text-font-primary rounded-lg border-0 ring ${getStateClasses()} 
@@ -116,25 +105,18 @@ const Input: React.FC<InputProps> = ({
           {...rest}
         />
         {icon && (
-          <span
-            onClick={handleIconClick}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
-          >
+          <span onClick={handleIconClick} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
             <CrossIcon color="#7A7A7A" />
           </span>
         )}
 
-        {passwordIcon && props.type === 'password'  && (
-          <span onClick={handlePassword} className='cursor-pointer absolute right-[25px] top-1/2 transform -translate-y-1/2'>
+        {passwordIcon && props.type === 'password' && (
+          <span onClick={handlePassword} className="cursor-pointer absolute right-[25px] top-1/2 transform -translate-y-1/2">
             {showPassword ? <OpenEyeIcon /> : <CloseEyeIcon />}
           </span>
         )}
       </div>
-      {validationText && (
-        <p className={`text-small2 mt-[4px] text-status-danger-500`}>
-          {validationText}
-        </p>
-      )}
+      {validationText && <p className={`text-small2 mt-[4px] text-status-danger-500`}>{validationText}</p>}
     </>
   );
 };

@@ -1,13 +1,11 @@
-import { ArticleType } from "@/utils/ArticleType";
+import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
+import { PagesType } from '@/components/admin/Pages/enum/types';
+import { ArticleType } from '@/utils/ArticleType';
 
 interface IPhotoService {
-    uploadPhoto: (params: {
-        entityReferenceId: number;
-        articleType: ArticleType;
-        file: File;
-    }) => Promise<{ url: string }>;
+  uploadPhoto: (params: { entityReferenceId: number; articleType: ArticleType | GlobalSectionsType | PagesType; file: File }) => Promise<{ url: string }>;
 
-    deletePhoto?: (url: string) => Promise<void>;
+  deletePhoto?: (url: string) => Promise<void>;
 }
 
 export { type IPhotoService };

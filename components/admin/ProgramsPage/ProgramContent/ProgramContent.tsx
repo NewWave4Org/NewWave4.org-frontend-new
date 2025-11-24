@@ -143,7 +143,7 @@ function ProgramContent({ programId }: { programId: number }) {
     ],
   };
 
-  //GET project by id
+  //GET program by id
   useEffect(() => {
     if (!programId) return;
 
@@ -186,7 +186,7 @@ function ProgramContent({ programId }: { programId: number }) {
       }),
     };
 
-    console.log('normalized', normalized);
+    // console.log('normalized', normalized);
 
     try {
       const result = await handleThunk(

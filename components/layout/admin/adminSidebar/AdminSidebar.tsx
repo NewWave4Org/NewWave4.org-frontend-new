@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
+import PagesIcon from '@/components/icons/symbolic/PagesIcon';
 
 const adminMenu = [
   {
@@ -15,13 +16,13 @@ const adminMenu = [
     href: adminLinkSidebar.ADMIN_USERS,
     allowedToAdmin: true,
   },
-  // {
-  //   id: '2',
-  //   title: 'Pages',
-  //   icon: <PagesIcon />,
-  //   href: adminLinkSidebar.ADMIN_PAGES,
-  //   allowedToAdmin: false,
-  // },
+  {
+    id: '2',
+    title: 'Pages',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_PAGES,
+    allowedToAdmin: false,
+  },
   {
     id: '3',
     title: 'Articles',
@@ -52,6 +53,13 @@ const adminMenu = [
   },
   {
     id: '7',
+    title: 'Global sections',
+    icon: <ArticlesIcon />,
+    href: adminLinkSidebar.ADMIN_GLOBAL_SECTIONS,
+    allowedToAdmin: false,
+  },
+  {
+    id: '8',
     title: 'Archive',
     icon: <BasketIcon />,
     href: adminLinkSidebar.ADMIN_ARCHIVE,

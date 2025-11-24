@@ -1,9 +1,11 @@
+import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
 import { ArticleType } from '../ArticleType';
 import { IPhotoApi } from './type/photo-api.interface';
+import { PagesType } from '@/components/admin/Pages/enum/types';
 
 export interface UploadPhotoParams {
   entityReferenceId: number;
-  articleType: ArticleType;
+  articleType: ArticleType | GlobalSectionsType | PagesType;
   file: File;
 }
 
