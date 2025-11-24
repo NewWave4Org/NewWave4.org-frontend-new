@@ -16,8 +16,6 @@ const FinishPage = () => {
     }
   }, [])
 
-  console.log(datafromlocal);
-
   const saveformData = async (datajson: any) => {
     try {
       console.log(datajson);
@@ -47,10 +45,12 @@ const FinishPage = () => {
     }
   }
   useEffect(() => {
-    if (Object.keys(datafromlocal).length > 0) {
+    if (!!datafromlocal && Object.keys(datafromlocal).length > 0) {
       saveformData(datafromlocal)
         .then((res) => console.log(res))
         .catch((err) => console.warn(err));
+    } else {
+      router.push("/donation")
     }
   }, [datafromlocal]);
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 
 interface IPaymentDetails {
   description?: string;
+  email?: string;
 }
 interface IPaymentContext {
   isPaymentApproved: boolean;
