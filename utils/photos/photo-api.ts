@@ -32,7 +32,7 @@ class PhotoApi implements IPhotoApi {
 
     return request({
       method: HttpMethod.POST,
-      url: ApiEndpoint.UPLOAD_PHOTO,
+      url: ApiEndpoint.UPLOAD_PHOTO_WITHOUT_ATTACH,
       body: formData,
       config: {
         headers: { 'Content-Type': 'multipart/form-data' },
