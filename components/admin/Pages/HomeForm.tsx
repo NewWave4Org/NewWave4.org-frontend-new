@@ -68,11 +68,9 @@ function HomeForm() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
 
-        if (!result?.contentBlocks) return;
-
         const initialEditors: Record<number, EditorState> = {};
 
-        result.contentBlocks.forEach((block, index) => {
+        result?.contentBlocks?.forEach((block, index) => {
           if (block.text || block.editorState) {
             try {
               if (block.editorState) {
