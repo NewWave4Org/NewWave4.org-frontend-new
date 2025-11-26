@@ -8,7 +8,7 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import Button from '@/components/shared/Button';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import useHandleThunk from '@/utils/useHandleThunk';
-import { createdPages, getPages, updatePages } from '@/store/pages/action';
+import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 
@@ -130,13 +130,13 @@ function HomeForm() {
     }
 
     try {
-      let result;
+      const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
 
-      if (isUpdate) {
-        result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
-      } else {
-        result = await handleThunk(createdPages, values, setSubmitError);
-      }
+      // if (isUpdate) {
+      //   result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
+      // } else {
+      //   result = await handleThunk(createdPages, values, setSubmitError);
+      // }
 
       if (result) {
         setHomePage(result);
@@ -336,7 +336,7 @@ function HomeForm() {
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
 
           <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-            {isSubmitting ? 'Loading...' : isUpdate ? 'Update' : 'Save'}
+            {isSubmitting ? 'Loading...' : 'Update'}
           </Button>
         </Form>
       )}
