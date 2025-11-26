@@ -20,6 +20,10 @@ class PhotoService {
     return this.photos.uploadPhoto(params);
   }
 
+  async uploadPhotoWithOutAttach(params: { file: File }) {
+    return this.photos.uploadPhotoWithOutAttach(params);
+  }
+
   async deletePhoto(url: string) {
     return this.photos.deletePhoto(url);
   }
