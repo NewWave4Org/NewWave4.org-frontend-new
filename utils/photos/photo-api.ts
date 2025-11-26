@@ -26,6 +26,21 @@ class PhotoApi implements IPhotoApi {
     });
   }
 
+  async uploadPhotoWithOutAttach(params: { file: File }): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', params.file);
+
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.UPLOAD_PHOTO,
+      body: formData,
+      config: {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        baseURL: 'https://api.stage.newwave4.org/api/',
+      },
+    });
+  }
+
   async deletePhoto(url: string) {
     return request({
       method: HttpMethod.DELETE,

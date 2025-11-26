@@ -155,13 +155,7 @@ function AboutUsForm() {
 
                   <div className=" mb-4">
                     <div className="mb-2 !text-admin-700">Our history photos</div>
-                    <ImageLoading
-                      articleId={3}
-                      classBlock="min-h-[300px]"
-                      contentType={PagesType.ABOUT_US}
-                      uploadedUrls={values.contentBlocks[3].files || []}
-                      onFilesChange={files => setFieldValue(`contentBlocks[3].files`, files)}
-                    />
+                    <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={values.contentBlocks[3].files || []} onFilesChange={files => setFieldValue(`contentBlocks[3].files`, files)} />
                   </div>
 
                   <div className=" mb-4">

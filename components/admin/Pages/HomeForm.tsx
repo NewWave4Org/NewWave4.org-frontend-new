@@ -209,14 +209,7 @@ function HomeForm() {
                               Slider photo
                               <span className="text-status-danger-500 text-body"> *</span>
                             </div>
-                            <ImageLoading
-                              articleId={1}
-                              classBlock="min-h-[300px]"
-                              contentType={PagesType.HOME}
-                              uploadedUrls={block.files || []}
-                              onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)}
-                              required={true}
-                            />
+                            <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} required={true} />
                           </div>
                         </div>
                       );
@@ -264,13 +257,7 @@ function HomeForm() {
 
                         <div className="mb-4">
                           <div className="mb-2 !text-admin-700">Slider description</div>
-                          <ImageLoading
-                            articleId={1}
-                            classBlock="min-h-[300px]"
-                            contentType={PagesType.HOME}
-                            uploadedUrls={block.files || []}
-                            onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)}
-                          />
+                          <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} />
                         </div>
 
                         <button type="button" onClick={() => remove(realIndex)} className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500">
