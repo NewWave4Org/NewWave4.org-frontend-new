@@ -9,7 +9,7 @@ import TextEditor from '@/components/TextEditor/TextEditor';
 import Input from '@/components/shared/Input';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Button from '@/components/shared/Button';
-import { createdPages, getPages, updatePages } from '@/store/pages/action';
+import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 
 interface IAboutUsPageValues {
@@ -103,13 +103,13 @@ function AboutUsForm() {
     console.log('Submited', values);
 
     try {
-      let result;
+      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
 
-      if (isUpdate) {
-        result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
-      } else {
-        result = await handleThunk(createdPages, values, setSubmitError);
-      }
+      // if (isUpdate) {
+      //   result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
+      // } else {
+      //   result = await handleThunk(createdPages, values, setSubmitError);
+      // }
 
       if (result) {
         setAboutUsPage(result);
@@ -278,7 +278,7 @@ function AboutUsForm() {
 
           <div className="mt-6">
             <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-              {isSubmitting ? 'Loading...' : isUpdate ? 'Update' : 'Save'}
+              {isSubmitting ? 'Loading...' : 'Update'}
             </Button>
           </div>
         </Form>
