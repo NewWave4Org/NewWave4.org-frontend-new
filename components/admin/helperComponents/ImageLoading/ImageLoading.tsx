@@ -10,8 +10,8 @@ import { GlobalSectionsType } from '../../GlobalSections/enum/types';
 import { PagesType } from '../../Pages/enum/types';
 
 interface IImageLoading {
-  contentType: ArticleType | GlobalSectionsType | PagesType;
-  articleId: number;
+  contentType?: ArticleType | GlobalSectionsType | PagesType;
+  articleId?: number;
   uploadedUrls?: string[];
   onFilesChange?: (urls: string[]) => void;
   classBlock?: string;
@@ -22,6 +22,7 @@ interface IImageLoading {
   previewSize?: number;
   validationText?: string;
   positionBlockImg?: boolean;
+  isAttach?: boolean;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -39,10 +40,12 @@ function ImageLoading({
   validationText = '',
   onFilesChange,
   positionBlockImg,
+  isAttach,
 }: IImageLoading) {
   const { uploadFiles, deleteFile } = useImageLoading({
     contentType,
     articleId,
+    isAttach,
   });
 
   const [loading, setLoading] = useState(false);

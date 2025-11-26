@@ -13,6 +13,7 @@ const ApiEndpoint = {
   //IMAGE LOAD
   UPLOAD_PHOTO: 'photos/upload-photo',
   DELETE_PHOTO: 'photos/delete-photo',
+  UPLOAD_PHOTO_WITHOUT_ATTACH: 'photos/upload-photo-without-attach',
 
   // API for NEWS, PROJECTS, EVENTS
   DELETE_ARTICLE_CONTENT: (id: number) => `article/private/${id}`,

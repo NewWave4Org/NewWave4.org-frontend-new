@@ -5,6 +5,8 @@ import { ArticleType } from '@/utils/ArticleType';
 interface IPhotoApi {
   uploadPhoto: (params: { entityReferenceId: number; articleType: ArticleType | GlobalSectionsType | PagesType; file: File }) => Promise<string>;
 
+  uploadPhotoWithOutAttach: (params: { file: File }) => Promise<string>;
+
   deletePhoto: (url: string) => Promise<void>;
 }
 

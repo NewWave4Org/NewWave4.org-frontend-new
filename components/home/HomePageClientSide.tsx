@@ -23,12 +23,12 @@ function HomePageClientSide() {
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
   const [ourPartners, setOurPartners] = useState(null);
 
-  const slides = homePage?.contentBlocks.filter(item => item.contentBlockType === 'SLIDER') || [];
-  const homeTitle = homePage?.contentBlocks.find(item => item.contentBlockType === 'HOME_TITLE');
-  const homeDescription = homePage?.contentBlocks.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
-  const joinUs = homePage?.contentBlocks.filter(item => item.contentBlockType === 'JOIN_US') || [];
-  const ourPartnersContent = homePage?.contentBlocks.find(item => item.contentBlockType === 'PARTNERS');
-  const videoUrl = homePage?.contentBlocks.find(item => item.contentBlockType === 'VIDEO')?.video_url;
+  const slides = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'SLIDER') || [];
+  const homeTitle = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
+  const homeDescription = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
+  const joinUs = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'JOIN_US') || [];
+  const ourPartnersContent = homePage?.contentBlocks?.find(item => item.contentBlockType === 'PARTNERS');
+  const videoUrl = homePage?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
 
   useEffect(() => {
     async function getPageByKey() {
@@ -37,11 +37,11 @@ function HomePageClientSide() {
 
         setHomePage(result);
       } catch (error: any) {
-        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
-          setHomePage(null);
-          return;
-        }
+        // if (error?.original?.errors.includes('with key') || error.original.errors[0].includes('find page')) {
+        //   console.log('Section does not exist yet → creating new one');
+        //   setHomePage(null);
+        //   return;
+        // }
 
         console.log('error', error);
         setHomePage(null);
@@ -55,11 +55,11 @@ function HomePageClientSide() {
 
         setOurPartners(result);
       } catch (error: any) {
-        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
-          setOurPartners(null);
-          return;
-        }
+        // if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+        //   console.log('Section does not exist yet → creating new one');
+        //   setOurPartners(null);
+        //   return;
+        // }
 
         console.log('error', error);
         toast.error('Failed to fetch partners');
