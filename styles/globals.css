@@ -89,7 +89,7 @@ body {
 
   .embla {
     @apply max-w-[var(--max-width)] mx-auto;
-    --slide-size: 824px;
+    /* --slide-size: 824px; */
   }
   .embla-slide {
     @apply flex-none;
