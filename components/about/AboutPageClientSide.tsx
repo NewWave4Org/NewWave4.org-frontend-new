@@ -22,7 +22,7 @@ function AboutPageClientSide() {
   const [aboutPage, setAboutPage] = useState<IPagesResponseDTO | null>(null);
   const [ourPartners, setOurPartners] = useState(null);
 
-  const quote = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
+  const quote = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
   const ourHistoryTitle = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_TITLE')?.title;
   const ourHistoryDescription = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_DESCRIPTION');
   const ourHistoryPhotos = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'PHOTOS');
