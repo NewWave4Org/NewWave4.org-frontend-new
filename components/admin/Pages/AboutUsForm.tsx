@@ -11,6 +11,7 @@ import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Button from '@/components/shared/Button';
 import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
+import { v4 as uuid } from 'uuid';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
@@ -20,11 +21,11 @@ interface IAboutUsPageValues {
 const defaultFormValues = {
   pageType: PagesType.ABOUT_US,
   contentBlocks: [
-    { contentBlockType: 'QUOTE', text: '', editorState: null },
-    { contentBlockType: 'OUR_HISTORY_TITLE', title: '' },
-    { contentBlockType: 'OUR_HISTORY_DESCRIPTION', text: '', editorState: null },
-    { contentBlockType: 'PHOTOS', files: [] },
-    { contentBlockType: 'HISTORY_OF_FORMATION', year: '', title: '', text: '', editorState: null },
+    { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
+    { id: uuid(), contentBlockType: 'OUR_HISTORY_TITLE', title: '' },
+    { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', text: '', editorState: null },
+    { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
+    { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', title: '', text: '', editorState: null },
   ],
 };
 
@@ -32,9 +33,10 @@ function AboutUsForm() {
   const dispatch = useAppDispatch();
 
   const [submitError, setSubmitError] = useState('');
-  const [editorStates, setEditorStates] = useState<Record<number, EditorState>>({});
   const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
-  const [editorKey, setEditorKey] = useState('');
+
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const handleThunk = useHandleThunk();
 
@@ -45,8 +47,13 @@ function AboutUsForm() {
     contentBlocks: aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length ? aboutUsPage?.contentBlocks : defaultFormValues.contentBlocks,
   };
 
-  const handleEditorChange = (index: number, newState: EditorState, setFieldValue: any) => {
-    setEditorStates(prev => ({ ...prev, [index]: newState }));
+  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+    setEditorStates(prev => ({ ...prev, [id]: newState }));
+
+    const index = values.contentBlocks.findIndex(block => block.id === id);
+
+    if (index === -1) return;
+
     const content = newState.getCurrentContent();
     const raw = convertToRaw(content);
 
@@ -59,30 +66,41 @@ function AboutUsForm() {
       try {
         const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
 
-        if (!result?.contentBlocks) return;
+        const editors: Record<string, EditorState> = {};
+        const keys: Record<string, string> = {};
 
-        const initialEditors: Record<number, EditorState> = {};
+        const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
+          ...block,
+          id: block.id ?? uuid(),
+        }));
 
-        result.contentBlocks.forEach((block, index) => {
-          if (block.text || block.editorState) {
-            try {
-              if (block.editorState) {
-                const content = convertFromRaw(block.editorState);
-                initialEditors[index] = EditorState.createWithContent(content);
-              } else {
-                initialEditors[index] = EditorState.createEmpty();
-              }
-            } catch (err: any) {
-              console.log('err', err);
-              initialEditors[index] = EditorState.createEmpty();
+        blocksWithId.forEach(block => {
+          let editor;
+
+          try {
+            if (block.editorState) {
+              const content = convertFromRaw(block.editorState);
+              editor = EditorState.createWithContent(content);
+            } else {
+              editor = EditorState.createEmpty();
             }
+          } catch (err: any) {
+            console.log('err', err);
+            editor = EditorState.createEmpty();
           }
+
+          editors[block.id] = editor;
+          keys[block.id] = `${block.id}-init`;
         });
 
-        setEditorStates(initialEditors);
-        setEditorKey(prev => prev + 1);
+        setEditorStates(editors);
 
-        setAboutUsPage(result);
+        setEditorKey(keys);
+
+        setAboutUsPage({
+          ...result,
+          contentBlocks: blocksWithId,
+        });
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
           console.log('Section does not exist yet → creating new one');
@@ -132,7 +150,13 @@ function AboutUsForm() {
                 <>
                   <div className="mb-4">
                     <div className="mb-2 !text-admin-700">Quote</div>
-                    <TextEditor key={editorKey} value={editorStates[0] || EditorState.createEmpty()} onChange={newState => handleEditorChange(0, newState, setFieldValue)} />
+                    {values.contentBlocks.map(block => {
+                      if (block.contentBlockType === 'QUOTE') {
+                        return <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />;
+                      }
+
+                      return null;
+                    })}
                   </div>
 
                   <div className="mb-4">
@@ -150,7 +174,13 @@ function AboutUsForm() {
 
                   <div className="mb-4">
                     <div className="mb-2 !text-admin-700">Our history description</div>
-                    <TextEditor key={editorKey} value={editorStates[2] || EditorState.createEmpty()} onChange={newState => handleEditorChange(2, newState, setFieldValue)} />
+                    {values.contentBlocks.map(block => {
+                      if (block.contentBlockType === 'OUR_HISTORY_DESCRIPTION') {
+                        return <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />;
+                      }
+
+                      return null;
+                    })}
                   </div>
 
                   <div className=" mb-4">
@@ -191,7 +221,15 @@ function AboutUsForm() {
                       </div>
                       <div className="mb-4">
                         <div className="mb-2 !text-admin-700">Our history formation description</div>
-                        <TextEditor key={editorKey} value={editorStates[4] || EditorState.createEmpty()} onChange={newState => handleEditorChange(4, newState, setFieldValue)} />
+                        {values.contentBlocks.map(block => {
+                          if (block.contentBlockType === 'HISTORY_OF_FORMATION') {
+                            return (
+                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            );
+                          }
+
+                          return null;
+                        })}
                       </div>
                     </div>
                   </div>
@@ -234,14 +272,28 @@ function AboutUsForm() {
                           </div>
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">Our history formation description</div>
-                            <TextEditor key={editorKey} value={editorStates[index] || EditorState.createEmpty()} onChange={newState => handleEditorChange(index, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </div>
                         </div>
 
                         <button
                           type="button"
                           onClick={() => {
+                            const blockId = block.id;
+
                             remove(index);
+
+                            setEditorStates(prev => {
+                              const newState = { ...prev };
+                              delete newState[blockId];
+                              return newState;
+                            });
+
+                            setEditorKey(prev => {
+                              const newKey = { ...prev };
+                              delete newKey[blockId];
+                              return newKey;
+                            });
                           }}
                           className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                         >
@@ -256,13 +308,25 @@ function AboutUsForm() {
                     <button
                       type="button"
                       onClick={() => {
+                        const blockId = uuid();
                         push({
+                          id: blockId,
                           contentBlockType: 'HISTORY_OF_FORMATION',
                           year: '',
                           title: '',
-                          description: '',
+                          text: '',
                           editorState: null,
                         });
+
+                        setEditorStates(prev => ({
+                          ...prev,
+                          [blockId]: EditorState.createEmpty(),
+                        }));
+
+                        setEditorKey(prev => ({
+                          ...prev,
+                          [blockId]: `${blockId}-${Date.now()}`,
+                        }));
                       }}
                       className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >

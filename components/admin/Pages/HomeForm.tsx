@@ -11,6 +11,7 @@ import useHandleThunk from '@/utils/useHandleThunk';
 import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
+import { v4 as uuid } from 'uuid';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -20,14 +21,14 @@ interface IHomePageValues {
 const defaultFormValues = {
   pageType: PagesType.HOME,
   contentBlocks: [
-    { contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
-    { contentBlockType: 'HOME_TITLE', title: '' },
-    { contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
-    { contentBlockType: 'VIDEO', video_url: '' },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
+    { id: uuid(), contentBlockType: 'HOME_TITLE', title: '' },
+    { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
   ],
 };
 
@@ -35,9 +36,10 @@ function HomeForm() {
   const dispatch = useAppDispatch();
 
   const [submitError, setSubmitError] = useState('');
-  const [editorStates, setEditorStates] = useState<Record<number, EditorState>>({});
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
-  const [editorKey, setEditorKey] = useState('');
+
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const handleThunk = useHandleThunk();
 
@@ -54,13 +56,17 @@ function HomeForm() {
       .toLowerCase()
       .replace(/^\w/, c => c.toUpperCase());
 
-  const handleEditorChange = (index: number, newState: EditorState, setFieldValue: any) => {
-    setEditorStates(prev => ({ ...prev, [index]: newState }));
-    const content = newState.getCurrentContent();
-    const raw = convertToRaw(content);
+  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+    setEditorStates(prev => ({ ...prev, [id]: newState }));
+
+    const index = values.contentBlocks.findIndex(block => block.id === id);
+
+    if (index === -1) return;
+
+    const raw = convertToRaw(newState.getCurrentContent());
 
     setFieldValue(`contentBlocks.${index}.editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.description`, content.getPlainText());
+    setFieldValue(`contentBlocks.${index}.description`, newState.getCurrentContent().getPlainText());
   };
 
   useEffect(() => {
@@ -68,30 +74,41 @@ function HomeForm() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
 
-        if (!result?.contentBlocks) return;
+        const editors: Record<string, EditorState> = {};
+        const keys: Record<string, string> = {};
 
-        const initialEditors: Record<number, EditorState> = {};
+        const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
+          ...block,
+          id: block.id ?? uuid(),
+        }));
 
-        result.contentBlocks.forEach((block, index) => {
-          if (block.text || block.editorState) {
-            try {
-              if (block.editorState) {
-                const content = convertFromRaw(block.editorState);
-                initialEditors[index] = EditorState.createWithContent(content);
-              } else {
-                initialEditors[index] = EditorState.createEmpty();
-              }
-            } catch (err: any) {
-              console.log('err', err);
-              initialEditors[index] = EditorState.createEmpty();
+        blocksWithId.forEach(block => {
+          let editor;
+
+          try {
+            if (block.editorState) {
+              const content = convertFromRaw(block.editorState);
+              editor = EditorState.createWithContent(content);
+            } else {
+              editor = EditorState.createEmpty();
             }
+          } catch (err: any) {
+            console.log('err', err);
+            editor = EditorState.createEmpty();
           }
+
+          editors[block.id] = editor;
+          keys[block.id] = `${block.id}-init`;
         });
 
-        setEditorStates(initialEditors);
+        setEditorStates(editors);
 
-        setEditorKey(prev => prev + 1);
-        setHomePage(result);
+        setEditorKey(keys);
+
+        setHomePage({
+          ...result,
+          contentBlocks: blocksWithId,
+        });
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
           console.log('Section does not exist yet → creating new one');
@@ -131,12 +148,6 @@ function HomeForm() {
 
     try {
       const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
-
-      // if (isUpdate) {
-      //   result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
-      // } else {
-      //   result = await handleThunk(createdPages, values, setSubmitError);
-      // }
 
       if (result) {
         setHomePage(result);
@@ -201,7 +212,7 @@ function HomeForm() {
                           </div>
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">Slider description</div>
-                            <TextEditor key={editorKey} value={editorStates[realIndex] || EditorState.createEmpty()} onChange={newState => handleEditorChange(realIndex, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </div>
 
                           <div>
@@ -252,7 +263,7 @@ function HomeForm() {
 
                         <div className="mb-4">
                           <div className="mb-2 !text-admin-700">Slider description</div>
-                          <TextEditor key={editorKey} value={editorStates[realIndex] || EditorState.createEmpty()} onChange={newState => handleEditorChange(realIndex, newState, setFieldValue)} />
+                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                         </div>
 
                         <div className="mb-4">
@@ -260,7 +271,26 @@ function HomeForm() {
                           <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} />
                         </div>
 
-                        <button type="button" onClick={() => remove(realIndex)} className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const blockId = block.id;
+                            remove(realIndex);
+
+                            setEditorStates(prev => {
+                              const newState = { ...prev };
+                              delete newState[blockId];
+                              return newState;
+                            });
+
+                            setEditorKey(prev => {
+                              const newKey = { ...prev };
+                              delete newKey[blockId];
+                              return newKey;
+                            });
+                          }}
+                          className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500"
+                        >
                           Remove slider
                         </button>
                       </div>
@@ -269,15 +299,28 @@ function HomeForm() {
 
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
+                      const blockId = uuid();
+
                       push({
+                        id: blockId,
                         contentBlockType: 'SLIDER',
                         title: '',
                         description: '',
                         files: [],
                         editorState: null,
-                      })
-                    }
+                      });
+
+                      setEditorStates(prev => ({
+                        ...prev,
+                        [blockId]: EditorState.createEmpty(),
+                      }));
+
+                      setEditorKey(prev => ({
+                        ...prev,
+                        [blockId]: `${blockId}-${Date.now()}`,
+                      }));
+                    }}
                     className="mt-1 mb-7 px-4 py-2 bg-blue-500 text-white rounded"
                   >
                     Add new slider
@@ -322,7 +365,7 @@ function HomeForm() {
                         {block.description !== undefined && (
                           <>
                             <div className="mb-2 text-admin-700">{block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}</div>
-                            <TextEditor value={editorStates[realIndex] || EditorState.createEmpty()} onChange={newState => handleEditorChange(realIndex, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </>
                         )}
                       </div>
