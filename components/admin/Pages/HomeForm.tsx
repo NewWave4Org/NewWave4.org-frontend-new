@@ -21,14 +21,14 @@ interface IHomePageValues {
 const defaultFormValues = {
   pageType: PagesType.HOME,
   contentBlocks: [
-    { contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
-    { contentBlockType: 'HOME_TITLE', title: '' },
-    { contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
-    { contentBlockType: 'VIDEO', video_url: '' },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
+    { id: uuid(), contentBlockType: 'HOME_TITLE', title: '' },
+    { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+    { id: uuid(), contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
   ],
 };
 
@@ -56,8 +56,12 @@ function HomeForm() {
       .toLowerCase()
       .replace(/^\w/, c => c.toUpperCase());
 
-  const handleEditorChange = (id: string, index: number, newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
+
+    const index = values.contentBlocks.findIndex(block => block.id === id);
+
+    if (index === -1) return;
 
     const raw = convertToRaw(newState.getCurrentContent());
 
@@ -94,12 +98,12 @@ function HomeForm() {
           }
 
           editors[block.id] = editor;
-          keys[block.id] = `${block.id}-init}`;
+          keys[block.id] = `${block.id}-init`;
         });
 
         setEditorStates(editors);
 
-        setEditorKey(prev => ({ ...keys, ...prev }));
+        setEditorKey(keys);
 
         setHomePage({
           ...result,
@@ -208,7 +212,7 @@ function HomeForm() {
                           </div>
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">Slider description</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, realIndex, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </div>
 
                           <div>
@@ -259,7 +263,7 @@ function HomeForm() {
 
                         <div className="mb-4">
                           <div className="mb-2 !text-admin-700">Slider description</div>
-                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, realIndex, newState, setFieldValue)} />
+                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                         </div>
 
                         <div className="mb-4">
@@ -296,16 +300,16 @@ function HomeForm() {
                   <button
                     type="button"
                     onClick={() => {
+                      const blockId = uuid();
+
                       push({
-                        id: uuid(),
+                        id: blockId,
                         contentBlockType: 'SLIDER',
                         title: '',
                         description: '',
                         files: [],
                         editorState: null,
                       });
-
-                      const blockId = uuid();
 
                       setEditorStates(prev => ({
                         ...prev,
@@ -361,7 +365,7 @@ function HomeForm() {
                         {block.description !== undefined && (
                           <>
                             <div className="mb-2 text-admin-700">{block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, realIndex, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </>
                         )}
                       </div>
