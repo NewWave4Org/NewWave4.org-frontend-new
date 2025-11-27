@@ -12,6 +12,7 @@ import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { v4 as uuid } from 'uuid';
+import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -34,6 +35,9 @@ const defaultFormValues = {
 
 function HomeForm() {
   const dispatch = useAppDispatch();
+  const { deleteFile } = useImageLoading({
+    isAttach: true,
+  });
 
   const [submitError, setSubmitError] = useState('');
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
@@ -273,8 +277,19 @@ function HomeForm() {
 
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const blockId = block.id;
+
+                            if (block.files) {
+                              for (const url of block.files) {
+                                try {
+                                  await deleteFile(url);
+                                } catch (error) {
+                                  toast.error(`Failed to delete file. Please save and reload page`);
+                                  console.log('Failed to delete file', url, error);
+                                }
+                              }
+                            }
                             remove(realIndex);
 
                             setEditorStates(prev => {
