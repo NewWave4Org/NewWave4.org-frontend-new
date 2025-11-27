@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/store/hook';
 import { PagesType } from './enum/types';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import useHandleThunk from '@/utils/useHandleThunk';
@@ -150,13 +150,13 @@ function AboutUsForm() {
                 <>
                   <div className="mb-4">
                     <div className="mb-2 !text-admin-700">Quote</div>
-                    {values.contentBlocks.map(block => {
-                      if (block.contentBlockType === 'QUOTE') {
-                        return <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />;
-                      }
-
-                      return null;
-                    })}
+                    {values.contentBlocks.map(block => (
+                      <React.Fragment key={block.id}>
+                        {block.contentBlockType === 'QUOTE' && (
+                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                        )}
+                      </React.Fragment>
+                    ))}
                   </div>
 
                   <div className="mb-4">
@@ -174,18 +174,18 @@ function AboutUsForm() {
 
                   <div className="mb-4">
                     <div className="mb-2 !text-admin-700">Our history description</div>
-                    {values.contentBlocks.map(block => {
-                      if (block.contentBlockType === 'OUR_HISTORY_DESCRIPTION') {
-                        return <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />;
-                      }
-
-                      return null;
-                    })}
+                    {values.contentBlocks.map(block => (
+                      <React.Fragment key={block.id}>
+                        {block.contentBlockType === 'OUR_HISTORY_DESCRIPTION' && (
+                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                        )}
+                      </React.Fragment>
+                    ))}
                   </div>
 
                   <div className=" mb-4">
                     <div className="mb-2 !text-admin-700">Our history photos</div>
-                    <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={values.contentBlocks[3].files || []} onFilesChange={files => setFieldValue(`contentBlocks[3].files`, files)} />
+                    <ImageLoading classBlock="min-h-[300px]" maxFiles={10} isAttach={true} uploadedUrls={values.contentBlocks[3].files || []} onFilesChange={files => setFieldValue(`contentBlocks[3].files`, files)} />
                   </div>
 
                   <div className=" mb-4">
@@ -221,15 +221,13 @@ function AboutUsForm() {
                       </div>
                       <div className="mb-4">
                         <div className="mb-2 !text-admin-700">Our history formation description</div>
-                        {values.contentBlocks.map(block => {
-                          if (block.contentBlockType === 'HISTORY_OF_FORMATION') {
-                            return (
+                        {values.contentBlocks.map(block => (
+                          <React.Fragment key={block.id}>
+                            {block.contentBlockType === 'HISTORY_OF_FORMATION' && (
                               <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                            );
-                          }
-
-                          return null;
-                        })}
+                            )}
+                          </React.Fragment>
+                        ))}
                       </div>
                     </div>
                   </div>

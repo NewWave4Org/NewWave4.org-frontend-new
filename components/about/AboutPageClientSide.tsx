@@ -22,11 +22,11 @@ function AboutPageClientSide() {
   const [aboutPage, setAboutPage] = useState<IPagesResponseDTO | null>(null);
   const [ourPartners, setOurPartners] = useState(null);
 
-  const quote = aboutPage?.contentBlocks.find(item => item.contentBlockType === 'HOME_TITLE');
-  const ourHistoryTitle = aboutPage?.contentBlocks.find(item => item.contentBlockType === 'OUR_HISTORY_TITLE')?.title;
-  const ourHistoryDescription = aboutPage?.contentBlocks.find(item => item.contentBlockType === 'OUR_HISTORY_DESCRIPTION');
-  const ourHistoryPhotos = aboutPage?.contentBlocks.find(item => item.contentBlockType === 'PHOTOS');
-  const ourTimeLine = aboutPage?.contentBlocks.filter(item => item.contentBlockType === 'HISTORY_OF_FORMATION') || [];
+  const quote = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
+  const ourHistoryTitle = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_TITLE')?.title;
+  const ourHistoryDescription = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_DESCRIPTION');
+  const ourHistoryPhotos = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'PHOTOS');
+  const ourTimeLine = aboutPage?.contentBlocks?.filter(item => item.contentBlockType === 'HISTORY_OF_FORMATION') || [];
 
   useEffect(() => {
     async function getPageByKey() {
@@ -73,7 +73,7 @@ function AboutPageClientSide() {
     <div>
       <Hero data={heroData} />
       <OurMission />
-      <DetailedTextInformation quote={quote} />
+      {quote && <DetailedTextInformation quote={quote} />}
       <Team />
       <HistoryCard ourHistoryTitle={ourHistoryTitle} ourHistoryDescription={ourHistoryDescription} ourHistoryPhotos={ourHistoryPhotos} />
       <HistoryFormation ourTimeLine={ourTimeLine} />
