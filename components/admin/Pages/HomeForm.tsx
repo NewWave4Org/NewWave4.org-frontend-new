@@ -271,7 +271,7 @@ function HomeForm() {
                         </div>
 
                         <div className="mb-4">
-                          <div className="mb-2 !text-admin-700">Slider description</div>
+                          <div className="mb-2 !text-admin-700">Slider photo</div>
                           <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} />
                         </div>
 
