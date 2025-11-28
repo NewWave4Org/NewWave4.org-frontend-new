@@ -14,9 +14,14 @@ interface Item {
 interface FilterNewsProps {
   activeFilter: number;
   setActiveFilter: (id: number) => void;
+  articleType: ArticleTypeEnum;
 }
 
-const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
+const FilterNews = ({
+  activeFilter,
+  setActiveFilter,
+  articleType,
+}: FilterNewsProps) => {
   const [projects, setProjects] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -59,14 +64,16 @@ const FilterNews = ({ activeFilter, setActiveFilter }: FilterNewsProps) => {
     };
 
     fetchProjects();
-  }, []);
+  }, [articleType]);
 
   function handleFilterActive(e: React.MouseEvent<HTMLLIElement>) {
     const id = Number(e.currentTarget.dataset.id);
     setActiveFilter(id);
   }
 
-  const filterItems: Item[] = [{ id: 0, title: 'Всі новини' }, ...projects];
+  const allTitle =
+    articleType === ArticleTypeEnum.NEWS ? 'Всі новини' : 'Всі події';
+  const filterItems: Item[] = [{ id: 0, title: allTitle }, ...projects];
 
   return (
     <div className="filterNews mb-[14px]">

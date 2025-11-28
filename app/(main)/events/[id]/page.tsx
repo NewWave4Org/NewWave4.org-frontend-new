@@ -1,6 +1,6 @@
 import Article from '@/components/news/Article';
 
-const NewsArticlePage = () => {
+const EventArticlePage = () => {
   return (
     <>
       <Article />
@@ -8,4 +8,4 @@ const NewsArticlePage = () => {
   );
 };
 
-export default NewsArticlePage;
+export default EventArticlePage;

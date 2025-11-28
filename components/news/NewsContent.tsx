@@ -56,17 +56,25 @@ const prepareArticle = (article: Article): PreparedArticle => {
   };
 };
 
+const typeConfig: Record<'NEWS' | 'EVENT', { label: string; path: string }> = {
+  NEWS: { label: 'новин', path: 'news' },
+  EVENT: { label: 'подій', path: 'events' },
+};
+
 interface NewsContentProps {
   activeFilter: number;
+  articleType: ArticleTypeEnum;
 }
 
 const NewsContent: React.FC<NewsContentProps> = ({
   activeFilter,
+  articleType,
 }: NewsContentProps) => {
   const [articles, setArticles] = useState<PreparedArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const { label, path } = typeConfig[articleType as 'NEWS' | 'EVENT'];
 
   const pageSize = 9;
 
@@ -77,7 +85,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
       const params: Record<string, string> = {
         page: (page - 1).toString(),
         size: pageSize.toString(),
-        articleType: ArticleTypeEnum.NEWS,
+        articleType,
         articleStatus: ArticleStatusEnum.PUBLISHED,
       };
 
@@ -123,7 +131,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
   if (!loading && articles.length === 0) {
     return (
       <div className="container px-4 mx-auto">
-        Наразі новин немає. Слідкуйте за оновленнями.
+        Наразі {label} немає. Слідкуйте за оновленнями.
       </div>
     );
   }
@@ -144,7 +152,7 @@ const NewsContent: React.FC<NewsContentProps> = ({
                   key={article.id}
                 >
                   <Card
-                    link={`/news/${article.id}`}
+                    link={`/${path}/${article.id}`}
                     imageSrc={article.imageSrc || undefined}
                     title={article.title}
                     text={article.text}
