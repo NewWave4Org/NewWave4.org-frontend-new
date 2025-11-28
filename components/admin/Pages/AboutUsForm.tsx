@@ -279,7 +279,9 @@ function AboutUsForm() {
                           onClick={() => {
                             const blockId = block.id;
 
-                            remove(index);
+                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                            if (blockIndex !== -1) remove(blockIndex);
+                            // remove(index);
 
                             setEditorStates(prev => {
                               const newState = { ...prev };

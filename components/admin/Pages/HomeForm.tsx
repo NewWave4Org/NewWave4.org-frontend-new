@@ -290,7 +290,9 @@ function HomeForm() {
                                 }
                               }
                             }
-                            remove(realIndex);
+                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                            if (blockIndex !== -1) remove(blockIndex);
+                            // remove(realIndex);
 
                             setEditorStates(prev => {
                               const newState = { ...prev };

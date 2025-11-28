@@ -2,7 +2,7 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 import { toast } from 'react-toastify';
@@ -11,11 +11,7 @@ import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import Button from '@/components/shared/Button';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import LinkBtn from '@/components/shared/LinkBtn';
-import {
-  getArticleById,
-  publishArticle,
-  updateArticle,
-} from '@/store/article-content/action';
+import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
 import Input from '@/components/shared/Input';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -28,6 +24,7 @@ import TextEditor from '@/components/TextEditor/TextEditor';
 import DatePicker from '../../helperComponents/DatePicker/DatePicker';
 import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
 import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
+import { v4 as uuid } from 'uuid';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -48,24 +45,17 @@ function ProjectContent({ projectId }: { projectId: number }) {
   const handleThunk = useHandleThunk();
   const pathname = usePathname();
 
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
-    null,
-  );
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
-  const [editorKey, setEditorKey] = useState('');
-  const [editorStates, setEditorStates] = useState<Record<number, EditorState>>(
-    {},
-  );
+
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
   useEffect(() => {
-    if (project?.authorId) {
-      setDefaultAuthorId(project.authorId);
-    } else if (currentAuthor?.id) {
-      setDefaultAuthorId(currentAuthor.id);
-    }
+    setDefaultAuthorId(project?.authorId ?? currentAuthor?.id);
   }, [project?.authorId, currentAuthor]);
 
   const defaultFormValues: UpdateArticleFormValues = {
@@ -75,18 +65,12 @@ function ProjectContent({ projectId }: { projectId: number }) {
     customCreationDate: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
-      { contentBlockType: 'VIDEO', videoUrl: '' },
-      { contentBlockType: 'QUOTE', text: '', editorState: null },
-      { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
-      { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
-      { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
-      {
-        contentBlockType: 'SECTION',
-        sectionTitle: '',
-        text: '',
-        files: [],
-        editorState: null,
-      },
+      { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
+      { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
+      { id: uuid(), contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
+      { id: uuid(), contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
+      { id: uuid(), contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
+      { id: uuid(), contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
     ],
   };
 
@@ -101,31 +85,42 @@ function ProjectContent({ projectId }: { projectId: number }) {
             id: projectId,
           }),
         ).unwrap();
-        setProject(result);
 
-        if (!result?.contentBlocks) return;
+        const editors: Record<string, EditorState> = {};
+        const keys: Record<string, string> = {};
 
-        const initialEditors: Record<number, EditorState> = {};
+        const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
+          ...block,
+          id: block.id ?? uuid(),
+        }));
 
-        result.contentBlocks.forEach((block, index) => {
-          if (block.text || block.editorState) {
-            try {
-              if (block.editorState) {
-                const content = convertFromRaw(block.editorState);
-                initialEditors[index] = EditorState.createWithContent(content);
-              } else {
-                initialEditors[index] = EditorState.createEmpty();
-              }
-            } catch (err: any) {
-              console.log('err', err);
-              initialEditors[index] = EditorState.createEmpty();
+        blocksWithId.forEach((block, index) => {
+          let editor;
+
+          try {
+            if (block.editorState) {
+              const content = convertFromRaw(block.editorState);
+              editor = EditorState.createWithContent(content);
+            } else {
+              editor = EditorState.createEmpty();
             }
+          } catch (err: any) {
+            console.log('err', err);
+            editor = EditorState.createEmpty();
           }
+
+          editors[block.id] = editor;
+          keys[block.id] = `${block.id}-init`;
         });
 
-        setEditorStates(initialEditors);
+        setEditorStates(editors);
 
-        setEditorKey(prev => prev + 1);
+        setEditorKey(keys);
+
+        setProject({
+          ...result,
+          contentBlocks: blocksWithId,
+        });
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch project');
@@ -149,9 +144,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit')
-          ? 'Your project was updated successfully!'
-          : 'Your project was created successfully!';
+        const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
         toast.success(message);
       }
     } catch (error) {
@@ -168,20 +161,19 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if (result) {
-      toast.success(
-        'Congratulations! Your project has been published successfully.',
-      );
+      toast.success('Congratulations! Your project has been published successfully.');
     }
   }
 
-  const handleEditorChange = (
-    index: number,
-    newState: EditorState,
-    setFieldValue: any,
-  ) => {
-    setEditorStates(prev => ({ ...prev, [index]: newState }));
+  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+    setEditorStates(prev => ({ ...prev, [id]: newState }));
+
     const content = newState.getCurrentContent();
     const raw = convertToRaw(content);
+
+    const index = values.contentBlocks.findIndex(block => block.id === id);
+
+    if (index === -1) return;
 
     setFieldValue(`contentBlocks.${index}.editorState`, raw);
     setFieldValue(`contentBlocks.${index}.text`, content.getPlainText());
@@ -196,25 +188,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           customCreationDate: project?.customCreationDate || defaultFormValues.customCreationDate,
           articleType: project?.articleType || defaultFormValues.articleType,
-          articleStatus:
-            project?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks:
-            Array.isArray(project?.contentBlocks) &&
-            project.contentBlocks.length
-              ? project.contentBlocks
-              : defaultFormValues.contentBlocks,
+          articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({
-          errors,
-          touched,
-          handleChange,
-          isSubmitting,
-          values,
-          setFieldValue,
-        }) => (
+        {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
           <Form>
             <div className="mb-5">
               <Input
@@ -228,9 +208,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 value={values?.title || ''}
                 label="Project title"
                 labelClass="!text-admin-700"
-                validationText={
-                  touched.title && errors.title ? errors.title : ''
-                }
+                validationText={touched.title && errors.title ? errors.title : ''}
               />
             </div>
 
@@ -248,163 +226,128 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
                 const additionalBlocks = values.contentBlocks?.slice(6) || [];
 
-                // const editorState = editorStates[index] || EditorState.createEmpty();
-
                 return (
                   <div className="mb-5">
-                    {/* Base block */}
-                    <div className="mb-4">
-                      {initialBlocks[0]?.contentBlockType === 'VIDEO' && (
-                        <Input
-                          id="contentBlocks.0.videoUrl"
-                          name="contentBlocks.0.videoUrl"
-                          label="Video link"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                          value={initialBlocks[0].videoUrl}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      {/* {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
-                        <TextArea
-                          id="contentBlocks.1.text"
-                          name="contentBlocks.1.text"
-                          label="Quote text"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[200px] px-5 rounded-lg !ring-0 !max-w-full"
-                          value={initialBlocks[1].text}
-                          onChange={handleChange}
-                        />
-                      )} */}
-                      {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
-                        <div>
-                          <label className="block mb-2 text-admin-700 font-medium">
-                            Quote text
-                          </label>
-                          <TextEditor
-                            // value={quoteEditorState}
-                            key={editorKey}
-                            // resetKey={projectId}
-                            // onChange={newState => {
-                            //   setQuoteEditorState(newState);
-                            //   const content = newState.getCurrentContent();
-                            //   const rawContent = convertToRaw(content);
-
-                            //   setFieldValue(`contentBlocks.1.editorState`, rawContent);
-                            //   setFieldValue(`contentBlocks.1.text`, content.getPlainText());
-                            // }}
-                            value={editorStates[1] || EditorState.createEmpty()}
-                            onChange={newState =>
-                              handleEditorChange(1, newState, setFieldValue)
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      {initialBlocks[2]?.contentBlockType ===
-                        'LINK_TO_SITE' && (
-                        <Input
-                          id="contentBlocks.2.siteUrl"
-                          name="contentBlocks.2.siteUrl"
-                          label="Link to web-site"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                          value={initialBlocks[2].siteUrl}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </div>
-
-                    <div className="flex gap-4">
-                      <div className="w-1/2 mb-4">
-                        {initialBlocks[3]?.contentBlockType ===
-                          'TYPE_SOCIAL_MEDIA' && (
-                          <Select
-                            label="Change type social media (if needed)"
-                            adminSelectClass={true}
-                            name="contentBlocks.3.typeSocialMedia"
-                            labelClass="!text-admin-700"
-                            placeholder="Media types"
-                            onChange={handleChange}
-                            options={typeSocialMediaList}
-                            parentClassname="h-[70px]"
-                          />
-                        )}
-                      </div>
-
-                      <div className="w-1/2 mb-4">
-                        {initialBlocks[4]?.contentBlockType ===
-                          'LINK_TO_SOCIAL_MEDIA' && (
-                          <Input
-                            id="contentBlocks.4.socialMediaUrl"
-                            name="contentBlocks.4.socialMediaUrl"
-                            label="Link to social media"
-                            labelClass="!text-admin-700"
-                            className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                            value={initialBlocks[4].socialMediaUrl}
-                            onChange={handleChange}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4 mb-4">
-                      {/* TEXT block */}
-                      {initialBlocks[5]?.contentBlockType === 'SECTION' && (
-                        <>
-                          <div className="w-1/2 h-[442px] flex flex-col flex-1">
-                            <div className="mb-4">
+                    {/* Base blocks */}
+                    {initialBlocks.map(block => {
+                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                      return (
+                        <React.Fragment key={block.id}>
+                          <div className="mb-4">
+                            {block?.contentBlockType === 'VIDEO' && (
                               <Input
-                                onChange={handleChange}
-                                id="contentBlocks.5.sectionTitle"
-                                name="contentBlocks.5.sectionTitle"
-                                type="text"
-                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                value={initialBlocks[5].sectionTitle}
-                                label="Section title"
+                                id={`contentBlocks.${blockIndex}.videoUrl`}
+                                name={`contentBlocks.${blockIndex}.videoUrl`}
+                                label="Video link"
                                 labelClass="!text-admin-700"
+                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                value={block.videoUrl}
+                                onChange={handleChange}
                               />
-                            </div>
-                            <div className="flex-1 flex flex-col">
-                              <div className="block text-medium2 mb-1 text-admin-700 ">
-                                Text block
+                            )}
+                          </div>
+
+                          <div className="mb-4">
+                            {block.contentBlockType === 'QUOTE' && (
+                              <div>
+                                <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
+                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                               </div>
-                              <TextEditor
-                                key={editorKey}
-                                value={
-                                  editorStates[5] || EditorState.createEmpty()
-                                }
-                                onChange={newState =>
-                                  handleEditorChange(5, newState, setFieldValue)
-                                }
+                            )}
+                          </div>
+
+                          <div className="mb-4">
+                            {block.contentBlockType === 'LINK_TO_SITE' && (
+                              <Input
+                                id={`contentBlocks.${blockIndex}.siteUrl`}
+                                name={`contentBlocks.${blockIndex}.siteUrl`}
+                                label="Link to web-site"
+                                labelClass="!text-admin-700"
+                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                value={block.siteUrl}
+                                onChange={handleChange}
                               />
+                            )}
+                          </div>
+
+                          <div className="flex gap-4">
+                            <div className="w-1/2 mb-4">
+                              {block.contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
+                                <Select
+                                  label="Change type social media (if needed)"
+                                  adminSelectClass={true}
+                                  name={`contentBlocks.${blockIndex}.typeSocialMedia`}
+                                  labelClass="!text-admin-700"
+                                  placeholder="Media types"
+                                  onChange={handleChange}
+                                  options={typeSocialMediaList}
+                                  parentClassname="h-[70px]"
+                                />
+                              )}
+                            </div>
+
+                            <div className="w-1/2 mb-4">
+                              {block.contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                                <Input
+                                  id={`contentBlocks.${blockIndex}.socialMediaUrl`}
+                                  name={`contentBlocks.${blockIndex}.socialMediaUrl`}
+                                  label="Link to social media"
+                                  labelClass="!text-admin-700"
+                                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                  value={block.socialMediaUrl}
+                                  onChange={handleChange}
+                                />
+                              )}
                             </div>
                           </div>
-                          <div className="w-1/2 h-[442px]">
-                            <ImageLoading
-                              articleId={projectId}
-                              label="Add photo"
-                              classBlock="h-[100px]"
-                              contentType={ArticleTypeEnum.PROJECT}
-                              uploadedUrls={initialBlocks[5].files || []}
-                              positionBlockImg={true}
-                              onFilesChange={files =>
-                                setFieldValue('contentBlocks.5.files', files)
-                              }
-                            />
+
+                          <div className="flex gap-4 mb-4">
+                            {/* TEXT block */}
+                            {block.contentBlockType === 'SECTION' && (
+                              <>
+                                <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                                  <div className="mb-4">
+                                    <Input
+                                      onChange={handleChange}
+                                      id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                      name={`contentBlocks.${blockIndex}.sectionTitle`}
+                                      type="text"
+                                      className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                      value={block.sectionTitle}
+                                      label="Section title"
+                                      labelClass="!text-admin-700"
+                                    />
+                                  </div>
+                                  <div className="flex-1 flex flex-col">
+                                    <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                    <TextEditor
+                                      key={editorKey[block.id]}
+                                      value={editorStates[block.id] || EditorState.createEmpty()}
+                                      onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="w-1/2 h-[442px]">
+                                  <ImageLoading
+                                    articleId={projectId}
+                                    label="Add photo"
+                                    classBlock="h-[100px]"
+                                    contentType={ArticleTypeEnum.PROJECT}
+                                    uploadedUrls={block.files || []}
+                                    positionBlockImg={true}
+                                    onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                                  />
+                                </div>
+                              </>
+                            )}
                           </div>
-                        </>
-                      )}
-                      {/* PHOTO block */}
-                    </div>
+                        </React.Fragment>
+                      );
+                    })}
 
                     {additionalBlocks.map((block, pairIndex) => {
                       const index = pairIndex + 6;
+                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
 
                       if (block.contentBlockType !== 'SECTION') {
                         return null;
@@ -412,19 +355,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                       return (
                         <div key={index} className="mb-5">
-                          <div
-                            className={`flex gap-4 mb-3 ${
-                              pairIndex % 2 === 0
-                                ? 'flex-row-reverse'
-                                : 'flex-row'
-                            }`}
-                          >
+                          <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
                             <div className="w-1/2 h-[442px] flex flex-col">
                               <div className="mb-4">
                                 <Input
                                   onChange={handleChange}
-                                  id={`contentBlocks.${index}.sectionTitle`}
-                                  name={`contentBlocks.${index}.sectionTitle`}
+                                  id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                  name={`contentBlocks.${blockIndex}.sectionTitle`}
                                   type="text"
                                   className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
                                   value={block.sectionTitle}
@@ -434,22 +371,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               </div>
 
                               <div className="flex-1 flex flex-col">
-                                <div className="block text-medium2 mb-1 text-admin-700 ">
-                                  Text block
-                                </div>
-                                <TextEditor
-                                  value={
-                                    editorStates[index] ||
-                                    EditorState.createEmpty()
-                                  }
-                                  onChange={newState =>
-                                    handleEditorChange(
-                                      index,
-                                      newState,
-                                      setFieldValue,
-                                    )
-                                  }
-                                />
+                                <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                               </div>
                             </div>
 
@@ -462,12 +385,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 contentType={ArticleTypeEnum.PROJECT}
                                 uploadedUrls={block?.files || []}
                                 positionBlockImg={true}
-                                onFilesChange={files =>
-                                  setFieldValue(
-                                    `contentBlocks.${index}.files`,
-                                    files,
-                                  )
-                                }
+                                onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
                               />
                             </div>
                           </div>
@@ -475,7 +393,22 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           <button
                             type="button"
                             onClick={() => {
-                              remove(index);
+                              const blockId = block.id;
+                              // remove(index);
+                              const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                              if (blockIndex !== -1) remove(blockIndex);
+
+                              setEditorStates(prev => {
+                                const newState = { ...prev };
+                                delete newState[blockId];
+                                return newState;
+                              });
+
+                              setEditorKey(prev => {
+                                const newKey = { ...prev };
+                                delete newKey[blockId];
+                                return newKey;
+                              });
                             }}
                             className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                           >
@@ -489,12 +422,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     <button
                       type="button"
                       onClick={() => {
+                        const blockId = uuid();
                         push({
+                          id: blockId,
                           contentBlockType: 'SECTION',
                           sectionTitle: '',
                           text: '',
                           files: [],
                         });
+
+                        setEditorStates(prev => ({
+                          ...prev,
+                          [blockId]: EditorState.createEmpty(),
+                        }));
+
+                        setEditorKey(prev => ({
+                          ...prev,
+                          [blockId]: `${blockId}-${Date.now()}`,
+                        }));
                       }}
                       className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
@@ -505,43 +450,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
               }}
             </FieldArray>
 
-            {submitError && (
-              <div className="text-red-700 text-medium1 mt-4">
-                {' '}
-                {submitError}
-              </div>
-            )}
+            {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              <em>
-                You must save the page before you can preview or publish it
-              </em>
+              <em>You must save the page before you can preview or publish it</em>
             </div>
 
             <div className="flex gap-x-6 mt-2">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
-              >
+              <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
                 Save
               </Button>
 
-              <LinkBtn
-                href={`/admin/projects/preview?id=${projectId}`}
-                targetLink="_self"
-                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
-              >
+              <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
                 Preview
               </LinkBtn>
 
               {project?.articleStatus !== 'PUBLISHED' && (
-                <Button
-                  onClick={() => handlePublish(projectId)}
-                  type="button"
-                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
-                >
+                <Button onClick={() => handlePublish(projectId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
                   Publish
                 </Button>
               )}
