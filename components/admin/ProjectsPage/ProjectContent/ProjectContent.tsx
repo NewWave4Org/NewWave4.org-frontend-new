@@ -68,8 +68,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
       { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
       { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
       { id: uuid(), contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
-      { id: uuid(), contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
-      { id: uuid(), contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
+      { id: uuid(), contentBlockType: 'SOCIAL_MEDIA', typeSocialMedia: '', socialMediaUrl: '' },
       { id: uuid(), contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
     ],
   };
@@ -233,8 +232,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
                       return (
                         <React.Fragment key={block.id}>
-                          <div className="mb-4">
-                            {block?.contentBlockType === 'VIDEO' && (
+                          {block?.contentBlockType === 'VIDEO' && (
+                            <div className="mb-4">
                               <Input
                                 id={`contentBlocks.${blockIndex}.videoUrl`}
                                 name={`contentBlocks.${blockIndex}.videoUrl`}
@@ -244,20 +243,20 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 value={block.videoUrl}
                                 onChange={handleChange}
                               />
-                            )}
-                          </div>
+                            </div>
+                          )}
 
-                          <div className="mb-4">
-                            {block.contentBlockType === 'QUOTE' && (
+                          {block.contentBlockType === 'QUOTE' && (
+                            <div className="mb-4">
                               <div>
                                 <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
                                 <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
 
-                          <div className="mb-4">
-                            {block.contentBlockType === 'LINK_TO_SITE' && (
+                          {block.contentBlockType === 'LINK_TO_SITE' && (
+                            <div className="mb-4">
                               <Input
                                 id={`contentBlocks.${blockIndex}.siteUrl`}
                                 name={`contentBlocks.${blockIndex}.siteUrl`}
@@ -267,12 +266,12 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 value={block.siteUrl}
                                 onChange={handleChange}
                               />
-                            )}
-                          </div>
+                            </div>
+                          )}
 
-                          <div className="flex gap-4">
-                            <div className="w-1/2 mb-4">
-                              {block.contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
+                          {block.contentBlockType === 'SOCIAL_MEDIA' && (
+                            <div className="flex gap-4">
+                              <div className="w-1/2 mb-4">
                                 <Select
                                   label="Change type social media (if needed)"
                                   adminSelectClass={true}
@@ -283,11 +282,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                   options={typeSocialMediaList}
                                   parentClassname="h-[70px]"
                                 />
-                              )}
-                            </div>
+                              </div>
 
-                            <div className="w-1/2 mb-4">
-                              {block.contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
+                              <div className="w-1/2 mb-4">
                                 <Input
                                   id={`contentBlocks.${blockIndex}.socialMediaUrl`}
                                   name={`contentBlocks.${blockIndex}.socialMediaUrl`}
@@ -297,50 +294,44 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                   value={block.socialMediaUrl}
                                   onChange={handleChange}
                                 />
-                              )}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
-                          <div className="flex gap-4 mb-4">
-                            {/* TEXT block */}
-                            {block.contentBlockType === 'SECTION' && (
-                              <>
-                                <div className="w-1/2 h-[442px] flex flex-col flex-1">
-                                  <div className="mb-4">
-                                    <Input
-                                      onChange={handleChange}
-                                      id={`contentBlocks.${blockIndex}.sectionTitle`}
-                                      name={`contentBlocks.${blockIndex}.sectionTitle`}
-                                      type="text"
-                                      className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                      value={block.sectionTitle}
-                                      label="Section title"
-                                      labelClass="!text-admin-700"
-                                    />
-                                  </div>
-                                  <div className="flex-1 flex flex-col">
-                                    <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                    <TextEditor
-                                      key={editorKey[block.id]}
-                                      value={editorStates[block.id] || EditorState.createEmpty()}
-                                      onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="w-1/2 h-[442px]">
-                                  <ImageLoading
-                                    articleId={projectId}
-                                    label="Add photo"
-                                    classBlock="h-[100px]"
-                                    contentType={ArticleTypeEnum.PROJECT}
-                                    uploadedUrls={block.files || []}
-                                    positionBlockImg={true}
-                                    onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                          {/* TEXT block */}
+                          {block.contentBlockType === 'SECTION' && (
+                            <div className="flex gap-4 mb-4">
+                              <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                                <div className="mb-4">
+                                  <Input
+                                    onChange={handleChange}
+                                    id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    name={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    type="text"
+                                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                    value={block.sectionTitle}
+                                    label="Section title"
+                                    labelClass="!text-admin-700"
                                   />
                                 </div>
-                              </>
-                            )}
-                          </div>
+                                <div className="flex-1 flex flex-col">
+                                  <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                </div>
+                              </div>
+                              <div className="w-1/2 h-[442px]">
+                                <ImageLoading
+                                  articleId={projectId}
+                                  label="Add photo"
+                                  classBlock="h-[100px]"
+                                  contentType={ArticleTypeEnum.PROJECT}
+                                  uploadedUrls={block.files || []}
+                                  positionBlockImg={true}
+                                  onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </React.Fragment>
                       );
                     })}
