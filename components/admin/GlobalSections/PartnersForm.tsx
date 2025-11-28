@@ -91,8 +91,8 @@ function PartnersForm() {
           <Form>
             <div className="mb-5">
               <ImageLoading
-                articleId={1}
-                contentType={GlobalSectionsType.OUR_PARTNERS}
+                isAttach={true}
+                maxFiles={50}
                 label="Add photo"
                 classBlock="min-h-[300px]"
                 uploadedUrls={values.contentBlocks[0].files || []}
