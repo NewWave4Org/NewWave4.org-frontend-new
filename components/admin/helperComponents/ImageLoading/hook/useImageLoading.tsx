@@ -1,16 +1,18 @@
+import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
+import { PagesType } from '@/components/admin/Pages/enum/types';
 import { useAppDispatch } from '@/store/hook';
-import { deletePhoto, uploadPhoto } from '@/store/photos/action';
+import { deletePhoto, uploadPhoto, uploadPhotoWithOutAttach } from '@/store/photos/action';
 import { ArticleType } from '@/utils/ArticleType';
-import { UploadPhotoParams } from '@/utils/photos/photo-service';
 import { useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 interface IImageLoadingProps {
-  articleId: number;
-  contentType: ArticleType;
+  articleId?: number;
+  contentType?: ArticleType | GlobalSectionsType | PagesType;
+  isAttach?: boolean;
 }
 
-function useImageLoading({ articleId, contentType }: IImageLoadingProps) {
+function useImageLoading({ articleId, contentType, isAttach = false }: IImageLoadingProps) {
   const dispatch = useAppDispatch();
 
   const uploadFiles = useCallback(
@@ -18,23 +20,36 @@ function useImageLoading({ articleId, contentType }: IImageLoadingProps) {
       const urls: string[] = [];
 
       for (const file of files) {
-        const params: UploadPhotoParams = {
-          file,
-          entityReferenceId: articleId,
-          articleType: contentType,
-        };
-
         try {
-          const response = await dispatch(uploadPhoto(params)).unwrap();
+          let response: string;
+
+          if (isAttach) {
+            response = await dispatch(uploadPhotoWithOutAttach({ file })).unwrap();
+          } else {
+            if (!articleId || !contentType) {
+              console.error('articleId и contentType are required, when isAttach = false');
+              continue;
+            }
+
+            response = await dispatch(
+              uploadPhoto({
+                file,
+                entityReferenceId: articleId,
+                articleType: contentType,
+              }),
+            ).unwrap();
+          }
+
           urls.push(response);
         } catch (error) {
           console.log('error', error);
           toast.error('Failed to upload files');
         }
       }
+
       return urls;
     },
-    [dispatch, articleId, contentType],
+    [dispatch, articleId, contentType, isAttach],
   );
 
   const deleteFile = useCallback(
