@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import Button from '@/components/shared/Button';
+import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 
 interface IDateProgram {
   year: number;
@@ -11,7 +12,7 @@ interface IDateProgram {
 
 interface IProgramFirstBlocks {
   title: string;
-  description: string;
+  description: any;
   dateProgram: {
     from: IDateProgram;
     to: IDateProgram;
@@ -25,6 +26,7 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
   const dateNumberFormatTo = new Date(dateProgram.to.year, dateProgram.to.month - 1, dateProgram.to.day);
   const formattedDateFrom = format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: uk });
   const formattedDateTo = format(new Date(dateNumberFormatTo), 'd MMMM', { locale: uk });
+  const descriptionText = convertDraftToHTML(description);
 
   return (
     <section className="flex lg:flex-row flex-col lg:mb-20 mb-10">
@@ -39,7 +41,7 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
         <span className="bg-accent-300 rounded-tr-[4px] rounded-br-[4px] font-helv text-base text-font-primary py-1.5 px-4 font-medium absolute left-0 top-8">{`${formattedDateFrom} - ${formattedDateTo}`}</span>
         <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:py-[70px] pt-[100px] pb-[50px] px-12 ">
           <div className="container">
-            <p className="text-body text-font-primary">{description}</p>
+            <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: descriptionText }} />
             <div className="mt-4 flex">
               <Button size="large" className="flex justify-self-center" onClick={() => router.push('/donation')}>
                 Donate
