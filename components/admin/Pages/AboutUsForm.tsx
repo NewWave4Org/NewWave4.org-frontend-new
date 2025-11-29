@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/store/hook';
 import { PagesType } from './enum/types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import useHandleThunk from '@/utils/useHandleThunk';
@@ -18,17 +18,6 @@ interface IAboutUsPageValues {
   contentBlocks: any[];
 }
 
-const defaultFormValues = {
-  pageType: PagesType.ABOUT_US,
-  contentBlocks: [
-    { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
-    { id: uuid(), contentBlockType: 'OUR_HISTORY_TITLE', title: '' },
-    { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', text: '', editorState: null },
-    { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
-    { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', title: '', text: '', editorState: null },
-  ],
-};
-
 function AboutUsForm() {
   const dispatch = useAppDispatch();
 
@@ -41,6 +30,20 @@ function AboutUsForm() {
   const handleThunk = useHandleThunk();
 
   const isUpdate = Boolean(aboutUsPage?.id);
+
+  const defaultFormValues = useMemo(
+    () => ({
+      pageType: PagesType.ABOUT_US,
+      contentBlocks: [
+        { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'OUR_HISTORY_TITLE', title: '' },
+        { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
+        { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', title: '', text: '', editorState: null },
+      ],
+    }),
+    [],
+  );
 
   const initialValues = {
     pageType: PagesType.ABOUT_US,
@@ -279,7 +282,9 @@ function AboutUsForm() {
                           onClick={() => {
                             const blockId = block.id;
 
-                            remove(index);
+                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                            if (blockIndex !== -1) remove(blockIndex);
+                            // remove(index);
 
                             setEditorStates(prev => {
                               const newState = { ...prev };

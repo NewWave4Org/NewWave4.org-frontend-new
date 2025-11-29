@@ -10,7 +10,7 @@ import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfac
 function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | undefined }) {
   const subTitleProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'SUB_TITLE_PROGRAM')?.text;
   const dateProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
-  const descriptionProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.text;
+  const descriptionProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.editorState;
 
   const blocksWithPhoto = program?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
   const filteredBlocksWithPhoto = blocksWithPhoto?.filter(item => {
