@@ -3,14 +3,13 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
-import GeneralSlider from '@/components/generalSlider/GeneralSlider';
+import GeneralSlider, { Slide } from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import Quote from '@/components/quote/Quote';
 import { formatDateUk } from '@/utils/date';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { ArticleFull } from '@/utils/articles/type/interface';
-import { Slide } from '@/components/generalSlider/slidesData';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
 import { useParams } from 'next/navigation';
@@ -62,17 +61,18 @@ export default function Article() {
         }
 
         if (mapped?.photoSlider) {
-          const slidesData = mapped.photoSlider
-            .filter(Boolean)
-            .map((src, index) => ({
-              id: index,
-              src,
-              srchover: src,
-              alt: `Slide ${index + 1}`,
-              title: mapped.title || '',
-              text: '',
-              link: '',
-            }));
+          const slidesData = mapped.photoSlider.filter(Boolean).map(src => ({
+            title: mapped.title || '',
+            files: [src],
+            link: '',
+            // id: index,
+            // src,
+            // srchover: src,
+            // alt: `Slide ${index + 1}`,
+            // title: mapped.title || '',
+            // text: '',
+            // link: '',
+          }));
           setSlides(slidesData);
         }
       } catch (err) {

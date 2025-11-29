@@ -11,10 +11,9 @@ const Events: React.FC = () => {
         <div className="flex flex-col gap-y-6 w-full">
           <div className="flex justify-end w-full">
             <Button
-              disabled
               variant="tertiary"
               size="small"
-              onClick={() => router.push('/news')}
+              onClick={() => router.push('/events')}
             >
               <span className="flex items-center gap-x-2">
                 Всі події <ArrowRightIcon size="20px" />
