@@ -9,8 +9,8 @@ function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | unde
 
   const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
-  const typeSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'TYPE_SOCIAL_MEDIA')?.typeSocialMedia;
-  const linkSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SOCIAL_MEDIA')?.socialMediaUrl;
+  const typeSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.typeSocialMedia;
+  const linkSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.socialMediaUrl;
   const nameSocialMedia = typeSocialMediaList.find(item => item.value === typeSocialMedia)?.label;
 
   const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION');

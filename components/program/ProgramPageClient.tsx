@@ -2,7 +2,7 @@
 
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
-import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -22,7 +22,7 @@ function ProgramPageClient() {
   const programId = Number(id);
 
   const [program, setProgram] = useState<GetArticleByIdResponseDTO | undefined>(undefined);
-  const [dopPrograms, setDopPrograms] = useState([]);
+  const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +32,6 @@ function ProgramPageClient() {
         const result = await dispatch(
           getArticleById({
             id: programId,
-            articleType: ArticleTypeEnum.PROGRAM,
           }),
         ).unwrap();
 
@@ -60,6 +59,8 @@ function ProgramPageClient() {
             excludeArticleId: programId,
           }),
         ).unwrap();
+
+        console.log('result', result);
 
         setDopPrograms(result?.content);
       } catch (error) {

@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 interface Slide {
   title: string;
-  files: [];
+  files: string[];
   description: string;
   editorState: any[];
   link: string;

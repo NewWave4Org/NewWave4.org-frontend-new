@@ -3,7 +3,7 @@ import { FieldArray, Form, Formik } from 'formik';
 import { PagesType } from './enum/types';
 import Input from '@/components/shared/Input';
 import TextEditor from '@/components/TextEditor/TextEditor';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import Button from '@/components/shared/Button';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
@@ -18,20 +18,6 @@ interface IHomePageValues {
   pageType: PagesType;
   contentBlocks: any[];
 }
-
-const defaultFormValues = {
-  pageType: PagesType.HOME,
-  contentBlocks: [
-    { id: uuid(), contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
-    { id: uuid(), contentBlockType: 'HOME_TITLE', title: '' },
-    { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
-    { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
-    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-    { id: uuid(), contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
-  ],
-};
 
 function HomeForm() {
   const dispatch = useAppDispatch();
@@ -48,6 +34,23 @@ function HomeForm() {
   const handleThunk = useHandleThunk();
 
   const isUpdate = Boolean(homePage?.id);
+
+  const defaultFormValues = useMemo(
+    () => ({
+      pageType: PagesType.HOME,
+      contentBlocks: [
+        { id: uuid(), contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
+        { id: uuid(), contentBlockType: 'HOME_TITLE', title: '' },
+        { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
+        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
+      ],
+    }),
+    [],
+  );
 
   const initialValues = {
     pageType: PagesType.HOME,
@@ -271,7 +274,7 @@ function HomeForm() {
                         </div>
 
                         <div className="mb-4">
-                          <div className="mb-2 !text-admin-700">Slider description</div>
+                          <div className="mb-2 !text-admin-700">Slider photo</div>
                           <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} />
                         </div>
 
@@ -290,7 +293,9 @@ function HomeForm() {
                                 }
                               }
                             }
-                            remove(realIndex);
+                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                            if (blockIndex !== -1) remove(blockIndex);
+                            // remove(realIndex);
 
                             setEditorStates(prev => {
                               const newState = { ...prev };
