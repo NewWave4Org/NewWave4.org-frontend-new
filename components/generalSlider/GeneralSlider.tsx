@@ -64,9 +64,6 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({
 
   const slideSize = slides.length === 2 ? '100%' : '824px';
 
-  console.log('slides');
-  console.log(slides);
-
   return (
     <div className="relative embla h-[544px] group/arrows">
       <div className="overflow-hidden" ref={initSlider ? emblaRef : null}>
