@@ -1,14 +1,24 @@
 'use client';
+
 import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
 import Button from '../shared/Button';
 import { useRouter } from 'next/navigation';
+import { useArticles } from '@/utils/hooks/useArticles';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
+import ArticlesGrid from '@/components/news/ArticlesGrid';
 
-const Events: React.FC = () => {
+const Events = () => {
   const router = useRouter();
+
+  const { articles, loading } = useArticles({
+    articleType: ArticleTypeEnum.EVENT,
+    limit: 3,
+  });
+
   return (
     <section>
       <div className="container mx-auto px-4">
-        <div className="flex flex-col gap-y-6 w-full">
+        <div className="flex flex-col gap-y-6">
           <div className="flex justify-end w-full">
             <Button
               variant="tertiary"
@@ -20,11 +30,12 @@ const Events: React.FC = () => {
               </span>
             </Button>
           </div>
-          <div className="flex gap-x-6 items-center justify-center">
-            <div className="text-grey-700 text-quote">
-              Незабаром тут будуть події
-            </div>
-          </div>
+
+          <ArticlesGrid
+            articles={articles}
+            loading={loading}
+            basePath="/events"
+          />
         </div>
       </div>
     </section>
