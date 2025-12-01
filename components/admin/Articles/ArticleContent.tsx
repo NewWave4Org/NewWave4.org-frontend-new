@@ -26,6 +26,9 @@ import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Select from '@/components/shared/Select';
 import WarningIcon from '@/components/icons/status/WarningIcon';
 import { useUsers } from '@/utils/hooks/useUsers';
+import DatePicker from '../helperComponents/DatePicker/DatePicker';
+import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
+import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -44,6 +47,7 @@ interface ArticleContentDTO {
   mainPhoto: string[];
   photosList?: string[];
   sliderPhotos?: string[];
+  customCreationDate?: any;
 }
 
 interface ProjectOption {
@@ -57,6 +61,7 @@ export interface UpdateArticleFormValues {
   authorId: string;
   articleStatus: string;
   contentBlocks: any[];
+  customCreationDate: any;
 }
 
 interface IArticleContent {
@@ -191,11 +196,14 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
 
     try {
       if (articleId) {
+        // console.log('date to update');
+        // console.log(values.customCreationDate);
         await dispatch(
           updateArticle({
             id: articleId,
             data: {
               title: values.title,
+              customCreationDate: convertToISO(values.customCreationDate),
               articleType,
               authorId: Number(values.authorId),
               relevantProjectId: Number(values.relevantProjectId),
@@ -277,6 +285,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
             initialValues={{
               title: article?.title || '',
               articleType: articleType,
+              customCreationDate: article?.customCreationDate
+                ? convertFromISO(article.customCreationDate)
+                : convertFromISO(new Date()),
               authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
               relevantProjectId: article?.relevantProjectId,
               textblock1:
@@ -372,6 +383,20 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                             },
                           ]
                     }
+                  />
+                </div>
+
+                <div className="mb-5">
+                  <div className="block text-medium2 mb-1 !text-admin-700">
+                    Choose the creation date
+                  </div>
+                  <DatePicker
+                    name="customCreationDate"
+                    pickerId="project-creationDate"
+                    pickerWithTime={false}
+                    pickerType="single"
+                    pickerPlaceholder="Choose date"
+                    pickerValue={values?.customCreationDate}
                   />
                 </div>
 
