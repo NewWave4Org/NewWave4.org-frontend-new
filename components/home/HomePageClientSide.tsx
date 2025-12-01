@@ -17,11 +17,13 @@ import HomeVideo from './HomeVideo';
 import NewsEvents from './NewsEvents';
 import { getGlobalSectionByKey } from '@/store/global-sections/action';
 import { GlobalSectionsType } from '../admin/GlobalSections/enum/types';
+import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
 
 function HomePageClientSide() {
   const dispatch = useAppDispatch();
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
-  const [ourPartners, setOurPartners] = useState(null);
+  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
+  const [ourMission, setOurMission] = useState<IGlobalSectionsResponseDTO | null>(null);
 
   const slides = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'SLIDER') || [];
   const homeTitle = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
@@ -37,12 +39,6 @@ function HomePageClientSide() {
 
         setHomePage(result);
       } catch (error: any) {
-        // if (error?.original?.errors.includes('with key') || error.original.errors[0].includes('find page')) {
-        //   console.log('Section does not exist yet → creating new one');
-        //   setHomePage(null);
-        //   return;
-        // }
-
         console.log('error', error);
         setHomePage(null);
         toast.error('Failed to fetch Home page');
@@ -55,19 +51,26 @@ function HomePageClientSide() {
 
         setOurPartners(result);
       } catch (error: any) {
-        // if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-        //   console.log('Section does not exist yet → creating new one');
-        //   setOurPartners(null);
-        //   return;
-        // }
-
         console.log('error', error);
         toast.error('Failed to fetch partners');
+        setOurPartners(null);
+      }
+    }
+
+    async function getBlockByKeyMission() {
+      try {
+        const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_MISSION)).unwrap();
+
+        setOurMission(result);
+      } catch (error: any) {
+        console.log('error', error);
+        toast.error('Failed to fetch our mission');
+        setOurMission(null);
       }
     }
 
     getBlockByKey();
-
+    getBlockByKeyMission();
     getPageByKey();
   }, [dispatch]);
 
@@ -75,8 +78,8 @@ function HomePageClientSide() {
     <>
       <GeneralSlider slides={slides} />
       <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} />
-      <OurMission />
-      {ourPartners && <Sponsors ourPartners={ourPartners} />}
+      <OurMission ourMission={ourMission?.contentBlocks ?? []} />
+      {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}
       <Programs />
       <JoinCommunity joinUs={joinUs} />
       <Partners ourPartnersContent={ourPartnersContent} />
