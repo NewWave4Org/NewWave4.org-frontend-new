@@ -1,31 +1,30 @@
-# ---- Dependencies stage ----
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
+
 RUN npm ci
 
-# ---- Builder stage ----
+# ---- builder ----
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy node_modules from deps
+# Copy node_modules with dev deps available for the build
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy source code
+# Copy source
 COPY . .
 
 # Copy .env from root
 COPY .env .env
 
-# Build Next.js app
+# Build (lint/type checks should be ignored in next.config.*)
 RUN npm run build
 
-# ---- Runner stage (production) ----
+# ---- runner (prod) ----
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install only production dependencies
+# Install ONLY prod deps for a slim runtime
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev && npm cache clean --force
 
