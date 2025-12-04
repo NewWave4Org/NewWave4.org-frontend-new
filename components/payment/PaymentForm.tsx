@@ -100,7 +100,6 @@ const PaymentForm = () => {
     { setSubmitting, resetForm }: any,
   ) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
-    console.log(values, purpose?.label);
     localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }))
     setAmount(values.amount);
     setPaymentDetails({

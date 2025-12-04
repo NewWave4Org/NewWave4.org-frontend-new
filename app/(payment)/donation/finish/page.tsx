@@ -18,7 +18,6 @@ const FinishPage = () => {
 
   const saveformData = async (datajson: any) => {
     try {
-      console.log(datajson);
       const data = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/save-donation`, {
         method: "POST",
         headers: {
@@ -47,7 +46,7 @@ const FinishPage = () => {
   useEffect(() => {
     if (!!datafromlocal && Object.keys(datafromlocal).length > 0) {
       saveformData(datafromlocal)
-        .then((res) => console.log(res))
+        .then()
         .catch((err) => console.warn(err));
     } else {
       router.push("/donation")
