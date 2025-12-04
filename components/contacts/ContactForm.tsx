@@ -11,6 +11,7 @@ import {
   nameValidation,
   phoneValidation,
 } from '@/utils/validation';
+import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -100,6 +101,20 @@ interface ContactFormProps {
 const ContactForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
 
+  const handleSubmitContactForm = async (values: any) => {
+    try {
+      const res = await axiosOpenInstance.post('/mail/contact', {
+        name: values.name,
+        email: values.email,
+        phone: values.tel,
+        description: values.message,
+      });
+      return await res.data;
+    } catch (error) {
+      return error
+    }
+  }
+
   const ContactFormikWrapper = withFormik<
     ContactFormProps,
     InnerContactFormValues
@@ -116,7 +131,15 @@ const ContactForm = () => {
     validationSchema: validationSchema,
 
     handleSubmit: (values, { setSubmitting, resetForm, props }) => {
-      props.onOpenModal();
+      console.log(values);
+      handleSubmitContactForm(values).then((res) => {
+        if (res) {
+          console.log(res);
+          props.onOpenModal();
+        }
+      }).catch((err) => {
+        console.warn(err);
+      })
       setSubmitting(false);
       resetForm();
     },
