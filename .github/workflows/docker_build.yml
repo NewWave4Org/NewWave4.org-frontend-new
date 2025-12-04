@@ -5,14 +5,14 @@ on:
   push:
     branches:
       - main
-      - "feature-*"
-      - "feature/*"
-      - "fix-*"
+      - 'feature-*'
+      - 'feature/*'
+      - 'fix-*'
   pull_request:
     branches:
-      - "feature-*"
-      - "feature/*"
-      - "fix-*"
+      - 'feature-*'
+      - 'feature/*'
+      - 'fix-*'
 
 jobs:
   build:
@@ -88,7 +88,3 @@ jobs:
           tags: |
             ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
             ghcr.io/${{ env.ORG }}/newwave4-frontend:latest
-          build-args: |
-            NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
-            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
-            NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
