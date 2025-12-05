@@ -7,26 +7,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'small' | 'medium' | 'large';
 }
 
-const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = 'primary',
-  size = 'large',
-  className = '',
-  ...props
-}) => {
-  let buttonStyle =
-    'rounded-lg focus:outline-none disabled:cursor-not-allowed w-fit md:text-nowrap ';
+const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', size = 'large', className = '', ...props }) => {
+  let buttonStyle = 'rounded-lg focus:outline-none disabled:cursor-not-allowed w-fit md:text-nowrap ';
 
   // Type styles
   if (variant === 'primary') {
-    buttonStyle +=
-      'bg-buttons-cta-active text-font-primary hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white disabled:bg-icons-grey disabled::text-font-white ';
+    buttonStyle += 'bg-primary-50 text-font-white duration-500 hover:bg-buttons-cta-hover active:bg-buttons-cta-active active:text-font-white disabled:bg-icons-grey disabled::text-font-white ';
   } else if (variant === 'secondary') {
     buttonStyle +=
       'border border-solid border-primary-500 text-primary-500 hover:bg-primary-400 hover:border-0 hover:text-font-white active:bg-primary-500 active:text-font-white disabled:bg-icons-grey disabled::text-font-white ';
   } else if (variant === 'tertiary') {
-    buttonStyle +=
-      'bg-transparent text-primary-500 hover:text-primary-700 active:text-primary-700 disabled:text-icons-grey ';
+    buttonStyle += 'bg-transparent text-primary-500 hover:text-primary-700 active:text-primary-700 disabled:text-icons-grey ';
   }
 
   // Size styles
