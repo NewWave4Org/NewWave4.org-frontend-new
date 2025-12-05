@@ -9,8 +9,6 @@ import { stateToHTML } from 'draft-js-export-html';
 export function convertDraftToHTML(rawState: any): string {
   if (!rawState) return '';
 
-  console.log('rawState', rawState);
-
   const options = {
     inlineStyles: {
       HIGHLIGHT: {

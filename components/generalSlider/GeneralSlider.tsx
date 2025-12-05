@@ -30,10 +30,18 @@ interface GeneralSliderProps {
 
 const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4000, loop = true, showArrows = true, showDots = true, slideHover = true, className = '' }) => {
   const slideCount = slides.length;
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: loop, align: slideCount == 2 ? 'start' : 'center' }, [Autoplay({ playOnInit: true, delay: autoplayDelay })]);
+
+  const autoplayOptions = {
+    delay: autoplayDelay,
+    playOnInit: true,
+  };
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: loop, align: slideCount == 2 ? 'start' : 'center' }, [Autoplay(autoplayOptions)]);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const initSlider = slides.length > 1;
+
+  const autoplay = emblaApi?.plugins()?.autoplay;
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -43,6 +51,18 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
     emblaApi.on('select', onSelect);
     onSelect();
   }, [emblaApi]);
+
+  const onMouseEnter = useCallback(() => {
+    if (autoplay) {
+      autoplay.stop();
+    }
+  }, [autoplay]);
+
+  const onMouseLeave = useCallback(() => {
+    if (autoplay) {
+      autoplay.play();
+    }
+  }, [autoplay]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -91,7 +111,13 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
             );
 
             return (
-              <div key={index} className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} mr-4`} style={{ '--slide-size': slideSize } as React.CSSProperties}>
+              <div
+                key={index}
+                className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} mr-4`}
+                style={{ '--slide-size': slideSize } as React.CSSProperties}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              >
                 {typeof slide.link === 'string' && slide.link.trim() !== '' ? <Link href={slide.link}>{slideContent}</Link> : slideContent}
               </div>
             );

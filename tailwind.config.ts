@@ -2,12 +2,7 @@ import type { Config } from 'tailwindcss';
 
 export default {
   mode: 'jit',
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./pages/**/*.{js,ts,jsx,tsx,mdx}', './components/**/*.{js,ts,jsx,tsx,mdx}', './components/*.{js,ts,jsx,tsx,mdx}', './app/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       animation: {
@@ -162,6 +157,9 @@ export default {
         ],
       },
       colors: {
+        skyBlue: {
+          300: '#F3F7FF',
+        },
         grey: {
           50: '#FAFAFA',
           100: '#F4F4F4',
@@ -173,6 +171,7 @@ export default {
           700: '#5A5A5A',
         },
         primary: {
+          50: '#3098EF',
           100: '#D4E3F9',
           200: '#A4C2EC',
           300: '#789BDA',
@@ -202,8 +201,9 @@ export default {
         },
         buttons: {
           cta: {
-            active: '#D4A017',
-            hover: '#C49415',
+            default: '#3098ef',
+            active: '#1F396E',
+            hover: '#186ABF',
           },
           secondary: {
             active: '#2D4A8F',
