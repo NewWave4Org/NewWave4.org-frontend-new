@@ -48,7 +48,7 @@ export default function RootLayout({
       <body className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}>
         <ReduxProvider>
           <Header />
-          <main className="flex-1 overflow-hidden">{children}</main>
+          <main className="flex-1 overflow-hidden pt-[96px]">{children}</main>
           <Subscribe />
           <Footer />
         </ReduxProvider>

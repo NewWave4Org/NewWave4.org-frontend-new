@@ -96,7 +96,7 @@ function PartnersForm() {
                 label="Add photo"
                 classBlock="min-h-[300px]"
                 uploadedUrls={values.contentBlocks[0].files || []}
-                positionBlockImg={true}
+                previewSize={300}
                 onFilesChange={files => setFieldValue('contentBlocks[0].files', files)}
               />
             </div>

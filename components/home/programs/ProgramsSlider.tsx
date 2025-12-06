@@ -90,25 +90,35 @@ const ProgramsSlider = () => {
   };
 
   return (
-    <div className="relative w-full max-w-[969px] h-[535px] mx-auto flex items-center justify-center">
-      {isMobile && (
-        <button className="slide-btn left-0" onClick={scrollPrev}>
-          <ArrowLeft4Icon size="32" color="#fafafa" />
-        </button>
-      )}
-      <div className="relative flex justify-center items-center w-full h-full rounded-lg">
-        {slidesData.map((slide, index) => (
-          <div key={slide.id} className={`absolute w-[360px] rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`} onClick={() => setCurrentIndex(index)}>
-            <ProgramCard key={index} slide={slide} index={index} handleDetailsBtnClick={handleDetailsBtnClick} handleDonateBtnClick={handleDonateBtnClick} />
-          </div>
-        ))}
+    <>
+      <div className="relative w-full max-w-[969px] h-[535px] mx-auto flex items-center justify-center">
+        {isMobile && (
+          <button className="slide-btn left-0" onClick={scrollPrev}>
+            <ArrowLeft4Icon size="32" color="#fafafa" />
+          </button>
+        )}
+        <div className="relative flex justify-center items-center w-full h-full rounded-lg">
+          {slidesData.map((slide, index) => (
+            <div key={slide.id} className={`absolute w-[360px] rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`} onClick={() => setCurrentIndex(index)}>
+              <ProgramCard key={index} slide={slide} index={index} handleDetailsBtnClick={handleDetailsBtnClick} handleDonateBtnClick={handleDonateBtnClick} />
+            </div>
+          ))}
+        </div>
+        {isMobile && (
+          <button className="slide-btn right-0 flex justify-center items-center" onClick={scrollNext}>
+            <ArrowRight4Icon size="32" color="#fafafa" />
+          </button>
+        )}
       </div>
-      {isMobile && (
-        <button className="slide-btn right-0 flex justify-center items-center" onClick={scrollNext}>
-          <ArrowRight4Icon size="32" color="#fafafa" />
-        </button>
-      )}
-    </div>
+
+      <div className="mt-14 flex  justify-center">
+        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6">
+          {slidesData?.map((_, index) => (
+            <div key={index} className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-50'}`} />
+          ))}
+        </div>
+      </div>
+    </>
   );
 };
 

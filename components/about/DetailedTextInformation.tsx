@@ -1,4 +1,3 @@
-import React, { JSX } from 'react';
 import { prefix } from '@/utils/prefix';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 

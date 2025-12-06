@@ -36,8 +36,11 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ slide, index, handleDetailsBt
             </span>
           </Button>
         </div>
-        <Button size="large" className="flex justify-self-center" onClick={handleDonateBtnClick}>
+        <Button size="large" className="flex justify-self-center items-center custom-donate-btn" onClick={handleDonateBtnClick}>
           Donate
+          <span className="ml-2 duration-500">
+            <Image src="icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+          </span>
         </Button>
       </div>
     </div>
