@@ -61,7 +61,7 @@ body {
     @apply hidden
   }
   .headerShowMobile {
-    @apply bg-[#FFFFFF99] backdrop-blur-[18.6px] px-12 py-4 rounded-[20px] shadow-header fixed top-[130px] w-full left-[15px] block transition-all duration-300 z-[999] max-w-[calc(100%-30px)];
+    @apply bg-white px-12 py-4 rounded-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
   }
 
   /* Menu */
@@ -289,6 +289,17 @@ body {
 @media (min-width: 1024px) {
   .home-general-section {
     height: calc(100dvh - 96px);
+  }
+  
+}
+
+@media(max-width: 1023px) {
+  .embla-slide {
+    width: 100%;
+    flex:  0 0 100%;;
+  }
+  .home-general-section .embla-slide-btn {
+    display: none;
   }
 }
 

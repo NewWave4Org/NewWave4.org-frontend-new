@@ -71,7 +71,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
     slides.length === 2
       ? 'w-full flex-1 flex-shrink-0' // 2 full width
       : initSlider
-      ? 'w-[824px]' // 3+ slide
+      ? 'md:w-[824px]' // 3+ slide
       : 'w-full flex-1 flex-shrink-0';
 
   const slideSize = slides.length === 2 ? '100%' : '824px';
@@ -91,7 +91,6 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
                 <div
                   className="
                     absolute h-full w-full rounded-xl
-                    backdrop-blur-[18.6px]
                     shadow-[inset_0_0_68px_0_rgba(255,255,255,0.05),inset_0_0_4px_0_rgba(255,255,255,0.15)]
                     bg-[rgba(0,0,0,0.5)]
                     opacity-0
@@ -102,7 +101,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
                     group-hover/slide:visible
                   "
                 >
-                  <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-full justify-end">
+                  <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end">
                     <div className="text-white text-h4 mb-4 font-ebGaramond">{slide.title}</div>
                     <div className="text-grey-200 line-clamp-2" dangerouslySetInnerHTML={{ __html: slideDescriptionText }} />
                   </div>
