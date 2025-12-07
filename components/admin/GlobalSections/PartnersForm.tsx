@@ -20,7 +20,7 @@ interface IPartnersFormValues {
 
 const defaultFormValues = {
   title: 'Our partners',
-  key: GlobalSectionsType.OUR_PARTNERS,
+  pageType: GlobalSectionsType.OUR_PARTNERS,
   contentBlocks: [{ contentBlockType: 'PARTNERS', files: [] }],
 };
 
