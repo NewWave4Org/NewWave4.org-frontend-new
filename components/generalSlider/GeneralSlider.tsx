@@ -90,11 +90,11 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
 
                 <div
                   className="
-                    absolute h-full w-full rounded-xl
+                    absolute bottom-0 lg:h-full w-full rounded-xl
                     shadow-[inset_0_0_68px_0_rgba(255,255,255,0.05),inset_0_0_4px_0_rgba(255,255,255,0.15)]
                     bg-[rgba(0,0,0,0.5)]
-                    opacity-0
-                    invisible
+                    lg:opacity-0
+                    lg:invisible visible
                     transition-all
                     duration-300
                     group-hover/slide:opacity-100
@@ -114,8 +114,8 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
                 key={index}
                 className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} mr-4`}
                 style={{ '--slide-size': slideSize } as React.CSSProperties}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
+                onMouseEnter={slideHover ? onMouseEnter : undefined}
+                onMouseLeave={slideHover ? onMouseLeave : undefined}
               >
                 {typeof slide.link === 'string' && slide.link.trim() !== '' ? <Link href={slide.link}>{slideContent}</Link> : slideContent}
               </div>
