@@ -20,7 +20,7 @@ interface IMissionFormValues {
 
 const defaultFormValues = {
   title: 'Our mission',
-  key: GlobalSectionsType.OUR_MISSION,
+  pageType: GlobalSectionsType.OUR_MISSION,
   contentBlocks: [
     { id: uuid(), contentBlockType: 'MISSION_BLOCK_1', title: '', description: '', editorState: '' },
     { id: uuid(), contentBlockType: 'MISSION_BLOCK_2', title: '', description: '', editorState: '' },

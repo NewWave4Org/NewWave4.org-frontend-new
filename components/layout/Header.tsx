@@ -5,6 +5,7 @@ import Logo from '@/components/layout/Logo';
 import Menu from './Menu';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 const Header = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -37,31 +38,36 @@ const Header = () => {
 
   return (
     <>
-      <header className={` header header-position ${isMenuShow ? 'menuOpen' : ''}`}>
-        <Logo />
-        {!isMobile && (
-          <div className={`flex items-center justify-between flex-1`}>
-            <div className="mx-auto">
-              <Menu />
+      <header className={`header  ${isMenuShow ? 'menuOpen' : ''}`}>
+        <div className="header__inner">
+          <Logo />
+          {!isMobile && (
+            <div className={`flex items-center justify-between flex-1`}>
+              <div className="mx-auto">
+                <Menu />
+              </div>
+              <div className="flex items-center lg:order-2 gap-x-4">
+                <button type="button" className="language-btn bg-white/60 rounded-lg">
+                  UA
+                  <ArrowDown4Icon size="16" color="#0F1B40" />
+                </button>
+                <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
+                  Donate
+                  <span className="ml-2 duration-500 w-[26px]">
+                    <Image src="icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                  </span>
+                </Link>
+              </div>
             </div>
-            <div className="flex items-center lg:order-2 gap-x-4">
-              <button type="button" className="language-btn bg-white/60 rounded-lg">
-                UA
-                <ArrowDown4Icon size="16" color="#0F1B40" />
-              </button>
-              <Link href="/donation" className="donate-btn">
-                Donate
-              </Link>
+          )}
+          {isMobile && (
+            <div className={`hamburger hamburger--squeeze ${isActive ? 'is-active' : ''}`} onClick={handleToggleMenu}>
+              <span className="hamburger-box">
+                <div className="hamburger-inner"></div>
+              </span>
             </div>
-          </div>
-        )}
-        {isMobile && (
-          <div className={`hamburger hamburger--squeeze ${isActive ? 'is-active' : ''}`} onClick={handleToggleMenu}>
-            <span className="hamburger-box">
-              <div className="hamburger-inner"></div>
-            </span>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       {isMobile && (
@@ -72,8 +78,11 @@ const Header = () => {
               UA
               <ArrowDown4Icon size="16" color="#0F1B40" />
             </button>
-            <Link href="/donation" className="donate-btn">
+            <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
               Donate
+              <span className="ml-2 flex-1 duration-500  w-[26px]">
+                <Image src="icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+              </span>
             </Link>
           </div>
         </div>
