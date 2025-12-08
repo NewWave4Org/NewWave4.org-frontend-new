@@ -9,12 +9,13 @@ interface IOurPartners {
 
 interface PartnersProps {
   ourPartnersContent: IOurPartners;
+  className?: string;
 }
 
-const Partners: React.FC<PartnersProps> = ({ ourPartnersContent }) => {
+const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) => {
   const partnerDescriptionText = convertDraftToHTML(ourPartnersContent?.editorState);
   return (
-    <section className="sponsors">
+    <section className={`${className} sponsors py-14`}>
       <div className="container mx-auto px-4">
         <div className="sponsors__inner">
           <h4 className="preheader !text-font-primary">Стати партнером</h4>

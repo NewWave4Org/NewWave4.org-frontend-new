@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';
 import GeneralSlider from '../generalSlider/GeneralSlider';
 import WhoWeAre from './WhoWeAre';
-import OurMission from './OurMission';
 import Sponsors from './Sponsors';
 import Programs from './programs/Programs';
 import JoinCommunity from './JoinCommunity';
@@ -23,7 +22,6 @@ function HomePageClientSide() {
   const dispatch = useAppDispatch();
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
   const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
-  const [ourMission, setOurMission] = useState<IGlobalSectionsResponseDTO | null>(null);
 
   const slides = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'SLIDER') || [];
   const homeTitle = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
@@ -57,34 +55,22 @@ function HomePageClientSide() {
       }
     }
 
-    async function getBlockByKeyMission() {
-      try {
-        const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_MISSION)).unwrap();
-
-        setOurMission(result);
-      } catch (error: any) {
-        console.log('error', error);
-        toast.error('Failed to fetch our mission');
-        setOurMission(null);
-      }
-    }
-
     getBlockByKey();
-    getBlockByKeyMission();
     getPageByKey();
   }, [dispatch]);
 
   return (
     <>
-      <GeneralSlider slides={slides} />
-      <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} />
-      <OurMission ourMission={ourMission?.contentBlocks ?? []} />
-      {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}
+      <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 mb-5">
+        <GeneralSlider slides={slides} className="lg:h-1/2 mb-5 lg:px-0 px-4" />
+        <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} className="lg:h-1/2" />
+      </section>
       <Programs />
+      <NewsEvents link="/news" className="lg:py-10 py-5" />
       <JoinCommunity joinUs={joinUs} />
-      <Partners ourPartnersContent={ourPartnersContent} />
+      <Partners ourPartnersContent={ourPartnersContent} className="lg:py-10 py-5" />
+      {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}
       <HomeVideo videoUrl={videoUrl} />
-      <NewsEvents link="/news" />
     </>
   );
 }

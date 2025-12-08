@@ -42,17 +42,17 @@ body {
   /* Header */
 
   .header {
-    @apply flex justify-between items-center mx-auto w-full lg:max-w-[1344px] max-w-[calc(100%-30px)] md:px-12 px-5 py-4 rounded-[20px] bg-[#FFFFFF99] backdrop-blur-[18.6px] ;
+    @apply md:px-12 p-4 bg-[#FFF] fixed w-full left-0 z-50;
+  }
+  .header__inner {
+    @apply flex justify-between items-center mx-auto w-full lg:max-w-[1344px] max-w-[calc(100%-30px)]
   }
   /* .header.menuOpen {
     @apply rounded-b-none
   } */
   
-  .header-position {
-    @apply fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6;
-  }
   .donate-btn {
-    @apply bg-buttons-cta-active hover:bg-buttons-cta-hover active:bg-primary-700 active:text-font-white text-medium1 text-font-primary font-helv rounded-lg px-[84.5px] py-4;
+    @apply bg-buttons-cta-default hover:bg-buttons-cta-hover active:bg-buttons-cta-active duration-500 text-font-white text-medium1 font-helv rounded-lg px-[84.5px] py-4;
   }
   .language-btn {
     @apply text-font-primary inline-flex w-full items-center gap-x-2 p-4 text-sm font-helv text-medium1;
@@ -61,7 +61,7 @@ body {
     @apply hidden
   }
   .headerShowMobile {
-    @apply bg-[#FFFFFF99] backdrop-blur-[18.6px] px-12 py-4 rounded-[20px] shadow-header fixed top-[130px] w-full left-[15px] block transition-all duration-300 z-[999] max-w-[calc(100%-30px)];
+    @apply bg-white px-12 py-4 rounded-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
   }
 
   /* Menu */
@@ -131,7 +131,7 @@ body {
   /* Sponsors */
 
   .sponsors__inner {
-    @apply flex flex-col gap-y-10 py-14;
+    @apply flex flex-col gap-y-10;
   }
   .sponsors-logos {
     @apply flex items-center justify-center gap-x-20;
@@ -284,6 +284,29 @@ body {
 .projectsBlock__content ol {
   list-style: auto;
   padding-left: 20px;
+}
+
+@media (min-width: 1024px) {
+  .home-general-section {
+    height: calc(100dvh - 96px);
+  }
+  
+}
+
+@media(max-width: 1023px) {
+  .embla-slide {
+    width: 100%;
+    flex:  0 0 100%;;
+  }
+  .home-general-section .embla-slide-btn {
+    display: none;
+  }
+}
+
+
+.custom-donate-btn:hover span {
+  transition: filter 0.5s ease;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 1));
 }
 /* List */
 
