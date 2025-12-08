@@ -77,7 +77,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
   const slideSize = slides.length === 2 ? '100%' : '824px';
 
   return (
-    <div className={`${className} relative embla h-[370px] group/arrows`}>
+    <div className={`${className} relative embla lg:h-[370px] h-[420px] group/arrows`}>
       <div className="overflow-hidden h-full" ref={initSlider ? emblaRef : null}>
         <div className={`${initSlider ? 'flex' : 'block'} h-full`}>
           {slides?.map((slide, index) => {
@@ -90,9 +90,10 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
 
                 <div
                   className="
-                    absolute bottom-0 lg:h-full w-full rounded-xl
-                    shadow-[inset_0_0_68px_0_rgba(255,255,255,0.05),inset_0_0_4px_0_rgba(255,255,255,0.15)]
-                    bg-[rgba(0,0,0,0.5)]
+                    absolute bottom-0 h-full w-full rounded-xl
+                    
+                    lg:bg-[rgba(0,0,0,0.5)]
+                    bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.87)_80%,rgba(0,0,0,1)_100%)]
                     lg:opacity-0
                     lg:invisible visible
                     transition-all
@@ -102,8 +103,8 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
                   "
                 >
                   <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end">
-                    <div className="text-white text-h4 mb-4 font-ebGaramond">{slide.title}</div>
-                    <div className="text-grey-200 line-clamp-2" dangerouslySetInnerHTML={{ __html: slideDescriptionText }} />
+                    <div className="text-white text-base font-medium mb-1">{slide.title}</div>
+                    <div className="text-grey-200 line-clamp-2 text-xs" dangerouslySetInnerHTML={{ __html: slideDescriptionText }} />
                   </div>
                 </div>
               </div>
@@ -112,7 +113,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
             return (
               <div
                 key={index}
-                className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} mr-4`}
+                className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} md:mr-4 mr-0`}
                 style={{ '--slide-size': slideSize } as React.CSSProperties}
                 onMouseEnter={slideHover ? onMouseEnter : undefined}
                 onMouseLeave={slideHover ? onMouseLeave : undefined}

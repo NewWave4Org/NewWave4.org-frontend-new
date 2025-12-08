@@ -22,6 +22,11 @@ body {
   }
 }
 
+*,
+*:focus-visible {
+  outline: none !important;
+}
+
 
 @media (width >= 1536px) {
   .container {
@@ -308,6 +313,7 @@ body {
   transition: filter 0.5s ease;
   filter: drop-shadow(0 0 14px rgba(255, 255, 255, 1));
 }
+
 /* List */
 
 @layer utilities {
