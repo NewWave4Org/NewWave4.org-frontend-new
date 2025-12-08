@@ -11,7 +11,7 @@ import useHandleThunk from '@/utils/useHandleThunk';
 
 interface IPartnersFormValues {
   title: string;
-  key: string;
+  pageType: string;
   contentBlocks: {
     contentBlockType: string;
     files: any[];
@@ -36,7 +36,7 @@ function PartnersForm() {
 
   const initialValues = {
     title: 'Our partners',
-    key: GlobalSectionsType.OUR_PARTNERS,
+    pageType: GlobalSectionsType.OUR_PARTNERS,
     contentBlocks: ourPartners?.contentBlocks && ourPartners?.contentBlocks.length ? ourPartners?.contentBlocks : defaultFormValues.contentBlocks,
   };
 

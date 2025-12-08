@@ -111,7 +111,7 @@ const ProgramsSlider = () => {
         )}
       </div>
 
-      <div className="mt-14 flex  justify-center">
+      <div className="mt-10 flex  justify-center">
         <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6">
           {slidesData?.map((_, index) => (
             <div key={index} className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-50'}`} />
