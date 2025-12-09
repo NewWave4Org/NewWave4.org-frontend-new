@@ -71,6 +71,7 @@ const PaymentForm = () => {
           name,
           amount: calculatedAmount,
           description: purpose?.label,
+          email: paymentDetails.email
         },
       );
       /**
@@ -98,9 +99,11 @@ const PaymentForm = () => {
     values: any,
     { setSubmitting, resetForm }: any,
   ) => {
-    setAmount(values.amount);
     const purpose = purposeOptions.find(item => item.value === values.purpose);
+    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }))
+    setAmount(values.amount);
     setPaymentDetails({
+      email: values?.email,
       description: purpose?.label,
     });
     if (values.paymentMethod === 'paypal') {
