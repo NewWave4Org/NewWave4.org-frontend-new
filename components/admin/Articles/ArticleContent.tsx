@@ -47,7 +47,7 @@ interface ArticleContentDTO {
   mainPhoto: string[];
   photosList?: string[];
   sliderPhotos?: string[];
-  customCreationDate?: any;
+  dateOfWriting?: any;
 }
 
 interface ProjectOption {
@@ -197,13 +197,13 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     try {
       if (articleId) {
         // console.log('date to update');
-        // console.log(values.customCreationDate);
+        // console.log(values.dateOfWriting);
         await dispatch(
           updateArticle({
             id: articleId,
             data: {
               title: values.title,
-              customCreationDate: convertToISO(values.customCreationDate),
+              dateOfWriting: convertToISO(values.dateOfWriting),
               articleType,
               authorId: Number(values.authorId),
               relevantProjectId: Number(values.relevantProjectId),
@@ -285,8 +285,8 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
             initialValues={{
               title: article?.title || '',
               articleType: articleType,
-              customCreationDate: article?.customCreationDate
-                ? convertFromISO(article.customCreationDate)
+              dateOfWriting: article?.dateOfWriting
+                ? convertFromISO(article.dateOfWriting)
                 : convertFromISO(new Date()),
               authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
               relevantProjectId: article?.relevantProjectId,
@@ -339,13 +339,32 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
               errors,
               touched,
               handleChange,
+              handleSubmit,
+              validateForm,
               isSubmitting,
               dirty,
               values,
               setFieldValue,
               setFieldTouched,
             }) => (
-              <Form>
+              <Form
+                onSubmit={async e => {
+                  e.preventDefault();
+                  const formErrors = await validateForm();
+
+                  if (Object.keys(formErrors).length > 0) {
+                    Object.keys(formErrors).forEach(field =>
+                      setFieldTouched(field, true),
+                    );
+                    toast.error(
+                      'Please fix validation errors highlighted in the form.',
+                    );
+                    return;
+                  }
+
+                  handleSubmit();
+                }}
+              >
                 <div className="mb-5">
                   <Input
                     required
@@ -391,12 +410,12 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                     Choose the creation date
                   </div>
                   <DatePicker
-                    name="customCreationDate"
-                    pickerId="project-creationDate"
+                    name="dateOfWriting"
+                    pickerId="article-creationDate"
                     pickerWithTime={false}
                     pickerType="single"
                     pickerPlaceholder="Choose date"
-                    pickerValue={values?.customCreationDate}
+                    pickerValue={values?.dateOfWriting}
                   />
                 </div>
 
