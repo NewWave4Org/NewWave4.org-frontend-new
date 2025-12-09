@@ -25,6 +25,7 @@ export interface GetArticleByIdResponseDTO {
   title: string;
   views: number;
   relevantProjectId?: number;
+  customCreationDate: string;
 }
 
 export interface CreateNewArticleRequestDTO {
@@ -95,6 +96,7 @@ export interface UpdateArticleRequestDTO {
     authorId?: number;
     contentBlocks: any[] | null;
     relevantProjectId?: number;
+    customCreationDate?: any;
   };
 }
 export interface UpdateArticleResponseDTO {

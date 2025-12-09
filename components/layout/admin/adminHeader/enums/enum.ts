@@ -12,9 +12,11 @@ const adminLinkSidebar = {
   ADMIN_USERS: '/admin/users',
   ADMIN_PAGES: '/admin/pages',
   ADMIN_ARTICLES: '/admin/articles',
+  ADMIN_EVENTS: '/admin/events',
   ADMIN_PROJECTS: '/admin/projects',
   ADMIN_PROGRAMS: '/admin/programs',
   ADMIN_ARCHIVE: '/admin/archive',
+  ADMIN_GLOBAL_SECTIONS: '/admin/global-sections',
 } as const;
 
 type adminLinkSidebar = (typeof adminLinkSidebar)[keyof typeof adminLinkSidebar];

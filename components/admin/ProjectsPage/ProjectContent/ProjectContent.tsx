@@ -2,7 +2,7 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 import { toast } from 'react-toastify';
@@ -21,6 +21,10 @@ import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { useUsers } from '@/utils/hooks/useUsers';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
+import DatePicker from '../../helperComponents/DatePicker/DatePicker';
+import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
+import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
+import { v4 as uuid } from 'uuid';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -28,6 +32,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
+  customCreationDate: any;
 }
 
 const validationSchema = Yup.object({
@@ -42,32 +47,29 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
-  const [editorKey, setEditorKey] = useState('');
-  const [editorStates, setEditorStates] = useState<Record<number, EditorState>>({});
+
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
   useEffect(() => {
-    if (project?.authorId) {
-      setDefaultAuthorId(project.authorId);
-    } else if (currentAuthor?.id) {
-      setDefaultAuthorId(currentAuthor.id);
-    }
+    setDefaultAuthorId(project?.authorId ?? currentAuthor?.id);
   }, [project?.authorId, currentAuthor]);
 
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+    customCreationDate: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
-      { contentBlockType: 'VIDEO', videoUrl: '' },
-      { contentBlockType: 'QUOTE', text: '', editorState: null },
-      { contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
-      { contentBlockType: 'TYPE_SOCIAL_MEDIA', typeSocialMedia: '' },
-      { contentBlockType: 'LINK_TO_SOCIAL_MEDIA', socialMediaUrl: '' },
-      { contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
+      { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
+      { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
+      { id: uuid(), contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
+      { id: uuid(), contentBlockType: 'SOCIAL_MEDIA', typeSocialMedia: '', socialMediaUrl: '' },
+      { id: uuid(), contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
     ],
   };
 
@@ -80,34 +82,44 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const result = await dispatch(
           getArticleById({
             id: projectId,
-            articleType: ArticleTypeEnum.PROJECT,
           }),
         ).unwrap();
-        setProject(result);
 
-        if (!result?.contentBlocks) return;
+        const editors: Record<string, EditorState> = {};
+        const keys: Record<string, string> = {};
 
-        const initialEditors: Record<number, EditorState> = {};
+        const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
+          ...block,
+          id: block.id ?? uuid(),
+        }));
 
-        result.contentBlocks.forEach((block, index) => {
-          if (block.text || block.editorState) {
-            try {
-              if (block.editorState) {
-                const content = convertFromRaw(block.editorState);
-                initialEditors[index] = EditorState.createWithContent(content);
-              } else {
-                initialEditors[index] = EditorState.createEmpty();
-              }
-            } catch (err: any) {
-              console.log('err', err);
-              initialEditors[index] = EditorState.createEmpty();
+        blocksWithId.forEach((block, index) => {
+          let editor;
+
+          try {
+            if (block.editorState) {
+              const content = convertFromRaw(block.editorState);
+              editor = EditorState.createWithContent(content);
+            } else {
+              editor = EditorState.createEmpty();
             }
+          } catch (err: any) {
+            console.log('err', err);
+            editor = EditorState.createEmpty();
           }
+
+          editors[block.id] = editor;
+          keys[block.id] = `${block.id}-init`;
         });
 
-        setEditorStates(initialEditors);
+        setEditorStates(editors);
 
-        setEditorKey(prev => prev + 1);
+        setEditorKey(keys);
+
+        setProject({
+          ...result,
+          contentBlocks: blocksWithId,
+        });
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch project');
@@ -118,8 +130,15 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   //Action for Save the project
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+    let payload = { ...values };
+
+    payload = {
+      ...values,
+      customCreationDate: convertToISO(values.customCreationDate),
+    };
+
     try {
-      const result = await handleThunk(updateArticle, { id: projectId, data: values }, setSubmitError);
+      const result = await handleThunk(updateArticle, { id: projectId, data: payload }, setSubmitError);
       setProject(result);
 
       if (result) {
@@ -145,10 +164,15 @@ function ProjectContent({ projectId }: { projectId: number }) {
     }
   }
 
-  const handleEditorChange = (index: number, newState: EditorState, setFieldValue: any) => {
-    setEditorStates(prev => ({ ...prev, [index]: newState }));
+  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+    setEditorStates(prev => ({ ...prev, [id]: newState }));
+
     const content = newState.getCurrentContent();
     const raw = convertToRaw(content);
+
+    const index = values.contentBlocks.findIndex(block => block.id === id);
+
+    if (index === -1) return;
 
     setFieldValue(`contentBlocks.${index}.editorState`, raw);
     setFieldValue(`contentBlocks.${index}.text`, content.getPlainText());
@@ -161,6 +185,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+          customCreationDate: project?.customCreationDate || defaultFormValues.customCreationDate,
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
@@ -187,6 +212,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
             </div>
 
             <div className="mb-5">
+              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
+            </div>
+
+            <div className="mb-5">
               <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
             </div>
 
@@ -195,144 +225,120 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
                 const additionalBlocks = values.contentBlocks?.slice(6) || [];
 
-                // const editorState = editorStates[index] || EditorState.createEmpty();
-
                 return (
                   <div className="mb-5">
-                    {/* Base block */}
-                    <div className="mb-4">
-                      {initialBlocks[0]?.contentBlockType === 'VIDEO' && (
-                        <Input
-                          id="contentBlocks.0.videoUrl"
-                          name="contentBlocks.0.videoUrl"
-                          label="Video link"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                          value={initialBlocks[0].videoUrl}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      {/* {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
-                        <TextArea
-                          id="contentBlocks.1.text"
-                          name="contentBlocks.1.text"
-                          label="Quote text"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[200px] px-5 rounded-lg !ring-0 !max-w-full"
-                          value={initialBlocks[1].text}
-                          onChange={handleChange}
-                        />
-                      )} */}
-                      {initialBlocks[1]?.contentBlockType === 'QUOTE' && (
-                        <div>
-                          <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
-                          <TextEditor
-                            // value={quoteEditorState}
-                            key={editorKey}
-                            // resetKey={projectId}
-                            // onChange={newState => {
-                            //   setQuoteEditorState(newState);
-                            //   const content = newState.getCurrentContent();
-                            //   const rawContent = convertToRaw(content);
-
-                            //   setFieldValue(`contentBlocks.1.editorState`, rawContent);
-                            //   setFieldValue(`contentBlocks.1.text`, content.getPlainText());
-                            // }}
-                            value={editorStates[1] || EditorState.createEmpty()}
-                            onChange={newState => handleEditorChange(1, newState, setFieldValue)}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      {initialBlocks[2]?.contentBlockType === 'LINK_TO_SITE' && (
-                        <Input
-                          id="contentBlocks.2.siteUrl"
-                          name="contentBlocks.2.siteUrl"
-                          label="Link to web-site"
-                          labelClass="!text-admin-700"
-                          className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                          value={initialBlocks[2].siteUrl}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </div>
-
-                    <div className="flex gap-4">
-                      <div className="w-1/2 mb-4">
-                        {initialBlocks[3]?.contentBlockType === 'TYPE_SOCIAL_MEDIA' && (
-                          <Select
-                            label="Change type social media (if needed)"
-                            adminSelectClass={true}
-                            name="contentBlocks.3.typeSocialMedia"
-                            labelClass="!text-admin-700"
-                            placeholder="Media types"
-                            onChange={handleChange}
-                            options={typeSocialMediaList}
-                            parentClassname="h-[70px]"
-                          />
-                        )}
-                      </div>
-
-                      <div className="w-1/2 mb-4">
-                        {initialBlocks[4]?.contentBlockType === 'LINK_TO_SOCIAL_MEDIA' && (
-                          <Input
-                            id="contentBlocks.4.socialMediaUrl"
-                            name="contentBlocks.4.socialMediaUrl"
-                            label="Link to social media"
-                            labelClass="!text-admin-700"
-                            className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                            value={initialBlocks[4].socialMediaUrl}
-                            onChange={handleChange}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4 mb-4">
-                      {/* TEXT block */}
-                      {initialBlocks[5]?.contentBlockType === 'SECTION' && (
-                        <>
-                          <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                    {/* Base blocks */}
+                    {initialBlocks.map(block => {
+                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                      return (
+                        <React.Fragment key={block.id}>
+                          {block?.contentBlockType === 'VIDEO' && (
                             <div className="mb-4">
                               <Input
-                                onChange={handleChange}
-                                id="contentBlocks.5.sectionTitle"
-                                name="contentBlocks.5.sectionTitle"
-                                type="text"
-                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                value={initialBlocks[5].sectionTitle}
-                                label="Section title"
+                                id={`contentBlocks.${blockIndex}.videoUrl`}
+                                name={`contentBlocks.${blockIndex}.videoUrl`}
+                                label="Video link"
                                 labelClass="!text-admin-700"
+                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                value={block.videoUrl}
+                                onChange={handleChange}
                               />
                             </div>
-                            <div className="flex-1 flex flex-col">
-                              <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                              <TextEditor key={editorKey} value={editorStates[5] || EditorState.createEmpty()} onChange={newState => handleEditorChange(5, newState, setFieldValue)} />
+                          )}
+
+                          {block.contentBlockType === 'QUOTE' && (
+                            <div className="mb-4">
+                              <div>
+                                <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
+                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                              </div>
                             </div>
-                          </div>
-                          <div className="w-1/2 h-[442px]">
-                            <ImageLoading
-                              articleId={projectId}
-                              label="Add photo"
-                              classBlock="h-[100px]"
-                              contentType={ArticleTypeEnum.PROJECT}
-                              uploadedUrls={initialBlocks[5].files || []}
-                              positionBlockImg={true}
-                              onFilesChange={files => setFieldValue('contentBlocks.5.files', files)}
-                            />
-                          </div>
-                        </>
-                      )}
-                      {/* PHOTO block */}
-                    </div>
+                          )}
+
+                          {block.contentBlockType === 'LINK_TO_SITE' && (
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks.${blockIndex}.siteUrl`}
+                                name={`contentBlocks.${blockIndex}.siteUrl`}
+                                label="Link to web-site"
+                                labelClass="!text-admin-700"
+                                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                value={block.siteUrl}
+                                onChange={handleChange}
+                              />
+                            </div>
+                          )}
+
+                          {block.contentBlockType === 'SOCIAL_MEDIA' && (
+                            <div className="flex gap-4">
+                              <div className="w-1/2 mb-4">
+                                <Select
+                                  label="Change type social media (if needed)"
+                                  adminSelectClass={true}
+                                  name={`contentBlocks.${blockIndex}.typeSocialMedia`}
+                                  labelClass="!text-admin-700"
+                                  placeholder="Media types"
+                                  onChange={handleChange}
+                                  options={typeSocialMediaList}
+                                  parentClassname="h-[70px]"
+                                />
+                              </div>
+
+                              <div className="w-1/2 mb-4">
+                                <Input
+                                  id={`contentBlocks.${blockIndex}.socialMediaUrl`}
+                                  name={`contentBlocks.${blockIndex}.socialMediaUrl`}
+                                  label="Link to social media"
+                                  labelClass="!text-admin-700"
+                                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                  value={block.socialMediaUrl}
+                                  onChange={handleChange}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* TEXT block */}
+                          {block.contentBlockType === 'SECTION' && (
+                            <div className="flex gap-4 mb-4">
+                              <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                                <div className="mb-4">
+                                  <Input
+                                    onChange={handleChange}
+                                    id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    name={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    type="text"
+                                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                    value={block.sectionTitle}
+                                    label="Section title"
+                                    labelClass="!text-admin-700"
+                                  />
+                                </div>
+                                <div className="flex-1 flex flex-col">
+                                  <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                </div>
+                              </div>
+                              <div className="w-1/2 h-[442px]">
+                                <ImageLoading
+                                  articleId={projectId}
+                                  label="Add photo"
+                                  classBlock="h-[100px]"
+                                  contentType={ArticleTypeEnum.PROJECT}
+                                  uploadedUrls={block.files || []}
+                                  positionBlockImg={true}
+                                  onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
 
                     {additionalBlocks.map((block, pairIndex) => {
                       const index = pairIndex + 6;
+                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
 
                       if (block.contentBlockType !== 'SECTION') {
                         return null;
@@ -345,8 +351,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               <div className="mb-4">
                                 <Input
                                   onChange={handleChange}
-                                  id={`contentBlocks.${index}.sectionTitle`}
-                                  name={`contentBlocks.${index}.sectionTitle`}
+                                  id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                  name={`contentBlocks.${blockIndex}.sectionTitle`}
                                   type="text"
                                   className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
                                   value={block.sectionTitle}
@@ -357,7 +363,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                               <div className="flex-1 flex flex-col">
                                 <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                <TextEditor value={editorStates[index] || EditorState.createEmpty()} onChange={newState => handleEditorChange(index, newState, setFieldValue)} />
+                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                               </div>
                             </div>
 
@@ -370,7 +376,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 contentType={ArticleTypeEnum.PROJECT}
                                 uploadedUrls={block?.files || []}
                                 positionBlockImg={true}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
                               />
                             </div>
                           </div>
@@ -378,7 +384,22 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           <button
                             type="button"
                             onClick={() => {
-                              remove(index);
+                              const blockId = block.id;
+                              // remove(index);
+                              const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                              if (blockIndex !== -1) remove(blockIndex);
+
+                              setEditorStates(prev => {
+                                const newState = { ...prev };
+                                delete newState[blockId];
+                                return newState;
+                              });
+
+                              setEditorKey(prev => {
+                                const newKey = { ...prev };
+                                delete newKey[blockId];
+                                return newKey;
+                              });
                             }}
                             className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                           >
@@ -392,12 +413,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     <button
                       type="button"
                       onClick={() => {
+                        const blockId = uuid();
                         push({
+                          id: blockId,
                           contentBlockType: 'SECTION',
                           sectionTitle: '',
                           text: '',
                           files: [],
                         });
+
+                        setEditorStates(prev => ({
+                          ...prev,
+                          [blockId]: EditorState.createEmpty(),
+                        }));
+
+                        setEditorKey(prev => ({
+                          ...prev,
+                          [blockId]: `${blockId}-${Date.now()}`,
+                        }));
                       }}
                       className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >

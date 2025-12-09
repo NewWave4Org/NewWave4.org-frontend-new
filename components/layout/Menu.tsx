@@ -13,6 +13,7 @@ const Menu = () => {
           { href: '/about', label: 'Про нас' },
           { href: '/projects', label: 'Проєкти' },
           { href: '/news', label: 'Новини' },
+          { href: '/events', label: 'Події' },
           { href: '/contacts', label: 'Контакти' },
         ].map(({ href, label }) => {
           const activeStyle = pathname === href ? 'active-link' : '';

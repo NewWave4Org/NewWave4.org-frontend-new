@@ -4,7 +4,6 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import LinkBtn from '@/components/shared/LinkBtn';
 import Select from '@/components/shared/Select';
-import TextArea from '@/components/shared/TextArea';
 import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
@@ -12,13 +11,18 @@ import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import DatePicker from '../../helperComponents/DatePicker/DatePicker';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import TimePicker from '../../helperComponents/TimePicker/TimePicker';
 import { useUsers } from '@/utils/hooks/useUsers';
+import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
+import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
+import { v4 as uuid } from 'uuid';
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import TextEditor from '@/components/TextEditor/TextEditor';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -26,6 +30,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
+  customCreationDate: any;
 }
 
 const validationSchema = Yup.object({
@@ -83,6 +88,49 @@ function ProgramContent({ programId }: { programId: number }) {
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorKey, setEditorKey] = useState<Record<string, string>>({});
+
+  const defaultFormValues: UpdateArticleFormValues = useMemo(
+    () => ({
+      title: '',
+      articleType: ArticleTypeEnum.PROGRAM,
+      customCreationDate: convertFromISO(new Date()),
+      authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+      articleStatus: '',
+      contentBlocks: [
+        { id: uuid(), contentBlockType: 'SUB_TITLE_PROGRAM', text: '' },
+        { id: uuid(), contentBlockType: 'DESCRIPTION_PROGRAM', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'DATE_PROGRAM', date: '' },
+        { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
+        { id: uuid(), contentBlockType: 'SECTION_WITH_PHOTO', sectionTitle: '', text: '', files: [], editorState: null },
+        { id: uuid(), contentBlockType: 'SECTION_WITH_TEXT', sectionTitle: '', text1: '', text2: '', editorState1: null, editorState2: null },
+        { id: uuid(), contentBlockType: 'SCHEDULE_TITLE', title: '' },
+        { id: uuid(), contentBlockType: 'SCHEDULE_POSTER', files: [] },
+        { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, title: '', location: '' },
+      ],
+    }),
+    [defaultAuthorId],
+  );
+
+  // Handle editor changes
+  const handleEditorChange = (blockIndex: number, blockId: string, field: 'editorState1' | 'editorState2' | 'editorState', rawField: 'text1' | 'text2' | 'text', newState: EditorState, setFieldValue: any) => {
+    const editorKey = `${blockId}_${rawField}`;
+
+    setEditorStates(prev => ({
+      ...prev,
+      [editorKey]: newState,
+    }));
+
+    const content = newState.getCurrentContent();
+    const raw = convertToRaw(content);
+
+    // Update Formik field value
+    setFieldValue(`contentBlocks.${blockIndex}.${field}`, raw);
+
+    setFieldValue(`contentBlocks.${blockIndex}.${rawField}`, content.getPlainText());
+  };
+
   useEffect(() => {
     if (program?.authorId) {
       setDefaultAuthorId(program.authorId);
@@ -91,42 +139,7 @@ function ProgramContent({ programId }: { programId: number }) {
     }
   }, [program?.authorId, currentAuthor]);
 
-  const defaultFormValues: UpdateArticleFormValues = {
-    title: '',
-    articleType: ArticleTypeEnum.PROGRAM,
-    authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-    articleStatus: '',
-    contentBlocks: [
-      { contentBlockType: 'SUB_TITLE_PROGRAM', text: '' },
-      { contentBlockType: 'DESCRIPTION_PROGRAM', text: '' },
-      { contentBlockType: 'DATE_PROGRAM', date: '' },
-      { contentBlockType: 'VIDEO', videoUrl: '' },
-      {
-        contentBlockType: 'SECTION_WITH_PHOTO',
-        sectionTitle: '',
-        text: '',
-        files: [],
-      },
-      {
-        contentBlockType: 'SECTION_WITH_TEXT',
-        sectionTitle: '',
-        text1: '',
-        text2: '',
-      },
-      { contentBlockType: 'SCHEDULE_TITLE', title: '' },
-      { contentBlockType: 'SCHEDULE_POSTER', files: [] },
-      {
-        contentBlockType: 'SCHEDULE_INFO',
-        date: '',
-        startTime: { hour: '', minute: '', period: 'AM' },
-        endTime: { hour: '', minute: '', period: 'AM' },
-        title: '',
-        location: '',
-      },
-    ],
-  };
-
-  //GET project by id
+  //GET program by id
   useEffect(() => {
     if (!programId) return;
 
@@ -135,10 +148,70 @@ function ProgramContent({ programId }: { programId: number }) {
         const result = await dispatch(
           getArticleById({
             id: programId,
-            articleType: ArticleTypeEnum.PROGRAM,
           }),
         ).unwrap();
-        setProgram(result);
+
+        const editors: Record<string, EditorState> = {};
+        const keys: Record<string, string> = {};
+
+        const blocksWithId = result.contentBlocks?.map(block => ({ ...block, id: block.id || uuid() })) || [];
+
+        blocksWithId.forEach(block => {
+          if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {
+            let editor;
+
+            try {
+              const rawContent = block.editorState;
+              if (rawContent) {
+                const content = convertFromRaw(rawContent);
+                editor = EditorState.createWithContent(content);
+              } else {
+                editor = EditorState.createEmpty();
+              }
+            } catch (err: any) {
+              console.error('Error loading single editor state:', err);
+              editor = EditorState.createEmpty();
+            }
+            editors[`${block.id}_text`] = editor;
+            keys[`${block.id}_text`] = `${block.id}_text-init`;
+          }
+
+          if (block.contentBlockType === 'SECTION_WITH_TEXT') {
+            // --- 1. init Text 1 ---
+            let editor1 = EditorState.createEmpty();
+            try {
+              const rawContent1 = block.editorState1;
+              if (rawContent1) {
+                const content = convertFromRaw(rawContent1);
+                editor1 = EditorState.createWithContent(content);
+              }
+            } catch (err) {
+              console.error('Error loading text1 editor state:', err);
+            }
+            editors[`${block.id}_text1`] = editor1;
+            keys[`${block.id}_text1`] = `${block.id}_text1-init`;
+
+            // --- 2. init Text 2 ---
+            let editor2 = EditorState.createEmpty();
+            try {
+              const rawContent2 = block.editorState2;
+              if (rawContent2) {
+                const content = convertFromRaw(rawContent2);
+                editor2 = EditorState.createWithContent(content);
+              }
+            } catch (err) {
+              console.error('Error loading text2 editor state:', err);
+            }
+            editors[`${block.id}_text2`] = editor2;
+            keys[`${block.id}_text2`] = `${block.id}_text2-init`;
+          }
+        });
+
+        setEditorStates(editors);
+
+        setEditorKey(keys);
+
+        setProgram({ ...result, contentBlocks: blocksWithId });
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch program');
@@ -149,10 +222,10 @@ function ProgramContent({ programId }: { programId: number }) {
   }, [programId, dispatch]);
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-    // console.log('values', values);
-
+    console.log('values', values);
     const normalized = {
       ...values,
+      customCreationDate: convertToISO(values.customCreationDate),
       contentBlocks: values.contentBlocks.map(block => {
         if (block.contentBlockType === 'SCHEDULE_INFO') {
           const fixTime = (t: any) => ({
@@ -170,6 +243,8 @@ function ProgramContent({ programId }: { programId: number }) {
         return block;
       }),
     };
+
+    // console.log('normalized', normalized);
 
     try {
       const result = await handleThunk(updateArticle, { id: programId, data: normalized }, setSubmitError);
@@ -202,6 +277,7 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
+          customCreationDate: program?.customCreationDate || defaultFormValues.customCreationDate,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
           articleStatus: program?.articleStatus || defaultFormValues.articleStatus,
@@ -229,6 +305,11 @@ function ProgramContent({ programId }: { programId: number }) {
             </div>
 
             <div className="mb-5">
+              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
+            </div>
+
+            <div className="mb-5">
               <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
             </div>
 
@@ -251,7 +332,7 @@ function ProgramContent({ programId }: { programId: number }) {
                       const isEven = photoBlocksBefore % 2 === 0;
 
                       return (
-                        <React.Fragment key={index}>
+                        <React.Fragment key={block.id}>
                           {block.contentBlockType === 'SUB_TITLE_PROGRAM' && (
                             <Input
                               id={`contentBlocks.${index}.text`}
@@ -265,16 +346,14 @@ function ProgramContent({ programId }: { programId: number }) {
                           )}
 
                           {block.contentBlockType === 'DESCRIPTION_PROGRAM' && (
-                            <TextArea
-                              id={`contentBlocks.${index}.text`}
-                              name={`contentBlocks.${index}.text`}
-                              label="Description program"
-                              labelClass="!text-admin-700"
-                              className="!bg-background-light !w-full !max-w-full px-5 rounded-lg !ring-0 mb-5 "
-                              rows={6}
-                              value={block.text}
-                              onChange={handleChange}
-                            />
+                            <div>
+                              <div className="mb-2 !text-admin-700">Description program</div>
+                              <TextEditor
+                                key={editorKey[`${block.id}_text`]}
+                                value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
+                                onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                              />
+                            </div>
                           )}
 
                           {block.contentBlockType === 'DATE_PROGRAM' && (
@@ -299,7 +378,7 @@ function ProgramContent({ programId }: { programId: number }) {
                           )}
 
                           {block.contentBlockType === 'SECTION_WITH_PHOTO' && (
-                            <div key={index} className="mb-5">
+                            <div className="mb-5">
                               <div className={`flex gap-4 mb-3 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}>
                                 <div className="w-1/2">
                                   <Input
@@ -313,15 +392,14 @@ function ProgramContent({ programId }: { programId: number }) {
                                     labelClass="!text-admin-700"
                                   />
 
-                                  <TextArea
-                                    id={`contentBlocks.${index}.text`}
-                                    name={`contentBlocks.${index}.text`}
-                                    label="Text block"
-                                    value={block.text}
-                                    labelClass="!text-admin-700"
-                                    className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
-                                    onChange={handleChange}
-                                  />
+                                  <div>
+                                    <div className="mb-2 !text-admin-700">Text block</div>
+                                    <TextEditor
+                                      key={editorKey[`${block.id}_text`]}
+                                      value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
+                                      onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                    />
+                                  </div>
                                 </div>
 
                                 <div className="w-1/2">
@@ -339,14 +417,34 @@ function ProgramContent({ programId }: { programId: number }) {
                                 </div>
                               </div>
 
-                              <button type="button" onClick={() => remove(index)} className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                  if (blockIndex !== -1) {
+                                    remove(blockIndex);
+                                  }
+                                  setEditorStates(prev => {
+                                    const newState = { ...prev };
+                                    delete newState[`${block.id}_text`];
+                                    return newState;
+                                  });
+
+                                  setEditorKey(prev => {
+                                    const newKeys = { ...prev };
+                                    delete newKeys[block.id];
+                                    return newKeys;
+                                  });
+                                }}
+                                className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                              >
                                 Remove block pair with photo
                               </button>
                             </div>
                           )}
 
                           {block.contentBlockType === 'SECTION_WITH_TEXT' && (
-                            <div key={index} className="mb-5">
+                            <div className="mb-5">
                               <div className="mb-3">
                                 <Input
                                   onChange={handleChange}
@@ -362,31 +460,52 @@ function ProgramContent({ programId }: { programId: number }) {
                               <div className="flex gap-5">
                                 <div className="w-1/2">
                                   <div className="mb-3">
-                                    <TextArea
-                                      id={`contentBlocks.${index}.text1`}
-                                      name={`contentBlocks.${index}.text1`}
-                                      label="Text block left"
-                                      labelClass="!text-admin-700"
-                                      value={block.text1}
-                                      className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
-                                      onChange={handleChange}
-                                    />
+                                    <div>
+                                      <div className="mb-2 !text-admin-700">Text block left</div>
+                                      <TextEditor
+                                        key={editorKey[`${block.id}_text1`]}
+                                        value={editorStates[`${block.id}_text1`] || EditorState.createEmpty()}
+                                        onChange={newState => handleEditorChange(index, block.id, 'editorState1', 'text1', newState, setFieldValue)}
+                                      />
+                                    </div>
                                   </div>
                                 </div>
                                 <div className="w-1/2">
-                                  <TextArea
-                                    id={`contentBlocks.${index}.text2`}
-                                    name={`contentBlocks.${index}.text2`}
-                                    label="Text block right"
-                                    labelClass="!text-admin-700"
-                                    value={block.text2}
-                                    className="!bg-background-light w-full h-[300px] px-5 rounded-lg !ring-0 !max-w-full"
-                                    onChange={handleChange}
-                                  />
+                                  <div>
+                                    <div className="mb-2 !text-admin-700">Text block right</div>
+                                    <TextEditor
+                                      key={editorKey[`${block.id}_text2`]}
+                                      value={editorStates[`${block.id}_text2`] || EditorState.createEmpty()}
+                                      onChange={newState => handleEditorChange(index, block.id, 'editorState2', 'text2', newState, setFieldValue)}
+                                    />
+                                  </div>
                                 </div>
                               </div>
 
-                              <button type="button" onClick={() => remove(index)} className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                  if (blockIndex !== -1) {
+                                    remove(blockIndex);
+                                  }
+
+                                  setEditorStates(prev => {
+                                    const newState = { ...prev };
+                                    delete newState[`${block.id}_text1`];
+                                    delete newState[`${block.id}_text2`];
+                                    return newState;
+                                  });
+
+                                  setEditorKey(prev => {
+                                    const newKeys = { ...prev };
+                                    delete newKeys[`${block.id}_text1`];
+                                    delete newKeys[`${block.id}_text2`];
+                                    return newKeys;
+                                  });
+                                }}
+                                className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                              >
                                 Remove block pair with text
                               </button>
                             </div>
@@ -478,7 +597,23 @@ function ProgramContent({ programId }: { programId: number }) {
 
                               {values.contentBlocks.findIndex(b => b.contentBlockType === 'SCHEDULE_INFO') !== index && (
                                 <div className="mb-4">
-                                  <button type="button" onClick={() => remove(index)} className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const blockId = block.id;
+
+                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                      if (blockIndex !== -1) remove(blockIndex);
+                                      // remove(index);
+
+                                      setEditorStates(prev => {
+                                        const newState = { ...prev };
+                                        delete newState[blockId];
+                                        return newState;
+                                      });
+                                    }}
+                                    className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                                  >
                                     Remove block schedule info
                                   </button>
                                 </div>
@@ -489,14 +624,16 @@ function ProgramContent({ programId }: { programId: number }) {
                           {lastPerformanceBlock === index && (
                             <button
                               type="button"
-                              onClick={() =>
+                              onClick={() => {
+                                const blockId = uuid();
                                 push({
+                                  id: blockId,
                                   contentBlockType: 'SCHEDULE_INFO',
                                   date: '',
                                   title: '',
                                   location: '',
-                                })
-                              }
+                                });
+                              }}
                               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                             >
                               Add block with performance info
@@ -507,14 +644,17 @@ function ProgramContent({ programId }: { programId: number }) {
                             <div className="flex gap-3 mt-6 mb-8">
                               <button
                                 type="button"
-                                onClick={() =>
+                                onClick={() => {
+                                  const blockId = uuid();
                                   insert(insertPosition + 1, {
+                                    id: blockId,
                                     contentBlockType: 'SECTION_WITH_PHOTO',
                                     sectionTitle: '',
                                     text: '',
                                     files: [],
-                                  })
-                                }
+                                    editorStates: null,
+                                  });
+                                }}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                               >
                                 Add block with photo
@@ -522,14 +662,18 @@ function ProgramContent({ programId }: { programId: number }) {
 
                               <button
                                 type="button"
-                                onClick={() =>
+                                onClick={() => {
+                                  const blockId = uuid();
                                   insert(insertPosition + 1, {
+                                    id: blockId,
                                     contentBlockType: 'SECTION_WITH_TEXT',
                                     sectionTitle: '',
                                     text1: '',
                                     text2: '',
-                                  })
-                                }
+                                    editorStates1: null,
+                                    editorStates2: null,
+                                  });
+                                }}
                                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
                               >
                                 Add block with text

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
-import GeneralSlider from '@/components/generalSlider/GeneralSlider';
+import GeneralSlider, { Slide } from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import Quote from '@/components/quote/Quote';
@@ -13,7 +13,6 @@ import { toast } from 'react-toastify';
 import { getArticleById } from '@/store/article-content/action';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
-import { Slide } from '@/components/generalSlider/slidesData';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 
 interface IArticlePreview {
@@ -34,26 +33,18 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const data = await dispatch(
-          getArticleById({ id: articleId, articleType: 'NEWS' }),
-        ).unwrap();
+        const data = await dispatch(getArticleById({ id: articleId })).unwrap();
         const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
         if (articleFull.video) {
           setArticleVideoUrl(convertYoutubeUrlToEmbed(articleFull.video));
         }
         if (articleFull?.photoSlider) {
-          const mappedSlides: Slide[] = articleFull.photoSlider.map(
-            (item, index) => ({
-              id: index,
-              src: item,
-              srchover: item,
-              alt: `Slide ${index + 1}`,
-              title: articleFull.title,
-              text: '',
-              link: '',
-            }),
-          );
+          const mappedSlides: Slide[] = articleFull.photoSlider.map(item => ({
+            title: '',
+            files: [item],
+            link: '',
+          }));
 
           setSlides(mappedSlides);
         }
@@ -75,7 +66,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         const project = await dispatch(
           getArticleById({
             id: article.relevantProjectId!,
-            articleType: 'PROJECT',
+            // articleType: 'PROJECT',
           }),
         ).unwrap();
         setProjectTitle(project.title);

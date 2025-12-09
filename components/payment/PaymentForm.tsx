@@ -217,7 +217,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="email"
-                  label="Email"
+                  label="Імейл"
                   maxLength={50}
                   required
                   validationText={
@@ -232,7 +232,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="amount"
-                  label="Donation amount"
+                  label="Сума внеску"
                   maxLength={50}
                   required
                   validationText={
@@ -247,7 +247,7 @@ const PaymentForm = () => {
               </div>
 
               <Select
-                label="Призначення донату"
+                label="Призначення платежу"
                 name="purpose"
                 required
                 parentClassname="max-[1100px]:w-full"
@@ -282,7 +282,7 @@ const PaymentForm = () => {
           <div className="max-[1100px]:w-full xl:w-[506px] flex flex-col gap-y-[32px] max-[1000px]:pt-6">
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
-                Будь ласка оберіть спосіб внесення донату
+                Будь ласка оберіть спосіб внесення платежу
                 <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
                   {' '}
                   *
@@ -341,7 +341,8 @@ const PaymentForm = () => {
                 )}
               </div>
               <div className="flex justify-between text-[#0F1B40]">
-                <span>Full amount</span>
+                <span>Загальна сума</span>
+                {/* Full amount */}
                 <span>${calculatedAmount}</span>
               </div>
               <div className="flex flex-col gap-y-[8px]">

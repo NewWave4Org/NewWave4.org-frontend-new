@@ -3,28 +3,32 @@ import { photoService } from '@/utils/photos';
 import { UploadPhotoParams } from '@/utils/photos/photo-service';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const uploadPhoto = createAsyncThunk(
-    'photos/uploadPhoto',
-    async (data: UploadPhotoParams, { rejectWithValue }) => {
-        try {
-            const response = await photoService.uploadPhoto(data);
-            return response;
-        } catch (error) {
-            const normalized = normalizeApiError(error);
-            return rejectWithValue(normalized);
-        }
-    },
-);
+export const uploadPhoto = createAsyncThunk('photos/uploadPhoto', async (data: UploadPhotoParams, { rejectWithValue }) => {
+  try {
+    const response = await photoService.uploadPhoto(data);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});
 
-export const deletePhoto = createAsyncThunk(
-    'photos/deletePhoto',
-    async (url: string, { rejectWithValue }) => {
-        try {
-            const response = await photoService.deletePhoto(url);
-            return response;
-        } catch (error) {
-            const normalized = normalizeApiError(error);
-            return rejectWithValue(normalized);
-        }
-    },
-);
+export const uploadPhotoWithOutAttach = createAsyncThunk('photos/uploadPhotoWithOutAttach', async (data: { file: File }, { rejectWithValue }) => {
+  try {
+    const response = await photoService.uploadPhotoWithOutAttach(data);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});
+
+export const deletePhoto = createAsyncThunk('photos/deletePhoto', async (url: string, { rejectWithValue }) => {
+  try {
+    const response = await photoService.deletePhoto(url);
+    return response;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});

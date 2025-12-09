@@ -3,6 +3,7 @@
 import ArticleContent from '@/components/admin/Articles/ArticleContent';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import LinkBtn from '@/components/shared/LinkBtn';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { useSearchParams } from 'next/navigation';
 
 const EditArticlePage = () => {
@@ -23,7 +24,10 @@ const EditArticlePage = () => {
         Back to all articles
       </LinkBtn>
       <h4 className="text-h4 mb-3 mt-3">Edit article content</h4>
-      <ArticleContent articleId={articleId} />
+      <ArticleContent
+        articleId={articleId}
+        articleType={ArticleTypeEnum.NEWS}
+      />
     </>
   );
 };

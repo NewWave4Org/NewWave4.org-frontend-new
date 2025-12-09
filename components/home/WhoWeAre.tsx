@@ -1,33 +1,30 @@
-const WhoWeAre: React.FC = () => {
+import Image from 'next/image';
+import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+
+interface IWhoWeAre {
+  homeTitle: { title: string };
+  homeDescription: {
+    editorState: any;
+    description: string;
+  };
+  className?: string;
+}
+
+const WhoWeAre: React.FC<IWhoWeAre> = ({ homeTitle, homeDescription, className }) => {
+  const homeDescriptionText = convertDraftToHTML(homeDescription?.editorState);
   return (
-    <div className="whoWeAre">
-      <section className="flex lg:flex-row flex-col">
-        <div className=" bg-background-secondary flex-1 flex lg:justify-end justify-center">
-          <div className="lg:max-w-[708px] max-w-full md:py-12 md:px-24 py-6 px-12">
-            <div className="container">
-              <h2 className="text-h2 text-font-primary font-ebGaramond">
-                Всеамериканська громадська Організація «Нова Українська Хвиля»
-              </h2>
-            </div>
+    <div className={`whoWeAre ${className} lg:pt-0 pt-5`}>
+      <div className="max-w-[1440px] lg:px-0 px-4 mx-auto lg:h-full overflow-hidden">
+        <div className="flex lg:flex-row flex-col items-center lg:h-full">
+          <div className="lg:max-w-[820px] lg:ml-[96px] lg:mr-[85px] lg:py-5 lg:mb-0 mb-5">
+            <h1 className="lg:text-h1 text-h3 text-font-primary font-ebGaramond mb-3">{homeTitle?.title}</h1>
+            <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: homeDescriptionText }} />
+          </div>
+          <div className="flex-1 relative min-h-[415px] lg:h-full h-[415px] w-full">
+            <Image src="/home/flags.png" fill alt={homeTitle?.title ?? 'Зображення прапорів'} className="object-cover rounded-xl" />
           </div>
         </div>
-        <div className=" bg-font-white items-center flex-1 flex justify-start">
-          <div className="lg:max-w-[732px] max-w-full md:px-24 md:py-12 py-6 px-12">
-            <div className="container">
-              <p className="text-body text-font-primary">
-                <span className="text-body text-font-secondary font-medium">
-                  Ми —
-                </span>{' '}
-                громадська організація, створена на основі спільності інтересів
-                насамперед вихідців з України останньої еміґраційної четвертої хвилі,
-                сприяємо відродженню духу національної єдності, збереженню українських
-                звичаїв і традицій, утвердженню української національної ідеї, захисту
-                політичних, культурних та історичних здобутків українського народу.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };

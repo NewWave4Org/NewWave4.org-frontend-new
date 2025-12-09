@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { adminLinkSidebar } from '../adminHeader/enums/enum';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hook';
+import PagesIcon from '@/components/icons/symbolic/PagesIcon';
 
 const adminMenu = [
   {
@@ -15,13 +16,13 @@ const adminMenu = [
     href: adminLinkSidebar.ADMIN_USERS,
     allowedToAdmin: true,
   },
-  // {
-  //   id: '2',
-  //   title: 'Pages',
-  //   icon: <PagesIcon />,
-  //   href: adminLinkSidebar.ADMIN_PAGES,
-  //   allowedToAdmin: false,
-  // },
+  {
+    id: '2',
+    title: 'Pages',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_PAGES,
+    allowedToAdmin: false,
+  },
   {
     id: '3',
     title: 'Articles',
@@ -31,20 +32,34 @@ const adminMenu = [
   },
   {
     id: '4',
+    title: 'Events',
+    icon: <ArticlesIcon />,
+    href: adminLinkSidebar.ADMIN_EVENTS,
+    allowedToAdmin: false,
+  },
+  {
+    id: '5',
     title: 'Projects',
     icon: <ArticlesIcon />,
     href: adminLinkSidebar.ADMIN_PROJECTS,
     allowedToAdmin: false,
   },
   {
-    id: '5',
+    id: '6',
     title: 'Programs',
     icon: <ArticlesIcon />,
     href: adminLinkSidebar.ADMIN_PROGRAMS,
     allowedToAdmin: false,
   },
   {
-    id: '6',
+    id: '7',
+    title: 'Global sections',
+    icon: <ArticlesIcon />,
+    href: adminLinkSidebar.ADMIN_GLOBAL_SECTIONS,
+    allowedToAdmin: false,
+  },
+  {
+    id: '8',
     title: 'Archive',
     icon: <BasketIcon />,
     href: adminLinkSidebar.ADMIN_ARCHIVE,
@@ -57,7 +72,9 @@ const AdminSidebar = () => {
   const currentUser = useAppSelector(state => state.authUser.user);
   const currentUserRole = currentUser?.roles;
 
-  const isAdmin = currentUserRole?.includes('ROLE_ADMIN') || currentUserRole?.includes('ROLE_SUPER_ADMIN');
+  const isAdmin =
+    currentUserRole?.includes('ROLE_ADMIN') ||
+    currentUserRole?.includes('ROLE_SUPER_ADMIN');
 
   return (
     <div className="adminSidebar xl:p-12 p-9">
@@ -69,9 +86,16 @@ const AdminSidebar = () => {
               return true;
             })
             .map(link => {
-              const isActive = pathName === link.href || pathName.startsWith(`${link.href}/`);
+              const isActive =
+                pathName === link.href || pathName.startsWith(`${link.href}/`);
               return (
-                <Link key={link.id} href={link.href} className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''}`}>
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  className={`text-primary-800 flex items-center py-1 my-5 ${
+                    isActive ? 'font-black' : ''
+                  }`}
+                >
                   <div className="mr-[13px]">{link.icon}</div>
                   {link.title}
                 </Link>
