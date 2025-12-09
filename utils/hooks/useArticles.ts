@@ -35,6 +35,7 @@ export const useArticles = ({
                 const params: Record<string, string> = {
                     articleType,
                     articleStatus: ArticleStatusEnum.PUBLISHED,
+                    sortByCreatedAtDescending: 'true',
                 };
 
                 if (!limit) {
