@@ -25,7 +25,7 @@ function ProgramBlocksWithPhotos({ contentBlock, videoURL }: IProgramContentProp
               <div className={`lg:w-[612px] lg:max-w-[612px] w-full ${oddBlock ? 'lg:order-1 order-2' : ''}`}>
                 <div className="relative h-[360px] w-full">
                   {content.files.map((file: string, idx: number) => (
-                    <Image key={idx} src={file} alt={content.sectionTitle} fill className="object-cover" />
+                    <Image key={idx} src={file} alt={content.sectionTitle} fill className="object-cover rounded-xl" />
                   ))}
                 </div>
               </div>

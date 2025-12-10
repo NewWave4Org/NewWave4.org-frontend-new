@@ -49,12 +49,12 @@ const ProgramsSlider = () => {
   useEffect(() => {
     if (programs?.length) {
       const mapped = programs.map(program => ({
-        id: program.id,
-        imgSrc: program.contentBlocks.find(block => block.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
-        alt: `Slide for ${program.title}`,
-        link: `/program/${program.id}`,
-        title: program.title || '',
-        text: program.contentBlocks.find(block => block.contentBlockType === 'DESCRIPTION_PROGRAM')?.text || '',
+        id: program?.id,
+        imgSrc: program?.contentBlocks?.find(block => block.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
+        alt: `Slide for ${program?.title}`,
+        link: `/program/${program?.id}`,
+        title: program?.title || '',
+        text: program?.contentBlocks?.find(block => block.contentBlockType === 'DESCRIPTION_PROGRAM')?.text || '',
       }));
 
       setSliderData(mapped);
@@ -112,9 +112,9 @@ const ProgramsSlider = () => {
       </div>
 
       <div className="mt-10 flex  justify-center">
-        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6">
+        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6 min-w-[195px]">
           {slidesData?.map((_, index) => (
-            <div key={index} className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-50'}`} />
+            <div key={index} className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-200'}`} />
           ))}
         </div>
       </div>

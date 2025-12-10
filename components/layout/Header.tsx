@@ -47,14 +47,22 @@ const Header = () => {
                 <Menu />
               </div>
               <div className="flex items-center lg:order-2 gap-x-4">
-                <button type="button" className="language-btn bg-white/60 rounded-lg">
-                  UA
-                  <ArrowDown4Icon size="16" color="#0F1B40" />
-                </button>
+                <div className="flex items-center">
+                  <button type="button" className="language-btn bg-white/60 rounded-lg relative">
+                    <span className="inline border-b border-primary-500 text-primary-500 font-medium text-xl">UA</span>
+                    <Image src="/icons/ukraine.svg" width={32} height={32} alt="flag" />
+                  </button>
+
+                  <button type="button" className="language-btn bg-white/60 rounded-lg relative">
+                    <Image src="/icons/united-states.svg" width={32} height={32} alt="flag" />
+                    <span className="border-b opacity-0 hidden text-primary-500 font-medium text-xl">EN</span>
+                  </button>
+                </div>
+
                 <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
                   Donate
                   <span className="ml-2 duration-500 w-[26px]">
-                    <Image src="icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                    <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
                   </span>
                 </Link>
               </div>
@@ -81,7 +89,7 @@ const Header = () => {
             <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
               Donate
               <span className="ml-2 flex-1 duration-500  w-[26px]">
-                <Image src="icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
               </span>
             </Link>
           </div>

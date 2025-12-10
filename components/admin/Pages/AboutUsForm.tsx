@@ -35,6 +35,9 @@ function AboutUsForm() {
     () => ({
       pageType: PagesType.ABOUT_US,
       contentBlocks: [
+        { id: uuid(), contentBlockType: 'MISSION_BLOCK', title: '', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'MISSION_BLOCK', title: '', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'MISSION_BLOCK', title: '', text: '', editorState: null },
         { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
         { id: uuid(), contentBlockType: 'OUR_HISTORY_TITLE', title: '' },
         { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', text: '', editorState: null },
@@ -148,9 +151,46 @@ function AboutUsForm() {
         <Form>
           <FieldArray name="contentBlocks">
             {({ push, remove }) => {
-              const historyLine = values.contentBlocks?.slice(5) || [];
+              const historyLine = values.contentBlocks.filter(cb => cb.contentBlockType === 'HISTORY_OF_FORMATION');
+              const firstHistoryBlock = historyLine[0];
+              const restHistoryBlocks = historyLine.slice(1);
+
               return (
                 <>
+                  <div className="mb-4">
+                    <div className="mb-2 !text-admin-700 font-black text-2xl">Mission blocks</div>
+                  </div>
+
+                  {/* Mission blocks */}
+                  {values.contentBlocks
+                    .filter(block => block.contentBlockType === 'MISSION_BLOCK')
+                    .map((block, index) => {
+                      const realIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                      return (
+                        <div key={block.id} className="mb-6">
+                          <div className="mb-2 !text-admin-700 font-black text-lg">Mission block #{index + 1}</div>
+
+                          {/* Title */}
+                          <Input
+                            id={`contentBlocks.${realIndex}.title`}
+                            name={`contentBlocks.${realIndex}.title`}
+                            type="text"
+                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                            value={block.title}
+                            onChange={handleChange}
+                            label="Mission title"
+                            labelClass="mb-2 !text-admin-700"
+                          />
+
+                          {/* Text */}
+                          <div className="mt-2 mb-4">
+                            <div className="mb-2 !text-admin-700">Mission text</div>
+                            <TextEditor key={block.id} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                          </div>
+                        </div>
+                      );
+                    })}
+
                   <div className="mb-4">
                     <div className="mb-2 !text-admin-700">Quote</div>
                     {values.contentBlocks.map(block => (
@@ -164,11 +204,11 @@ function AboutUsForm() {
 
                   <div className="mb-4">
                     <Input
-                      id="contentBlocks[1].title"
-                      name="contentBlocks[1].title"
+                      id="contentBlocks[4].title"
+                      name="contentBlocks[4].title"
                       type="text"
                       className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                      value={values.contentBlocks[1].title}
+                      value={values.contentBlocks[4].title}
                       onChange={handleChange}
                       label="Our history title"
                       labelClass="mb-2 !text-admin-700"
@@ -188,56 +228,59 @@ function AboutUsForm() {
 
                   <div className=" mb-4">
                     <div className="mb-2 !text-admin-700">Our history photos</div>
-                    <ImageLoading classBlock="min-h-[300px]" maxFiles={10} isAttach={true} uploadedUrls={values.contentBlocks[3].files || []} onFilesChange={files => setFieldValue(`contentBlocks[3].files`, files)} />
+                    <ImageLoading classBlock="min-h-[300px]" maxFiles={10} isAttach={true} uploadedUrls={values.contentBlocks[6].files || []} onFilesChange={files => setFieldValue(`contentBlocks[6].files`, files)} />
                   </div>
 
                   <div className=" mb-4">
                     <div className="mb-2 !text-admin-700mb-3 font-black text-2xl">Our history formation (You can add up to 7 blocks)</div>
                   </div>
 
-                  <div className=" mb-4">
-                    <div className="mb-2 !text-admin-700 font-black text-lg">Block #1</div>
-                    <div>
+                  {firstHistoryBlock && (
+                    <div className="mb-4">
+                      <div className="mb-2 !text-admin-700 font-black text-lg">Block #1</div>
+
                       <div className="mb-4">
                         <Input
-                          id="contentBlocks[4].year"
-                          name="contentBlocks[4].year"
+                          id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
+                          name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
                           type="text"
                           className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                          value={values.contentBlocks[4].year}
+                          value={firstHistoryBlock.year}
                           onChange={handleChange}
                           label="Our history formation year"
                           labelClass="mb-2 !text-admin-700"
                         />
                       </div>
+
                       <div className="mb-4">
                         <Input
-                          id="contentBlocks[4].title"
-                          name="contentBlocks[4].title"
+                          id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
+                          name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
                           type="text"
                           className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                          value={values.contentBlocks[4].title}
+                          value={firstHistoryBlock.title}
                           onChange={handleChange}
                           label="Our history formation title"
                           labelClass="mb-2 !text-admin-700"
                         />
                       </div>
+
                       <div className="mb-4">
                         <div className="mb-2 !text-admin-700">Our history formation description</div>
-                        {values.contentBlocks.map(block => (
-                          <React.Fragment key={block.id}>
-                            {block.contentBlockType === 'HISTORY_OF_FORMATION' && (
-                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                            )}
-                          </React.Fragment>
-                        ))}
+
+                        <TextEditor
+                          key={editorKey[firstHistoryBlock.id]}
+                          value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty()}
+                          onChange={newState => handleEditorChange(firstHistoryBlock.id, values, newState, setFieldValue)}
+                        />
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  {historyLine.map((block, pairIndex) => {
-                    const index = pairIndex + 5;
+                  {restHistoryBlocks.map((block, pairIndex) => {
+                    const index = pairIndex + 7;
                     const blockNumber = pairIndex + 2;
+                    const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
 
                     if (block.contentBlockType !== 'HISTORY_OF_FORMATION') {
                       return null;
@@ -249,11 +292,11 @@ function AboutUsForm() {
                         <div>
                           <div className="mb-4">
                             <Input
-                              id={`contentBlocks[${index}].year`}
-                              name={`contentBlocks[${index}].year`}
+                              id={`contentBlocks[${blockIndex}].year`}
+                              name={`contentBlocks[${blockIndex}].year`}
                               type="text"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                              value={values.contentBlocks[index].year}
+                              value={values.contentBlocks[blockIndex].year}
                               onChange={handleChange}
                               label="Our history formation year"
                               labelClass="mb-2 !text-admin-700"
@@ -261,11 +304,11 @@ function AboutUsForm() {
                           </div>
                           <div className="mb-4">
                             <Input
-                              id={`contentBlocks[${index}].title`}
-                              name={`contentBlocks[${index}].title`}
+                              id={`contentBlocks[${blockIndex}].title`}
+                              name={`contentBlocks[${blockIndex}].title`}
                               type="text"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                              value={values.contentBlocks[index].title}
+                              value={values.contentBlocks[blockIndex].title}
                               onChange={handleChange}
                               label="Our history formation title"
                               labelClass="mb-2 !text-admin-700"
@@ -307,7 +350,7 @@ function AboutUsForm() {
                   })}
 
                   {/* Added blocks */}
-                  {historyLine.length < 6 && (
+                  {restHistoryBlocks.length < 5 && (
                     <button
                       type="button"
                       onClick={() => {

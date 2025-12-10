@@ -71,14 +71,14 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
     slides.length === 2
       ? 'w-full flex-1 flex-shrink-0' // 2 full width
       : initSlider
-      ? 'md:w-[824px]' // 3+ slide
+      ? 'w-[540px]' // 3+ slide
       : 'w-full flex-1 flex-shrink-0';
 
-  const slideSize = slides.length === 2 ? '100%' : '824px';
+  const slideSize = slides.length === 2 ? '100%' : '540px';
 
   return (
-    <div className={`${className} relative embla lg:h-[370px] h-[420px] group/arrows`}>
-      <div className="overflow-hidden h-full" ref={initSlider ? emblaRef : null}>
+    <div className={`${className} relative h-[420px] group/arrows w-full`}>
+      <div className="h-full w-full" ref={initSlider ? emblaRef : null}>
         <div className={`${initSlider ? 'flex' : 'block'} h-full`}>
           {slides?.map((slide, index) => {
             const slideDescriptionText = convertDraftToHTML(slide?.editorState);
@@ -113,7 +113,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
             return (
               <div
                 key={index}
-                className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} md:mr-4 mr-0`}
+                className={`relative embla-slide group flex-shrink-0 h-full group/slide ${slideWidthClass} mr-4`}
                 style={{ '--slide-size': slideSize } as React.CSSProperties}
                 onMouseEnter={slideHover ? onMouseEnter : undefined}
                 onMouseLeave={slideHover ? onMouseLeave : undefined}

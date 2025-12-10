@@ -1,8 +1,9 @@
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import Button from '@/components/shared/Button';
 import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
+import Image from 'next/image';
 
 interface IDateProgram {
   year: number;
@@ -11,7 +12,7 @@ interface IDateProgram {
 }
 
 interface IProgramFirstBlocks {
-  title: string;
+  title: string | undefined;
   description: any;
   dateProgram: {
     from: IDateProgram;
@@ -22,29 +23,38 @@ interface IProgramFirstBlocks {
 function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBlocks) {
   const router = useRouter();
 
-  const dateNumberFormatFrom = new Date(dateProgram.from.year, dateProgram.from.month - 1, dateProgram.from.day);
-  const dateNumberFormatTo = new Date(dateProgram.to.year, dateProgram.to.month - 1, dateProgram.to.day);
-  const formattedDateFrom = format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: uk });
-  const formattedDateTo = format(new Date(dateNumberFormatTo), 'd MMMM', { locale: uk });
+  const dateNumberFormatFrom = new Date(dateProgram?.from.year, dateProgram?.from.month - 1, dateProgram?.from.day);
+  const dateNumberFormatTo = new Date(dateProgram?.to.year, dateProgram?.to.month - 1, dateProgram?.to.day);
+
+  const formattedDateFrom = isValid(dateNumberFormatFrom) ? format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: uk }) : '';
+  const formattedDateTo = isValid(dateNumberFormatTo) ? format(new Date(dateNumberFormatTo), 'd MMMM', { locale: uk }) : '';
+
   const descriptionText = convertDraftToHTML(description);
 
   return (
-    <section className="flex lg:flex-row flex-col lg:mb-20 mb-10">
-      <div className=" bg-background-secondary flex-1 flex lg:justify-end justify-center">
-        <div className="lg:max-w-[708px] max-w-full md:py-12 md:px-24 py-6 px-12">
+    <section className="flex lg:flex-row flex-col items-stretch lg:mb-20 mb-10">
+      <div className="bg-skyBlue-300 flex-1 flex lg:justify-end justify-center">
+        <div className="lg:max-w-[708px] max-w-full md:py-12 md:px-24 py-6 px-12 flex items-center">
           <div className="container">
             <h2 className="lg:text-h2 text-h5 text-font-primary font-ebGaramond">{title}</h2>
           </div>
         </div>
       </div>
+
       <div className=" bg-font-white items-center flex-1 flex justify-start relative">
-        <span className="bg-accent-300 rounded-tr-[4px] rounded-br-[4px] font-helv text-base text-font-primary py-1.5 px-4 font-medium absolute left-0 top-8">{`${formattedDateFrom} - ${formattedDateTo}`}</span>
-        <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:py-[70px] pt-[100px] pb-[50px] px-12 ">
+        {formattedDateFrom && formattedDateTo && (
+          <span className="bg-accent-300 rounded-tr-[4px] rounded-br-[4px] font-helv text-base text-font-primary py-1.5 px-4 font-medium absolute left-0 top-8">{`${formattedDateFrom} - ${formattedDateTo}`}</span>
+        )}
+
+        <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:pt-[70px] pt-[100px] pb-[30px] px-12 ">
           <div className="container">
             <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: descriptionText }} />
             <div className="mt-4 flex">
-              <Button size="large" className="flex justify-self-center" onClick={() => router.push('/donation')}>
+              <Button size="large" className="flex justify-self-center items-center custom-donate-btn" onClick={() => router.push('/donation')}>
                 Donate
+                <span className="ml-2 duration-500">
+                  <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                </span>
               </Button>
             </div>
           </div>

@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 import { getGlobalSectionByKey } from '@/store/global-sections/action';
 import { GlobalSectionsType } from '../admin/GlobalSections/enum/types';
 import Hero from '../ui/Hero';
-import { heroData } from '@/data/about/hero';
 import OurMission from '../home/OurMission';
 import DetailedTextInformation from './DetailedTextInformation';
 import Team from './Team';
@@ -22,6 +21,7 @@ function AboutPageClientSide() {
   const [aboutPage, setAboutPage] = useState<IPagesResponseDTO | null>(null);
   const [ourPartners, setOurPartners] = useState(null);
 
+  const ourMission = aboutPage?.contentBlocks?.filter(item => item.contentBlockType === 'MISSION_BLOCK') || [];
   const quote = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
   const ourHistoryTitle = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_TITLE')?.title;
   const ourHistoryDescription = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'OUR_HISTORY_DESCRIPTION');
@@ -71,9 +71,9 @@ function AboutPageClientSide() {
 
   return (
     <div>
-      <Hero data={heroData} />
-      <OurMission />
-      {quote && <DetailedTextInformation quote={quote} />}
+      <Hero title="Про нас" />
+      <OurMission ourMission={ourMission} />
+      {quote && quote?.text !== '' && <DetailedTextInformation quote={quote} />}
       <Team />
       <HistoryCard ourHistoryTitle={ourHistoryTitle} ourHistoryDescription={ourHistoryDescription} ourHistoryPhotos={ourHistoryPhotos} />
       <HistoryFormation ourTimeLine={ourTimeLine} />

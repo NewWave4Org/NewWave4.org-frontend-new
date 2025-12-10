@@ -2,6 +2,7 @@ import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProgramBlockItem from './ProgramBlockItem';
 
 function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] | null }) {
+  console.log('dopPrograms', dopPrograms);
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
@@ -9,7 +10,7 @@ function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] | null }) 
 
         <div className="flex flex-col lg:flex-row -ml-3 -mr-3">
           {dopPrograms?.map(item => {
-            const description = item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.editorState;
+            const description = item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.text;
             const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SECTION_WITH_PHOTO')?.files;
 
             return <ProgramBlockItem key={item.id} title={item.title} description={description} id={item.id} imageSrc={imageSrc} />;

@@ -38,7 +38,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
       <ProjectHeader title={project.title} className="!mb-0" />
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && (
+      {quoteText && quoteText?.text !== '' && (
         <div className="container mx-auto px-4">
           <Quote quote={quoteText} className="text-font-primary" />
         </div>

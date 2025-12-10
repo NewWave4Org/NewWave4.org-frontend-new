@@ -8,7 +8,8 @@ import ProgramSchedule from '@/components/program/programPageComponents/ProgramS
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 
 function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | undefined }) {
-  const subTitleProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'SUB_TITLE_PROGRAM')?.text;
+  const titleProgram = program?.title;
+  const pageBanner = program?.contentBlocks?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
   const dateProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
   const descriptionProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.editorState;
 
@@ -34,9 +35,9 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
 
   return (
     <>
-      <ProgramHeader title={program?.title} classNameParent="!mb-0" />
-      <div className="container mx-auto px-4">
-        {(subTitleProgram || descriptionProgram) && <ProgramFirstBlocks title={subTitleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
+      <ProgramHeader title="Програма" pageBanner={pageBanner} classNameParent="!mb-0" />
+      <div className="">
+        {(titleProgram || descriptionProgram) && <ProgramFirstBlocks title={titleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">
           {((filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0) || (videoURL && videoURL.length > 0)) && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />}
           {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}
