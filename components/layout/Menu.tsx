@@ -7,7 +7,7 @@ const Menu = () => {
   const pathname = usePathname();
   return (
     <nav className="justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
-      <ul className="flex gap-x-8 text-large font-helv menu__items">
+      <ul className="flex gap-x-8 text-large font-helv menu__items list-none">
         {[
           { href: '/', label: 'Головна' },
           { href: '/about', label: 'Про нас' },
@@ -18,7 +18,7 @@ const Menu = () => {
         ].map(({ href, label }) => {
           const activeStyle = pathname === href ? 'active-link' : '';
           return (
-            <li key={href} className="py-1">
+            <li key={href} className="py-1 before:content-none pl-0">
               <Link className={`menu-link ${activeStyle}`} href={href}>
                 <span>{label}</span>
               </Link>

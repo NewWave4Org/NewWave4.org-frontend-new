@@ -4,7 +4,6 @@ import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useEffect, useState } from 'react';
-import { heroData } from '@/data/projects/hero';
 import Hero from '../ui/Hero';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProjectPage from './ProjectPage';
@@ -32,7 +31,7 @@ function ProjectsPageClient() {
 
   return (
     <div className="ProjectsPage">
-      <Hero data={heroData} />
+      <Hero title="Наші проєкти" pageBanner="/projects/img.png" />
 
       {loading ? (
         <div className="text-center py-16 text-lg text-font-secondary">Loading...</div>
