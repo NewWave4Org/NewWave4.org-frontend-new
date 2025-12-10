@@ -57,10 +57,10 @@ body {
   } */
   
   .donate-btn {
-    @apply bg-buttons-cta-default hover:bg-buttons-cta-hover active:bg-buttons-cta-active duration-500 text-font-white text-medium1 font-helv rounded-lg px-[84.5px] py-4;
+    @apply bg-buttons-cta-default hover:bg-buttons-cta-hover active:bg-buttons-cta-active duration-500 text-font-white text-medium1 font-helv rounded-lg px-[60px] py-4;
   }
   .language-btn {
-    @apply text-font-primary inline-flex w-full items-center gap-x-2 p-4 text-sm font-helv text-medium1;
+    @apply text-font-primary inline-flex items-center gap-x-2 p-3 px-2 text-sm font-helv text-medium1;
   }
   .headerMobile {
     @apply hidden
@@ -272,11 +272,11 @@ body {
 }
 
 
-.projectsBlock__content ul li {
+ul li {
   position: relative;
   padding-left: 40px;
 }
-.projectsBlock__content ul li:before {
+ul li:before {
   position: absolute;
   left: 0;
   top: 8px;
@@ -286,12 +286,21 @@ body {
   height: 32px;
   background: url('./check-Icon.svg') no-repeat;
 }
-.projectsBlock__content ol {
+ol {
   list-style: auto;
   padding-left: 20px;
 }
 
-@media (min-width: 1024px) {
+.language-btn + .language-btn:before  {
+  position: absolute;
+  left: 0;
+  content: '';
+  width: 1px;
+  height: 12px;
+  background: #B5B5B5;
+}
+
+@media (min-width: 1280px) {
   .home-general-section {
     height: calc(100dvh - 96px);
   }
@@ -305,6 +314,15 @@ body {
   }
   .home-general-section .embla-slide-btn {
     display: none;
+  }
+}
+
+@media(max-width: 1280px) {
+  .menu-link {
+    font-size: 14px;
+  }
+  header .donate-btn {
+    padding: 16px 40px;
   }
 }
 

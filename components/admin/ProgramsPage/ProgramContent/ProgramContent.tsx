@@ -99,9 +99,9 @@ function ProgramContent({ programId }: { programId: number }) {
       authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
       articleStatus: '',
       contentBlocks: [
-        { id: uuid(), contentBlockType: 'SUB_TITLE_PROGRAM', text: '' },
         { id: uuid(), contentBlockType: 'DESCRIPTION_PROGRAM', text: '', editorState: null },
         { id: uuid(), contentBlockType: 'DATE_PROGRAM', date: '' },
+        { id: uuid(), contentBlockType: 'PAGE_BANNER', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
         { id: uuid(), contentBlockType: 'SECTION_WITH_PHOTO', sectionTitle: '', text: '', files: [], editorState: null },
         { id: uuid(), contentBlockType: 'SECTION_WITH_TEXT', sectionTitle: '', text1: '', text2: '', editorState1: null, editorState2: null },
@@ -333,20 +333,8 @@ function ProgramContent({ programId }: { programId: number }) {
 
                       return (
                         <React.Fragment key={block.id}>
-                          {block.contentBlockType === 'SUB_TITLE_PROGRAM' && (
-                            <Input
-                              id={`contentBlocks.${index}.text`}
-                              name={`contentBlocks.${index}.text`}
-                              label="Second title"
-                              labelClass="!text-admin-700"
-                              className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0 mb-5"
-                              value={block.text}
-                              onChange={handleChange}
-                            />
-                          )}
-
                           {block.contentBlockType === 'DESCRIPTION_PROGRAM' && (
-                            <div>
+                            <div className="mb-5">
                               <div className="mb-2 !text-admin-700">Description program</div>
                               <TextEditor
                                 key={editorKey[`${block.id}_text`]}
@@ -362,6 +350,21 @@ function ProgramContent({ programId }: { programId: number }) {
                                 Choose the date of the event
                               </label>
                               <DatePicker name={`contentBlocks.${index}.date`} pickerId={`dateProgram-${index}`} pickerWithTime={false} pickerType="range" pickerPlaceholder="Choose date" pickerValue={block.date} />
+                            </div>
+                          )}
+
+                          {block.contentBlockType === 'PAGE_BANNER' && (
+                            <div className="mb-4 w-1/2 h-[500px]">
+                              <ImageLoading
+                                articleId={programId}
+                                maxFiles={1}
+                                label="Add banner photo"
+                                classBlock="min-h-[300px]"
+                                positionBlockImg={true}
+                                contentType={ArticleTypeEnum.PROGRAM}
+                                uploadedUrls={block?.files || []}
+                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                              />
                             </div>
                           )}
 

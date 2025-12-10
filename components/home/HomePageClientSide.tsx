@@ -62,7 +62,7 @@ function HomePageClientSide() {
   return (
     <>
       <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 lg:pb-0 mb-0 pb-5">
-        <GeneralSlider slides={slides} className="lg:h-1/2 mb-5 lg:px-0 px-4" />
+        <GeneralSlider slides={slides} className="xl:h-1/2 mb-5 lg:px-0 px-4" />
         <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} className="lg:h-1/2" />
       </section>
       <Programs />
