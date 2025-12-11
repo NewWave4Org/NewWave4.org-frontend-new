@@ -11,7 +11,7 @@ import useHandleThunk from '@/utils/useHandleThunk';
 
 interface IPartnersFormValues {
   title: string;
-  pageType: string[];
+  key: string;
   contentBlocks: {
     contentBlockType: string;
     files: any[];
@@ -20,7 +20,7 @@ interface IPartnersFormValues {
 
 const defaultFormValues = {
   title: 'Our partners',
-  pageType: [`${GlobalSectionsType.OUR_PARTNERS}`],
+  key: `${GlobalSectionsType.OUR_PARTNERS}`,
   contentBlocks: [{ contentBlockType: 'PARTNERS', files: [] }],
 };
 
@@ -36,7 +36,7 @@ function PartnersForm() {
 
   const initialValues = {
     title: 'Our partners',
-    pageType: [`${GlobalSectionsType.OUR_PARTNERS}`],
+    key: `${GlobalSectionsType.OUR_PARTNERS}`,
     contentBlocks: ourPartners?.contentBlocks && ourPartners?.contentBlocks.length ? ourPartners?.contentBlocks : defaultFormValues.contentBlocks,
   };
 
@@ -97,6 +97,8 @@ function PartnersForm() {
                 classBlock="min-h-[300px]"
                 uploadedUrls={values.contentBlocks[0].files || []}
                 previewSize={300}
+                isObjectCover={false}
+                previewClassName="shadow-xl rounded-xl"
                 onFilesChange={files => setFieldValue('contentBlocks[0].files', files)}
               />
             </div>
