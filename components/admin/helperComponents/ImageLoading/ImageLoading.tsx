@@ -23,6 +23,8 @@ interface IImageLoading {
   validationText?: string;
   positionBlockImg?: boolean;
   isAttach?: boolean;
+  previewClassName?: string;
+  isObjectCover?: boolean;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -40,6 +42,8 @@ function ImageLoading({
   validationText = '',
   onFilesChange,
   positionBlockImg,
+  previewClassName,
+  isObjectCover = true,
   isAttach,
 }: IImageLoading) {
   const { uploadFiles, deleteFile } = useImageLoading({
@@ -143,12 +147,12 @@ function ImageLoading({
       {fileRejectionItems}
 
       {urls.length > 0 && (
-        <div className={`${positionBlockImg ? 'h-full' : ''} overflow-hidden flex gap-2 flex-wrap `}>
+        <div className={`${positionBlockImg ? 'h-full' : ''} ${isObjectCover ? 'overflow-hidden' : 'overflow-visible'} flex gap-2 flex-wrap `}>
           {urls
             .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
             .map((url, i) => (
-              <div key={i} className={clsx(`${positionBlockImg ? 'w-full' : ''} relative mt-3 mr-2`)} style={positionBlockImg ? {} : { width: `${previewSize}px`, height: `${previewSize}px` }}>
-                <Image src={url} alt={`uploaded-${i}`} fill className="h-full w-auto object-cover rounded-md" />
+              <div key={i} className={clsx(`${positionBlockImg ? 'w-full' : ''} ${previewClassName} relative mt-5 mr-2`)} style={positionBlockImg ? {} : { width: `${previewSize}px`, height: `${previewSize}px` }}>
+                <Image src={url} alt={`uploaded-${i}`} fill className={`h-full w-auto ${isObjectCover ? 'object-cover' : 'object-contain p-4'} rounded-md`} />
                 <button
                   type="button"
                   className="absolute -top-2 -right-2 bg-red-500 text-white p-1 
