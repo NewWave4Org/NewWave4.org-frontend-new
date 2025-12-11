@@ -12,7 +12,6 @@ const TableHeader = [
 function GlobalSectionsPage() {
   const TableSections = [
     { id: GlobalSectionsType.OUR_SOCIAL_LINKS, title: 'Social links' },
-    { id: GlobalSectionsType.OUR_MISSION, title: 'Our mission' },
     { id: GlobalSectionsType.OUR_PARTNERS, title: 'Our partners' },
   ];
 

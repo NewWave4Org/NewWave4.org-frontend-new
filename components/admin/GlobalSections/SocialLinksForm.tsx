@@ -19,7 +19,7 @@ interface ISocialLinksValues {
 
 const defaultFormValues = {
   title: 'Our social links',
-  pageType: GlobalSectionsType.OUR_SOCIAL_LINKS,
+  key: GlobalSectionsType.OUR_SOCIAL_LINKS,
   contentBlocks: [
     { contentBlockType: 'FACEBOOK', link: '', isActive: false },
     { contentBlockType: 'INSTAGRAM', link: '', isActive: false },
