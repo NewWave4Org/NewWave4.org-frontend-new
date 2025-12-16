@@ -11,13 +11,13 @@ function ProgramBlocksWithPhotos({ contentBlock, videoURL }: IProgramContentProp
   const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
   return (
-    <>
+    <div className="container mx-auto px-4">
       {contentBlock?.map((content, index) => {
         const oddBlock = index % 2 !== 0;
         const htmlText = convertDraftToHTML(content?.editorState);
         return (
           <div key={index} className={`flex lg:flex-row flex-col lg:mb-20 mb-10 gap-x-3 ${oddBlock ? 'odd' : ''}`}>
-            <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
+            <div className={`flex-1 lg:pr-[64px] lg:pb-0 pr-0 pb-5 ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''}`}>
               <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
               <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: htmlText }} />
             </div>
@@ -38,7 +38,7 @@ function ProgramBlocksWithPhotos({ contentBlock, videoURL }: IProgramContentProp
           <iframe src={videoLink} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
         </div>
       )}
-    </>
+    </div>
   );
 }
 

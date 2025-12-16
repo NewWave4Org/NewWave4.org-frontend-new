@@ -202,7 +202,6 @@ function HomeForm() {
                               onChange={handleChange}
                               label="Slider title"
                               labelClass="mb-2 !text-admin-700"
-                              required={true}
                             />
                           </div>
                           <div className="mb-4">
@@ -282,32 +281,40 @@ function HomeForm() {
                           type="button"
                           onClick={async () => {
                             const blockId = block.id;
+                            let deletionSuccessful = true;
 
                             if (block.files) {
                               for (const url of block.files) {
                                 try {
                                   await deleteFile(url);
-                                } catch (error) {
-                                  toast.error(`Failed to delete file. Please save and reload page`);
+                                } catch (error: any) {
+                                  toast.error(error?.original?.errors[0] || 'Failed to delete file.');
                                   console.log('Failed to delete file', url, error);
+                                  deletionSuccessful = false;
+                                  break;
                                 }
                               }
                             }
-                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                            if (blockIndex !== -1) remove(blockIndex);
-                            // remove(realIndex);
 
-                            setEditorStates(prev => {
-                              const newState = { ...prev };
-                              delete newState[blockId];
-                              return newState;
-                            });
+                            if (deletionSuccessful) {
+                              const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                              if (blockIndex !== -1) remove(blockIndex);
+                              // remove(realIndex);
 
-                            setEditorKey(prev => {
-                              const newKey = { ...prev };
-                              delete newKey[blockId];
-                              return newKey;
-                            });
+                              setEditorStates(prev => {
+                                const newState = { ...prev };
+                                delete newState[blockId];
+                                return newState;
+                              });
+
+                              setEditorKey(prev => {
+                                const newKey = { ...prev };
+                                delete newKey[blockId];
+                                return newKey;
+                              });
+
+                              toast.success(`Slider №${sliderNumber} was successfully removed.`);
+                            }
                           }}
                           className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500"
                         >

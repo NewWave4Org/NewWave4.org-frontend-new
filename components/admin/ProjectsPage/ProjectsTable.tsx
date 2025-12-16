@@ -11,7 +11,6 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
 import React, { ReactNode } from 'react';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import useSortTable from '@/utils/hooks/useSortTable';
 import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum } from '@/utils/ArticleType';
@@ -72,7 +71,7 @@ function ProjectsTable({
 
               <th className="pb-4 px-2 border-b  border-admin-300">
                 <span onClick={e => handleSortByDate(e)} className="cursor-pointer">
-                  Created (mm/dd/yy)
+                  Created
                   <span
                     data-value="true"
                     className={`${chooseSortDateType === true ? 'font-bold !border-admin-600' : 'text-gray-400'} p-1 rounded-md border-gray-300 border ml-1 

@@ -77,7 +77,7 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
   const slideSize = slides.length === 2 ? '100%' : '540px';
 
   return (
-    <div className={`${className} relative h-[420px] group/arrows w-full`}>
+    <div className={`${className} relative h-[420px] group/arrows container overflow-hidden mx-auto`}>
       <div className="h-full w-full" ref={initSlider ? emblaRef : null}>
         <div className={`${initSlider ? 'flex' : 'block'} h-full`}>
           {slides?.map((slide, index) => {
@@ -91,9 +91,9 @@ const GeneralSlider: React.FC<GeneralSliderProps> = ({ slides, autoplayDelay = 4
                 <div
                   className="
                     absolute bottom-0 h-full w-full rounded-xl
-                    
+                    bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_80%,rgba(0,0,0,1)_100%)]
+                    lg:bg-none
                     lg:bg-[rgba(0,0,0,0.5)]
-                    bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.87)_80%,rgba(0,0,0,1)_100%)]
                     lg:opacity-0
                     lg:invisible visible
                     transition-all

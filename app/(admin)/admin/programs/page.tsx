@@ -21,6 +21,9 @@ function ProgramsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [refreshData, setRefreshData] = useState(false);
 
+  const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
+  const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
+
   const programs = useAppSelector(state => state.articleContent.articleContent);
   const totalPages = useAppSelector(state => state.articleContent.totalPages);
 
@@ -30,9 +33,11 @@ function ProgramsPage() {
         page: currentPage,
         articleType: ArticleTypeEnum.PROGRAM,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
+        sortByStatus: chooseSortStatusType,
+        sortByCreatedAtDescending: chooseSortDateType,
       }),
     );
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, chooseSortStatusType, chooseSortDateType]);
 
   useEffect(() => {
     fetchAllPrograms();
@@ -54,6 +59,24 @@ function ProgramsPage() {
   const changePage = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
+
+  function handleSortChange(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortStatusType(value === 'true');
+    setCurrentPage(0);
+  }
+
+  function handleSortByDate(e: React.ChangeEvent<HTMLSpanElement>) {
+    const { value } = e.target.dataset;
+
+    if (value === undefined) return;
+
+    setChooseSortDateType(value === 'true');
+    setCurrentPage(0);
+  }
 
   const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
 
@@ -94,6 +117,10 @@ function ProgramsPage() {
       renderPagination={renderPagination}
       handleDeleteProject={handleDeleteProject}
       handleArchivedProject={handleArchivedProject}
+      handleStatusSort={handleSortChange}
+      sortStatusVal={chooseSortStatusType}
+      chooseSortDateType={chooseSortDateType}
+      handleSortByDate={handleSortByDate}
     />
   );
 }
