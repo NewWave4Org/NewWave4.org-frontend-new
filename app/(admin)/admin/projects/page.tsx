@@ -1,13 +1,13 @@
 'use client';
+
 import ProjectsTable from '@/components/admin/ProjectsPage/ProjectsTable';
 import Pagination from '@/components/shared/Pagination';
-import Select from '@/components/shared/Select';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleSortEnum, ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface RenderPaginationProps {
@@ -15,13 +15,6 @@ interface RenderPaginationProps {
   totalPages: number;
   changePage: (page: number) => void;
 }
-
-const sortTypes = [
-  { value: ArticleSortEnum.PUBLISHED, label: ArticleSortEnum.PUBLISHED },
-  { value: ArticleSortEnum.DRAFT, label: ArticleSortEnum.DRAFT },
-  { value: ArticleSortEnum.NEW_FIRST, label: ArticleSortEnum.NEW_FIRST },
-  { value: ArticleSortEnum.OLD_FIRST, label: ArticleSortEnum.OLD_FIRST },
-];
 
 function ProgramsPage() {
   const dispatch = useAppDispatch();
