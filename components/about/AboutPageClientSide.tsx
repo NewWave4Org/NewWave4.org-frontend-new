@@ -15,11 +15,12 @@ import Team from './Team';
 import HistoryCard from './HistoryCard';
 import HistoryFormation from './HistoryFormation';
 import Sponsors from '../home/Sponsors';
+import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
 
 function AboutPageClientSide() {
   const dispatch = useAppDispatch();
   const [aboutPage, setAboutPage] = useState<IPagesResponseDTO | null>(null);
-  const [ourPartners, setOurPartners] = useState(null);
+  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
 
   const ourMission = aboutPage?.contentBlocks?.filter(item => item.contentBlockType === 'MISSION_BLOCK') || [];
   const quote = aboutPage?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
@@ -64,9 +65,8 @@ function AboutPageClientSide() {
       }
     }
 
-    getBlockByKey();
-
     getPageByKey();
+    getBlockByKey();
   }, [dispatch]);
 
   return (
@@ -77,7 +77,7 @@ function AboutPageClientSide() {
       <Team />
       <HistoryCard ourHistoryTitle={ourHistoryTitle} ourHistoryDescription={ourHistoryDescription} ourHistoryPhotos={ourHistoryPhotos} />
       <HistoryFormation ourTimeLine={ourTimeLine} />
-      {ourPartners && <Sponsors ourPartners={ourPartners} />}
+      {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}
     </div>
   );
 }
