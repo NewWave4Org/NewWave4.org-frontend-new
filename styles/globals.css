@@ -272,7 +272,7 @@ body {
 }
 
 
-ul li {
+.ul li {
   position: relative;
   padding-left: 40px;
 }
@@ -289,6 +289,12 @@ ul li:before {
 ol {
   list-style: auto;
   padding-left: 20px;
+}
+.filterNews__item:before {
+  content: none;
+}
+p {
+  margin-bottom: 10px;
 }
 
 .language-btn + .language-btn:before  {

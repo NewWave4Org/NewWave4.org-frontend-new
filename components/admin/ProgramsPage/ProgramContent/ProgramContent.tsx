@@ -24,6 +24,7 @@ import { v4 as uuid } from 'uuid';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -381,7 +382,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${index}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
                               />
                             </div>
                           )}
@@ -433,7 +437,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                     positionBlockImg={true}
                                     contentType={ArticleTypeEnum.PROGRAM}
                                     uploadedUrls={block?.files || []}
-                                    onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                    onFilesChange={(files, deleted) => {
+                                      setFieldValue(`contentBlocks.${index}.files`, files);
+                                      setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                    }}
                                   />
                                 </div>
                               </div>
@@ -568,7 +575,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${index}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
                               />
                             </div>
                           )}
@@ -721,7 +731,12 @@ function ProgramContent({ programId }: { programId: number }) {
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
-            <div className="mt-10">
+            <div className="my-4 flex gap-x-1">
+              <WarningIcon />
+              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
+            </div>
+
+            <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
               <em>You must save the page before you can preview or publish it</em>
             </div>

@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -135,6 +136,7 @@ function HomeForm() {
   }, [dispatch]);
 
   async function handleSubmit(values: IHomePageValues) {
+    console.log('deletedFiles', deletedFiles);
     for (const url of deletedFiles) {
       try {
         await deleteFile(url);
@@ -230,7 +232,10 @@ function HomeForm() {
                               classBlock="min-h-[300px]"
                               isAttach={true}
                               uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
-                              onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)}
+                              onFilesChange={(files, deleted) => {
+                                setFieldValue(`contentBlocks.${realIndex}.files`, files);
+                                setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                              }}
                               required={true}
                               previewSize={300}
                             />
@@ -287,7 +292,10 @@ function HomeForm() {
                             classBlock="min-h-[300px]"
                             isAttach={true}
                             uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
-                            onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)}
+                            onFilesChange={(files, deleted) => {
+                              setFieldValue(`contentBlocks.${realIndex}.files`, files);
+                              setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                            }}
                             required={true}
                             previewSize={300}
                           />
@@ -408,6 +416,16 @@ function HomeForm() {
           </FieldArray>
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+
+          <div className="my-4 flex gap-x-1">
+            <WarningIcon />
+            <em className="text-red-600">Warning: Click Update to permanently delete the photo.</em>
+          </div>
+
+          <div className="my-4">
+            <sup className="font-bold text-red-600 text-small2">*</sup>
+            After any changes you need to click the <strong>Update</strong> button
+          </div>
 
           <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
             {isSubmitting ? 'Loading...' : 'Update'}

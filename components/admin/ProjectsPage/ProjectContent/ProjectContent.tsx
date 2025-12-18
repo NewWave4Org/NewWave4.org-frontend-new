@@ -26,6 +26,7 @@ import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertF
 import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -346,7 +347,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                   contentType={ArticleTypeEnum.PROJECT}
                                   uploadedUrls={block.files || []}
                                   positionBlockImg={true}
-                                  onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                                  onFilesChange={(files, deleted) => {
+                                    setFieldValue(`contentBlocks.${blockIndex}.files`, files);
+                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  }}
                                 />
                               </div>
                             </div>
@@ -395,7 +399,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 contentType={ArticleTypeEnum.PROJECT}
                                 uploadedUrls={block?.files || []}
                                 positionBlockImg={true}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${blockIndex}.files`, files)}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${blockIndex}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
                               />
                             </div>
                           </div>
@@ -465,6 +472,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
             </FieldArray>
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
+
+            <div className="my-4 flex gap-x-1">
+              <WarningIcon />
+              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
+            </div>
 
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>

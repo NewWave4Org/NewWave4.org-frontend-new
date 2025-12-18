@@ -12,6 +12,8 @@ import Button from '@/components/shared/Button';
 import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 import { v4 as uuid } from 'uuid';
+import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
@@ -21,11 +23,17 @@ interface IAboutUsPageValues {
 function AboutUsForm() {
   const dispatch = useAppDispatch();
 
+  const { deleteFile } = useImageLoading({
+    isAttach: true,
+  });
+
   const [submitError, setSubmitError] = useState('');
   const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
 
   const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
+
+  const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
   const handleThunk = useHandleThunk();
 
@@ -125,19 +133,23 @@ function AboutUsForm() {
 
   async function handleSubmit(values: IAboutUsPageValues) {
     console.log('Submited', values);
+    console.log('deletedFiles', deletedFiles);
 
     try {
-      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
+      for (const url of deletedFiles) {
+        await deleteFile(url);
+      }
 
+      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
       // if (isUpdate) {
       //   result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
       // } else {
       //   result = await handleThunk(createdPages, values, setSubmitError);
       // }
-
       if (result) {
         setAboutUsPage(result);
         setSubmitError('');
+        setDeletedFiles([]);
         toast.success(isUpdate ? 'About us page updated successfully!' : 'About us page created successfully!');
       }
     } catch (error) {
@@ -228,7 +240,16 @@ function AboutUsForm() {
 
                   <div className=" mb-4">
                     <div className="mb-2 !text-admin-700">Our history photos</div>
-                    <ImageLoading classBlock="min-h-[300px]" maxFiles={10} isAttach={true} uploadedUrls={values.contentBlocks[6].files || []} onFilesChange={files => setFieldValue(`contentBlocks[6].files`, files)} />
+                    <ImageLoading
+                      classBlock="min-h-[300px]"
+                      maxFiles={10}
+                      isAttach={true}
+                      uploadedUrls={values.contentBlocks[6].files || []}
+                      onFilesChange={(files, deleted) => {
+                        setFieldValue(`contentBlocks[6].files`, files);
+                        setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                      }}
+                    />
                   </div>
 
                   <div className=" mb-4">
@@ -385,6 +406,11 @@ function AboutUsForm() {
           </FieldArray>
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+
+          <div className="my-4 flex gap-x-1">
+            <WarningIcon />
+            <em className="text-red-600">Warning: Click Update to permanently delete the photo.</em>
+          </div>
 
           <div className="my-4">
             <sup className="font-bold text-red-600 text-small2">*</sup>

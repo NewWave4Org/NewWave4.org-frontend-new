@@ -13,7 +13,7 @@ interface IImageLoading {
   contentType?: ArticleType | GlobalSectionsType | PagesType;
   articleId?: number;
   uploadedUrls?: string[];
-  onFilesChange?: (urls: string[]) => void;
+  onFilesChange?: (urls: string[], deleted?: string[]) => void;
   classBlock?: string;
   label?: string;
   note?: string;
@@ -46,7 +46,7 @@ function ImageLoading({
   isObjectCover = true,
   isAttach,
 }: IImageLoading) {
-  const { uploadFiles, deleteFile } = useImageLoading({
+  const { uploadFiles } = useImageLoading({
     contentType,
     articleId,
     isAttach,
@@ -79,15 +79,14 @@ function ImageLoading({
     [uploadFiles, onFilesChange, urls],
   );
 
-  const handleDelete = useCallback(
-    async (url: string) => {
-      await deleteFile(url);
-      const updated = urls.filter(u => u !== url);
-      setUrls(updated);
-      onFilesChange?.(updated);
-    },
-    [deleteFile, urls, onFilesChange],
-  );
+  const handleDelete = (url: string) => {
+    const updatedUrls = urls.filter(u => u !== url);
+    setUrls(updatedUrls);
+
+    setTimeout(() => {
+      onFilesChange?.(updatedUrls, [url]);
+    }, 0);
+  };
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,

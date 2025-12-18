@@ -1,25 +1,44 @@
 'use client';
 
-import { EmblaOptionsType } from 'embla-carousel';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
-import Fade from 'embla-carousel-fade';
+import Image from 'next/image';
+import Slider from 'react-slick';
 
-const EmblaCarousel = ({ slides, options = {} }: { slides: React.ReactNode[]; options?: EmblaOptionsType }) => {
-  const plugins = options.loop ? [Autoplay({ playOnInit: true }), Fade()] : [Fade()];
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
-  const [emblaRef] = useEmblaCarousel(options, plugins);
+interface IEmblaCarouselProps {
+  slides: { files: string[] };
+  speed?: number;
+  infinite?: boolean;
+  slideHover?: boolean;
+  autoplay?: boolean;
+  className?: string;
+  slidesToShow?: number;
+}
+
+const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1 }: IEmblaCarouselProps) => {
+  const settings = {
+    className: 'h-full',
+    infinite: infinite,
+    speed: speed,
+    slidesToScroll: 1,
+    autoplay: autoplay,
+    autoplaySpeed: 3000,
+    pauseOnHover: slideHover,
+    slidesToShow: slidesToShow,
+    showArrows: false,
+  };
 
   return (
-    <section className="embla relative">
-      <div className="embla__viewport overflow-hidden max-w-[718px] h-[200px] md:h-[524px]" ref={emblaRef}>
-        <div className="embla__container flex">
-          {slides?.map((slide, index) => (
-            <div className="embla__slide !w-[718px] max-w-full" key={index}>
-              {slide}
+    <section className="relative">
+      <div className="overflow-hidden max-w-[718px] h-[200px] md:h-[524px]">
+        <Slider {...settings}>
+          {slides?.files.map((slide, index) => (
+            <div className="w-full h-[200px] md:h-[524px] relative" key={index}>
+              <Image key={index} src={slide} alt={`slider-${index}`} fill className="rounded-xl object-cover w-full h-[200px] md:h-[524px]" />
             </div>
           ))}
-        </div>
+        </Slider>
       </div>
     </section>
   );
