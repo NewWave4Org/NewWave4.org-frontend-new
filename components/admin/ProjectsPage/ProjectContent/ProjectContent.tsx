@@ -25,6 +25,7 @@ import DatePicker from '../../helperComponents/DatePicker/DatePicker';
 import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertFromISO';
 import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
 import { v4 as uuid } from 'uuid';
+import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -41,12 +42,20 @@ const validationSchema = Yup.object({
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
   const pathname = usePathname();
 
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const { deleteFile } = useImageLoading({
+    articleId: project?.id,
+    contentType: ArticleTypeEnum.PROJECT,
+  });
+
   const [submitError, setSubmitError] = useState('');
+
+  const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
   const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
@@ -132,6 +141,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     let payload = { ...values };
 
+    for (const url of deletedFiles) {
+      try {
+        await deleteFile(url);
+      } catch (error: any) {
+        console.log('Failed to delete file', url, error);
+      }
+    }
+
     payload = {
       ...values,
       customCreationDate: convertToISO(values.customCreationDate),
@@ -146,6 +163,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
         toast.success(message);
       }
+
+      setDeletedFiles([]);
     } catch (error) {
       toast.error(`Something go wrong! ${error}`);
     } finally {
@@ -203,7 +222,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 name="title"
                 type="text"
                 maxLength={undefined}
-                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                className="!bg-background-light w-full !h-[50px] px-5 rounded-lg !ring-0"
                 value={values?.title || ''}
                 label="Project title"
                 labelClass="!text-admin-700"
@@ -222,8 +241,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             <FieldArray name="contentBlocks">
               {({ push, remove }) => {
-                const initialBlocks = values.contentBlocks?.slice(0, 6) || [];
-                const additionalBlocks = values.contentBlocks?.slice(6) || [];
+                const initialBlocks = values.contentBlocks?.slice(0, 5) || [];
+                const additionalBlocks = values.contentBlocks?.slice(5) || [];
 
                 return (
                   <div className="mb-5">
@@ -337,7 +356,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     })}
 
                     {additionalBlocks.map((block, pairIndex) => {
-                      const index = pairIndex + 6;
+                      const index = pairIndex + 5;
                       const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
 
                       if (block.contentBlockType !== 'SECTION') {
@@ -386,6 +405,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                             onClick={() => {
                               const blockId = block.id;
                               // remove(index);
+                              if (block.files) {
+                                setDeletedFiles(prev => [...prev, ...block.files]);
+                              }
+
                               const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
                               if (blockIndex !== -1) remove(blockIndex);
 

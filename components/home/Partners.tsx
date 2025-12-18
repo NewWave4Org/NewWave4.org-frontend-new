@@ -20,11 +20,11 @@ const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) =>
         <div className="sponsors__inner">
           <h4 className="preheader !text-font-primary">Стати партнером</h4>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">
-            <div className="partners-text lg:max-w-[524px] max-w-full">
+            <div className="partners-text lg:max-w-[524px] lg:w-[525px] w-full max-w-full">
               <h4 className="text-h4 text-font-accent font-ebGaramond">{ourPartnersContent?.title}</h4>
               <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: partnerDescriptionText }} />
             </div>
-            <div className="partners-form">
+            <div className="partners-form lg:max-w-[480px]">
               <p className="text-body text-grey-700 font-medium">Залиште свій email та ми з Вами зв’яжемось</p>
               <PartnerForm />
             </div>
