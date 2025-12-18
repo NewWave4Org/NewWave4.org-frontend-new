@@ -14,8 +14,6 @@ interface IHistoryCard {
 const HistoryCard = ({ ourHistoryTitle, ourHistoryDescription, ourHistoryPhotos }: IHistoryCard) => {
   const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.editorState);
 
-  console.log('ourHistoryPhotos', ourHistoryPhotos);
-
   const slides = ourHistoryPhotos?.files.map((item, i) => {
     console.log('item', item);
     return <Image key={i} src={item} alt={`slider-${i}`} width={718} height={524} className="rounded-xl object-cover w-full h-[200px] embla__slide__img md:h-[524px] md:w-[718px]" />;

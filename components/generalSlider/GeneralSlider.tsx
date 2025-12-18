@@ -9,7 +9,7 @@ import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { SampleNextArrow, SamplePrevArrow } from './Arrows/Arrows';
-import SliderDots from './SliderDots';
+import SliderDots from './Dots/SliderDots';
 
 export interface Slide {
   title: string;

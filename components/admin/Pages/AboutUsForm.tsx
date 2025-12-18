@@ -386,6 +386,11 @@ function AboutUsForm() {
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
 
+          <div className="my-4">
+            <sup className="font-bold text-red-600 text-small2">*</sup>
+            After any changes, you need to click the <strong>Update</strong> button
+          </div>
+
           <div className="mt-6">
             <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
               {isSubmitting ? 'Loading...' : 'Update'}
