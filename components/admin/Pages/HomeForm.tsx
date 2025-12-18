@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -27,6 +28,8 @@ function HomeForm() {
 
   const [submitError, setSubmitError] = useState('');
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
+
+  const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
   const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
@@ -133,23 +136,20 @@ function HomeForm() {
   }, [dispatch]);
 
   async function handleSubmit(values: IHomePageValues) {
-    console.log('Submitted:', values);
-
-    // ---- VALIDATION FOR FIRST SLIDER ----
-    const firstSlider = values.contentBlocks.find(b => b.contentBlockType === 'SLIDER');
-
-    if (!firstSlider) {
-      toast.error('First slider block is missing!');
-      return;
+    console.log('deletedFiles', deletedFiles);
+    for (const url of deletedFiles) {
+      try {
+        await deleteFile(url);
+      } catch (error: any) {
+        console.log('Failed to delete file', url, error);
+      }
     }
 
-    // if (!firstSlider.title || firstSlider.title.trim() === '') {
-    //   toast.error('First slider title is required!');
-    //   return;
-    // }
+    // ---- VALIDATION FOR FIRST SLIDER ----
+    const slidersWithoutImage = values.contentBlocks.filter(block => block.contentBlockType === 'SLIDER' && (!Array.isArray(block.files) || block.files.length === 0));
 
-    if (!firstSlider.files || !Array.isArray(firstSlider.files) || firstSlider.files.length === 0) {
-      toast.error('First slider must contain image!');
+    if (slidersWithoutImage.length > 0) {
+      toast.error(slidersWithoutImage.length === 1 ? 'Slider must contain an image!' : 'All sliders must contain images!');
       return;
     }
 
@@ -161,6 +161,8 @@ function HomeForm() {
         setSubmitError('');
         toast.success(isUpdate ? 'Home page updated successfully!' : 'Home page created successfully!');
       }
+
+      setDeletedFiles([]);
     } catch (error) {
       toast.error(`Something went wrong! ${error}`);
     }
@@ -226,7 +228,17 @@ function HomeForm() {
                               Slider photo
                               <span className="text-status-danger-500 text-body"> *</span>
                             </div>
-                            <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} required={true} />
+                            <ImageLoading
+                              classBlock="min-h-[300px]"
+                              isAttach={true}
+                              uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
+                              onFilesChange={(files, deleted) => {
+                                setFieldValue(`contentBlocks.${realIndex}.files`, files);
+                                setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                              }}
+                              required={true}
+                              previewSize={300}
+                            />
                           </div>
                         </div>
                       );
@@ -273,48 +285,48 @@ function HomeForm() {
                         </div>
 
                         <div className="mb-4">
-                          <div className="mb-2 !text-admin-700">Slider photo</div>
-                          <ImageLoading classBlock="min-h-[300px]" isAttach={true} uploadedUrls={block.files || []} onFilesChange={files => setFieldValue(`contentBlocks.${realIndex}.files`, files)} />
+                          <div className="mb-2 !text-admin-700">
+                            Slider photo <span className="text-status-danger-500 text-body"> *</span>
+                          </div>
+                          <ImageLoading
+                            classBlock="min-h-[300px]"
+                            isAttach={true}
+                            uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
+                            onFilesChange={(files, deleted) => {
+                              setFieldValue(`contentBlocks.${realIndex}.files`, files);
+                              setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                            }}
+                            required={true}
+                            previewSize={300}
+                          />
                         </div>
 
                         <button
                           type="button"
-                          onClick={async () => {
+                          onClick={() => {
                             const blockId = block.id;
-                            let deletionSuccessful = true;
-
                             if (block.files) {
-                              for (const url of block.files) {
-                                try {
-                                  await deleteFile(url);
-                                } catch (error: any) {
-                                  toast.error(error?.original?.errors[0] || 'Failed to delete file.');
-                                  console.log('Failed to delete file', url, error);
-                                  deletionSuccessful = false;
-                                  break;
-                                }
-                              }
+                              console.log('block.files', block.files);
+                              setDeletedFiles(prev => [...prev, ...block.files]);
                             }
 
-                            if (deletionSuccessful) {
-                              const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                              if (blockIndex !== -1) remove(blockIndex);
-                              // remove(realIndex);
+                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                            if (blockIndex !== -1) remove(blockIndex);
+                            // remove(realIndex);
 
-                              setEditorStates(prev => {
-                                const newState = { ...prev };
-                                delete newState[blockId];
-                                return newState;
-                              });
+                            setEditorStates(prev => {
+                              const newState = { ...prev };
+                              delete newState[blockId];
+                              return newState;
+                            });
 
-                              setEditorKey(prev => {
-                                const newKey = { ...prev };
-                                delete newKey[blockId];
-                                return newKey;
-                              });
+                            setEditorKey(prev => {
+                              const newKey = { ...prev };
+                              delete newKey[blockId];
+                              return newKey;
+                            });
 
-                              toast.success(`Slider №${sliderNumber} was successfully removed.`);
-                            }
+                            toast.success(`Slider №${sliderNumber} was successfully removed.`);
                           }}
                           className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500"
                         >
@@ -404,6 +416,16 @@ function HomeForm() {
           </FieldArray>
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+
+          <div className="my-4 flex gap-x-1">
+            <WarningIcon />
+            <em className="text-red-600">Warning: Click Update to permanently delete the photo.</em>
+          </div>
+
+          <div className="my-4">
+            <sup className="font-bold text-red-600 text-small2">*</sup>
+            After any changes you need to click the <strong>Update</strong> button
+          </div>
 
           <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
             {isSubmitting ? 'Loading...' : 'Update'}

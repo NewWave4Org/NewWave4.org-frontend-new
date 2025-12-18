@@ -120,8 +120,8 @@ body {
     @apply flex flex-col gap-y-4 w-[544px] translate-x-[-84px] translate-y-[119px];
   }
   .embla-slide-btn {
-    @apply absolute top-1/2 w-[60px] h-[60px] -translate-y-1/2 p-3 bg-primary-400 
-    opacity-0 group-hover:opacity-100 transition rounded-full z-10;
+    @apply !w-[60px] !h-[60px] !p-3 !bg-primary-400 
+    opacity-0 group-hover:opacity-100 transition rounded-full z-[99];
   }
   .embla-slider-dots {
     @apply absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-6 bg-white bg-opacity-40 py-1.5 px-[19.5px] rounded-[16px];
@@ -272,7 +272,7 @@ body {
 }
 
 
-ul li {
+.ul li {
   position: relative;
   padding-left: 40px;
 }
@@ -290,6 +290,12 @@ ol {
   list-style: auto;
   padding-left: 20px;
 }
+.filterNews__item:before {
+  content: none;
+}
+p {
+  margin-bottom: 10px;
+}
 
 .language-btn + .language-btn:before  {
   position: absolute;
@@ -298,6 +304,30 @@ ol {
   width: 1px;
   height: 12px;
   background: #B5B5B5;
+}
+.home-slider .slick-list,
+.home-slider .slick-track,
+.home-slider .slick-slide > div {
+  height: 100%;
+}
+.embla-slider-dots li {
+  padding: 0;
+  font-size: 0;
+}
+.embla-slider-dots li button {
+  height: 12px;
+  width: 12px;
+  border-radius: 9999px;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  transition-duration: .15s;
+  background: #FAFAFA;
+}
+.embla-slider-dots li.slick-active button {
+  background: #3D5EA7;
+}
+.embla-slider-dots li:before {
+  content: none;
 }
 
 @media (min-width: 1280px) {

@@ -35,7 +35,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                       index % 2 === 0 ? 'justify-start after:-right-[1px]' : 'justify-end after:-left-[1px]'
                     }`}
                   >
-                    <div className={`relative h-full ${iconCircus} flex ${index % 2 === 0 ? 'xl:flex-col-reverse flex-col xl:bottom-[300px]' : 'flex-col'}`}>
+                    <div className={`relative h-full ${iconCircus} flex ${index % 2 === 0 ? 'xl:flex-col-reverse flex-col xl:bottom-[300px] justify-between' : 'flex-col'}`}>
                       <span className={`flex justify-center ${index % 2 === 0 ? 'mt-5 mb-3' : 'mb-5 mt-3'}`}>
                         <Image src="/icons/history-icon.svg" width={35} height={36} alt="icon" />
                       </span>
