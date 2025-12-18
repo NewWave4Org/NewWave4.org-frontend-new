@@ -23,6 +23,8 @@ import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToI
 import { v4 as uuid } from 'uuid';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
+import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
+import WarningIcon from '@/components/icons/status/WarningIcon';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -30,7 +32,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
-  customCreationDate: any;
+  dateOfWriting: any;
 }
 
 const validationSchema = Yup.object({
@@ -82,8 +84,15 @@ function ProgramContent({ programId }: { programId: number }) {
   const handleThunk = useHandleThunk();
   const pathname = usePathname();
 
+  const { deleteFile } = useImageLoading({
+    articleId: programId,
+    contentType: ArticleTypeEnum.PROGRAM,
+  });
+
   const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
+
+  const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
@@ -95,7 +104,7 @@ function ProgramContent({ programId }: { programId: number }) {
     () => ({
       title: '',
       articleType: ArticleTypeEnum.PROGRAM,
-      customCreationDate: convertFromISO(new Date()),
+      dateOfWriting: convertFromISO(new Date()),
       authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
       articleStatus: '',
       contentBlocks: [
@@ -222,10 +231,9 @@ function ProgramContent({ programId }: { programId: number }) {
   }, [programId, dispatch]);
 
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-    console.log('values', values);
     const normalized = {
       ...values,
-      customCreationDate: convertToISO(values.customCreationDate),
+      dateOfWriting: convertToISO(values.dateOfWriting),
       contentBlocks: values.contentBlocks.map(block => {
         if (block.contentBlockType === 'SCHEDULE_INFO') {
           const fixTime = (t: any) => ({
@@ -244,6 +252,15 @@ function ProgramContent({ programId }: { programId: number }) {
       }),
     };
 
+    for (const url of deletedFiles) {
+      try {
+        console.log('deleted url', url);
+        await deleteFile(url);
+      } catch (error: any) {
+        console.log('Failed to delete file', url, error);
+      }
+    }
+
     // console.log('normalized', normalized);
 
     try {
@@ -254,6 +271,8 @@ function ProgramContent({ programId }: { programId: number }) {
         const message = pathname.includes('/edit') ? 'Your program was updated successfully!' : 'Your program was created successfully!';
         toast.success(message);
       }
+
+      setDeletedFiles([]);
     } catch (error) {
       toast.error(`Something go wrong! ${error}`);
     } finally {
@@ -277,7 +296,7 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
-          customCreationDate: program?.customCreationDate || defaultFormValues.customCreationDate,
+          dateOfWriting: convertFromISO(program?.dateOfWriting) || defaultFormValues.dateOfWriting,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
           articleStatus: program?.articleStatus || defaultFormValues.articleStatus,
@@ -306,7 +325,7 @@ function ProgramContent({ programId }: { programId: number }) {
 
             <div className="mb-5">
               <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
+              <DatePicker name="dateOfWriting" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.dateOfWriting} />
             </div>
 
             <div className="mb-5">
@@ -363,7 +382,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${index}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
                               />
                             </div>
                           )}
@@ -415,7 +437,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                     positionBlockImg={true}
                                     contentType={ArticleTypeEnum.PROGRAM}
                                     uploadedUrls={block?.files || []}
-                                    onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                    onFilesChange={(files, deleted) => {
+                                      setFieldValue(`contentBlocks.${index}.files`, files);
+                                      setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                    }}
                                   />
                                 </div>
                               </div>
@@ -424,6 +449,12 @@ function ProgramContent({ programId }: { programId: number }) {
                                 type="button"
                                 onClick={() => {
                                   const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+
+                                  if (block.files) {
+                                    console.log('block.files', block.files);
+                                    setDeletedFiles(prev => [...prev, ...block.files]);
+                                  }
+
                                   if (blockIndex !== -1) {
                                     remove(blockIndex);
                                   }
@@ -438,6 +469,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                     delete newKeys[block.id];
                                     return newKeys;
                                   });
+
+                                  toast.success(`Block with photo was successfully removed.`);
                                 }}
                                 className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                               >
@@ -506,6 +539,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                     delete newKeys[`${block.id}_text2`];
                                     return newKeys;
                                   });
+
+                                  toast.success(`Block with text was successfully removed.`);
                                 }}
                                 className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                               >
@@ -540,7 +575,10 @@ function ProgramContent({ programId }: { programId: number }) {
                                 positionBlockImg={true}
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
-                                onFilesChange={files => setFieldValue(`contentBlocks.${index}.files`, files)}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${index}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
                               />
                             </div>
                           )}
@@ -693,7 +731,12 @@ function ProgramContent({ programId }: { programId: number }) {
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
-            <div className="mt-10">
+            <div className="my-4 flex gap-x-1">
+              <WarningIcon />
+              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
+            </div>
+
+            <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
               <em>You must save the page before you can preview or publish it</em>
             </div>

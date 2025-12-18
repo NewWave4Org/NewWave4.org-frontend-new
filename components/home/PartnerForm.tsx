@@ -24,19 +24,11 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
 
   return (
     <>
-      <Form className="grid lg:grid-cols-[1fr_auto] gap-x-6 items-start justify-start">
-        <div className="w-[264px]">
-          <Input
-            id="email"
-            label="Email"
-            maxLength={50}
-            required
-            validationText={touched.email && errors.email ? errors.email : ''}
-            onChange={handleChange}
-            value={values.email}
-          />
+      <Form className="lg:grid lg:grid-cols-[1fr_auto] flex flex-col gap-x-6 items-start justify-start">
+        <div className="w-[264px] order-0">
+          <Input id="email" label="Email" maxLength={50} required validationText={touched.email && errors.email ? errors.email : ''} onChange={handleChange} value={values.email} />
         </div>
-        <div className="place-self-start mt-[28px]">
+        <div className="place-self-start mt-[28px] lg:order-none order-3">
           {!showComment && (
             <Button type="submit" disabled={isSubmitting}>
               Стати партнером
@@ -44,33 +36,15 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
           )}
         </div>
         <div className="col-span-2 mt-2">
-          <div className="flex gap-x-6">
+          <div className="flex gap-x-6 lg:flex-row flex-col">
+            {showComment && <TextArea id="comment" label="Текст повідомлення" maxLength={200} value={values.comment} onChange={handleChange} className="w-[347px] h-[100px]" />}
             {showComment && (
-              <TextArea
-                id="comment"
-                label="Текст повідомлення"
-                maxLength={200}
-                value={values.comment}
-                onChange={handleChange}
-                className="w-[347px] h-[100px]"
-              />
-            )}
-            {showComment && (
-              <Button
-                className="mt-[72px]"
-                type="submit"
-                disabled={isSubmitting}
-              >
+              <Button className="mt-[72px]" type="submit" disabled={isSubmitting}>
                 Стати партнером
               </Button>
             )}
           </div>
-          <Button
-            variant="tertiary"
-            size="small"
-            type="button"
-            onClick={() => setShowComment(!showComment)}
-          >
+          <Button variant="tertiary" size="small" type="button" onClick={() => setShowComment(!showComment)}>
             {showComment ? 'Сховати коментар' : 'Залишити коментар'}
           </Button>
         </div>
@@ -88,10 +62,7 @@ interface PartnerFormProps {
 const PartnerForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
 
-  const PartnerFormikWrapper = withFormik<
-    PartnerFormProps,
-    InnerPartnerFormValues
-  >({
+  const PartnerFormikWrapper = withFormik<PartnerFormProps, InnerPartnerFormValues>({
     mapPropsToValues: props => {
       return {
         email: props.initialEmail || '',
