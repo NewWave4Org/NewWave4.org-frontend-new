@@ -120,8 +120,8 @@ body {
     @apply flex flex-col gap-y-4 w-[544px] translate-x-[-84px] translate-y-[119px];
   }
   .embla-slide-btn {
-    @apply !w-[60px] !h-[60px] !p-3 !bg-primary-400 
-    opacity-0 group-hover:opacity-100 transition rounded-full z-[99];
+    @apply absolute top-1/2 w-[60px] h-[60px] -translate-y-1/2 p-3 bg-primary-400 
+    opacity-0 group-hover:opacity-100 transition rounded-full z-10;
   }
   .embla-slider-dots {
     @apply absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-6 bg-white bg-opacity-40 py-1.5 px-[19.5px] rounded-[16px];
@@ -342,7 +342,7 @@ p {
     width: 100%;
     flex:  0 0 100%;;
   }
-  .home-general-section .embla-slide-btn {
+  .home-general-section .slick-slide-btn {
     display: none;
   }
 }

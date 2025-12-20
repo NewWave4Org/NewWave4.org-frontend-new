@@ -34,7 +34,7 @@ export interface UpdateArticleFormValues {
   authorId?: number;
   articleStatus: string;
   contentBlocks: any[];
-  customCreationDate: any;
+  dateOfWriting: any;
 }
 
 const validationSchema = Yup.object({
@@ -72,7 +72,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-    customCreationDate: convertFromISO(new Date()),
+    dateOfWriting: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
       { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
@@ -103,7 +103,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
           id: block.id ?? uuid(),
         }));
 
-        blocksWithId.forEach((block, index) => {
+        blocksWithId.forEach(block => {
           let editor;
 
           try {
@@ -152,7 +152,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
     payload = {
       ...values,
-      customCreationDate: convertToISO(values.customCreationDate),
+      dateOfWriting: convertToISO(values.dateOfWriting),
     };
 
     try {
@@ -205,7 +205,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-          customCreationDate: project?.customCreationDate || defaultFormValues.customCreationDate,
+          dateOfWriting: convertFromISO(project?.dateOfWriting) || defaultFormValues.dateOfWriting,
           articleType: project?.articleType || defaultFormValues.articleType,
           articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
@@ -233,7 +233,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             <div className="mb-5">
               <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-              <DatePicker name="customCreationDate" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.customCreationDate} />
+              <DatePicker name="dateOfWriting" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.dateOfWriting} />
             </div>
 
             <div className="mb-5">
