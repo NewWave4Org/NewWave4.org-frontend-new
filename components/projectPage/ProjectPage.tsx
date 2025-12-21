@@ -34,8 +34,8 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
   }
 
   return (
-    <>
-      <ProjectHeader title={project.title} className="!mb-0" />
+    <div className="project-section" id={`project-${project.id}`}>
+      <ProjectHeader title={project.title} />
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
       {quoteText && quoteText?.text !== '' && (
@@ -59,7 +59,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
       )}
 
       <NewsEvents textLink="Всі новини проєкту" link="/news" titleEvents="Новини та події проєкту" projectId={relevantProjectId} />
-    </>
+    </div>
   );
 }
 

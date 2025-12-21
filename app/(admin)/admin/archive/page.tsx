@@ -5,7 +5,7 @@ import Pagination from '@/components/shared/Pagination';
 import Select from '@/components/shared/Select';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useAppDispatch } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
 import { GetArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -30,20 +30,32 @@ function ArchivePage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [chooseSortType, setChooseSortType] = useState(sortTypes[0].value);
 
-  const projects = useAppSelector(state => state.articleContent.articleContent);
-  const totalPages = useAppSelector(state => state.articleContent.totalPages);
+  const [allArchiveArticles, setAllArchiveArticles] = useState<any>([]);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    const params: IGetAllArticleRequestDTO = {
-      page: currentPage,
-      articleStatus: ArticleStatusEnum.ARCHIVED,
-    };
+    async function fetchArticles() {
+      const params: IGetAllArticleRequestDTO = {
+        page: currentPage,
+        articleStatus: ArticleStatusEnum.ARCHIVED,
+      };
 
-    if (chooseSortType !== sortTypes[0].value) {
-      params.articleType = chooseSortType as ArticleTypeEnum;
+      if (chooseSortType !== 'all') {
+        params.articleType = chooseSortType as ArticleTypeEnum;
+      }
+
+      try {
+        const result = await dispatch(getAllArticle(params)).unwrap();
+        console.log('result', result);
+        setAllArchiveArticles(result?.content);
+        setTotalPages(result.totalPages);
+      } catch (err) {
+        console.error('Ошибка при загрузке архивных статей:', err);
+        setTotalPages(0);
+      }
     }
 
-    dispatch(getAllArticle(params));
+    fetchArticles();
   }, [dispatch, currentPage, chooseSortType]);
 
   const changePage = useCallback((page: number) => {
@@ -65,7 +77,7 @@ function ArchivePage() {
         currentPage: currentPage,
         articleStatus: ArticleStatusEnum.ARCHIVED,
         chooseSortType: chooseSortType,
-        articlesOnPage: projects.length,
+        articlesOnPage: allArchiveArticles.length,
       }),
     );
   }
@@ -80,7 +92,7 @@ function ArchivePage() {
         currentPage: currentPage,
         articleStatus: ArticleStatusEnum.ARCHIVED,
         chooseSortType: chooseSortType,
-        articlesOnPage: projects.length,
+        articlesOnPage: allArchiveArticles.length,
       }),
     );
   };
@@ -94,7 +106,15 @@ function ArchivePage() {
         <Select options={sortTypes} name="sortTypes" defaultValue={sortTypes[0].value} useFormik={false} onChange={handleSortChange} dropDownClass="absolute" parentClassname="!h-10 py-3" />
       </div>
 
-      <ArchivedPageTable articles={projects} currentPage={currentPage} totalPages={totalPages} changePage={changePage} renderPagination={renderPagination} handleRestore={handleRestore} handleDelete={handleDelete} />
+      <ArchivedPageTable
+        articles={allArchiveArticles}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        changePage={changePage}
+        renderPagination={renderPagination}
+        handleRestore={handleRestore}
+        handleDelete={handleDelete}
+      />
     </>
   );
 }

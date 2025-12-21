@@ -24,8 +24,8 @@ function ProgramsPage() {
   const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
   const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
 
-  const programs = useAppSelector(state => state.articleContent.articleContent);
-  const totalPages = useAppSelector(state => state.articleContent.totalPages);
+  const programs = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items);
+  const totalPages = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].totalPages);
 
   const fetchAllPrograms = useCallback(() => {
     dispatch(
