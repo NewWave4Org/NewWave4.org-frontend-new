@@ -13,7 +13,8 @@ import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
-import WarningIcon from '@/components/icons/status/WarningIcon';
+import Accordion from '@/components/ui/Accordion/Accordion';
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -188,45 +189,135 @@ function HomeForm() {
 
                       return (
                         <div className="mb-8" key={realIndex}>
-                          <div className="mb-3">
-                            <div className="font-black text-lg">Slider #1</div>
-                            <div className="text-admin-500 text-sm mt-1">
-                              Required: fill in the <b>Title</b> and upload <b>one photo</b>.
+                          <Accordion title="Slider #1" classNameTop="min-h-14">
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks[${realIndex}].title`}
+                                name={`contentBlocks[${realIndex}].title`}
+                                type="text"
+                                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                value={block.title}
+                                onChange={handleChange}
+                                label="Slider title"
+                                labelClass="mb-2 !text-admin-700"
+                              />
                             </div>
-                          </div>
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks[${realIndex}].link`}
+                                name={`contentBlocks[${realIndex}].link`}
+                                type="text"
+                                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                value={block.link}
+                                onChange={handleChange}
+                                label="Slider link"
+                                labelClass="mb-2 !text-admin-700"
+                              />
+                            </div>
+                            <div className="mb-4">
+                              <div className="mb-2 !text-admin-700">Slider description</div>
+                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            </div>
+
+                            <div>
+                              <div className="mb-2 !text-admin-700">
+                                Slider photo
+                                <span className="text-status-danger-500 text-body"> *</span>
+                              </div>
+                              <ImageLoading
+                                classBlock="min-h-[300px]"
+                                isAttach={true}
+                                uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
+                                onFilesChange={(files, deleted) => {
+                                  setFieldValue(`contentBlocks.${realIndex}.files`, files);
+                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                }}
+                                required={true}
+                                previewSize={300}
+                              />
+                            </div>
+                          </Accordion>
+                        </div>
+                      );
+                    })()}
+
+                  {/* OTHER SLIDERS (can delete) */}
+                  {sliderBlocks.slice(1).map((block, i) => {
+                    const realIndex = values.contentBlocks.indexOf(block);
+                    const sliderNumber = i + 2; // Because first is #1
+
+                    return (
+                      <div key={realIndex} className="mb-8">
+                        <Accordion
+                          title={`Slider #${sliderNumber}`}
+                          initState={block.isNew || false}
+                          actions={
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const blockId = block.id;
+                                if (block.files) {
+                                  console.log('block.files', block.files);
+                                  setDeletedFiles(prev => [...prev, ...block.files]);
+                                }
+
+                                const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                if (blockIndex !== -1) remove(blockIndex);
+
+                                setEditorStates(prev => {
+                                  const newState = { ...prev };
+                                  delete newState[blockId];
+                                  return newState;
+                                });
+
+                                setEditorKey(prev => {
+                                  const newKey = { ...prev };
+                                  delete newKey[blockId];
+                                  return newKey;
+                                });
+
+                                toast.success(`Slider №${sliderNumber} was successfully removed.`);
+                              }}
+                              className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md hover:bg-red-500"
+                            >
+                              <BasketIcon color="white" />
+                            </button>
+                          }
+                        >
                           <div className="mb-4">
                             <Input
                               id={`contentBlocks[${realIndex}].title`}
                               name={`contentBlocks[${realIndex}].title`}
                               type="text"
-                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                               value={block.title}
                               onChange={handleChange}
                               label="Slider title"
+                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                               labelClass="mb-2 !text-admin-700"
                             />
                           </div>
+
                           <div className="mb-4">
                             <Input
                               id={`contentBlocks[${realIndex}].link`}
                               name={`contentBlocks[${realIndex}].link`}
                               type="text"
-                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                               value={block.link}
                               onChange={handleChange}
                               label="Slider link"
+                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                               labelClass="mb-2 !text-admin-700"
                             />
                           </div>
+
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">Slider description</div>
                             <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </div>
 
-                          <div>
+                          <div className="mb-4">
                             <div className="mb-2 !text-admin-700">
-                              Slider photo
-                              <span className="text-status-danger-500 text-body"> *</span>
+                              Slider photo <span className="text-status-danger-500 text-body"> *</span>
                             </div>
                             <ImageLoading
                               classBlock="min-h-[300px]"
@@ -240,98 +331,7 @@ function HomeForm() {
                               previewSize={300}
                             />
                           </div>
-                        </div>
-                      );
-                    })()}
-
-                  {/* OTHER SLIDERS (can delete) */}
-                  {sliderBlocks.slice(1).map((block, i) => {
-                    const realIndex = values.contentBlocks.indexOf(block);
-                    const sliderNumber = i + 2; // Because first is #1
-
-                    return (
-                      <div key={realIndex} className="mb-8">
-                        <div className="mb-3 font-black text-lg">{`Slider #${sliderNumber}`}</div>
-
-                        <div className="mb-4">
-                          <Input
-                            id={`contentBlocks[${realIndex}].title`}
-                            name={`contentBlocks[${realIndex}].title`}
-                            type="text"
-                            value={block.title}
-                            onChange={handleChange}
-                            label="Slider title"
-                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                            labelClass="mb-2 !text-admin-700"
-                          />
-                        </div>
-
-                        <div className="mb-4">
-                          <Input
-                            id={`contentBlocks[${realIndex}].link`}
-                            name={`contentBlocks[${realIndex}].link`}
-                            type="text"
-                            value={block.link}
-                            onChange={handleChange}
-                            label="Slider link"
-                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                            labelClass="mb-2 !text-admin-700"
-                          />
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="mb-2 !text-admin-700">Slider description</div>
-                          <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="mb-2 !text-admin-700">
-                            Slider photo <span className="text-status-danger-500 text-body"> *</span>
-                          </div>
-                          <ImageLoading
-                            classBlock="min-h-[300px]"
-                            isAttach={true}
-                            uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
-                            onFilesChange={(files, deleted) => {
-                              setFieldValue(`contentBlocks.${realIndex}.files`, files);
-                              setDeletedFiles(prev => [...prev, ...(deleted || [])]);
-                            }}
-                            required={true}
-                            previewSize={300}
-                          />
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const blockId = block.id;
-                            if (block.files) {
-                              console.log('block.files', block.files);
-                              setDeletedFiles(prev => [...prev, ...block.files]);
-                            }
-
-                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                            if (blockIndex !== -1) remove(blockIndex);
-                            // remove(realIndex);
-
-                            setEditorStates(prev => {
-                              const newState = { ...prev };
-                              delete newState[blockId];
-                              return newState;
-                            });
-
-                            setEditorKey(prev => {
-                              const newKey = { ...prev };
-                              delete newKey[blockId];
-                              return newKey;
-                            });
-
-                            toast.success(`Slider №${sliderNumber} was successfully removed.`);
-                          }}
-                          className="mt-3 px-3 py-1 bg-red-700 text-white rounded-md hover:bg-red-500"
-                        >
-                          Remove slider
-                        </button>
+                        </Accordion>
                       </div>
                     );
                   })}
@@ -348,6 +348,7 @@ function HomeForm() {
                         description: '',
                         files: [],
                         editorState: null,
+                        isNew: true,
                       });
 
                       setEditorStates(prev => ({
@@ -416,11 +417,6 @@ function HomeForm() {
           </FieldArray>
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
-
-          <div className="my-4 flex gap-x-1">
-            <WarningIcon />
-            <em className="text-red-600">Warning: Click Update to permanently delete the photo.</em>
-          </div>
 
           <div className="my-4">
             <sup className="font-bold text-red-600 text-small2">*</sup>

@@ -142,6 +142,11 @@ body {
     @apply flex items-center justify-center gap-x-20;
   }
 
+  /* .sponsors-slider .slick-track {
+    display: flex;
+    align-items: center
+  }  */
+
   /* Partners */
 
   .partners-text {
@@ -329,6 +334,7 @@ p {
 .embla-slider-dots li:before {
   content: none;
 }
+
 
 @media (min-width: 1280px) {
   .home-general-section {

@@ -369,6 +369,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                       return (
                         <div key={index} className="mb-5">
+                          <div>Section {pairIndex + 1}</div>
                           <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
                             <div className="w-1/2 h-[442px] flex flex-col">
                               <div className="mb-4">
@@ -473,14 +474,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
-            <div className="my-4 flex gap-x-1">
-              <WarningIcon />
-              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
-            </div>
-
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>
               <em>You must save the page before you can preview or publish it</em>
+            </div>
+
+            <div className="my-4">
+              <sup className="font-bold text-red-600 text-small2">*</sup>
+              After any changes you need to click the <strong>Save</strong> button
             </div>
 
             <div className="flex gap-x-6 mt-2">

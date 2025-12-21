@@ -14,6 +14,8 @@ import { toast } from 'react-toastify';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import WarningIcon from '@/components/icons/status/WarningIcon';
+import Accordion from '@/components/ui/Accordion/Accordion';
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
@@ -252,49 +254,49 @@ function AboutUsForm() {
                     />
                   </div>
 
-                  <div className=" mb-4">
-                    <div className="mb-2 !text-admin-700mb-3 font-black text-2xl">Our history formation (You can add up to 7 blocks)</div>
+                  <div className="mt-9 mb-4">
+                    <div className="mb-2 !text-admin-700mb-3 font-black text-2xl">Our history formation (Maximum 6 blocks)</div>
                   </div>
 
                   {firstHistoryBlock && (
                     <div className="mb-4">
-                      <div className="mb-2 !text-admin-700 font-black text-lg">Block #1</div>
+                      <Accordion title="Block #1">
+                        <div className="mb-4">
+                          <Input
+                            id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
+                            name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
+                            type="text"
+                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                            value={firstHistoryBlock.year}
+                            onChange={handleChange}
+                            label="Our history formation year"
+                            labelClass="mb-2 !text-admin-700"
+                          />
+                        </div>
 
-                      <div className="mb-4">
-                        <Input
-                          id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
-                          name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
-                          type="text"
-                          className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                          value={firstHistoryBlock.year}
-                          onChange={handleChange}
-                          label="Our history formation year"
-                          labelClass="mb-2 !text-admin-700"
-                        />
-                      </div>
+                        <div className="mb-4">
+                          <Input
+                            id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
+                            name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
+                            type="text"
+                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                            value={firstHistoryBlock.title}
+                            onChange={handleChange}
+                            label="Our history formation title"
+                            labelClass="mb-2 !text-admin-700"
+                          />
+                        </div>
 
-                      <div className="mb-4">
-                        <Input
-                          id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
-                          name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.title`}
-                          type="text"
-                          className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                          value={firstHistoryBlock.title}
-                          onChange={handleChange}
-                          label="Our history formation title"
-                          labelClass="mb-2 !text-admin-700"
-                        />
-                      </div>
+                        <div className="mb-4">
+                          <div className="mb-2 !text-admin-700">Our history formation description</div>
 
-                      <div className="mb-4">
-                        <div className="mb-2 !text-admin-700">Our history formation description</div>
-
-                        <TextEditor
-                          key={editorKey[firstHistoryBlock.id]}
-                          value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty()}
-                          onChange={newState => handleEditorChange(firstHistoryBlock.id, values, newState, setFieldValue)}
-                        />
-                      </div>
+                          <TextEditor
+                            key={editorKey[firstHistoryBlock.id]}
+                            value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty()}
+                            onChange={newState => handleEditorChange(firstHistoryBlock.id, values, newState, setFieldValue)}
+                          />
+                        </div>
+                      </Accordion>
                     </div>
                   )}
 
@@ -309,63 +311,70 @@ function AboutUsForm() {
 
                     return (
                       <div key={index} className=" mb-4">
-                        <div className="mb-2 !text-admin-700 font-black text-lg">Block #{blockNumber}</div>
-                        <div>
-                          <div className="mb-4">
-                            <Input
-                              id={`contentBlocks[${blockIndex}].year`}
-                              name={`contentBlocks[${blockIndex}].year`}
-                              type="text"
-                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                              value={values.contentBlocks[blockIndex].year}
-                              onChange={handleChange}
-                              label="Our history formation year"
-                              labelClass="mb-2 !text-admin-700"
-                            />
-                          </div>
-                          <div className="mb-4">
-                            <Input
-                              id={`contentBlocks[${blockIndex}].title`}
-                              name={`contentBlocks[${blockIndex}].title`}
-                              type="text"
-                              className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                              value={values.contentBlocks[blockIndex].title}
-                              onChange={handleChange}
-                              label="Our history formation title"
-                              labelClass="mb-2 !text-admin-700"
-                            />
-                          </div>
-                          <div className="mb-4">
-                            <div className="mb-2 !text-admin-700">Our history formation description</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                          </div>
-                        </div>
+                        <Accordion
+                          title={`Block #${blockNumber}`}
+                          initState={block.isNew || false}
+                          actions={
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const blockId = block.id;
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const blockId = block.id;
+                                const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                if (blockIndex !== -1) remove(blockIndex);
+                                // remove(index);
 
-                            const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                            if (blockIndex !== -1) remove(blockIndex);
-                            // remove(index);
+                                setEditorStates(prev => {
+                                  const newState = { ...prev };
+                                  delete newState[blockId];
+                                  return newState;
+                                });
 
-                            setEditorStates(prev => {
-                              const newState = { ...prev };
-                              delete newState[blockId];
-                              return newState;
-                            });
+                                setEditorKey(prev => {
+                                  const newKey = { ...prev };
+                                  delete newKey[blockId];
+                                  return newKey;
+                                });
 
-                            setEditorKey(prev => {
-                              const newKey = { ...prev };
-                              delete newKey[blockId];
-                              return newKey;
-                            });
-                          }}
-                          className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                                toast.success(`Block #${blockNumber} was successfully removed.`);
+                              }}
+                              className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                            >
+                              <BasketIcon color="white" />
+                            </button>
+                          }
                         >
-                          Remove block our history formation
-                        </button>
+                          <div>
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks[${blockIndex}].year`}
+                                name={`contentBlocks[${blockIndex}].year`}
+                                type="text"
+                                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                value={values.contentBlocks[blockIndex].year}
+                                onChange={handleChange}
+                                label="Our history formation year"
+                                labelClass="mb-2 !text-admin-700"
+                              />
+                            </div>
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks[${blockIndex}].title`}
+                                name={`contentBlocks[${blockIndex}].title`}
+                                type="text"
+                                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                value={values.contentBlocks[blockIndex].title}
+                                onChange={handleChange}
+                                label="Our history formation title"
+                                labelClass="mb-2 !text-admin-700"
+                              />
+                            </div>
+                            <div className="mb-4">
+                              <div className="mb-2 !text-admin-700">Our history formation description</div>
+                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            </div>
+                          </div>
+                        </Accordion>
                       </div>
                     );
                   })}
@@ -383,6 +392,7 @@ function AboutUsForm() {
                           title: '',
                           text: '',
                           editorState: null,
+                          isNew: true,
                         });
 
                         setEditorStates(prev => ({
@@ -406,11 +416,6 @@ function AboutUsForm() {
           </FieldArray>
 
           {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
-
-          <div className="my-4 flex gap-x-1">
-            <WarningIcon />
-            <em className="text-red-600">Warning: Click Update to permanently delete the photo.</em>
-          </div>
 
           <div className="my-4">
             <sup className="font-bold text-red-600 text-small2">*</sup>
