@@ -14,9 +14,13 @@ const eslintConfig = [
     extends: ['next/core-web-vitals', 'next/typescript', 'prettier'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      'semi': ['error', 'always'],
+      semi: ['error', 'always'],
       'prefer-arrow-callback': 'error',
       'prefer-template': 'error',
+
+      // 🔥 THIS is the important one
+      'no-debugger':
+        process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     },
   }),
 ];

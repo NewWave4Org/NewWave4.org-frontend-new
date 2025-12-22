@@ -6,7 +6,6 @@ import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';
-import GeneralSlider from '../generalSlider/GeneralSlider';
 import WhoWeAre from './WhoWeAre';
 import Sponsors from './Sponsors';
 import Programs from './programs/Programs';
@@ -17,6 +16,7 @@ import NewsEvents from './NewsEvents';
 import { getGlobalSectionByKey } from '@/store/global-sections/action';
 import { GlobalSectionsType } from '../admin/GlobalSections/enum/types';
 import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
+import HomeSlider from './HomeSlider/HomeSlider';
 
 function HomePageClientSide() {
   const dispatch = useAppDispatch();
@@ -62,7 +62,7 @@ function HomePageClientSide() {
   return (
     <>
       <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 lg:pb-0 mb-0 pb-5">
-        <GeneralSlider slides={slides} className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider" />
+        <HomeSlider slides={slides} className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider" />
         <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} className="lg:h-1/2" />
       </section>
       <Programs />
