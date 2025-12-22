@@ -31,11 +31,7 @@ const validationSchema = Yup.object({
   name: nameValidation,
   amount: Yup.string()
     .required('Please add a donation amount')
-    .test(
-      'not-zero',
-      'Donation amount must be greater than 0',
-      value => parseFloat(value || '0') > 0,
-    ),
+    .test('not-zero', 'Donation amount must be greater than 0', value => parseFloat(value || '0') > 0),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
@@ -45,35 +41,22 @@ const PaymentForm = () => {
   const [isPaypal, setIsPaypal] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
-  const {
-    isPaymentApproved,
-    setLoading,
-    isPaymentError,
-    loading,
-    setIsPaymentApproved,
-    setAmount,
-    setPaymentDetails,
-  } = usePaymentContext();
+  const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
   const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
-    const purpose = purposeOptions.find(
-      item => item.value === paymentDetails.purpose,
-    );
+    const purpose = purposeOptions.find(item => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      const { data } = await axiosOpenInstance.post(
-        '/payments/stripe-checkout-session',
-        {
-          name,
-          amount: calculatedAmount,
-          description: purpose?.label,
-          email: paymentDetails.email
-        },
-      );
+      const { data } = await axiosOpenInstance.post('/payments/stripe-checkout-session', {
+        name,
+        amount: calculatedAmount,
+        description: purpose?.label,
+        email: paymentDetails.email,
+      });
       /**
        *       const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
         method: 'POST',
@@ -95,12 +78,9 @@ const PaymentForm = () => {
     }
   };
 
-  const handleSubmitPaymentForm: any = (
-    values: any,
-    { setSubmitting, resetForm }: any,
-  ) => {
+  const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
-    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }))
+    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }));
     setAmount(values.amount);
     setPaymentDetails({
       email: values?.email,
@@ -131,9 +111,7 @@ const PaymentForm = () => {
     if (e.target.value === '' || isNaN(parseFloat(e.target.value))) {
       setCalculatedAmount(0);
     } else {
-      const calculatedAmount: number = parseFloat(
-        ((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2),
-      );
+      const calculatedAmount: number = parseFloat(((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2));
       setCalculatedAmount(calculatedAmount);
     }
   };
@@ -151,50 +129,24 @@ const PaymentForm = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmitPaymentForm}
     >
-      {({
-        touched,
-        errors,
-        handleChange,
-        values,
-        resetForm,
-        setFieldValue,
-      }) => (
+      {({ touched, errors, handleChange, values, resetForm, setFieldValue }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
           {openModal ? (
-            <Modal
-              zIndex={999}
-              isOpen={openModal}
-              onClose={onModalClose}
-              title={'Paypal Gateway'}
-            >
+            <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={'Paypal Gateway'}>
               {isPaypal ? <PaypalComponent /> : <></>}
             </Modal>
           ) : (
             <></>
           )}
           {isPaymentApproved && (
-            <Modal
-              type={isPaymentApproved ? 'success' : 'error'}
-              isOpen={isPaymentApproved || isPaymentError}
-              onClose={onApprovedModalClose}
-              title="Success"
-            >
-              {isPaymentApproved ? (
-                <h1 className="text-xl font-bolder">Thank you for donation!</h1>
-              ) : (
-                <h1 className="text-xl font-bolder">Something went wrong!</h1>
-              )}
+            <Modal type={isPaymentApproved ? 'success' : 'error'} isOpen={isPaymentApproved || isPaymentError} onClose={onApprovedModalClose} title="Success">
+              {isPaymentApproved ? <h1 className="text-xl font-bolder">Thank you for donation!</h1> : <h1 className="text-xl font-bolder">Something went wrong!</h1>}
             </Modal>
           )}
           <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
-              <h3 className="text-h3 text-font-primary font-ebGaramond">
-                Ваш вплив починається сьогодні
-              </h3>
-              <p className="text-body text-font-primary">
-                Кожен щедрий внесок йде на підтримку важливої справи та змінює
-                життя на краще.
-              </p>
+              <h3 className="text-h3 text-font-primary font-ebGaramond">Your influence starts today</h3>
+              <p className="text-body text-font-primary">Every generous contribution goes to support an important cause and changes lives for better. </p>
             </div>
 
             <div className="flex flex-col gap-y-2">
@@ -202,12 +154,10 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="name"
-                  label="Ім'я та Прізвище"
+                  label="Name and Surname"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.name && errors.name ? errors.name : ''
-                  }
+                  validationText={touched.name && errors.name ? errors.name : ''}
                   onChange={handleChange}
                   value={values.name}
                 />
@@ -217,12 +167,10 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="email"
-                  label="Імейл"
+                  label="Email"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.email && errors.email ? errors.email : ''
-                  }
+                  validationText={touched.email && errors.email ? errors.email : ''}
                   onChange={handleChange}
                   value={values.email}
                 />
@@ -232,12 +180,10 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="amount"
-                  label="Сума внеску"
+                  label="Donation sum"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.amount && errors.amount ? errors.amount : ''
-                  }
+                  validationText={touched.amount && errors.amount ? errors.amount : ''}
                   onChange={e => {
                     handleChange(e);
                     handleAmountChange(e);
@@ -246,35 +192,13 @@ const PaymentForm = () => {
                 />
               </div>
 
-              <Select
-                label="Призначення платежу"
-                name="purpose"
-                required
-                parentClassname="max-[1100px]:w-full"
-                placeholder="Обрати опцію"
-                onChange={handleChange}
-                options={purposeOptions}
-              />
+              <Select label="Donation purpose" name="purpose" required parentClassname="max-[1100px]:w-full" placeholder="Select an option" onChange={handleChange} options={purposeOptions} />
 
               <div className="mt-[16px]">
-                {showComment && (
-                  <TextArea
-                    id="comment"
-                    label="Текст повідомлення"
-                    maxLength={200}
-                    value={values.comment}
-                    onChange={handleChange}
-                    className="w-[357px] h-[80px]"
-                  />
-                )}
+                {showComment && <TextArea id="comment" label="Message text" maxLength={200} value={values.comment} onChange={handleChange} className="w-[357px] h-[80px]" />}
 
-                <Button
-                  variant="tertiary"
-                  size="small"
-                  type="button"
-                  onClick={() => setShowComment(!showComment)}
-                >
-                  {showComment ? 'Сховати коментар' : 'Залишити коментар'}
+                <Button variant="tertiary" size="small" type="button" onClick={() => setShowComment(!showComment)}>
+                  {showComment ? 'Hide a comment' : 'Leave a comment'}
                 </Button>
               </div>
             </div>
@@ -282,11 +206,8 @@ const PaymentForm = () => {
           <div className="max-[1100px]:w-full xl:w-[506px] flex flex-col gap-y-[32px] max-[1000px]:pt-6">
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
-                Будь ласка оберіть спосіб внесення платежу
-                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
-                  {' '}
-                  *
-                </span>
+                Please, select donation method
+                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv"> *</span>
               </h4>
               <div className="flex flex-col gap-y-[16px]">
                 <div className="flex">
@@ -297,19 +218,10 @@ const PaymentForm = () => {
                       value="stripe"
                       checked={values.paymentMethod === 'stripe'}
                       onChange={() => setFieldValue('paymentMethod', 'stripe')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
+                      error={touched.paymentMethod && errors.paymentMethod ? errors.paymentMethod : undefined}
                     />
                   </div>
-                  <Image
-                    src={`${prefix}/payment/Stripe.svg`}
-                    alt="stripe"
-                    width={78}
-                    height={45}
-                  />
+                  <Image src={`${prefix}/payment/Stripe.svg`} alt="stripe" width={78} height={45} />
                 </div>
                 <div className="flex">
                   <div className="flex-1 flex items-center">
@@ -319,39 +231,22 @@ const PaymentForm = () => {
                       value="paypal"
                       checked={values.paymentMethod === 'paypal'}
                       onChange={() => setFieldValue('paymentMethod', 'paypal')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
+                      error={touched.paymentMethod && errors.paymentMethod ? errors.paymentMethod : undefined}
                     />
                   </div>
-                  <Image
-                    src={`${prefix}/payment/PayPal.svg`}
-                    alt="paypal"
-                    width={38}
-                    height={45}
-                  />
+                  <Image src={`${prefix}/payment/PayPal.svg`} alt="paypal" width={38} height={45} />
                 </div>
 
-                {touched.paymentMethod && errors.paymentMethod && (
-                  <p className="text-status-danger-500 text-small2">
-                    {errors.paymentMethod}
-                  </p>
-                )}
+                {touched.paymentMethod && errors.paymentMethod && <p className="text-status-danger-500 text-small2">{errors.paymentMethod}</p>}
               </div>
               <div className="flex justify-between text-[#0F1B40]">
-                <span>Загальна сума</span>
+                <span>ЗFull amount</span>
                 {/* Full amount */}
                 <span>${calculatedAmount}</span>
               </div>
               <div className="flex flex-col gap-y-[8px]">
                 <div className="border-t border-grey-300 w-full"></div>
-                <p className="text-small text-grey-700">
-                  Нова українська хвиля є 501(c)(3) типом організації. Пожертви
-                  і благодійні внески відраховуються в повному обсязі при
-                  заповненні податкової декларації (IRS).
-                </p>
+                <p className="text-small text-grey-700">New Ukrainian Wave is a 501(c)(3) type of organization. Donations and charitable contributions are fully deductible when filing your tax return (IRS).</p>
               </div>
             </div>
             <div className="flex max-[500px]:flex-col">
@@ -365,15 +260,11 @@ const PaymentForm = () => {
                     router.push('/');
                   }}
                 >
-                  Відмінити та повернутися на сторінку
+                  Cancel and go back to Homepage
                 </Button>
               </div>
 
-              <Button
-                variant="primary"
-                type="submit"
-                className="max-[500px]:w-full max-[500px]:mt-8"
-              >
+              <Button variant="primary" type="submit" className="max-[500px]:w-full max-[500px]:mt-8">
                 {loading ? 'Loading...' : 'Donate'}
               </Button>
             </div>

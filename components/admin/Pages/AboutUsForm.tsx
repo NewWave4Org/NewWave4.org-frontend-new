@@ -260,7 +260,7 @@ function AboutUsForm() {
 
                   {firstHistoryBlock && (
                     <div className="mb-4">
-                      <Accordion title="Block #1">
+                      <Accordion title={`Block #1 - ${firstHistoryBlock.title}`} classNameTop="min-h-14">
                         <div className="mb-4">
                           <Input
                             id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
@@ -312,7 +312,7 @@ function AboutUsForm() {
                     return (
                       <div key={index} className=" mb-4">
                         <Accordion
-                          title={`Block #${blockNumber}`}
+                          title={`Block #${blockNumber} - ${values.contentBlocks[blockIndex].title}`}
                           initState={block.isNew || false}
                           actions={
                             <button

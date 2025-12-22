@@ -15,7 +15,7 @@ function Accordion({ title, children, actions, classNameTop, initState = false }
   const [isOpen, setIsOpen] = useState(initState);
 
   return (
-    <div className="border rounded-lg mb-2">
+    <div className="border rounded-lg">
       <div className={`${classNameTop} flex items-center justify-between shadow-custom`}>
         <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex mr-0 w-full">
           <ArrowUp4Icon className={`${!isOpen ? 'rotate-90' : ''} mr-3 duration-500`} />

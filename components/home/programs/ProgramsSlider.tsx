@@ -46,12 +46,10 @@ const ProgramsSlider = () => {
           articleType: ArticleTypeEnum.PROGRAM,
           articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
           sortByCreatedAtDescending: true,
-          sortByPublishedAt: true,
+          sortByDateOfWriting: true,
         }),
       );
     }
-
-    if (programsStatus === 'loading') return;
   }, [programsStatus, dispatch]);
 
   useEffect(() => {

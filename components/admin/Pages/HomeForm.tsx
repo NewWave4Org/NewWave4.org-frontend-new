@@ -91,6 +91,7 @@ function HomeForm() {
         const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
+          isNew: false,
         }));
 
         blocksWithId.forEach(block => {
@@ -189,7 +190,7 @@ function HomeForm() {
 
                       return (
                         <div className="mb-8" key={realIndex}>
-                          <Accordion title="Slider #1" classNameTop="min-h-14">
+                          <Accordion title={`Slider #1 - ${block.title}`} classNameTop="min-h-14">
                             <div className="mb-4">
                               <Input
                                 id={`contentBlocks[${realIndex}].title`}
@@ -249,7 +250,7 @@ function HomeForm() {
                     return (
                       <div key={realIndex} className="mb-8">
                         <Accordion
-                          title={`Slider #${sliderNumber}`}
+                          title={`Slider #${sliderNumber} - ${block?.title}`}
                           initState={block.isNew || false}
                           actions={
                             <button
