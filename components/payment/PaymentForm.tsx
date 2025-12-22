@@ -71,7 +71,7 @@ const PaymentForm = () => {
           name,
           amount: calculatedAmount,
           description: purpose?.label,
-          email: paymentDetails.email
+          email: paymentDetails.email,
         },
       );
       /**
@@ -100,7 +100,10 @@ const PaymentForm = () => {
     { setSubmitting, resetForm }: any,
   ) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
-    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }))
+    localStorage.setItem(
+      'donationformdata',
+      JSON.stringify({ ...values, purpose: purpose?.label }),
+    );
     setAmount(values.amount);
     setPaymentDetails({
       email: values?.email,
@@ -189,11 +192,11 @@ const PaymentForm = () => {
           <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
               <h3 className="text-h3 text-font-primary font-ebGaramond">
-                Ваш вплив починається сьогодні
+                Your influence starts today
               </h3>
               <p className="text-body text-font-primary">
-                Кожен щедрий внесок йде на підтримку важливої справи та змінює
-                життя на краще.
+                Every generous contribution goes to support an important cause
+                and changes lives for better.
               </p>
             </div>
 
@@ -202,7 +205,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="name"
-                  label="Ім'я та Прізвище"
+                  label="Name and Surname"
                   maxLength={50}
                   required
                   validationText={
@@ -217,7 +220,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="email"
-                  label="Імейл"
+                  label="Email"
                   maxLength={50}
                   required
                   validationText={
@@ -232,7 +235,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="amount"
-                  label="Сума внеску"
+                  label="Donation amount"
                   maxLength={50}
                   required
                   validationText={
@@ -247,11 +250,11 @@ const PaymentForm = () => {
               </div>
 
               <Select
-                label="Призначення платежу"
+                label="Donation purpose"
                 name="purpose"
                 required
                 parentClassname="max-[1100px]:w-full"
-                placeholder="Обрати опцію"
+                placeholder="Select an option"
                 onChange={handleChange}
                 options={purposeOptions}
               />
@@ -260,7 +263,7 @@ const PaymentForm = () => {
                 {showComment && (
                   <TextArea
                     id="comment"
-                    label="Текст повідомлення"
+                    label="Text"
                     maxLength={200}
                     value={values.comment}
                     onChange={handleChange}
@@ -274,7 +277,7 @@ const PaymentForm = () => {
                   type="button"
                   onClick={() => setShowComment(!showComment)}
                 >
-                  {showComment ? 'Сховати коментар' : 'Залишити коментар'}
+                  {showComment ? 'Hide a comment' : 'Leave a comment'}
                 </Button>
               </div>
             </div>
@@ -282,7 +285,7 @@ const PaymentForm = () => {
           <div className="max-[1100px]:w-full xl:w-[506px] flex flex-col gap-y-[32px] max-[1000px]:pt-6">
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
-                Будь ласка оберіть спосіб внесення платежу
+                Please, select donation method
                 <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
                   {' '}
                   *
@@ -341,16 +344,15 @@ const PaymentForm = () => {
                 )}
               </div>
               <div className="flex justify-between text-[#0F1B40]">
-                <span>Загальна сума</span>
-                {/* Full amount */}
+                <span>Full amount</span>
                 <span>${calculatedAmount}</span>
               </div>
               <div className="flex flex-col gap-y-[8px]">
                 <div className="border-t border-grey-300 w-full"></div>
                 <p className="text-small text-grey-700">
-                  Нова українська хвиля є 501(c)(3) типом організації. Пожертви
-                  і благодійні внески відраховуються в повному обсязі при
-                  заповненні податкової декларації (IRS).
+                  New Ukrainian Wave is a 501(c)(3) type of organization.
+                  Donations and charitable contributions are fully deductible
+                  when filing your tax return (IRS).
                 </p>
               </div>
             </div>
@@ -365,7 +367,7 @@ const PaymentForm = () => {
                     router.push('/');
                   }}
                 >
-                  Відмінити та повернутися на сторінку
+                  Cancel and go back to Homepage
                 </Button>
               </div>
 
