@@ -2,10 +2,20 @@ import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const Logo = ({ textColor = 'text-font-primary' }: { textColor?: string }) => {
+type LogoProps = {
+  textColor?: string;
+  language?: 'ua' | 'en';
+};
+
+const Logo = ({
+  textColor = 'text-font-primary',
+  language = 'ua',
+}: LogoProps) => {
+  const text =
+    language === 'en' ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
   return (
     <>
-      <Link href="/" className="flex w-fit gap-x-2">
+      <Link href="/" className="flex w-fit gap-x-2 items-center">
         <Image
           src={`${prefix}/logo.svg`}
           alt="logo"
@@ -13,9 +23,7 @@ const Logo = ({ textColor = 'text-font-primary' }: { textColor?: string }) => {
           height={64}
           priority
         />
-        <p className={`w-[76px] text-small1 ${textColor}`}>
-          Нова Українська Хвиля
-        </p>
+        <p className={`w-[50px] m-0 text-small1 ${textColor}`}>{text}</p>
       </Link>
     </>
   );

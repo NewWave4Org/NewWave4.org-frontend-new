@@ -51,12 +51,15 @@ const PaymentForm = () => {
     const purpose = purposeOptions.find(item => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      const { data } = await axiosOpenInstance.post('/payments/stripe-checkout-session', {
-        name,
-        amount: calculatedAmount,
-        description: purpose?.label,
-        email: paymentDetails.email,
-      });
+      const { data } = await axiosOpenInstance.post(
+        '/payments/stripe-checkout-session',
+        {
+          name,
+          amount: calculatedAmount,
+          description: purpose?.label,
+          email: paymentDetails.email,
+        },
+      );
       /**
        *       const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
         method: 'POST',
@@ -80,7 +83,10 @@ const PaymentForm = () => {
 
   const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
-    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }));
+    localStorage.setItem(
+      'donationformdata',
+      JSON.stringify({ ...values, purpose: purpose?.label }),
+    );
     setAmount(values.amount);
     setPaymentDetails({
       email: values?.email,
@@ -145,8 +151,13 @@ const PaymentForm = () => {
           )}
           <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
-              <h3 className="text-h3 text-font-primary font-ebGaramond">Your influence starts today</h3>
-              <p className="text-body text-font-primary">Every generous contribution goes to support an important cause and changes lives for better. </p>
+              <h3 className="text-h3 text-font-primary font-ebGaramond">
+                Your influence starts today
+              </h3>
+              <p className="text-body text-font-primary">
+                Every generous contribution goes to support an important cause
+                and changes lives for better.
+              </p>
             </div>
 
             <div className="flex flex-col gap-y-2">
@@ -180,7 +191,7 @@ const PaymentForm = () => {
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
                   id="amount"
-                  label="Donation sum"
+                  label="Donation amount"
                   maxLength={50}
                   required
                   validationText={touched.amount && errors.amount ? errors.amount : ''}
@@ -192,12 +203,34 @@ const PaymentForm = () => {
                 />
               </div>
 
-              <Select label="Donation purpose" name="purpose" required parentClassname="max-[1100px]:w-full" placeholder="Select an option" onChange={handleChange} options={purposeOptions} />
+              <Select
+                label="Donation purpose"
+                name="purpose"
+                required
+                parentClassname="max-[1100px]:w-full"
+                placeholder="Select an option"
+                onChange={handleChange}
+                options={purposeOptions}
+              />
 
               <div className="mt-[16px]">
-                {showComment && <TextArea id="comment" label="Message text" maxLength={200} value={values.comment} onChange={handleChange} className="w-[357px] h-[80px]" />}
+                {showComment && (
+                  <TextArea
+                    id="comment"
+                    label="Text"
+                    maxLength={200}
+                    value={values.comment}
+                    onChange={handleChange}
+                    className="w-[357px] h-[80px]"
+                  />
+                )}
 
-                <Button variant="tertiary" size="small" type="button" onClick={() => setShowComment(!showComment)}>
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  type="button"
+                  onClick={() => setShowComment(!showComment)}
+                >
                   {showComment ? 'Hide a comment' : 'Leave a comment'}
                 </Button>
               </div>
@@ -207,7 +240,10 @@ const PaymentForm = () => {
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
                 Please, select donation method
-                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv"> *</span>
+                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
+                  {' '}
+                  *
+                </span>
               </h4>
               <div className="flex flex-col gap-y-[16px]">
                 <div className="flex">
@@ -240,13 +276,16 @@ const PaymentForm = () => {
                 {touched.paymentMethod && errors.paymentMethod && <p className="text-status-danger-500 text-small2">{errors.paymentMethod}</p>}
               </div>
               <div className="flex justify-between text-[#0F1B40]">
-                <span>ЗFull amount</span>
-                {/* Full amount */}
+                <span>Full amount</span>
                 <span>${calculatedAmount}</span>
               </div>
               <div className="flex flex-col gap-y-[8px]">
                 <div className="border-t border-grey-300 w-full"></div>
-                <p className="text-small text-grey-700">New Ukrainian Wave is a 501(c)(3) type of organization. Donations and charitable contributions are fully deductible when filing your tax return (IRS).</p>
+                <p className="text-small text-grey-700">
+                  New Ukrainian Wave is a 501(c)(3) type of organization.
+                  Donations and charitable contributions are fully deductible
+                  when filing your tax return (IRS).
+                </p>
               </div>
             </div>
             <div className="flex max-[500px]:flex-col">
