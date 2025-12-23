@@ -27,6 +27,8 @@ import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToI
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
 import WarningIcon from '@/components/icons/status/WarningIcon';
+import Accordion from '@/components/ui/Accordion/Accordion';
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -320,39 +322,47 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                           {/* TEXT block */}
                           {block.contentBlockType === 'SECTION' && (
-                            <div className="flex gap-4 mb-4">
-                              <div className="w-1/2 h-[442px] flex flex-col flex-1">
-                                <div className="mb-4">
-                                  <Input
-                                    onChange={handleChange}
-                                    id={`contentBlocks.${blockIndex}.sectionTitle`}
-                                    name={`contentBlocks.${blockIndex}.sectionTitle`}
-                                    type="text"
-                                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                    value={block.sectionTitle}
-                                    label="Section title"
-                                    labelClass="!text-admin-700"
-                                  />
+                            <div className="mb-5">
+                              <Accordion title={`Section #1 - ${block.sectionTitle}`} classNameTop="min-h-14">
+                                <div className="flex gap-4">
+                                  <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                                    <div className="mb-4">
+                                      <Input
+                                        onChange={handleChange}
+                                        id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                        name={`contentBlocks.${blockIndex}.sectionTitle`}
+                                        type="text"
+                                        className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                        value={block.sectionTitle}
+                                        label="Section title"
+                                        labelClass="!text-admin-700"
+                                      />
+                                    </div>
+                                    <div className="flex-1 flex flex-col">
+                                      <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                      <TextEditor
+                                        key={editorKey[block.id]}
+                                        value={editorStates[block.id] || EditorState.createEmpty()}
+                                        onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="w-1/2 h-[442px]">
+                                    <ImageLoading
+                                      articleId={projectId}
+                                      label="Add photo"
+                                      classBlock="h-[100px]"
+                                      contentType={ArticleTypeEnum.PROJECT}
+                                      uploadedUrls={block.files || []}
+                                      positionBlockImg={true}
+                                      onFilesChange={(files, deleted) => {
+                                        setFieldValue(`contentBlocks.${blockIndex}.files`, files);
+                                        setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                      }}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="flex-1 flex flex-col">
-                                  <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                                </div>
-                              </div>
-                              <div className="w-1/2 h-[442px]">
-                                <ImageLoading
-                                  articleId={projectId}
-                                  label="Add photo"
-                                  classBlock="h-[100px]"
-                                  contentType={ArticleTypeEnum.PROJECT}
-                                  uploadedUrls={block.files || []}
-                                  positionBlockImg={true}
-                                  onFilesChange={(files, deleted) => {
-                                    setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
-                                  }}
-                                />
-                              </div>
+                              </Accordion>
                             </div>
                           )}
                         </React.Fragment>
@@ -369,72 +379,78 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                       return (
                         <div key={index} className="mb-5">
-                          <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div className="w-1/2 h-[442px] flex flex-col">
-                              <div className="mb-4">
-                                <Input
-                                  onChange={handleChange}
-                                  id={`contentBlocks.${blockIndex}.sectionTitle`}
-                                  name={`contentBlocks.${blockIndex}.sectionTitle`}
-                                  type="text"
-                                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                  value={block.sectionTitle}
-                                  label="Section title"
-                                  labelClass="!text-admin-700"
+                          <Accordion
+                            title={`Section #${pairIndex + 2} - ${block.sectionTitle}`}
+                            initState={block.isNew || false}
+                            actions={
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const blockId = block.id;
+                                  // remove(index);
+                                  if (block.files) {
+                                    setDeletedFiles(prev => [...prev, ...block.files]);
+                                  }
+
+                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                  if (blockIndex !== -1) remove(blockIndex);
+
+                                  setEditorStates(prev => {
+                                    const newState = { ...prev };
+                                    delete newState[blockId];
+                                    return newState;
+                                  });
+
+                                  setEditorKey(prev => {
+                                    const newKey = { ...prev };
+                                    delete newKey[blockId];
+                                    return newKey;
+                                  });
+                                }}
+                                className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                              >
+                                <BasketIcon color="white" />
+                              </button>
+                            }
+                          >
+                            <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                              <div className="w-1/2 h-[442px] flex flex-col">
+                                <div className="mb-4">
+                                  <Input
+                                    onChange={handleChange}
+                                    id={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    name={`contentBlocks.${blockIndex}.sectionTitle`}
+                                    type="text"
+                                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                    value={block.sectionTitle}
+                                    label="Section title"
+                                    labelClass="!text-admin-700"
+                                  />
+                                </div>
+
+                                <div className="flex-1 flex flex-col">
+                                  <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                </div>
+                              </div>
+
+                              <div className="w-1/2 h-[442px]">
+                                <ImageLoading
+                                  articleId={projectId}
+                                  maxFiles={1}
+                                  label="Add photo"
+                                  classBlock="h-[100px]"
+                                  contentType={ArticleTypeEnum.PROJECT}
+                                  uploadedUrls={block?.files || []}
+                                  positionBlockImg={true}
+                                  onFilesChange={(files, deleted) => {
+                                    setFieldValue(`contentBlocks.${blockIndex}.files`, files);
+                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  }}
                                 />
                               </div>
-
-                              <div className="flex-1 flex flex-col">
-                                <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
-                              </div>
                             </div>
-
-                            <div className="w-1/2 h-[442px]">
-                              <ImageLoading
-                                articleId={projectId}
-                                maxFiles={1}
-                                label="Add photo"
-                                classBlock="h-[100px]"
-                                contentType={ArticleTypeEnum.PROJECT}
-                                uploadedUrls={block?.files || []}
-                                positionBlockImg={true}
-                                onFilesChange={(files, deleted) => {
-                                  setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
-                                }}
-                              />
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const blockId = block.id;
-                              // remove(index);
-                              if (block.files) {
-                                setDeletedFiles(prev => [...prev, ...block.files]);
-                              }
-
-                              const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                              if (blockIndex !== -1) remove(blockIndex);
-
-                              setEditorStates(prev => {
-                                const newState = { ...prev };
-                                delete newState[blockId];
-                                return newState;
-                              });
-
-                              setEditorKey(prev => {
-                                const newKey = { ...prev };
-                                delete newKey[blockId];
-                                return newKey;
-                              });
-                            }}
-                            className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
-                          >
-                            Remove block pair
-                          </button>
+                          </Accordion>
                         </div>
                       );
                     })}
@@ -450,6 +466,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           sectionTitle: '',
                           text: '',
                           files: [],
+                          isNew: true,
                         });
 
                         setEditorStates(prev => ({
@@ -473,14 +490,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
-            <div className="my-4 flex gap-x-1">
-              <WarningIcon />
-              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
-            </div>
-
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>
               <em>You must save the page before you can preview or publish it</em>
+            </div>
+
+            <div className="my-4">
+              <sup className="font-bold text-red-600 text-small2">*</sup>
+              After any changes you need to click the <strong>Save</strong> button
             </div>
 
             <div className="flex gap-x-6 mt-2">

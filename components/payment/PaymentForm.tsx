@@ -31,11 +31,7 @@ const validationSchema = Yup.object({
   name: nameValidation,
   amount: Yup.string()
     .required('Please add a donation amount')
-    .test(
-      'not-zero',
-      'Donation amount must be greater than 0',
-      value => parseFloat(value || '0') > 0,
-    ),
+    .test('not-zero', 'Donation amount must be greater than 0', value => parseFloat(value || '0') > 0),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
@@ -45,24 +41,14 @@ const PaymentForm = () => {
   const [isPaypal, setIsPaypal] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
-  const {
-    isPaymentApproved,
-    setLoading,
-    isPaymentError,
-    loading,
-    setIsPaymentApproved,
-    setAmount,
-    setPaymentDetails,
-  } = usePaymentContext();
+  const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
   const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
     const { name } = paymentDetails;
-    const purpose = purposeOptions.find(
-      item => item.value === paymentDetails.purpose,
-    );
+    const purpose = purposeOptions.find(item => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
       const { data } = await axiosOpenInstance.post(
@@ -95,10 +81,7 @@ const PaymentForm = () => {
     }
   };
 
-  const handleSubmitPaymentForm: any = (
-    values: any,
-    { setSubmitting, resetForm }: any,
-  ) => {
+  const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
     localStorage.setItem(
       'donationformdata',
@@ -134,9 +117,7 @@ const PaymentForm = () => {
     if (e.target.value === '' || isNaN(parseFloat(e.target.value))) {
       setCalculatedAmount(0);
     } else {
-      const calculatedAmount: number = parseFloat(
-        ((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2),
-      );
+      const calculatedAmount: number = parseFloat(((parseFloat(e.target.value) + 0.3) / (1 - 0.029)).toFixed(2));
       setCalculatedAmount(calculatedAmount);
     }
   };
@@ -154,39 +135,18 @@ const PaymentForm = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmitPaymentForm}
     >
-      {({
-        touched,
-        errors,
-        handleChange,
-        values,
-        resetForm,
-        setFieldValue,
-      }) => (
+      {({ touched, errors, handleChange, values, resetForm, setFieldValue }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
           {openModal ? (
-            <Modal
-              zIndex={999}
-              isOpen={openModal}
-              onClose={onModalClose}
-              title={'Paypal Gateway'}
-            >
+            <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={'Paypal Gateway'}>
               {isPaypal ? <PaypalComponent /> : <></>}
             </Modal>
           ) : (
             <></>
           )}
           {isPaymentApproved && (
-            <Modal
-              type={isPaymentApproved ? 'success' : 'error'}
-              isOpen={isPaymentApproved || isPaymentError}
-              onClose={onApprovedModalClose}
-              title="Success"
-            >
-              {isPaymentApproved ? (
-                <h1 className="text-xl font-bolder">Thank you for donation!</h1>
-              ) : (
-                <h1 className="text-xl font-bolder">Something went wrong!</h1>
-              )}
+            <Modal type={isPaymentApproved ? 'success' : 'error'} isOpen={isPaymentApproved || isPaymentError} onClose={onApprovedModalClose} title="Success">
+              {isPaymentApproved ? <h1 className="text-xl font-bolder">Thank you for donation!</h1> : <h1 className="text-xl font-bolder">Something went wrong!</h1>}
             </Modal>
           )}
           <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
@@ -208,9 +168,7 @@ const PaymentForm = () => {
                   label="Name and Surname"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.name && errors.name ? errors.name : ''
-                  }
+                  validationText={touched.name && errors.name ? errors.name : ''}
                   onChange={handleChange}
                   value={values.name}
                 />
@@ -223,9 +181,7 @@ const PaymentForm = () => {
                   label="Email"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.email && errors.email ? errors.email : ''
-                  }
+                  validationText={touched.email && errors.email ? errors.email : ''}
                   onChange={handleChange}
                   value={values.email}
                 />
@@ -238,9 +194,7 @@ const PaymentForm = () => {
                   label="Donation amount"
                   maxLength={50}
                   required
-                  validationText={
-                    touched.amount && errors.amount ? errors.amount : ''
-                  }
+                  validationText={touched.amount && errors.amount ? errors.amount : ''}
                   onChange={e => {
                     handleChange(e);
                     handleAmountChange(e);
@@ -300,19 +254,10 @@ const PaymentForm = () => {
                       value="stripe"
                       checked={values.paymentMethod === 'stripe'}
                       onChange={() => setFieldValue('paymentMethod', 'stripe')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
+                      error={touched.paymentMethod && errors.paymentMethod ? errors.paymentMethod : undefined}
                     />
                   </div>
-                  <Image
-                    src={`${prefix}/payment/Stripe.svg`}
-                    alt="stripe"
-                    width={78}
-                    height={45}
-                  />
+                  <Image src={`${prefix}/payment/Stripe.svg`} alt="stripe" width={78} height={45} />
                 </div>
                 <div className="flex">
                   <div className="flex-1 flex items-center">
@@ -322,26 +267,13 @@ const PaymentForm = () => {
                       value="paypal"
                       checked={values.paymentMethod === 'paypal'}
                       onChange={() => setFieldValue('paymentMethod', 'paypal')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
+                      error={touched.paymentMethod && errors.paymentMethod ? errors.paymentMethod : undefined}
                     />
                   </div>
-                  <Image
-                    src={`${prefix}/payment/PayPal.svg`}
-                    alt="paypal"
-                    width={38}
-                    height={45}
-                  />
+                  <Image src={`${prefix}/payment/PayPal.svg`} alt="paypal" width={38} height={45} />
                 </div>
 
-                {touched.paymentMethod && errors.paymentMethod && (
-                  <p className="text-status-danger-500 text-small2">
-                    {errors.paymentMethod}
-                  </p>
-                )}
+                {touched.paymentMethod && errors.paymentMethod && <p className="text-status-danger-500 text-small2">{errors.paymentMethod}</p>}
               </div>
               <div className="flex justify-between text-[#0F1B40]">
                 <span>Full amount</span>
@@ -371,11 +303,7 @@ const PaymentForm = () => {
                 </Button>
               </div>
 
-              <Button
-                variant="primary"
-                type="submit"
-                className="max-[500px]:w-full max-[500px]:mt-8"
-              >
+              <Button variant="primary" type="submit" className="max-[500px]:w-full max-[500px]:mt-8">
                 {loading ? 'Loading...' : 'Donate'}
               </Button>
             </div>

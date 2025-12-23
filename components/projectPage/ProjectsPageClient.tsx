@@ -1,39 +1,49 @@
 'use client';
 
-import { getAllArticle } from '@/store/article-content/action';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useEffect, useState } from 'react';
+import { useAppSelector } from '@/store/hook';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
 import Hero from '../ui/Hero';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProjectPage from './ProjectPage';
+import { useEffect } from 'react';
 
 function ProjectsPageClient() {
-  const dispatch = useAppDispatch();
-  const projects = useAppSelector(state => state.articleContent.articleContent);
-  const [loading, setLoading] = useState(true);
+  const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
+  const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
+
+  const scrollToElementWithHeaderOffset = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const header = document.querySelector('header');
+    const headerHeight = header?.getBoundingClientRect().height || 0;
+
+    const elementY = el.getBoundingClientRect().top + window.scrollY;
+
+    window.scrollTo({
+      top: elementY - headerHeight,
+      behavior: 'smooth',
+    });
+  };
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      await dispatch(
-        getAllArticle({
-          page: 0,
-          articleType: ArticleTypeEnum.PROJECT,
-          articleStatus: ArticleStatusEnum.PUBLISHED,
-        }),
-      );
-      setLoading(false);
-    };
+    if (projectsStatus !== 'loaded') return;
 
-    load();
-  }, [dispatch]);
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+
+    const timeout = setTimeout(() => {
+      scrollToElementWithHeaderOffset(hash);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [projectsStatus, projects.length]);
 
   return (
     <div className="ProjectsPage">
       <Hero title="Наші проєкти" pageBanner="/projects/img.png" />
 
-      {loading ? (
+      {projectsStatus === 'idle' || projectsStatus === 'loading' ? (
         <div className="text-center py-16 text-lg text-font-secondary">Loading...</div>
       ) : projects.length > 0 ? (
         projects.map((project: IArticleBody, index: number) => <ProjectPage key={index} project={project} relevantProjectId={project.id} />)

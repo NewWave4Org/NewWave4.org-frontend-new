@@ -25,6 +25,8 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
 import WarningIcon from '@/components/icons/status/WarningIcon';
+import Accordion from '@/components/ui/Accordion/Accordion';
+import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -404,8 +406,124 @@ function ProgramContent({ programId }: { programId: number }) {
 
                           {block.contentBlockType === 'SECTION_WITH_PHOTO' && (
                             <div className="mb-5">
-                              <div className={`flex gap-4 mb-3 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}>
-                                <div className="w-1/2">
+                              <Accordion
+                                title={`Section with photo - ${block.sectionTitle}`}
+                                initState={block.isNew || false}
+                                actions={
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+
+                                      if (block.files) {
+                                        console.log('block.files', block.files);
+                                        setDeletedFiles(prev => [...prev, ...block.files]);
+                                      }
+
+                                      if (blockIndex !== -1) {
+                                        remove(blockIndex);
+                                      }
+                                      setEditorStates(prev => {
+                                        const newState = { ...prev };
+                                        delete newState[`${block.id}_text`];
+                                        return newState;
+                                      });
+
+                                      setEditorKey(prev => {
+                                        const newKeys = { ...prev };
+                                        delete newKeys[block.id];
+                                        return newKeys;
+                                      });
+
+                                      toast.success(`Block with photo was successfully removed.`);
+                                    }}
+                                    className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                                  >
+                                    <BasketIcon color="white" />
+                                  </button>
+                                }
+                              >
+                                <div className={`flex gap-4 mb-3 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}>
+                                  <div className="w-1/2">
+                                    <Input
+                                      onChange={handleChange}
+                                      id={`contentBlocks.${index}.sectionTitle`}
+                                      name={`contentBlocks.${index}.sectionTitle`}
+                                      type="text"
+                                      className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                                      value={block.sectionTitle}
+                                      label="Section title"
+                                      labelClass="!text-admin-700"
+                                    />
+
+                                    <div>
+                                      <div className="mb-2 !text-admin-700">Text block</div>
+                                      <TextEditor
+                                        key={editorKey[`${block.id}_text`]}
+                                        value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
+                                        onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="w-1/2">
+                                    <ImageLoading
+                                      articleId={programId}
+                                      maxFiles={1}
+                                      label="Add photo (This photo will be the main photo in the program card)"
+                                      classBlock="h-[100px]"
+                                      previewSize={200}
+                                      positionBlockImg={true}
+                                      contentType={ArticleTypeEnum.PROGRAM}
+                                      uploadedUrls={block?.files || []}
+                                      onFilesChange={(files, deleted) => {
+                                        setFieldValue(`contentBlocks.${index}.files`, files);
+                                        setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </Accordion>
+                            </div>
+                          )}
+
+                          {block.contentBlockType === 'SECTION_WITH_TEXT' && (
+                            <div className="mb-5">
+                              <Accordion
+                                title={`Section with text - ${block.sectionTitle}`}
+                                initState={block.isNew || false}
+                                actions={
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                      if (blockIndex !== -1) {
+                                        remove(blockIndex);
+                                      }
+
+                                      setEditorStates(prev => {
+                                        const newState = { ...prev };
+                                        delete newState[`${block.id}_text1`];
+                                        delete newState[`${block.id}_text2`];
+                                        return newState;
+                                      });
+
+                                      setEditorKey(prev => {
+                                        const newKeys = { ...prev };
+                                        delete newKeys[`${block.id}_text1`];
+                                        delete newKeys[`${block.id}_text2`];
+                                        return newKeys;
+                                      });
+
+                                      toast.success(`Block with text was successfully removed.`);
+                                    }}
+                                    className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                                  >
+                                    <BasketIcon color="white" />
+                                  </button>
+                                }
+                              >
+                                <div className="mb-3">
                                   <Input
                                     onChange={handleChange}
                                     id={`contentBlocks.${index}.sectionTitle`}
@@ -416,136 +534,32 @@ function ProgramContent({ programId }: { programId: number }) {
                                     label="Section title"
                                     labelClass="!text-admin-700"
                                   />
-
-                                  <div>
-                                    <div className="mb-2 !text-admin-700">Text block</div>
-                                    <TextEditor
-                                      key={editorKey[`${block.id}_text`]}
-                                      value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
-                                      onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
-                                    />
+                                </div>
+                                <div className="flex gap-5">
+                                  <div className="w-1/2">
+                                    <div className="mb-3">
+                                      <div>
+                                        <div className="mb-2 !text-admin-700">Text block left</div>
+                                        <TextEditor
+                                          key={editorKey[`${block.id}_text1`]}
+                                          value={editorStates[`${block.id}_text1`] || EditorState.createEmpty()}
+                                          onChange={newState => handleEditorChange(index, block.id, 'editorState1', 'text1', newState, setFieldValue)}
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-
-                                <div className="w-1/2">
-                                  <ImageLoading
-                                    articleId={programId}
-                                    maxFiles={1}
-                                    label="Add photo (This photo will be the main photo in the program card)"
-                                    classBlock="h-[100px]"
-                                    previewSize={200}
-                                    positionBlockImg={true}
-                                    contentType={ArticleTypeEnum.PROGRAM}
-                                    uploadedUrls={block?.files || []}
-                                    onFilesChange={(files, deleted) => {
-                                      setFieldValue(`contentBlocks.${index}.files`, files);
-                                      setDeletedFiles(prev => [...prev, ...(deleted || [])]);
-                                    }}
-                                  />
-                                </div>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-
-                                  if (block.files) {
-                                    console.log('block.files', block.files);
-                                    setDeletedFiles(prev => [...prev, ...block.files]);
-                                  }
-
-                                  if (blockIndex !== -1) {
-                                    remove(blockIndex);
-                                  }
-                                  setEditorStates(prev => {
-                                    const newState = { ...prev };
-                                    delete newState[`${block.id}_text`];
-                                    return newState;
-                                  });
-
-                                  setEditorKey(prev => {
-                                    const newKeys = { ...prev };
-                                    delete newKeys[block.id];
-                                    return newKeys;
-                                  });
-
-                                  toast.success(`Block with photo was successfully removed.`);
-                                }}
-                                className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
-                              >
-                                Remove block pair with photo
-                              </button>
-                            </div>
-                          )}
-
-                          {block.contentBlockType === 'SECTION_WITH_TEXT' && (
-                            <div className="mb-5">
-                              <div className="mb-3">
-                                <Input
-                                  onChange={handleChange}
-                                  id={`contentBlocks.${index}.sectionTitle`}
-                                  name={`contentBlocks.${index}.sectionTitle`}
-                                  type="text"
-                                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                  value={block.sectionTitle}
-                                  label="Section title"
-                                  labelClass="!text-admin-700"
-                                />
-                              </div>
-                              <div className="flex gap-5">
-                                <div className="w-1/2">
-                                  <div className="mb-3">
+                                  <div className="w-1/2">
                                     <div>
-                                      <div className="mb-2 !text-admin-700">Text block left</div>
+                                      <div className="mb-2 !text-admin-700">Text block right</div>
                                       <TextEditor
-                                        key={editorKey[`${block.id}_text1`]}
-                                        value={editorStates[`${block.id}_text1`] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(index, block.id, 'editorState1', 'text1', newState, setFieldValue)}
+                                        key={editorKey[`${block.id}_text2`]}
+                                        value={editorStates[`${block.id}_text2`] || EditorState.createEmpty()}
+                                        onChange={newState => handleEditorChange(index, block.id, 'editorState2', 'text2', newState, setFieldValue)}
                                       />
                                     </div>
                                   </div>
                                 </div>
-                                <div className="w-1/2">
-                                  <div>
-                                    <div className="mb-2 !text-admin-700">Text block right</div>
-                                    <TextEditor
-                                      key={editorKey[`${block.id}_text2`]}
-                                      value={editorStates[`${block.id}_text2`] || EditorState.createEmpty()}
-                                      onChange={newState => handleEditorChange(index, block.id, 'editorState2', 'text2', newState, setFieldValue)}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                                  if (blockIndex !== -1) {
-                                    remove(blockIndex);
-                                  }
-
-                                  setEditorStates(prev => {
-                                    const newState = { ...prev };
-                                    delete newState[`${block.id}_text1`];
-                                    delete newState[`${block.id}_text2`];
-                                    return newState;
-                                  });
-
-                                  setEditorKey(prev => {
-                                    const newKeys = { ...prev };
-                                    delete newKeys[`${block.id}_text1`];
-                                    delete newKeys[`${block.id}_text2`];
-                                    return newKeys;
-                                  });
-
-                                  toast.success(`Block with text was successfully removed.`);
-                                }}
-                                className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
-                              >
-                                Remove block pair with text
-                              </button>
+                              </Accordion>
                             </div>
                           )}
 
@@ -584,82 +598,89 @@ function ProgramContent({ programId }: { programId: number }) {
                           )}
 
                           {block.contentBlockType === 'SCHEDULE_INFO' && (
-                            <>
-                              <div className="mb-4">
-                                <div className="block text-medium2 mb-1 !text-admin-700">Performance date</div>
-                                <DatePicker name={`contentBlocks.${index}.date`} pickerId={`performance-${index}`} pickerType="single" pickerPlaceholder="Choose date and time" pickerValue={block.date} />
-                              </div>
+                            <div className="mb-5">
+                              <Accordion
+                                title={`Schedule info - ${block.title}`}
+                                initState={block.isNew || false}
+                                classNameTop="min-h-14"
+                                actions={
+                                  <>
+                                    {values.contentBlocks.findIndex(b => b.contentBlockType === 'SCHEDULE_INFO') !== index && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const blockId = block.id;
 
-                              <div className="mb-4">
-                                <div className="flex gap-8">
-                                  <TimePicker
-                                    name={`contentBlocks.${index}.startTime`}
-                                    label="Start time"
-                                    value={block?.startTime}
-                                    classBlock="bg-background-light rounded-lg h-[56px] text-medium2 text-font-primary"
-                                    setFieldValue={setFieldValue}
-                                  />
-                                  <TimePicker
-                                    name={`contentBlocks.${index}.endTime`}
-                                    label="End time"
-                                    value={block?.endTime}
-                                    classBlock="bg-background-light rounded-lg h-[56px] text-medium2 text-font-primary"
-                                    setFieldValue={setFieldValue}
-                                  />
-                                </div>
-                                {(touched.contentBlocks as any)?.[index]?.endTime && (errors.contentBlocks as any)?.[index]?.endTime && (
-                                  <div className="text-red-600 text-sm mt-1">{(errors.contentBlocks as any)[index].endTime}</div>
-                                )}
-                              </div>
-                              <div className="mb-4">
-                                <Input
-                                  onChange={handleChange}
-                                  id={`contentBlocks.${index}.title`}
-                                  name={`contentBlocks.${index}.title`}
-                                  type="text"
-                                  className="!bg-background-light w-full px-5 !ring-0"
-                                  value={block.title}
-                                  label="Performance topic"
-                                  labelClass="!text-admin-700"
-                                />
-                              </div>
-                              <div className="mb-4">
-                                <Input
-                                  onChange={handleChange}
-                                  id={`contentBlocks.${index}.location`}
-                                  name={`contentBlocks.${index}.location`}
-                                  type="text"
-                                  className="!bg-background-light w-full px-5 !ring-0"
-                                  value={block.location}
-                                  label="Performance location"
-                                  labelClass="!text-admin-700"
-                                />
-                              </div>
+                                          const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                          if (blockIndex !== -1) remove(blockIndex);
+                                          // remove(index);
 
-                              {values.contentBlocks.findIndex(b => b.contentBlockType === 'SCHEDULE_INFO') !== index && (
+                                          setEditorStates(prev => {
+                                            const newState = { ...prev };
+                                            delete newState[blockId];
+                                            return newState;
+                                          });
+                                        }}
+                                        className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
+                                      >
+                                        <BasketIcon color="white" />
+                                      </button>
+                                    )}
+                                  </>
+                                }
+                              >
                                 <div className="mb-4">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const blockId = block.id;
-
-                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                                      if (blockIndex !== -1) remove(blockIndex);
-                                      // remove(index);
-
-                                      setEditorStates(prev => {
-                                        const newState = { ...prev };
-                                        delete newState[blockId];
-                                        return newState;
-                                      });
-                                    }}
-                                    className="px-3 py-1 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
-                                  >
-                                    Remove block schedule info
-                                  </button>
+                                  <div className="block text-medium2 mb-1 !text-admin-700">Performance date</div>
+                                  <DatePicker name={`contentBlocks.${index}.date`} pickerId={`performance-${index}`} pickerType="single" pickerPlaceholder="Choose date and time" pickerValue={block.date} />
                                 </div>
-                              )}
-                            </>
+
+                                <div className="mb-4">
+                                  <div className="flex gap-8">
+                                    <TimePicker
+                                      name={`contentBlocks.${index}.startTime`}
+                                      label="Start time"
+                                      value={block?.startTime}
+                                      classBlock="bg-background-light rounded-lg h-[56px] text-medium2 text-font-primary"
+                                      setFieldValue={setFieldValue}
+                                    />
+                                    <TimePicker
+                                      name={`contentBlocks.${index}.endTime`}
+                                      label="End time"
+                                      value={block?.endTime}
+                                      classBlock="bg-background-light rounded-lg h-[56px] text-medium2 text-font-primary"
+                                      setFieldValue={setFieldValue}
+                                    />
+                                  </div>
+                                  {(touched.contentBlocks as any)?.[index]?.endTime && (errors.contentBlocks as any)?.[index]?.endTime && (
+                                    <div className="text-red-600 text-sm mt-1">{(errors.contentBlocks as any)[index].endTime}</div>
+                                  )}
+                                </div>
+                                <div className="mb-4">
+                                  <Input
+                                    onChange={handleChange}
+                                    id={`contentBlocks.${index}.title`}
+                                    name={`contentBlocks.${index}.title`}
+                                    type="text"
+                                    className="!bg-background-light w-full px-5 !ring-0"
+                                    value={block.title}
+                                    label="Performance topic"
+                                    labelClass="!text-admin-700"
+                                  />
+                                </div>
+                                <div className="mb-4">
+                                  <Input
+                                    onChange={handleChange}
+                                    id={`contentBlocks.${index}.location`}
+                                    name={`contentBlocks.${index}.location`}
+                                    type="text"
+                                    className="!bg-background-light w-full px-5 !ring-0"
+                                    value={block.location}
+                                    label="Performance location"
+                                    labelClass="!text-admin-700"
+                                  />
+                                </div>
+                              </Accordion>
+                            </div>
                           )}
 
                           {lastPerformanceBlock === index && (
@@ -673,6 +694,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                   date: '',
                                   title: '',
                                   location: '',
+                                  isNew: true,
                                 });
                               }}
                               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
@@ -694,6 +716,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                     text: '',
                                     files: [],
                                     editorStates: null,
+                                    isNew: true,
                                   });
                                 }}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
@@ -713,6 +736,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                     text2: '',
                                     editorStates1: null,
                                     editorStates2: null,
+                                    isNew: true,
                                   });
                                 }}
                                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
@@ -731,9 +755,9 @@ function ProgramContent({ programId }: { programId: number }) {
 
             {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
 
-            <div className="my-4 flex gap-x-1">
-              <WarningIcon />
-              <em className="text-red-600">Warning: Click Save to permanently delete the photo.</em>
+            <div className="my-4">
+              <sup className="font-bold text-red-600 text-small2">*</sup>
+              After any changes you need to click the <strong>Save</strong> button
             </div>
 
             <div className="my-4">

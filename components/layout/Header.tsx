@@ -80,7 +80,7 @@ const Header = () => {
 
       {isMobile && (
         <div className={`${isMobile ? 'headerMobile' : ''} ${isMenuShow ? 'headerShowMobile' : ''}`}>
-          <Menu />
+          <Menu handleToggleMenu={handleToggleMenu} />
           <div className="flex items-start md:flex-row flex-col lg:order-2 gap-x-4 mt-5">
             <button type="button" className="language-btn md:mb-0 mb-3 bg-white/60 rounded-lg !w-[80px]">
               UA

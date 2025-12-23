@@ -20,7 +20,9 @@ interface ISlidesData {
 
 const ProgramsSlider = () => {
   const dispatch = useAppDispatch();
-  const programs = useAppSelector(state => state.articleContent.articleContent);
+  const programs = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items);
+  const programsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].status);
+
   const [slidesData, setSliderData] = useState<ISlidesData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -37,14 +39,18 @@ const ProgramsSlider = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(
-      getAllArticle({
-        page: 0,
-        articleType: ArticleTypeEnum.PROGRAM,
-        articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
-      }),
-    );
-  }, []);
+    if (programsStatus === 'idle') {
+      dispatch(
+        getAllArticle({
+          page: 0,
+          articleType: ArticleTypeEnum.PROGRAM,
+          articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
+          sortByCreatedAtDescending: true,
+          sortByDateOfWriting: true,
+        }),
+      );
+    }
+  }, [programsStatus, dispatch]);
 
   useEffect(() => {
     if (programs?.length) {
