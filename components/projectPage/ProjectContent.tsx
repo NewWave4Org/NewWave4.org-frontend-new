@@ -7,6 +7,7 @@ import ProjectContentLinks from './ProjectContentLinks';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 
 interface ProjectContent {
+  id: string;
   contentBlockType: string;
   sectionTitle: string;
   text: string;
@@ -25,6 +26,8 @@ interface ProjectContentProps {
 
 function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMedia, projectVideoUrl, showLinksInIndex }: ProjectContentProps) {
   const videoLink = convertYoutubeUrlToEmbed(projectVideoUrl!);
+
+  console.log('contentBlock', contentBlock);
 
   return (
     <>

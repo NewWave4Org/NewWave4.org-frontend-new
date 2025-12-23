@@ -57,6 +57,7 @@ export interface IGetAllArticleRequestDTO {
   sortByStatus?: boolean;
   sortByCreatedAtDescending?: boolean;
   excludeArticleId?: number;
+  sortByDateOfWriting?: boolean;
 }
 
 export interface IGetAllArticleResponseDTO {

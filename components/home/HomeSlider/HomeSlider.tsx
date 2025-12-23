@@ -32,7 +32,13 @@ interface HomeSliderProps {
   slidesToShow?: number;
 }
 
-function HomeSlider({ slides, speed = 500, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = false, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
+function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = false, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
+  const sliderLength = slides.length;
+
+  const isVariableWidth = sliderLength > 2 && variableWidth;
+
+  const resolvedSlidesToShow = isVariableWidth ? undefined : sliderLength <= 2 ? 1 : slidesToShow;
+
   const settings = {
     className: 'h-full',
     dots: dots,
@@ -40,13 +46,17 @@ function HomeSlider({ slides, speed = 500, infinite = true, showArrows = true, s
     infinite: infinite,
     speed: speed,
     slidesToScroll: 1,
-    centerMode: true,
+    centerMode: sliderLength <= 2 ? false : true,
     autoplay: autoplay,
     autoplaySpeed: 3000,
     pauseOnHover: slideHover,
     nextArrow: showArrows ? <SampleNextArrow /> : undefined,
     prevArrow: showArrows ? <SamplePrevArrow /> : undefined,
-    ...(variableWidth ? { variableWidth: true } : { variableWidth: false, slidesToShow }),
+    variableWidth: isVariableWidth,
+
+    ...(resolvedSlidesToShow !== undefined && {
+      slidesToShow: resolvedSlidesToShow,
+    }),
     responsive: [
       {
         breakpoint: 640,
@@ -97,7 +107,7 @@ function HomeSlider({ slides, speed = 500, infinite = true, showArrows = true, s
             );
 
             return (
-              <div key={index} className={`relative group flex-shrink-0 h-full group/slide`} style={{ width: slides.length === 2 ? '100%' : '556px' }}>
+              <div key={index} className={`relative group flex-shrink-0 h-full group/slide`} style={{ width: sliderLength > 2 ? '556px' : '100%' }}>
                 {typeof slide.link === 'string' && slide.link.trim() !== '' ? (
                   <Link href={slide.link} className="block h-full">
                     {slideContent}

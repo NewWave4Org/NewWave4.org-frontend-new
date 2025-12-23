@@ -15,7 +15,7 @@ function AdminLayoutAuthorized({ children }: { children: ReactNode }) {
             <div className="admin-left bg-background-light  max-w-[30%]">
               <AdminSidebar />
             </div>
-            <div className="admin-right flex-1 w-full py-[36px] pl-5 overflow-hidden">{children}</div>
+            <div className="admin-right flex-1 w-full pt-9 pb-16 pl-5 overflow-hidden">{children}</div>
           </div>
         </div>
       </main>

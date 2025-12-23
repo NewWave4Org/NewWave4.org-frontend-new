@@ -22,12 +22,22 @@ class ArticleService implements IArticleService {
     return this.articleApi.deleteArticle({ id, articleType });
   }
 
-  async getArticleById({ id }: { id: number; }): Promise<GetArticleByIdResponseDTO> {
+  async getArticleById({ id }: { id: number }): Promise<GetArticleByIdResponseDTO> {
     return this.articleApi.getArticleById({ id });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
-    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId });
+  async getAllArticle({
+    page = 0,
+    size = 10,
+    articleType,
+    articleStatus,
+    relevantProjectId,
+    sortByStatus,
+    sortByCreatedAtDescending,
+    excludeArticleId,
+    sortByDateOfWriting,
+  }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId, sortByDateOfWriting });
   }
 
   async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {
