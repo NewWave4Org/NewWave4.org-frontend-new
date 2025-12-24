@@ -32,7 +32,7 @@ interface HomeSliderProps {
   slidesToShow?: number;
 }
 
-function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = false, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
+function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = true, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
   const sliderLength = slides.length;
 
   const isVariableWidth = sliderLength > 2 && variableWidth;
