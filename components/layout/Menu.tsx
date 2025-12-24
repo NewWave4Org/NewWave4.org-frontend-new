@@ -64,9 +64,9 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
           if (subMenu) {
             return (
               <li key={label} className=" py-1 before:content-none pl-0">
-                <button className={`menu-link flex items-center gap-1 ${activeStyle}`} onClick={() => setOpenSubMenu(prev => (prev === label ? null : label))}>
+                <button className={`menu-link flex items-center gap-1 p-0 ${activeStyle}`} onClick={() => setOpenSubMenu(prev => (prev === label ? null : label))}>
                   {label}
-                  <ArrowDown4Icon className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500`} />
+                  <ArrowDown4Icon className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500 mt-1.5`} />
                 </button>
 
                 {openSubMenu === label && (
@@ -95,7 +95,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                                     setOpenSubMenu(null);
                                     handleToggleMenu?.();
                                   }}
-                                  className={`block pb-2.5 p-2 lg:mx-4 text-base font-medium hover:text-font-secondary duration-500 ${isActive ? 'active-link' : ''} whitespace-nowrap`}
+                                  className={`block pb-2.5 p-2 lg:mx-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''} whitespace-nowrap`}
                                 >
                                   {project.title}
                                 </a>
@@ -103,7 +103,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                             );
                           })
                         ) : (
-                          <li className="px-4 py-2 text-gray-500">Немає проектів</li>
+                          <li className="px-4 py-2 before:content-none text-center text-base font-medium text-font-accent">There are no projects yet</li>
                         )}
                       </ul>
                     </div>
