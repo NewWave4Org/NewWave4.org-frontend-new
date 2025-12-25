@@ -1,8 +1,8 @@
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProgramBlockItem from './ProgramBlockItem';
+import { prefix } from '@/utils/prefix';
 
 function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] | null }) {
-  console.log('dopPrograms', dopPrograms);
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
@@ -12,8 +12,9 @@ function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] | null }) 
           {dopPrograms?.map(item => {
             const description = item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.text;
             const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SECTION_WITH_PHOTO')?.files;
+            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.svg`;
 
-            return <ProgramBlockItem key={item.id} title={item.title} description={description} id={item.id} imageSrc={imageSrc} />;
+            return <ProgramBlockItem key={item.id} title={item.title} description={description} id={item.id} imageSrc={imgSrc} />;
           })}
         </div>
       </div>

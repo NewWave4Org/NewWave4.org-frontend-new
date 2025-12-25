@@ -46,7 +46,7 @@ const ProgramsSlider = () => {
           articleType: ArticleTypeEnum.PROGRAM,
           articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
           sortByCreatedAtDescending: true,
-          sortByDateOfWriting: true,
+          sortByDateOfWriting: false,
         }),
       );
     }

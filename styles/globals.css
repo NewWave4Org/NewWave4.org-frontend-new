@@ -350,7 +350,9 @@ p {
   background-color: #999;
   border-radius: 3px;
 }
-
+.home-slider p {
+  margin: 0;
+}
 
 
 @media (min-width: 1280px) {

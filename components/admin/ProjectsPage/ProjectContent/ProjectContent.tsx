@@ -103,6 +103,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
+          isNew: false,
         }));
 
         blocksWithId.forEach(block => {

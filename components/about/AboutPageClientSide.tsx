@@ -71,7 +71,7 @@ function AboutPageClientSide() {
 
   return (
     <div>
-      <Hero title="Про нас" />
+      <Hero title="Про нас" pageBanner="/about/about-us_banner.png" />
       <OurMission ourMission={ourMission} />
       {quote && quote?.text !== '' && <DetailedTextInformation quote={quote} />}
       <Team />

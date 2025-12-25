@@ -41,8 +41,8 @@ type Props = {
 const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [refresh, setRefresh] = useState(false);
-  const articles = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.NEWS].items);
-  const totalPages = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.NEWS].status);
+  const articles = useAppSelector(state => state.articleContent.byType[articleType].items);
+  const totalPages = useAppSelector(state => state.articleContent.byType[articleType].status);
   const dispatch = useAppDispatch();
 
   const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
