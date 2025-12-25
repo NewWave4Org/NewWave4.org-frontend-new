@@ -24,7 +24,6 @@ import { v4 as uuid } from 'uuid';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
-import WarningIcon from '@/components/icons/status/WarningIcon';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
@@ -165,7 +164,12 @@ function ProgramContent({ programId }: { programId: number }) {
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const blocksWithId = result.contentBlocks?.map(block => ({ ...block, id: block.id || uuid() })) || [];
+        const blocksWithId =
+          result.contentBlocks?.map(block => ({
+            ...block,
+            id: block.id || uuid(),
+            isNew: false,
+          })) || [];
 
         blocksWithId.forEach(block => {
           if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {

@@ -26,7 +26,6 @@ import { convertFromISO } from '../../helperComponents/DatePicker/utils/convertF
 import { convertToISO } from '../../helperComponents/DatePicker/utils/convertToISO';
 import { v4 as uuid } from 'uuid';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
-import WarningIcon from '@/components/icons/status/WarningIcon';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 
