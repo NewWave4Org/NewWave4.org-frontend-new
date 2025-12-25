@@ -38,28 +38,30 @@ const validationSchema = Yup.object({
 
 const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
-  const [isPaypal, setIsPaypal] = useState<boolean>(false);
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  // const [isPaypal, setIsPaypal] = useState<boolean>(false);
+  // const [openModal, setOpenModal] = useState<boolean>(false);
   const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
   const { isPaymentApproved, setLoading, isPaymentError, loading, setIsPaymentApproved, setAmount, setPaymentDetails } = usePaymentContext();
   const router = useRouter();
 
-  const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
+  // const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
+    console.log('paymentDetails', paymentDetails);
+    const baseUrl = paymentDetails.paymentMethod === 'paypal' ? 'payments/paypal/checkout-session' : 'payments/stripe/checkout-session';
+
+    console.log('baseUrl', baseUrl);
+
     const { name } = paymentDetails;
     const purpose = purposeOptions.find(item => item.value === paymentDetails.purpose);
     setLoading(true);
     try {
-      const { data } = await axiosOpenInstance.post(
-        '/payments/stripe-checkout-session',
-        {
-          name,
-          amount: calculatedAmount,
-          description: purpose?.label,
-          email: paymentDetails.email,
-        },
-      );
+      const { data } = await axiosOpenInstance.post(baseUrl, {
+        name,
+        amount: calculatedAmount,
+        description: purpose?.label,
+        email: paymentDetails.email,
+      });
       /**
        *       const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
         method: 'POST',
@@ -70,45 +72,50 @@ const PaymentForm = () => {
       });
       const data = await response.json();
        */
-      if (data.sessionId) {
-        const stripe = await stripePromise;
-        await stripe?.redirectToCheckout({ sessionId: data.sessionId });
+      console.log('data', data);
+      if (data.message) {
+        // const stripe = await stripePromise;
+        // await stripe?.redirectToCheckout({ sessionId: data.sessionId });
+        window.location.href = data.message;
+        setLoading(false);
       } else {
         alert(`Failed to create session: ${data.message}`);
+        setLoading(false);
       }
     } catch (error) {
       return error;
+      setLoading(false);
     }
   };
 
   const handleSubmitPaymentForm: any = (values: any, { setSubmitting, resetForm }: any) => {
     const purpose = purposeOptions.find(item => item.value === values.purpose);
-    localStorage.setItem(
-      'donationformdata',
-      JSON.stringify({ ...values, purpose: purpose?.label }),
-    );
+    localStorage.setItem('donationformdata', JSON.stringify({ ...values, purpose: purpose?.label }));
     setAmount(values.amount);
     setPaymentDetails({
       email: values?.email,
       description: purpose?.label,
     });
-    if (values.paymentMethod === 'paypal') {
-      setIsPaypal(true);
-      setOpenModal(true);
-    }
-    if (values.paymentMethod === 'stripe') {
-      handleStripeCheckout(values);
-    }
+
+    // if (values.paymentMethod === 'paypal') {
+    //   setIsPaypal(true);
+    // }
+    // if (values.paymentMethod === 'stripe') {
+    //   setIsPaypal(false);
+    // }
+
+    handleStripeCheckout(values);
     setSubmitting(false);
+    setLoading(false);
     resetForm();
   };
 
-  const onModalClose = () => setOpenModal(false);
+  // const onModalClose = () => setOpenModal(false);
   const onApprovedModalClose = () => setIsPaymentApproved(false);
 
   useEffect(() => {
     if (isPaymentApproved) {
-      setOpenModal(false);
+      // setOpenModal(false);
       router.replace('/donation/finish');
     }
   }, [isPaymentApproved, router]);
@@ -121,6 +128,8 @@ const PaymentForm = () => {
       setCalculatedAmount(calculatedAmount);
     }
   };
+
+  console.log('isPaymentApproved', isPaymentApproved);
 
   return (
     <Formik
@@ -137,13 +146,13 @@ const PaymentForm = () => {
     >
       {({ touched, errors, handleChange, values, resetForm, setFieldValue }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
-          {openModal ? (
+          {/* {openModal ? (
             <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={'Paypal Gateway'}>
               {isPaypal ? <PaypalComponent /> : <></>}
             </Modal>
           ) : (
             <></>
-          )}
+          )} */}
           {isPaymentApproved && (
             <Modal type={isPaymentApproved ? 'success' : 'error'} isOpen={isPaymentApproved || isPaymentError} onClose={onApprovedModalClose} title="Success">
               {isPaymentApproved ? <h1 className="text-xl font-bolder">Thank you for donation!</h1> : <h1 className="text-xl font-bolder">Something went wrong!</h1>}
@@ -151,13 +160,8 @@ const PaymentForm = () => {
           )}
           <div className="max-[1100px]:w-full xl:w-[399px] flex flex-col gap-y-[40px]">
             <div className="flex flex-col gap-y-4">
-              <h3 className="text-h3 text-font-primary font-ebGaramond">
-                Your influence starts today
-              </h3>
-              <p className="text-body text-font-primary">
-                Every generous contribution goes to support an important cause
-                and changes lives for better.
-              </p>
+              <h3 className="text-h3 text-font-primary font-ebGaramond">Your influence starts today</h3>
+              <p className="text-body text-font-primary">Every generous contribution goes to support an important cause and changes lives for better.</p>
             </div>
 
             <div className="flex flex-col gap-y-2">
@@ -203,34 +207,12 @@ const PaymentForm = () => {
                 />
               </div>
 
-              <Select
-                label="Donation purpose"
-                name="purpose"
-                required
-                parentClassname="max-[1100px]:w-full"
-                placeholder="Select an option"
-                onChange={handleChange}
-                options={purposeOptions}
-              />
+              <Select label="Donation purpose" name="purpose" required parentClassname="max-[1100px]:w-full" placeholder="Select an option" onChange={handleChange} options={purposeOptions} />
 
               <div className="mt-[16px]">
-                {showComment && (
-                  <TextArea
-                    id="comment"
-                    label="Text"
-                    maxLength={200}
-                    value={values.comment}
-                    onChange={handleChange}
-                    className="w-[357px] h-[80px]"
-                  />
-                )}
+                {showComment && <TextArea id="comment" label="Text" maxLength={200} value={values.comment} onChange={handleChange} className="w-[357px] h-[80px]" />}
 
-                <Button
-                  variant="tertiary"
-                  size="small"
-                  type="button"
-                  onClick={() => setShowComment(!showComment)}
-                >
+                <Button variant="tertiary" size="small" type="button" onClick={() => setShowComment(!showComment)}>
                   {showComment ? 'Hide a comment' : 'Leave a comment'}
                 </Button>
               </div>
@@ -240,10 +222,7 @@ const PaymentForm = () => {
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
                 Please, select donation method
-                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
-                  {' '}
-                  *
-                </span>
+                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv"> *</span>
               </h4>
               <div className="flex flex-col gap-y-[16px]">
                 <div className="flex">
@@ -281,11 +260,7 @@ const PaymentForm = () => {
               </div>
               <div className="flex flex-col gap-y-[8px]">
                 <div className="border-t border-grey-300 w-full"></div>
-                <p className="text-small text-grey-700">
-                  New Ukrainian Wave is a 501(c)(3) type of organization.
-                  Donations and charitable contributions are fully deductible
-                  when filing your tax return (IRS).
-                </p>
+                <p className="text-small text-grey-700">New Ukrainian Wave is a 501(c)(3) type of organization. Donations and charitable contributions are fully deductible when filing your tax return (IRS).</p>
               </div>
             </div>
             <div className="flex max-[500px]:flex-col">

@@ -22,14 +22,24 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async getArticleById({ id }: { id: number; }): Promise<GetArticleByIdResponseDTO> {
+  async getArticleById({ id }: { id: number }): Promise<GetArticleByIdResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(id),
     });
   }
 
-  async getAllArticle({ page = 0, size = 10, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
+  async getAllArticle({
+    page = 0,
+    size = 10,
+    articleType,
+    articleStatus,
+    relevantProjectId,
+    sortByStatus,
+    sortByCreatedAtDescending,
+    excludeArticleId,
+    sortByDateOfWriting,
+  }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
     const params: Record<string, string | number | boolean> = {
       page,
       size,
@@ -39,6 +49,7 @@ class ArticleApi implements IArticleApi {
       ...(sortByStatus !== null && { sortByStatus }),
       ...(sortByCreatedAtDescending !== null && { sortByCreatedAtDescending }),
       ...(excludeArticleId !== null && { excludeArticleId }),
+      ...(sortByDateOfWriting !== null && { sortByDateOfWriting }),
     };
 
     return request({

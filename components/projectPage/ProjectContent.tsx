@@ -27,8 +27,6 @@ interface ProjectContentProps {
 function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMedia, projectVideoUrl, showLinksInIndex }: ProjectContentProps) {
   const videoLink = convertYoutubeUrlToEmbed(projectVideoUrl!);
 
-  console.log('contentBlock', contentBlock);
-
   return (
     <>
       <div className="projectsBlock__content">
@@ -39,7 +37,7 @@ function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMed
 
             return (
               <div key={index} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>
-                <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0' : ''} ${content?.files?.length === 0 ? 'lg:pl-0' : 'lg:pl-[40px]'}`}>
+                <div className={`flex-1 lg:pr-[64px] lg:py-[30px] pr-0 py-[20px] ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-[40px]' : ''}`}>
                   <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
                   <div>
                     <div className="text-body text-font-primary">

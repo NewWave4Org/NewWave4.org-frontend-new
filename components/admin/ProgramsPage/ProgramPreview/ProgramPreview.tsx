@@ -6,6 +6,7 @@ import ProgramFirstBlocks from '@/components/program/programPageComponents/Progr
 import ProgramHeader from '@/components/program/programPageComponents/ProgramHeader';
 import ProgramSchedule from '@/components/program/programPageComponents/ProgramSchedule';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 
 function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | undefined }) {
   const titleProgram = program?.title;
@@ -24,6 +25,7 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
   });
 
   const videoURL = program?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+  const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
   const schedulePoster = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
   const scheduleTitle = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.title;
@@ -39,9 +41,17 @@ function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | unde
       <div className="">
         {(titleProgram || descriptionProgram) && <ProgramFirstBlocks title={titleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">
-          {((filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0) || (videoURL && videoURL.length > 0)) && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} videoURL={videoURL} />}
+          {filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0 && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} />}
           {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}
           {filteredScheduleInfo && filteredScheduleInfo.length > 0 && <ProgramSchedule schedulePoster={schedulePoster} scheduleTitle={scheduleTitle} scheduleInfo={filteredScheduleInfo} />}
+
+          {videoLink && (
+            <div className="lg:mb-20 mb-10">
+              <div className="container mx-auto px-4">
+                <iframe src={videoLink} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
