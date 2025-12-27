@@ -60,7 +60,7 @@ const PaymentForm = () => {
       });
 
       if (data.message) {
-        // window.location.href = data.message;
+        window.location.href = data.message;
         setLoading(false);
       } else {
         alert(`Failed to create session: ${data.message}`);
