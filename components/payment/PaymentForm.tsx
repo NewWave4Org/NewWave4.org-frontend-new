@@ -54,8 +54,9 @@ const PaymentForm = () => {
       const { data } = await axiosOpenInstance.post(baseUrl, {
         name,
         amount: calculatedAmount * 100,
-        description: purpose?.label,
+        purpose: purpose?.label,
         email: paymentDetails.email,
+        comment: paymentDetails.comment,
       });
 
       if (data.message) {
