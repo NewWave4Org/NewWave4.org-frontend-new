@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 interface IPaymentDetails {
-  description?: string;
+  purpose?: string;
   email?: string;
 }
 interface IPaymentContext {
@@ -27,7 +27,7 @@ const initialValues: IPaymentContext = {
   loading: false,
   setLoading: (values: boolean) => null,
   paymentDetails: {},
-  setPaymentDetails: (values: IPaymentDetails) => null
+  setPaymentDetails: (values: IPaymentDetails) => null,
 };
 
 const PaymentContext = createContext(initialValues);
@@ -41,7 +41,7 @@ function PaymentContextAPI(props: React.PropsWithChildren<{}>) {
   const [isPaymentError, setIsPaymentError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('');
-  const [paymentDetails, setPaymentDetails] = useState<IPaymentDetails>({ description: "" });
+  const [paymentDetails, setPaymentDetails] = useState<IPaymentDetails>({ description: '' });
 
   const values: IPaymentContext = {
     isPaymentApproved,
@@ -53,12 +53,9 @@ function PaymentContextAPI(props: React.PropsWithChildren<{}>) {
     amount,
     setAmount,
     paymentDetails,
-    setPaymentDetails
-  }
-  return (
-    <PaymentContext.Provider value={values}>{children}</PaymentContext.Provider>
-  )
-
+    setPaymentDetails,
+  };
+  return <PaymentContext.Provider value={values}>{children}</PaymentContext.Provider>;
 }
 
 export default PaymentContextAPI;

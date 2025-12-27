@@ -47,8 +47,6 @@ const PaymentForm = () => {
     console.log('paymentDetails', paymentDetails);
     const baseUrl = paymentDetails.paymentMethod === 'paypal' ? 'payments/paypal/checkout-session' : 'payments/stripe/checkout-session';
 
-    console.log('baseUrl', baseUrl);
-
     const { name } = paymentDetails;
     const purpose = purposeOptions.find(item => item.value === paymentDetails.purpose);
     setLoading(true);
@@ -59,20 +57,8 @@ const PaymentForm = () => {
         description: purpose?.label,
         email: paymentDetails.email,
       });
-      /**
-       *       const response = await fetch(`${process.env.NEXT_PUBLIC_NEWWAVE_API_URL}/api/v1/payments/stripe-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(),
-      });
-      const data = await response.json();
-       */
-      console.log('data', data);
+
       if (data.message) {
-        // const stripe = await stripePromise;
-        // await stripe?.redirectToCheckout({ sessionId: data.sessionId });
         window.location.href = data.message;
         setLoading(false);
       } else {
@@ -93,15 +79,8 @@ const PaymentForm = () => {
     setAmount(values.amount);
     setPaymentDetails({
       email: values?.email,
-      description: purpose?.label,
+      purpose: purpose?.label,
     });
-
-    // if (values.paymentMethod === 'paypal') {
-    //   setIsPaypal(true);
-    // }
-    // if (values.paymentMethod === 'stripe') {
-    //   setIsPaypal(false);
-    // }
 
     handleStripeCheckout(values);
     setSubmitting(false);
@@ -132,10 +111,10 @@ const PaymentForm = () => {
   return (
     <Formik
       initialValues={{
-        email: '',
         name: '',
-        purpose: '',
+        email: '',
         amount: '',
+        purpose: '',
         comment: '',
         paymentMethod: '',
       }}
@@ -144,13 +123,6 @@ const PaymentForm = () => {
     >
       {({ touched, errors, handleChange, values, resetForm, setFieldValue }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
-          {/* {openModal ? (
-            <Modal zIndex={999} isOpen={openModal} onClose={onModalClose} title={'Paypal Gateway'}>
-              {isPaypal ? <PaypalComponent /> : <></>}
-            </Modal>
-          ) : (
-            <></>
-          )} */}
           {isPaymentApproved && (
             <Modal type={isPaymentApproved ? 'success' : 'error'} isOpen={isPaymentApproved || isPaymentError} onClose={onApprovedModalClose} title="Success">
               {isPaymentApproved ? <h1 className="text-xl font-bolder">Thank you for donation!</h1> : <h1 className="text-xl font-bolder">Something went wrong!</h1>}
