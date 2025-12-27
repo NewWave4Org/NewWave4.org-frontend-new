@@ -54,12 +54,13 @@ const PaymentForm = () => {
       const { data } = await axiosOpenInstance.post(baseUrl, {
         name,
         amount: calculatedAmount * 100,
-        description: purpose?.label,
+        purpose: purpose?.label,
         email: paymentDetails.email,
+        comment: paymentDetails.comment,
       });
 
       if (data.message) {
-        window.location.href = data.message;
+        // window.location.href = data.message;
         setLoading(false);
       } else {
         alert(`Failed to create session: ${data.message}`);
