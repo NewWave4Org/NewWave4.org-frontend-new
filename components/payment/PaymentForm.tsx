@@ -12,12 +12,9 @@ import { useRouter } from 'next/navigation';
 import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
-import PaypalComponent from './PaypalComponent';
 import Modal from '../shared/Modal';
 import { usePaymentContext } from '@/stores/PaymentContextAPI';
-import { loadStripe } from '@stripe/stripe-js';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
-import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS } from '@/env';
 
 const purposeOptions = [
   { value: '1', label: 'Культурний центр "Свій до свого по своє"' },
@@ -58,7 +55,7 @@ const PaymentForm = () => {
     try {
       const { data } = await axiosOpenInstance.post(baseUrl, {
         name,
-        amount: calculatedAmount,
+        amount: calculatedAmount * 100,
         description: purpose?.label,
         email: paymentDetails.email,
       });
@@ -82,8 +79,10 @@ const PaymentForm = () => {
         alert(`Failed to create session: ${data.message}`);
         setLoading(false);
       }
-    } catch (error) {
-      return error;
+    } catch (error: any) {
+      console.log('error', error);
+      alert(error?.response?.data?.message);
+      // return error;
       setLoading(false);
     }
   };
@@ -107,6 +106,7 @@ const PaymentForm = () => {
     handleStripeCheckout(values);
     setSubmitting(false);
     setLoading(false);
+    setCalculatedAmount(0);
     resetForm();
   };
 
@@ -128,8 +128,6 @@ const PaymentForm = () => {
       setCalculatedAmount(calculatedAmount);
     }
   };
-
-  console.log('isPaymentApproved', isPaymentApproved);
 
   return (
     <Formik
