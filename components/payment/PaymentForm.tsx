@@ -17,7 +17,7 @@ import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 
 const purposeOptions = [
-  { value: '1', label: 'Culture Center “Svii do svoho po svoie”' },
+  { value: '1', label: 'Ukrainian  Cultural  Center' },
   { value: '2', label: 'Ukrainian Studies School “New Wave”' },
   { value: '3', label: 'Art and Victory Project' },
   { value: '4', label: 'Other Programs' },
