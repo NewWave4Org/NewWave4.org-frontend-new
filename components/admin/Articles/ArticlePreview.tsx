@@ -66,7 +66,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         const project = await dispatch(
           getArticleById({
             id: article.relevantProjectId!,
-            // articleType: 'PROJECT',
           }),
         ).unwrap();
         setProjectTitle(project.title);
@@ -136,7 +135,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
                   </span>
                 </div>
                 <div className="text-font-primary text-small">
-                  {formatDateUk(article.publishedAt)}
+                  {formatDateUk(article.dateOfWriting)}
                 </div>
               </div>
             </div>

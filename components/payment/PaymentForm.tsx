@@ -26,13 +26,10 @@ const purposeOptions = [
 const validationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
-  amount: Yup.string()
+  amount: Yup.number()
+    .typeError('Donation amount must be a number')
     .required('Please add a donation amount')
-    .test(
-      'not-zero',
-      'Donation amount must be greater than 0',
-      value => parseFloat(value || '0') > 0,
-    ),
+    .moreThan(0, 'Donation amount must be greater than 0'),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
@@ -187,6 +184,8 @@ const PaymentForm = () => {
                   id="amount"
                   label="Donation amount"
                   maxLength={50}
+                  type="number"
+                  min="0"
                   required
                   validationText={
                     touched.amount && errors.amount ? errors.amount : ''
