@@ -143,7 +143,7 @@ export default function Article() {
                 </span>
               </div>
               <div className="text-font-primary text-small">
-                {formatDateUk(article.publishedAt)}
+                {formatDateUk(article.dateOfWriting)}
               </div>
             </div>
 

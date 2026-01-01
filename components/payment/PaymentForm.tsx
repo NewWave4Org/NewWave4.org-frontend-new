@@ -17,7 +17,7 @@ import { usePaymentContext } from '@/stores/PaymentContextAPI';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
 
 const purposeOptions = [
-  { value: '1', label: 'Culture Center “Svii do svoho po svoie”' },
+  { value: '1', label: 'Ukrainian  Cultural  Center' },
   { value: '2', label: 'Ukrainian Studies School “New Wave”' },
   { value: '3', label: 'Art and Victory Project' },
   { value: '4', label: 'Other Programs' },
@@ -26,13 +26,10 @@ const purposeOptions = [
 const validationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
-  amount: Yup.string()
+  amount: Yup.number()
+    .typeError('Donation amount must be a number')
     .required('Please add a donation amount')
-    .test(
-      'not-zero',
-      'Donation amount must be greater than 0',
-      value => parseFloat(value || '0') > 0,
-    ),
+    .moreThan(0, 'Donation amount must be greater than 0'),
   purpose: Yup.string().required('Please select a donation purpose'),
   paymentMethod: Yup.string().required('Please select a payment method'),
 });
@@ -184,6 +181,25 @@ const PaymentForm = () => {
               <div>
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
+                  id="amount"
+                  label="Donation amount"
+                  maxLength={50}
+                  type="number"
+                  min="0"
+                  required
+                  validationText={
+                    touched.amount && errors.amount ? errors.amount : ''
+                  }
+                  onChange={e => {
+                    handleChange(e);
+                    handleAmountChange(e);
+                  }}
+                  value={values.amount}
+                />
+              </div>
+              <div>
+                <Input
+                  className="max-[1100px]:w-full xl:!w-[275px]"
                   id="name"
                   label="Name and Surname"
                   maxLength={50}
@@ -208,24 +224,6 @@ const PaymentForm = () => {
                   }
                   onChange={handleChange}
                   value={values.email}
-                />
-              </div>
-
-              <div>
-                <Input
-                  className="max-[1100px]:w-full xl:!w-[275px]"
-                  id="amount"
-                  label="Donation amount"
-                  maxLength={50}
-                  required
-                  validationText={
-                    touched.amount && errors.amount ? errors.amount : ''
-                  }
-                  onChange={e => {
-                    handleChange(e);
-                    handleAmountChange(e);
-                  }}
-                  value={values.amount}
                 />
               </div>
 

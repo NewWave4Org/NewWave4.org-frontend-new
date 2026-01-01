@@ -7,6 +7,7 @@ export interface Article {
   articleStatus: string;
   publishedAt: string | null;
   createdAt: string | null;
+  dateOfWriting: string | null;
   title: string;
   views: number;
 }
