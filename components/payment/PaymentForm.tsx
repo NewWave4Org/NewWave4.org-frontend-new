@@ -184,6 +184,23 @@ const PaymentForm = () => {
               <div>
                 <Input
                   className="max-[1100px]:w-full xl:!w-[275px]"
+                  id="amount"
+                  label="Donation amount"
+                  maxLength={50}
+                  required
+                  validationText={
+                    touched.amount && errors.amount ? errors.amount : ''
+                  }
+                  onChange={e => {
+                    handleChange(e);
+                    handleAmountChange(e);
+                  }}
+                  value={values.amount}
+                />
+              </div>
+              <div>
+                <Input
+                  className="max-[1100px]:w-full xl:!w-[275px]"
                   id="name"
                   label="Name and Surname"
                   maxLength={50}
@@ -208,24 +225,6 @@ const PaymentForm = () => {
                   }
                   onChange={handleChange}
                   value={values.email}
-                />
-              </div>
-
-              <div>
-                <Input
-                  className="max-[1100px]:w-full xl:!w-[275px]"
-                  id="amount"
-                  label="Donation amount"
-                  maxLength={50}
-                  required
-                  validationText={
-                    touched.amount && errors.amount ? errors.amount : ''
-                  }
-                  onChange={e => {
-                    handleChange(e);
-                    handleAmountChange(e);
-                  }}
-                  value={values.amount}
                 />
               </div>
 
