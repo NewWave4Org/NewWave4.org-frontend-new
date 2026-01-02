@@ -36,6 +36,7 @@ export const useArticles = ({
                     articleType,
                     articleStatus: ArticleStatusEnum.PUBLISHED,
                     sortByCreatedAtDescending: 'true',
+                    sortByDateOfWriting: 'true'
                 };
 
                 if (!limit) {
