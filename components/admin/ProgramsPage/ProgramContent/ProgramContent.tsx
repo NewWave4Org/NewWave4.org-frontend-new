@@ -4,7 +4,11 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import LinkBtn from '@/components/shared/LinkBtn';
 import Select from '@/components/shared/Select';
-import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -56,26 +60,33 @@ const validationSchema = Yup.object({
         period: Yup.string().oneOf(['AM', 'PM']).nullable(),
       })
         .nullable()
-        .when(['startTime', 'contentBlockType'], ([startTime, contentBlockType], schema) => {
-          if (contentBlockType !== 'SCHEDULE_INFO') return schema;
+        .when(
+          ['startTime', 'contentBlockType'],
+          ([startTime, contentBlockType], schema) => {
+            if (contentBlockType !== 'SCHEDULE_INFO') return schema;
 
-          return schema.test('is-after-start', 'End time must be later than start time', endTime => {
-            if (!startTime?.hour || !endTime?.hour) return true;
+            return schema.test(
+              'is-after-start',
+              'End time must be later than start time',
+              endTime => {
+                if (!startTime?.hour || !endTime?.hour) return true;
 
-            const toMinutes = (t: any) => {
-              let hours = Number(t.hour);
-              const minutes = Number(t.minute) || 0;
-              if (t.period === 'PM' && hours !== 12) hours += 12;
-              if (t.period === 'AM' && hours === 12) hours = 0;
-              return hours * 60 + minutes;
-            };
+                const toMinutes = (t: any) => {
+                  let hours = Number(t.hour);
+                  const minutes = Number(t.minute) || 0;
+                  if (t.period === 'PM' && hours !== 12) hours += 12;
+                  if (t.period === 'AM' && hours === 12) hours = 0;
+                  return hours * 60 + minutes;
+                };
 
-            const start = toMinutes(startTime);
-            const end = toMinutes(endTime);
+                const start = toMinutes(startTime);
+                const end = toMinutes(endTime);
 
-            return end > start;
-          });
-        }),
+                return end > start;
+              },
+            );
+          },
+        ),
     }),
   ),
 });
@@ -90,7 +101,9 @@ function ProgramContent({ programId }: { programId: number }) {
     contentType: ArticleTypeEnum.PROGRAM,
   });
 
-  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const [submitError, setSubmitError] = useState('');
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -98,7 +111,9 @@ function ProgramContent({ programId }: { programId: number }) {
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const defaultFormValues: UpdateArticleFormValues = useMemo(
@@ -109,22 +124,61 @@ function ProgramContent({ programId }: { programId: number }) {
       authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
       articleStatus: '',
       contentBlocks: [
-        { id: uuid(), contentBlockType: 'DESCRIPTION_PROGRAM', text: '', editorState: null },
+        {
+          id: uuid(),
+          contentBlockType: 'DESCRIPTION_PROGRAM',
+          translatable_text_text: '',
+          editorState: null,
+        },
         { id: uuid(), contentBlockType: 'DATE_PROGRAM', date: '' },
         { id: uuid(), contentBlockType: 'PAGE_BANNER', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
-        { id: uuid(), contentBlockType: 'SECTION_WITH_PHOTO', sectionTitle: '', text: '', files: [], editorState: null },
-        { id: uuid(), contentBlockType: 'SECTION_WITH_TEXT', sectionTitle: '', text1: '', text2: '', editorState1: null, editorState2: null },
-        { id: uuid(), contentBlockType: 'SCHEDULE_TITLE', title: '' },
+        {
+          id: uuid(),
+          contentBlockType: 'SECTION_WITH_PHOTO',
+          sectionTitle: '',
+          translatable_text_text: '',
+          files: [],
+          editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'SECTION_WITH_TEXT',
+          sectionTitle: '',
+          translatable_text_text1: '',
+          translatable_text_text2: '',
+          editorState1: null,
+          editorState2: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'SCHEDULE_TITLE',
+          translatable_text_title: '',
+        },
         { id: uuid(), contentBlockType: 'SCHEDULE_POSTER', files: [] },
-        { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, title: '', location: '' },
+        {
+          id: uuid(),
+          contentBlockType: 'SCHEDULE_INFO',
+          date: '',
+          startTime: { hour: '', minute: '', period: 'AM' },
+          endTime: { hour: '', minute: '', period: 'AM' },
+          title: '',
+          location: '',
+        },
       ],
     }),
     [defaultAuthorId],
   );
 
   // Handle editor changes
-  const handleEditorChange = (blockIndex: number, blockId: string, field: 'editorState1' | 'editorState2' | 'editorState', rawField: 'text1' | 'text2' | 'text', newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (
+    blockIndex: number,
+    blockId: string,
+    field: 'editorState1' | 'editorState2' | 'editorState',
+    rawField: 'text1' | 'text2' | 'text',
+    newState: EditorState,
+    setFieldValue: any,
+  ) => {
     const editorKey = `${blockId}_${rawField}`;
 
     setEditorStates(prev => ({
@@ -138,7 +192,10 @@ function ProgramContent({ programId }: { programId: number }) {
     // Update Formik field value
     setFieldValue(`contentBlocks.${blockIndex}.${field}`, raw);
 
-    setFieldValue(`contentBlocks.${blockIndex}.${rawField}`, content.getPlainText());
+    setFieldValue(
+      `contentBlocks.${blockIndex}.${rawField}`,
+      content.getPlainText(),
+    );
   };
 
   useEffect(() => {
@@ -172,7 +229,10 @@ function ProgramContent({ programId }: { programId: number }) {
           })) || [];
 
         blocksWithId.forEach(block => {
-          if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {
+          if (
+            block.contentBlockType === 'DESCRIPTION_PROGRAM' ||
+            block.contentBlockType === 'SECTION_WITH_PHOTO'
+          ) {
             let editor;
 
             try {
@@ -236,7 +296,10 @@ function ProgramContent({ programId }: { programId: number }) {
     fetchFullProgramById();
   }, [programId, dispatch]);
 
-  async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+  async function handleSubmit(
+    values: UpdateArticleFormValues,
+    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  ) {
     const normalized = {
       ...values,
       dateOfWriting: convertToISO(values.dateOfWriting),
@@ -270,11 +333,17 @@ function ProgramContent({ programId }: { programId: number }) {
     // console.log('normalized', normalized);
 
     try {
-      const result = await handleThunk(updateArticle, { id: programId, data: normalized }, setSubmitError);
+      const result = await handleThunk(
+        updateArticle,
+        { id: programId, data: normalized },
+        setSubmitError,
+      );
       setProgram(result);
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit') ? 'Your program was updated successfully!' : 'Your program was created successfully!';
+        const message = pathname.includes('/edit')
+          ? 'Your program was updated successfully!'
+          : 'Your program was created successfully!';
         toast.success(message);
       }
 
@@ -292,7 +361,9 @@ function ProgramContent({ programId }: { programId: number }) {
     });
 
     if (result) {
-      toast.success('Congratulations! Your program has been published successfully.');
+      toast.success(
+        'Congratulations! Your program has been published successfully.',
+      );
     }
   }
 
@@ -302,16 +373,30 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
-          dateOfWriting: convertFromISO(program?.dateOfWriting) || defaultFormValues.dateOfWriting,
+          dateOfWriting:
+            convertFromISO(program?.dateOfWriting) ||
+            defaultFormValues.dateOfWriting,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
-          articleStatus: program?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks: Array.isArray(program?.contentBlocks) && program.contentBlocks.length ? program.contentBlocks : defaultFormValues.contentBlocks,
+          articleStatus:
+            program?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks:
+            Array.isArray(program?.contentBlocks) &&
+            program.contentBlocks.length
+              ? program.contentBlocks
+              : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
+        {({
+          errors,
+          touched,
+          handleChange,
+          isSubmitting,
+          values,
+          setFieldValue,
+        }) => (
           <Form>
             <div className="mb-5">
               <Input
@@ -325,56 +410,124 @@ function ProgramContent({ programId }: { programId: number }) {
                 value={values?.title || ''}
                 label="Program title"
                 labelClass="!text-admin-700"
-                validationText={touched.title && errors.title ? errors.title : ''}
+                validationText={
+                  touched.title && errors.title ? errors.title : ''
+                }
               />
             </div>
 
             <div className="mb-5">
-              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-              <DatePicker name="dateOfWriting" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.dateOfWriting} />
+              <div className="block text-medium2 mb-1 !text-admin-700">
+                Choose the creation date
+              </div>
+              <DatePicker
+                name="dateOfWriting"
+                pickerId="project-creationDate"
+                pickerWithTime={false}
+                pickerType="single"
+                pickerPlaceholder="Choose date"
+                pickerValue={values?.dateOfWriting}
+              />
             </div>
 
             <div className="mb-5">
-              <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+              <Select
+                label="Change Author (if needed)"
+                adminSelectClass={true}
+                name="authorId"
+                required
+                labelClass="!text-admin-700"
+                onChange={handleChange}
+                options={usersList}
+              />
             </div>
 
             <FieldArray name="contentBlocks">
               {({ push, remove, insert }) => {
-                const sectionIndexes = values.contentBlocks.map((b, i) => (b.contentBlockType === 'SECTION_WITH_PHOTO' || b.contentBlockType === 'SECTION_WITH_TEXT' ? i : -1)).filter(i => i !== -1);
+                const sectionIndexes = values.contentBlocks
+                  .map((b, i) =>
+                    b.contentBlockType === 'SECTION_WITH_PHOTO' ||
+                    b.contentBlockType === 'SECTION_WITH_TEXT'
+                      ? i
+                      : -1,
+                  )
+                  .filter(i => i !== -1);
 
-                const videoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'VIDEO');
-                const insertPosition = sectionIndexes.length > 0 ? sectionIndexes[sectionIndexes.length - 1] : videoIndex !== -1 ? videoIndex : values.contentBlocks.length - 1;
+                const videoIndex = values.contentBlocks.findIndex(
+                  b => b.contentBlockType === 'VIDEO',
+                );
+                const insertPosition =
+                  sectionIndexes.length > 0
+                    ? sectionIndexes[sectionIndexes.length - 1]
+                    : videoIndex !== -1
+                    ? videoIndex
+                    : values.contentBlocks.length - 1;
 
                 const lastPerformanceBlock = [...values.contentBlocks]
-                  .map((b, i) => (b.contentBlockType === 'SCHEDULE_INFO' ? i : -1))
+                  .map((b, i) =>
+                    b.contentBlockType === 'SCHEDULE_INFO' ? i : -1,
+                  )
                   .filter(i => i !== -1)
                   .pop();
 
                 return (
                   <div className="mb-5">
                     {values.contentBlocks.map((block, index) => {
-                      const photoBlocksBefore = values.contentBlocks.slice(0, index).filter(b => b.contentBlockType === 'SECTION_WITH_PHOTO').length;
+                      const photoBlocksBefore = values.contentBlocks
+                        .slice(0, index)
+                        .filter(
+                          b => b.contentBlockType === 'SECTION_WITH_PHOTO',
+                        ).length;
                       const isEven = photoBlocksBefore % 2 === 0;
 
                       return (
                         <React.Fragment key={block.id}>
                           {block.contentBlockType === 'DESCRIPTION_PROGRAM' && (
                             <div className="mb-5">
-                              <div className="mb-2 !text-admin-700">Description program</div>
+                              <div className="mb-2 !text-admin-700">
+                                Description program
+                              </div>
                               <TextEditor
-                                key={editorKey[`${block.id}_text`]}
-                                value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
-                                onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                key={
+                                  editorKey[
+                                    `${block.id}_translatable_text_text`
+                                  ]
+                                }
+                                value={
+                                  editorStates[
+                                    `${block.id}_translatable_text_text`
+                                  ] || EditorState.createEmpty()
+                                }
+                                onChange={newState =>
+                                  handleEditorChange(
+                                    index,
+                                    block.id,
+                                    'editorState',
+                                    'text',
+                                    newState,
+                                    setFieldValue,
+                                  )
+                                }
                               />
                             </div>
                           )}
 
                           {block.contentBlockType === 'DATE_PROGRAM' && (
                             <div className="mb-5">
-                              <label htmlFor={`contentBlocks.${index}.date`} className="block text-medium2 mb-1 !text-admin-700">
+                              <label
+                                htmlFor={`contentBlocks.${index}.date`}
+                                className="block text-medium2 mb-1 !text-admin-700"
+                              >
                                 Choose the date of the event
                               </label>
-                              <DatePicker name={`contentBlocks.${index}.date`} pickerId={`dateProgram-${index}`} pickerWithTime={false} pickerType="range" pickerPlaceholder="Choose date" pickerValue={block.date} />
+                              <DatePicker
+                                name={`contentBlocks.${index}.date`}
+                                pickerId={`dateProgram-${index}`}
+                                pickerWithTime={false}
+                                pickerType="range"
+                                pickerPlaceholder="Choose date"
+                                pickerValue={block.date}
+                              />
                             </div>
                           )}
 
@@ -389,8 +542,14 @@ function ProgramContent({ programId }: { programId: number }) {
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
                                 onFilesChange={(files, deleted) => {
-                                  setFieldValue(`contentBlocks.${index}.files`, files);
-                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  setFieldValue(
+                                    `contentBlocks.${index}.files`,
+                                    files,
+                                  );
+                                  setDeletedFiles(prev => [
+                                    ...prev,
+                                    ...(deleted || []),
+                                  ]);
                                 }}
                               />
                             </div>
@@ -417,11 +576,17 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                      const blockIndex =
+                                        values.contentBlocks.findIndex(
+                                          b => b.id === block.id,
+                                        );
 
                                       if (block.files) {
                                         console.log('block.files', block.files);
-                                        setDeletedFiles(prev => [...prev, ...block.files]);
+                                        setDeletedFiles(prev => [
+                                          ...prev,
+                                          ...block.files,
+                                        ]);
                                       }
 
                                       if (blockIndex !== -1) {
@@ -439,7 +604,9 @@ function ProgramContent({ programId }: { programId: number }) {
                                         return newKeys;
                                       });
 
-                                      toast.success(`Block with photo was successfully removed.`);
+                                      toast.success(
+                                        `Block with photo was successfully removed.`,
+                                      );
                                     }}
                                     className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                                   >
@@ -447,7 +614,11 @@ function ProgramContent({ programId }: { programId: number }) {
                                   </button>
                                 }
                               >
-                                <div className={`flex gap-4 mb-3 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}>
+                                <div
+                                  className={`flex gap-4 mb-3 ${
+                                    isEven ? 'flex-row' : 'flex-row-reverse'
+                                  }`}
+                                >
                                   <div className="w-1/2">
                                     <Input
                                       onChange={handleChange}
@@ -461,11 +632,30 @@ function ProgramContent({ programId }: { programId: number }) {
                                     />
 
                                     <div>
-                                      <div className="mb-2 !text-admin-700">Text block</div>
+                                      <div className="mb-2 !text-admin-700">
+                                        Text block
+                                      </div>
                                       <TextEditor
-                                        key={editorKey[`${block.id}_text`]}
-                                        value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                        key={
+                                          editorKey[
+                                            `${block.id}_translatable_text_text`
+                                          ]
+                                        }
+                                        value={
+                                          editorStates[
+                                            `${block.id}_translatable_text_text`
+                                          ] || EditorState.createEmpty()
+                                        }
+                                        onChange={newState =>
+                                          handleEditorChange(
+                                            index,
+                                            block.id,
+                                            'editorState',
+                                            'text',
+                                            newState,
+                                            setFieldValue,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -481,8 +671,14 @@ function ProgramContent({ programId }: { programId: number }) {
                                       contentType={ArticleTypeEnum.PROGRAM}
                                       uploadedUrls={block?.files || []}
                                       onFilesChange={(files, deleted) => {
-                                        setFieldValue(`contentBlocks.${index}.files`, files);
-                                        setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                        setFieldValue(
+                                          `contentBlocks.${index}.files`,
+                                          files,
+                                        );
+                                        setDeletedFiles(prev => [
+                                          ...prev,
+                                          ...(deleted || []),
+                                        ]);
                                       }}
                                     />
                                   </div>
@@ -500,26 +696,39 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                      const blockIndex =
+                                        values.contentBlocks.findIndex(
+                                          b => b.id === block.id,
+                                        );
                                       if (blockIndex !== -1) {
                                         remove(blockIndex);
                                       }
 
                                       setEditorStates(prev => {
                                         const newState = { ...prev };
-                                        delete newState[`${block.id}_text1`];
-                                        delete newState[`${block.id}_text2`];
+                                        delete newState[
+                                          `${block.id}_translatable_text_text1`
+                                        ];
+                                        delete newState[
+                                          `${block.id}_translatable_text_text2`
+                                        ];
                                         return newState;
                                       });
 
                                       setEditorKey(prev => {
                                         const newKeys = { ...prev };
-                                        delete newKeys[`${block.id}_text1`];
-                                        delete newKeys[`${block.id}_text2`];
+                                        delete newKeys[
+                                          `${block.id}_translatable_text_text1`
+                                        ];
+                                        delete newKeys[
+                                          `${block.id}_translatable_text_text2`
+                                        ];
                                         return newKeys;
                                       });
 
-                                      toast.success(`Block with text was successfully removed.`);
+                                      toast.success(
+                                        `Block with text was successfully removed.`,
+                                      );
                                     }}
                                     className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                                   >
@@ -543,22 +752,60 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <div className="w-1/2">
                                     <div className="mb-3">
                                       <div>
-                                        <div className="mb-2 !text-admin-700">Text block left</div>
+                                        <div className="mb-2 !text-admin-700">
+                                          Text block left
+                                        </div>
                                         <TextEditor
-                                          key={editorKey[`${block.id}_text1`]}
-                                          value={editorStates[`${block.id}_text1`] || EditorState.createEmpty()}
-                                          onChange={newState => handleEditorChange(index, block.id, 'editorState1', 'text1', newState, setFieldValue)}
+                                          key={
+                                            editorKey[
+                                              `${block.id}_translatable_text_text1`
+                                            ]
+                                          }
+                                          value={
+                                            editorStates[
+                                              `${block.id}_translatable_text_text1`
+                                            ] || EditorState.createEmpty()
+                                          }
+                                          onChange={newState =>
+                                            handleEditorChange(
+                                              index,
+                                              block.id,
+                                              'editorState1',
+                                              'text1',
+                                              newState,
+                                              setFieldValue,
+                                            )
+                                          }
                                         />
                                       </div>
                                     </div>
                                   </div>
                                   <div className="w-1/2">
                                     <div>
-                                      <div className="mb-2 !text-admin-700">Text block right</div>
+                                      <div className="mb-2 !text-admin-700">
+                                        Text block right
+                                      </div>
                                       <TextEditor
-                                        key={editorKey[`${block.id}_text2`]}
-                                        value={editorStates[`${block.id}_text2`] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(index, block.id, 'editorState2', 'text2', newState, setFieldValue)}
+                                        key={
+                                          editorKey[
+                                            `${block.id}_translatable_text_text2`
+                                          ]
+                                        }
+                                        value={
+                                          editorStates[
+                                            `${block.id}_translatable_text_text2`
+                                          ] || EditorState.createEmpty()
+                                        }
+                                        onChange={newState =>
+                                          handleEditorChange(
+                                            index,
+                                            block.id,
+                                            'editorState2',
+                                            'text2',
+                                            newState,
+                                            setFieldValue,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -594,8 +841,14 @@ function ProgramContent({ programId }: { programId: number }) {
                                 contentType={ArticleTypeEnum.PROGRAM}
                                 uploadedUrls={block?.files || []}
                                 onFilesChange={(files, deleted) => {
-                                  setFieldValue(`contentBlocks.${index}.files`, files);
-                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  setFieldValue(
+                                    `contentBlocks.${index}.files`,
+                                    files,
+                                  );
+                                  setDeletedFiles(prev => [
+                                    ...prev,
+                                    ...(deleted || []),
+                                  ]);
                                 }}
                               />
                             </div>
@@ -609,14 +862,21 @@ function ProgramContent({ programId }: { programId: number }) {
                                 classNameTop="min-h-14"
                                 actions={
                                   <>
-                                    {values.contentBlocks.findIndex(b => b.contentBlockType === 'SCHEDULE_INFO') !== index && (
+                                    {values.contentBlocks.findIndex(
+                                      b =>
+                                        b.contentBlockType === 'SCHEDULE_INFO',
+                                    ) !== index && (
                                       <button
                                         type="button"
                                         onClick={() => {
                                           const blockId = block.id;
 
-                                          const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
-                                          if (blockIndex !== -1) remove(blockIndex);
+                                          const blockIndex =
+                                            values.contentBlocks.findIndex(
+                                              b => b.id === block.id,
+                                            );
+                                          if (blockIndex !== -1)
+                                            remove(blockIndex);
                                           // remove(index);
 
                                           setEditorStates(prev => {
@@ -634,8 +894,16 @@ function ProgramContent({ programId }: { programId: number }) {
                                 }
                               >
                                 <div className="mb-4">
-                                  <div className="block text-medium2 mb-1 !text-admin-700">Performance date</div>
-                                  <DatePicker name={`contentBlocks.${index}.date`} pickerId={`performance-${index}`} pickerType="single" pickerPlaceholder="Choose date and time" pickerValue={block.date} />
+                                  <div className="block text-medium2 mb-1 !text-admin-700">
+                                    Performance date
+                                  </div>
+                                  <DatePicker
+                                    name={`contentBlocks.${index}.date`}
+                                    pickerId={`performance-${index}`}
+                                    pickerType="single"
+                                    pickerPlaceholder="Choose date and time"
+                                    pickerValue={block.date}
+                                  />
                                 </div>
 
                                 <div className="mb-4">
@@ -655,9 +923,17 @@ function ProgramContent({ programId }: { programId: number }) {
                                       setFieldValue={setFieldValue}
                                     />
                                   </div>
-                                  {(touched.contentBlocks as any)?.[index]?.endTime && (errors.contentBlocks as any)?.[index]?.endTime && (
-                                    <div className="text-red-600 text-sm mt-1">{(errors.contentBlocks as any)[index].endTime}</div>
-                                  )}
+                                  {(touched.contentBlocks as any)?.[index]
+                                    ?.endTime &&
+                                    (errors.contentBlocks as any)?.[index]
+                                      ?.endTime && (
+                                      <div className="text-red-600 text-sm mt-1">
+                                        {
+                                          (errors.contentBlocks as any)[index]
+                                            .endTime
+                                        }
+                                      </div>
+                                    )}
                                 </div>
                                 <div className="mb-4">
                                   <Input
@@ -736,8 +1012,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                     id: blockId,
                                     contentBlockType: 'SECTION_WITH_TEXT',
                                     sectionTitle: '',
-                                    text1: '',
-                                    text2: '',
+                                    translatable_text_text1: '',
+                                    translatable_text_text2: '',
                                     editorStates1: null,
                                     editorStates2: null,
                                     isNew: true,
@@ -757,29 +1033,49 @@ function ProgramContent({ programId }: { programId: number }) {
               }}
             </FieldArray>
 
-            {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
+            {submitError && (
+              <div className="text-red-700 text-medium1 mt-4">
+                {' '}
+                {submitError}
+              </div>
+            )}
 
             <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              After any changes you need to click the <strong>Save</strong> button
+              After any changes you need to click the <strong>Save</strong>{' '}
+              button
             </div>
 
             <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              <em>You must save the page before you can preview or publish it</em>
+              <em>
+                You must save the page before you can preview or publish it
+              </em>
             </div>
 
             <div className="flex gap-x-6 mt-2">
-              <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
                 Save
               </Button>
 
-              <LinkBtn href={`/admin/programs/preview?id=${programId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+              <LinkBtn
+                href={`/admin/programs/preview?id=${programId}`}
+                targetLink="_self"
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+              >
                 Preview
               </LinkBtn>
 
               {program?.articleStatus !== 'PUBLISHED' && (
-                <Button onClick={() => handlePublish(programId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                <Button
+                  onClick={() => handlePublish(programId)}
+                  type="button"
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
                   Publish
                 </Button>
               )}

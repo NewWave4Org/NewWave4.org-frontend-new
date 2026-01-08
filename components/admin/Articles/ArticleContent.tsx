@@ -166,15 +166,15 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const blocks = [
       {
         contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK,
-        data: values.textblock1,
+        translatable_text_data: values.textblock1,
       },
       {
         contentBlockType: ContentBlockType.TEXT,
-        data: values.textblock2,
+        translatable_text_data: values.textblock2,
       },
       {
         contentBlockType: ContentBlockType.QUOTE,
-        data: values.quote,
+        translatable_text_data: values.quote,
       },
       {
         contentBlockType: ContentBlockType.VIDEO,
@@ -293,15 +293,15 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
               textblock1:
                 article?.contentBlocks?.find(
                   b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-                )?.data || '',
+                )?.translatable_text_data || '',
               textblock2:
                 article?.contentBlocks?.find(
                   b => b.contentBlockType === ContentBlockType.TEXT,
-                )?.data || '',
+                )?.translatable_text_data || '',
               quote:
                 article?.contentBlocks?.find(
                   b => b.contentBlockType === ContentBlockType.QUOTE,
-                )?.data || '',
+                )?.translatable_text_data || '',
               video:
                 article?.contentBlocks?.find(
                   b => b.contentBlockType === ContentBlockType.VIDEO,

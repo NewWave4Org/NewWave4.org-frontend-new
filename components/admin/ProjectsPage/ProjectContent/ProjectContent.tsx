@@ -11,7 +11,11 @@ import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import Button from '@/components/shared/Button';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import LinkBtn from '@/components/shared/LinkBtn';
-import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import Input from '@/components/shared/Input';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -44,7 +48,9 @@ const validationSchema = Yup.object({
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
 
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -59,7 +65,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
@@ -77,10 +85,27 @@ function ProjectContent({ projectId }: { projectId: number }) {
     articleStatus: '',
     contentBlocks: [
       { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
-      { id: uuid(), contentBlockType: 'QUOTE', text: '', editorState: null },
+      {
+        id: uuid(),
+        contentBlockType: 'QUOTE',
+        translatable_text_text: '',
+        editorState: null,
+      },
       { id: uuid(), contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
-      { id: uuid(), contentBlockType: 'SOCIAL_MEDIA', typeSocialMedia: '', socialMediaUrl: '' },
-      { id: uuid(), contentBlockType: 'SECTION', sectionTitle: '', text: '', files: [], editorState: null },
+      {
+        id: uuid(),
+        contentBlockType: 'SOCIAL_MEDIA',
+        typeSocialMedia: '',
+        socialMediaUrl: '',
+      },
+      {
+        id: uuid(),
+        contentBlockType: 'SECTION',
+        sectionTitle: '',
+        translatable_text_text: '',
+        files: [],
+        editorState: null,
+      },
     ],
   };
 
@@ -141,7 +166,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
   }, [projectId, dispatch]);
 
   //Action for Save the project
-  async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+  async function handleSubmit(
+    values: UpdateArticleFormValues,
+    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  ) {
     let payload = { ...values };
 
     for (const url of deletedFiles) {
@@ -158,12 +186,18 @@ function ProjectContent({ projectId }: { projectId: number }) {
     };
 
     try {
-      const result = await handleThunk(updateArticle, { id: projectId, data: payload }, setSubmitError);
+      const result = await handleThunk(
+        updateArticle,
+        { id: projectId, data: payload },
+        setSubmitError,
+      );
       setProject(result);
 
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
+        const message = pathname.includes('/edit')
+          ? 'Your project was updated successfully!'
+          : 'Your project was created successfully!';
         toast.success(message);
       }
 
@@ -182,11 +216,18 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if (result) {
-      toast.success('Congratulations! Your project has been published successfully.');
+      toast.success(
+        'Congratulations! Your project has been published successfully.',
+      );
     }
   }
 
-  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (
+    id: string,
+    values: any,
+    newState: EditorState,
+    setFieldValue: any,
+  ) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
     const content = newState.getCurrentContent();
@@ -197,7 +238,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
     if (index === -1) return;
 
     setFieldValue(`contentBlocks.${index}.editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.text`, content.getPlainText());
+    setFieldValue(
+      `contentBlocks.${index}.translatable_text_text`,
+      content.getPlainText(),
+    );
   };
 
   return (
@@ -207,15 +251,29 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-          dateOfWriting: convertFromISO(project?.dateOfWriting) || defaultFormValues.dateOfWriting,
+          dateOfWriting:
+            convertFromISO(project?.dateOfWriting) ||
+            defaultFormValues.dateOfWriting,
           articleType: project?.articleType || defaultFormValues.articleType,
-          articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
+          articleStatus:
+            project?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks:
+            Array.isArray(project?.contentBlocks) &&
+            project.contentBlocks.length
+              ? project.contentBlocks
+              : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
+        {({
+          errors,
+          touched,
+          handleChange,
+          isSubmitting,
+          values,
+          setFieldValue,
+        }) => (
           <Form>
             <div className="mb-5">
               <Input
@@ -229,17 +287,36 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 value={values?.title || ''}
                 label="Project title"
                 labelClass="!text-admin-700"
-                validationText={touched.title && errors.title ? errors.title : ''}
+                validationText={
+                  touched.title && errors.title ? errors.title : ''
+                }
               />
             </div>
 
             <div className="mb-5">
-              <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-              <DatePicker name="dateOfWriting" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.dateOfWriting} />
+              <div className="block text-medium2 mb-1 !text-admin-700">
+                Choose the creation date
+              </div>
+              <DatePicker
+                name="dateOfWriting"
+                pickerId="project-creationDate"
+                pickerWithTime={false}
+                pickerType="single"
+                pickerPlaceholder="Choose date"
+                pickerValue={values?.dateOfWriting}
+              />
             </div>
 
             <div className="mb-5">
-              <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+              <Select
+                label="Change Author (if needed)"
+                adminSelectClass={true}
+                name="authorId"
+                required
+                labelClass="!text-admin-700"
+                onChange={handleChange}
+                options={usersList}
+              />
             </div>
 
             <FieldArray name="contentBlocks">
@@ -251,7 +328,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                   <div className="mb-5">
                     {/* Base blocks */}
                     {initialBlocks.map(block => {
-                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                      const blockIndex = values.contentBlocks.findIndex(
+                        item => item.id === block.id,
+                      );
                       return (
                         <React.Fragment key={block.id}>
                           {block?.contentBlockType === 'VIDEO' && (
@@ -271,8 +350,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           {block.contentBlockType === 'QUOTE' && (
                             <div className="mb-4">
                               <div>
-                                <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
-                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                <label className="block mb-2 text-admin-700 font-medium">
+                                  Quote text
+                                </label>
+                                <TextEditor
+                                  key={editorKey[block.id]}
+                                  value={
+                                    editorStates[block.id] ||
+                                    EditorState.createEmpty()
+                                  }
+                                  onChange={newState =>
+                                    handleEditorChange(
+                                      block.id,
+                                      values,
+                                      newState,
+                                      setFieldValue,
+                                    )
+                                  }
+                                />
                               </div>
                             </div>
                           )}
@@ -323,7 +418,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                           {/* TEXT block */}
                           {block.contentBlockType === 'SECTION' && (
                             <div className="mb-5">
-                              <Accordion title={`Section #1 - ${block.sectionTitle}`} classNameTop="min-h-14">
+                              <Accordion
+                                title={`Section #1 - ${block.sectionTitle}`}
+                                classNameTop="min-h-14"
+                              >
                                 <div className="flex gap-4">
                                   <div className="w-1/2 h-[442px] flex flex-col flex-1">
                                     <div className="mb-4">
@@ -339,11 +437,23 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                       />
                                     </div>
                                     <div className="flex-1 flex flex-col">
-                                      <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                      <div className="block text-medium2 mb-1 text-admin-700 ">
+                                        Text block
+                                      </div>
                                       <TextEditor
                                         key={editorKey[block.id]}
-                                        value={editorStates[block.id] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                                        value={
+                                          editorStates[block.id] ||
+                                          EditorState.createEmpty()
+                                        }
+                                        onChange={newState =>
+                                          handleEditorChange(
+                                            block.id,
+                                            values,
+                                            newState,
+                                            setFieldValue,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -356,8 +466,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                       uploadedUrls={block.files || []}
                                       positionBlockImg={true}
                                       onFilesChange={(files, deleted) => {
-                                        setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                        setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                        setFieldValue(
+                                          `contentBlocks.${blockIndex}.files`,
+                                          files,
+                                        );
+                                        setDeletedFiles(prev => [
+                                          ...prev,
+                                          ...(deleted || []),
+                                        ]);
                                       }}
                                     />
                                   </div>
@@ -371,7 +487,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                     {additionalBlocks.map((block, pairIndex) => {
                       const index = pairIndex + 5;
-                      const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                      const blockIndex = values.contentBlocks.findIndex(
+                        item => item.id === block.id,
+                      );
 
                       if (block.contentBlockType !== 'SECTION') {
                         return null;
@@ -380,7 +498,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                       return (
                         <div key={index} className="mb-5">
                           <Accordion
-                            title={`Section #${pairIndex + 2} - ${block.sectionTitle}`}
+                            title={`Section #${pairIndex + 2} - ${
+                              block.sectionTitle
+                            }`}
                             initState={block.isNew || false}
                             actions={
                               <button
@@ -389,10 +509,16 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                   const blockId = block.id;
                                   // remove(index);
                                   if (block.files) {
-                                    setDeletedFiles(prev => [...prev, ...block.files]);
+                                    setDeletedFiles(prev => [
+                                      ...prev,
+                                      ...block.files,
+                                    ]);
                                   }
 
-                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                  const blockIndex =
+                                    values.contentBlocks.findIndex(
+                                      b => b.id === block.id,
+                                    );
                                   if (blockIndex !== -1) remove(blockIndex);
 
                                   setEditorStates(prev => {
@@ -413,7 +539,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               </button>
                             }
                           >
-                            <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <div
+                              className={`flex gap-4 mb-3 ${
+                                pairIndex % 2 === 0
+                                  ? 'flex-row-reverse'
+                                  : 'flex-row'
+                              }`}
+                            >
                               <div className="w-1/2 h-[442px] flex flex-col">
                                 <div className="mb-4">
                                   <Input
@@ -429,8 +561,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 </div>
 
                                 <div className="flex-1 flex flex-col">
-                                  <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                  <div className="block text-medium2 mb-1 text-admin-700 ">
+                                    Text block
+                                  </div>
+                                  <TextEditor
+                                    key={editorKey[block.id]}
+                                    value={
+                                      editorStates[block.id] ||
+                                      EditorState.createEmpty()
+                                    }
+                                    onChange={newState =>
+                                      handleEditorChange(
+                                        block.id,
+                                        values,
+                                        newState,
+                                        setFieldValue,
+                                      )
+                                    }
+                                  />
                                 </div>
                               </div>
 
@@ -444,8 +592,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                   uploadedUrls={block?.files || []}
                                   positionBlockImg={true}
                                   onFilesChange={(files, deleted) => {
-                                    setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                    setFieldValue(
+                                      `contentBlocks.${blockIndex}.files`,
+                                      files,
+                                    );
+                                    setDeletedFiles(prev => [
+                                      ...prev,
+                                      ...(deleted || []),
+                                    ]);
                                   }}
                                 />
                               </div>
@@ -488,29 +642,49 @@ function ProjectContent({ projectId }: { projectId: number }) {
               }}
             </FieldArray>
 
-            {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
+            {submitError && (
+              <div className="text-red-700 text-medium1 mt-4">
+                {' '}
+                {submitError}
+              </div>
+            )}
 
             <div className="mt-10">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              <em>You must save the page before you can preview or publish it</em>
+              <em>
+                You must save the page before you can preview or publish it
+              </em>
             </div>
 
             <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              After any changes you need to click the <strong>Save</strong> button
+              After any changes you need to click the <strong>Save</strong>{' '}
+              button
             </div>
 
             <div className="flex gap-x-6 mt-2">
-              <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
                 Save
               </Button>
 
-              <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+              <LinkBtn
+                href={`/admin/projects/preview?id=${projectId}`}
+                targetLink="_self"
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+              >
                 Preview
               </LinkBtn>
 
               {project?.articleStatus !== 'PUBLISHED' && (
-                <Button onClick={() => handlePublish(projectId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                <Button
+                  onClick={() => handlePublish(projectId)}
+                  type="button"
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
                   Publish
                 </Button>
               )}
