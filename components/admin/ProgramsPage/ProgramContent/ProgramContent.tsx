@@ -26,6 +26,7 @@ import TextEditor from '@/components/TextEditor/TextEditor';
 import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
+import { createTranslation } from '@/store/translation/action';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -92,6 +93,7 @@ function ProgramContent({ programId }: { programId: number }) {
 
   const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
   const [submitError, setSubmitError] = useState('');
+  const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
@@ -109,22 +111,23 @@ function ProgramContent({ programId }: { programId: number }) {
       authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
       articleStatus: '',
       contentBlocks: [
-        { id: uuid(), contentBlockType: 'DESCRIPTION_PROGRAM', text: '', editorState: null },
+        { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
+        { id: uuid(), contentBlockType: 'DESCRIPTION_PROGRAM', text: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'DATE_PROGRAM', date: '' },
         { id: uuid(), contentBlockType: 'PAGE_BANNER', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
-        { id: uuid(), contentBlockType: 'SECTION_WITH_PHOTO', sectionTitle: '', text: '', files: [], editorState: null },
-        { id: uuid(), contentBlockType: 'SECTION_WITH_TEXT', sectionTitle: '', text1: '', text2: '', editorState1: null, editorState2: null },
-        { id: uuid(), contentBlockType: 'SCHEDULE_TITLE', title: '' },
+        { id: uuid(), contentBlockType: 'SECTION_WITH_PHOTO', translatable_text_sectionTitle: '', translatable_text_text: '', files: [], translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'SECTION_WITH_TEXT', translatable_text_sectionTitle: '', translatable_text_text1: '', translatable_text_text2: '', translatable_text_editorState1: null, translatable_text_editorState2: null },
+        { id: uuid(), contentBlockType: 'SCHEDULE_TITLE', translatable_text_title: '' },
         { id: uuid(), contentBlockType: 'SCHEDULE_POSTER', files: [] },
-        { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, title: '', location: '' },
+        { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, translatable_text_title: '', location: '' },
       ],
     }),
     [defaultAuthorId],
   );
 
   // Handle editor changes
-  const handleEditorChange = (blockIndex: number, blockId: string, field: 'editorState1' | 'editorState2' | 'editorState', rawField: 'text1' | 'text2' | 'text', newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (blockIndex: number, blockId: string, field: 'translatable_text_editorState1' | 'translatable_text_editorState2' | 'translatable_text_editorState', rawField: 'translatable_text_text1' | 'translatable_text_text2' | 'translatable_text_text', newState: EditorState, setFieldValue: any) => {
     const editorKey = `${blockId}_${rawField}`;
 
     setEditorStates(prev => ({
@@ -187,8 +190,8 @@ function ProgramContent({ programId }: { programId: number }) {
               console.error('Error loading single editor state:', err);
               editor = EditorState.createEmpty();
             }
-            editors[`${block.id}_text`] = editor;
-            keys[`${block.id}_text`] = `${block.id}_text-init`;
+            editors[`${block.id}_translatable_text_text`] = editor;
+            keys[`${block.id}_translatable_text_text`] = `${block.id}_text-init`;
           }
 
           if (block.contentBlockType === 'SECTION_WITH_TEXT') {
@@ -203,8 +206,8 @@ function ProgramContent({ programId }: { programId: number }) {
             } catch (err) {
               console.error('Error loading text1 editor state:', err);
             }
-            editors[`${block.id}_text1`] = editor1;
-            keys[`${block.id}_text1`] = `${block.id}_text1-init`;
+            editors[`${block.id}_translatable_text_text1`] = editor1;
+            keys[`${block.id}_translatable_text_text1`] = `${block.id}_text1-init`;
 
             // --- 2. init Text 2 ---
             let editor2 = EditorState.createEmpty();
@@ -217,8 +220,8 @@ function ProgramContent({ programId }: { programId: number }) {
             } catch (err) {
               console.error('Error loading text2 editor state:', err);
             }
-            editors[`${block.id}_text2`] = editor2;
-            keys[`${block.id}_text2`] = `${block.id}_text2-init`;
+            editors[`${block.id}_translatable_text_text2`] = editor2;
+            keys[`${block.id}_translatable_text_text2`] = `${block.id}_text2-init`;
           }
         });
 
@@ -236,6 +239,8 @@ function ProgramContent({ programId }: { programId: number }) {
     fetchFullProgramById();
   }, [programId, dispatch]);
 
+
+  //SAVE
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     const normalized = {
       ...values,
@@ -267,9 +272,19 @@ function ProgramContent({ programId }: { programId: number }) {
       }
     }
 
-    // console.log('normalized', normalized);
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
 
     try {
+      if(translateStatusVal == 'yes') {
+        try {
+          const responce = await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
+
+          console.log('translation responce', responce)
+        } catch (error) {
+          console.log('error translate', error);
+          toast.error(`Something go wrong with translation! ${error}`);
+        }
+      }
       const result = await handleThunk(updateArticle, { id: programId, data: normalized }, setSubmitError);
       setProgram(result);
       if (result) {
@@ -286,6 +301,7 @@ function ProgramContent({ programId }: { programId: number }) {
     }
   }
 
+  //PUBLISH
   async function handlePublish(programId: number) {
     const result = await handleThunk(publishArticle, programId, errMsg => {
       toast.error(errMsg);
@@ -295,6 +311,7 @@ function ProgramContent({ programId }: { programId: number }) {
       toast.success('Congratulations! Your program has been published successfully.');
     }
   }
+
 
   return (
     <div>
@@ -313,6 +330,15 @@ function ProgramContent({ programId }: { programId: number }) {
       >
         {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => (
           <Form>
+            <div className='mb-5'>
+              <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
+                name="contentBlocks.0.translateStatus"
+                labelClass="!text-admin-700" 
+                onChange={handleChange} options={[
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ]} />
+            </div>
             <div className="mb-5">
               <Input
                 onChange={handleChange}
@@ -363,8 +389,8 @@ function ProgramContent({ programId }: { programId: number }) {
                               <div className="mb-2 !text-admin-700">Description program</div>
                               <TextEditor
                                 key={editorKey[`${block.id}_text`]}
-                                value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
-                                onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty()}
+                                onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                               />
                             </div>
                           )}
@@ -429,7 +455,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                       }
                                       setEditorStates(prev => {
                                         const newState = { ...prev };
-                                        delete newState[`${block.id}_text`];
+                                        delete newState[`${block.id}_translatable_text_text`];
                                         return newState;
                                       });
 
@@ -451,11 +477,11 @@ function ProgramContent({ programId }: { programId: number }) {
                                   <div className="w-1/2">
                                     <Input
                                       onChange={handleChange}
-                                      id={`contentBlocks.${index}.sectionTitle`}
-                                      name={`contentBlocks.${index}.sectionTitle`}
+                                      id={`contentBlocks.${index}.translatable_text_sectionTitle`}
+                                      name={`contentBlocks.${index}.translatable_text_sectionTitle`}
                                       type="text"
                                       className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                      value={block.sectionTitle}
+                                      value={block.translatable_text_sectionTitle}
                                       label="Section title"
                                       labelClass="!text-admin-700"
                                     />
@@ -465,7 +491,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                       <TextEditor
                                         key={editorKey[`${block.id}_text`]}
                                         value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(index, block.id, 'editorState', 'text', newState, setFieldValue)}
+                                        onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                                       />
                                     </div>
                                   </div>
@@ -494,7 +520,7 @@ function ProgramContent({ programId }: { programId: number }) {
                           {block.contentBlockType === 'SECTION_WITH_TEXT' && (
                             <div className="mb-5">
                               <Accordion
-                                title={`Section with text - ${block.sectionTitle}`}
+                                title={`Section with text - ${block.translatable_text_sectionTitle}`}
                                 initState={block.isNew || false}
                                 actions={
                                   <button
@@ -507,15 +533,15 @@ function ProgramContent({ programId }: { programId: number }) {
 
                                       setEditorStates(prev => {
                                         const newState = { ...prev };
-                                        delete newState[`${block.id}_text1`];
-                                        delete newState[`${block.id}_text2`];
+                                        delete newState[`${block.id}_translatable_text_text1`];
+                                        delete newState[`${block.id}_translatable_text_text2`];
                                         return newState;
                                       });
 
                                       setEditorKey(prev => {
                                         const newKeys = { ...prev };
-                                        delete newKeys[`${block.id}_text1`];
-                                        delete newKeys[`${block.id}_text2`];
+                                        delete newKeys[`${block.id}_translatable_text_text1`];
+                                        delete newKeys[`${block.id}_translatable_text_text2`];
                                         return newKeys;
                                       });
 
@@ -530,11 +556,11 @@ function ProgramContent({ programId }: { programId: number }) {
                                 <div className="mb-3">
                                   <Input
                                     onChange={handleChange}
-                                    id={`contentBlocks.${index}.sectionTitle`}
-                                    name={`contentBlocks.${index}.sectionTitle`}
+                                    id={`contentBlocks.${index}.translatable_text_sectionTitle`}
+                                    name={`contentBlocks.${index}.translatable_text_sectionTitle`}
                                     type="text"
                                     className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                    value={block.sectionTitle}
+                                    value={block.translatable_text_sectionTitle}
                                     label="Section title"
                                     labelClass="!text-admin-700"
                                   />
@@ -545,9 +571,9 @@ function ProgramContent({ programId }: { programId: number }) {
                                       <div>
                                         <div className="mb-2 !text-admin-700">Text block left</div>
                                         <TextEditor
-                                          key={editorKey[`${block.id}_text1`]}
-                                          value={editorStates[`${block.id}_text1`] || EditorState.createEmpty()}
-                                          onChange={newState => handleEditorChange(index, block.id, 'editorState1', 'text1', newState, setFieldValue)}
+                                          key={editorKey[`${block.id}_translatable_text_text1`]}
+                                          value={editorStates[`${block.id}_translatable_text_text1`] || EditorState.createEmpty()}
+                                          onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState1', 'translatable_text_text1', newState, setFieldValue)}
                                         />
                                       </div>
                                     </div>
@@ -556,9 +582,9 @@ function ProgramContent({ programId }: { programId: number }) {
                                     <div>
                                       <div className="mb-2 !text-admin-700">Text block right</div>
                                       <TextEditor
-                                        key={editorKey[`${block.id}_text2`]}
-                                        value={editorStates[`${block.id}_text2`] || EditorState.createEmpty()}
-                                        onChange={newState => handleEditorChange(index, block.id, 'editorState2', 'text2', newState, setFieldValue)}
+                                        key={editorKey[`${block.id}_translatable_text_text2`]}
+                                        value={editorStates[`${block.id}_translatable_text_text2`] || EditorState.createEmpty()}
+                                        onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState2', 'translatable_text_text2', newState, setFieldValue)}
                                       />
                                     </div>
                                   </div>
@@ -571,11 +597,11 @@ function ProgramContent({ programId }: { programId: number }) {
                             <div className="mb-4">
                               <Input
                                 onChange={handleChange}
-                                id={`contentBlocks.${index}.title`}
-                                name={`contentBlocks.${index}.title`}
+                                id={`contentBlocks.${index}.translatable_text_title`}
+                                name={`contentBlocks.${index}.translatable_text_title`}
                                 type="text"
                                 className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
-                                value={block.title}
+                                value={block.translatable_text_title}
                                 label="Schedule title"
                                 labelClass="!text-admin-700"
                                 placeholder="Графік виступу, Програма заходів..."
@@ -604,7 +630,7 @@ function ProgramContent({ programId }: { programId: number }) {
                           {block.contentBlockType === 'SCHEDULE_INFO' && (
                             <div className="mb-5">
                               <Accordion
-                                title={`Schedule info - ${block.title}`}
+                                title={`Schedule info - ${block.translatable_text_title || ''}`}
                                 initState={block.isNew || false}
                                 classNameTop="min-h-14"
                                 actions={
@@ -662,11 +688,11 @@ function ProgramContent({ programId }: { programId: number }) {
                                 <div className="mb-4">
                                   <Input
                                     onChange={handleChange}
-                                    id={`contentBlocks.${index}.title`}
-                                    name={`contentBlocks.${index}.title`}
+                                    id={`contentBlocks.${index}.translatable_text_title`}
+                                    name={`contentBlocks.${index}.translatable_text_title`}
                                     type="text"
                                     className="!bg-background-light w-full px-5 !ring-0"
-                                    value={block.title}
+                                    value={block.translatable_text_title}
                                     label="Performance topic"
                                     labelClass="!text-admin-700"
                                   />
@@ -696,7 +722,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                   id: blockId,
                                   contentBlockType: 'SCHEDULE_INFO',
                                   date: '',
-                                  title: '',
+                                  translatable_text_title: '',
                                   location: '',
                                   isNew: true,
                                 });
@@ -716,8 +742,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                   insert(insertPosition + 1, {
                                     id: blockId,
                                     contentBlockType: 'SECTION_WITH_PHOTO',
-                                    sectionTitle: '',
-                                    text: '',
+                                    translatable_text_sectionTitle: '',
+                                    translatable_text_text: '',
                                     files: [],
                                     editorStates: null,
                                     isNew: true,
@@ -735,11 +761,11 @@ function ProgramContent({ programId }: { programId: number }) {
                                   insert(insertPosition + 1, {
                                     id: blockId,
                                     contentBlockType: 'SECTION_WITH_TEXT',
-                                    sectionTitle: '',
-                                    text1: '',
-                                    text2: '',
-                                    editorStates1: null,
-                                    editorStates2: null,
+                                    translatable_text_sectionTitle: '',
+                                    translatable_text_text1: '',
+                                    translatable_text_text2: '',
+                                    translatable_text_editorStates1: null,
+                                    translatable_text_editorStates2: null,
                                     isNew: true,
                                   });
                                 }}

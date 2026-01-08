@@ -6,8 +6,9 @@ import Menu from './Menu';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const Header = () => {
+const Header = ({currentLocale}: {currentLocale: string}) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuShow, setisMenuShow] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -47,19 +48,9 @@ const Header = () => {
                 <Menu />
               </div>
               <div className="flex items-center lg:order-2 gap-x-4">
-                <div className="flex items-center">
-                  <button type="button" className="language-btn bg-white/60 rounded-lg relative">
-                    <span className="inline border-b border-primary-500 text-primary-500 font-medium text-xl">UA</span>
-                    <Image src="/icons/ukraine.svg" width={32} height={32} alt="flag" />
-                  </button>
+                <LanguageSwitcher currentLocale={currentLocale} />
 
-                  <button type="button" className="language-btn bg-white/60 rounded-lg relative">
-                    <Image src="/icons/united-states.svg" width={32} height={32} alt="flag" />
-                    <span className="border-b opacity-0 hidden text-primary-500 font-medium text-xl">EN</span>
-                  </button>
-                </div>
-
-                <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
+                <Link href="/donation" prefetch={false} className="donate-btn custom-donate-btn flex items-center">
                   Donate
                   <span className="ml-2 duration-500 w-[26px]">
                     <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />

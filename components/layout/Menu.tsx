@@ -56,8 +56,6 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
           { href: '/events', label: 'Події' },
           { href: '/contacts', label: 'Контакти' },
         ].map(({ href, label, subMenu }) => {
-          // const activeStyle = pathname === href ? 'active-link' : '';
-
           const isProjectsActive = pathname.startsWith('/projects');
           const activeStyle = subMenu ? (isProjectsActive ? 'active-link' : '') : pathname === href ? 'active-link' : '';
 
@@ -103,7 +101,9 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                             );
                           })
                         ) : (
-                          <li className="px-4 py-2 before:content-none text-center text-base font-medium text-font-accent">There are no projects yet</li>
+                          <li className="px-4 py-2 before:content-none text-center text-base font-medium text-font-accent">
+                            There are no projects yet
+                          </li>
                         )}
                       </ul>
                     </div>
@@ -115,7 +115,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
           return (
             <li key={href} className="py-1 before:content-none pl-0">
-              <Link className={`menu-link ${activeStyle}`} href={href}>
+              <Link className={`menu-link ${activeStyle}`} href={href} onClick={() => setOpenSubMenu(null)}>
                 <span>{label}</span>
               </Link>
             </li>
