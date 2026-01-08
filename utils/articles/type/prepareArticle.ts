@@ -1,7 +1,19 @@
-export interface ContentBlock {
-    contentBlockType: string;
-    data: any;
+import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
+
+export interface ContentBlock<T = unknown> {
+    contentBlockType: ContentBlockType | string;
+    translatable_text_data?: T;
+    data?: T;
 }
+
+export function getBlockValue<T>(
+    blocks: ContentBlock[],
+    type: ContentBlockType
+): T | undefined {
+    const block = blocks.find(b => b.contentBlockType === type);
+    return (block?.translatable_text_data ?? block?.data) as T | undefined;
+}
+
 
 export interface Article {
     id: number;
@@ -17,23 +29,20 @@ export interface PreparedArticle {
     imageSrc: string;
     publishedAt: string;
 }
-
 export const prepareArticle = (article: Article): PreparedArticle => {
-    const textBlock = article.contentBlocks.find(
-        b => b.contentBlockType === 'MAIN_NEWS_BLOCK' || b.contentBlockType === 'TEXT'
+    const text =
+        getBlockValue<string>(article.contentBlocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
+        getBlockValue<string>(article.contentBlocks, ContentBlockType.TEXT) ??
+        "";
+
+    const photoData = getBlockValue<string | string[]>(
+        article.contentBlocks,
+        ContentBlockType.PHOTO
     );
 
-    const text = textBlock?.data ?? '';
-
-    const photo = article.contentBlocks.find(
-        b => b.contentBlockType === 'PHOTO' && b.data
-    );
-
-    const imageSrc = Array.isArray(photo?.data)
-        ? photo.data[0]
-        : typeof photo?.data === 'string'
-            ? photo.data
-            : '';
+    const imageSrc = Array.isArray(photoData)
+        ? photoData[0] ?? ""
+        : photoData ?? "";
 
     return {
         id: article.id,
