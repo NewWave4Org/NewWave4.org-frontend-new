@@ -1,11 +1,12 @@
+import { useTranslations } from 'next-intl';
 import { Tab, Tabs } from '../shared/Tabs';
 import Events from './Events';
 import News from './News';
 
 const NewsEvents = ({
-  textLink = 'Всі новини',
+  textLink = 'links.all_news',
   link = '/news',
-  titleEvents = 'Новини та події',
+  titleEvents = 'sections_title.news_evens',
   projectId,
   className = '',
 }: {
@@ -15,17 +16,19 @@ const NewsEvents = ({
   projectId?: number;
   className?: string;
 }) => {
+  const t = useTranslations();
+
   return (
     <section className={`${className} news-section`}>
       <div className="container mx-auto px-4">
-        <h4 className="preheader !text-font-primary">{titleEvents}</h4>
+        <h4 className="preheader !text-font-primary">{t(`${titleEvents}`)}</h4>
       </div>
       <div>
         <Tabs>
-          <Tab title="Новини">
-            <News link={link} textLink={textLink} projectId={projectId} />
+          <Tab title={t('tabs.news_tab')}>
+            <News link={link} textLink={t(textLink)} projectId={projectId} />
           </Tab>
-          <Tab title="Події">
+          <Tab title={t('tabs.events_tab')}>
             <Events />
           </Tab>
         </Tabs>

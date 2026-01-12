@@ -2,7 +2,7 @@
 
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
-import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
+import { ChangedArticleByIdBody, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -12,8 +12,13 @@ import ProgramPreview from '../admin/ProgramsPage/ProgramPreview/ProgramPreview'
 import ProgramBlocks from './ProgramDopBlocks/ProgramBlocks';
 import Button from '../shared/Button';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
+import { useLocale, useTranslations } from 'next-intl';
+import { EN_LOCALE } from '@/i18n';
 
 function ProgramPageClient() {
+  const t = useTranslations();
+  const locale = useLocale();
+
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -21,7 +26,7 @@ function ProgramPageClient() {
   const id = params.id;
   const programId = Number(id);
 
-  const [program, setProgram] = useState<GetArticleByIdResponseDTO | undefined>(undefined);
+  const [program, setProgram] = useState<ChangedArticleByIdBody | undefined>(undefined);
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +40,11 @@ function ProgramPageClient() {
           }),
         ).unwrap();
 
-        setProgram(result);
+        setProgram({
+          ...result,
+          titleToShow: locale === EN_LOCALE ? result.titleEng : result.title,
+          contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks
+        });
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -75,11 +84,11 @@ function ProgramPageClient() {
   return (
     <>
       {loading ? (
-        <div className="text-center py-16 text-lg text-font-secondary">Loading...</div>
+        <div className="text-center py-16 text-lg text-font-secondary">{t('loading')}</div>
       ) : programId && !Number.isNaN(programId) && programId > 0 ? (
         <div>
           <ProgramPreview program={program} />
-          <ProgramBlocks dopPrograms={dopPrograms} />
+          {dopPrograms && dopPrograms.length > 0 && <ProgramBlocks dopPrograms={dopPrograms} />}
         </div>
       ) : (
         <div className="container mx-auto px-4 pt-[150px]">

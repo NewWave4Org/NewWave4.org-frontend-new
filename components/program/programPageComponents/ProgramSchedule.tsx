@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import ProgramScheduleItem from './ProgramScheduleItem';
+import { useTranslations } from 'next-intl';
 
 interface IProgramSchedule {
   schedulePoster: string[];
@@ -7,7 +8,9 @@ interface IProgramSchedule {
   scheduleInfo: any[] | undefined;
 }
 
-function ProgramSchedule({ schedulePoster, scheduleTitle = 'Програма заходів', scheduleInfo }: IProgramSchedule) {
+function ProgramSchedule({ schedulePoster, scheduleTitle, scheduleInfo }: IProgramSchedule) {
+  const t = useTranslations();
+
   return (
     <div className="container mx-auto px-4">
       <div className="lg:mb-20 mb-10">
@@ -20,7 +23,7 @@ function ProgramSchedule({ schedulePoster, scheduleTitle = 'Програма з�
             )}
             <div className="flex-1 w-full">
               <div className="p-12">
-                <h2 className="font-ebGaramond text-4xl font-semibold mb-8 text-font-primary">{scheduleTitle ? scheduleTitle : 'Програма заходів'}</h2>
+                <h2 className="font-ebGaramond text-4xl font-semibold mb-8 text-font-primary">{scheduleTitle ? scheduleTitle : `${t('program_page.schedule_title')}`}</h2>
                 <div className="flex flex-col gap-4">
                   {scheduleInfo?.map((scheduleItem, index) => (
                     <ProgramScheduleItem key={index} scheduleItem={scheduleItem} />

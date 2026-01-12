@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useArticles } from '@/utils/hooks/useArticles';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import ArticlesGrid from '@/components/news/ArticlesGrid';
+import { useTranslations } from 'next-intl';
 
 const Events = () => {
   const router = useRouter();
+  const t = useTranslations();
 
   const { articles, loading } = useArticles({
     articleType: ArticleTypeEnum.EVENT,
@@ -26,7 +28,7 @@ const Events = () => {
               onClick={() => router.push('/events')}
             >
               <span className="flex items-center gap-x-2">
-                Всі події <ArrowRightIcon size="20px" />
+                {t('links.all_events')} <ArrowRightIcon size="20px" />
               </span>
             </Button>
           </div>

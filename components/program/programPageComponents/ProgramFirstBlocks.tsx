@@ -1,9 +1,11 @@
 import { useRouter } from 'next/navigation';
 import { format, isValid } from 'date-fns';
-import { uk } from 'date-fns/locale';
+import { enUS, uk } from 'date-fns/locale';
 import Button from '@/components/shared/Button';
 import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 import Image from 'next/image';
+import { useLocale } from 'next-intl';
+import { EN_LOCALE } from '@/i18n';
 
 interface IDateProgram {
   year: number;
@@ -22,12 +24,13 @@ interface IProgramFirstBlocks {
 
 function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBlocks) {
   const router = useRouter();
+  const locale = useLocale();
 
   const dateNumberFormatFrom = new Date(dateProgram?.from.year, dateProgram?.from.month - 1, dateProgram?.from.day);
   const dateNumberFormatTo = new Date(dateProgram?.to.year, dateProgram?.to.month - 1, dateProgram?.to.day);
 
-  const formattedDateFrom = isValid(dateNumberFormatFrom) ? format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: uk }) : '';
-  const formattedDateTo = isValid(dateNumberFormatTo) ? format(new Date(dateNumberFormatTo), 'd MMMM', { locale: uk }) : '';
+  const formattedDateFrom = isValid(dateNumberFormatFrom) ? format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
+  const formattedDateTo = isValid(dateNumberFormatTo) ? format(new Date(dateNumberFormatTo), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
 
   const descriptionText = convertDraftToHTML(description);
 

@@ -12,6 +12,7 @@ import {
   phoneValidation,
 } from '@/utils/validation';
 import { axiosOpenInstance } from '@/utils/http/axiosInstance';
+import { useTranslations } from 'next-intl';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -29,6 +30,8 @@ interface InnerContactFormValues {
 const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
   const { touched, errors, isSubmitting, handleChange, values } = props;
 
+  const t = useTranslations();
+
   return (
     <>
       <Form className="flex flex-col gap-x-6 gap-y-2">
@@ -36,7 +39,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           <div className="lg:flex-1 w-full lg:mb-0 mb-4">
             <Input
               id="name"
-              label="Ім'я"
+              label={`${t('forms_label.name')}`}
               maxLength={50}
               required
               validationText={touched.name && errors.name ? errors.name : ''}
@@ -47,7 +50,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           <div className="lg:flex-1 w-full lg:mb-0 mb-4">
             <Input
               id="email"
-              label="Email"
+              label={`${t('forms_label.email')}`}
               maxLength={50}
               required
               validationText={touched.email && errors.email ? errors.email : ''}
@@ -60,7 +63,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
         <div className="lg:max-w-[264px] w-full lg:mb-0 mb-4">
           <Input
             id="tel"
-            label="Телефон"
+            label={`${t('forms_label.phone')}`}
             maxLength={50}
             validationText={touched.tel && errors.tel ? errors.tel : ''}
             onChange={handleChange}
@@ -71,7 +74,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
         <div className="w-full">
           <TextArea
             id="message"
-            label="Текст повідомлення"
+            label={`${t('forms_label.message_text')}`}
             maxLength={200}
             value={values.message}
             onChange={handleChange}
@@ -85,7 +88,7 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           className="!w-[136px]"
           disabled={isSubmitting}
         >
-          Надіслати
+          {t('buttons.send')}
         </Button>
       </Form>
     </>

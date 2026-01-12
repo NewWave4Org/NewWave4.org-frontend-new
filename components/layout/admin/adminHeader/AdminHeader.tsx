@@ -1,10 +1,11 @@
-import Logo from '@/components/layout/Logo';
+
 import DropDown from '@/components/shared/DropDown';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 
 import { logOutAuth } from '@/store/auth/action';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import LogoAdmin from '../Logo_admin';
 
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
@@ -29,7 +30,7 @@ const AdminHeader = () => {
     <div className="header bg-background-darkBlue800 fixed top-0 w-full z-[9999]">
       <div className="lg:container max-w-full mx-auto px-4">
         <div className="flex justify-between items-center py-2">
-          <Logo textColor="text-white" />
+          <LogoAdmin textColor="text-white" />
           {isAuthenticated && (
             <div>
               <DropDown

@@ -27,7 +27,7 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   };
 
   const handleWrapperClick = (e: React.MouseEvent) => {
-    // Не фокусируем редактор если клик был по toolbar или его дочерним элементам
+
     if (toolbarRef.current && toolbarRef.current.contains(e.target as Node)) {
       return;
     }
@@ -37,7 +37,7 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   const handleEditorChange = (newEditorState: EditorState) => {
     setEditorState(newEditorState);
 
-    // Вызываем onChange для передачи изменений в Formik
+    // 
     if (onChange) {
       onChange(newEditorState);
     }

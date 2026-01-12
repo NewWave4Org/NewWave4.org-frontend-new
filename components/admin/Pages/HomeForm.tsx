@@ -15,6 +15,8 @@ import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
+import Select from '@/components/shared/Select';
+import { createTranslationPage } from '@/store/translation/action';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -28,6 +30,8 @@ function HomeForm() {
   });
 
   const [submitError, setSubmitError] = useState('');
+  const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
+
   const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -43,14 +47,15 @@ function HomeForm() {
     () => ({
       pageType: PagesType.HOME,
       contentBlocks: [
-        { id: uuid(), contentBlockType: 'SLIDER', title: '', description: '', link: '', files: [], editorState: null },
-        { id: uuid(), contentBlockType: 'HOME_TITLE', title: '' },
-        { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
+        { id: uuid(), contentBlockType: 'SLIDER', translatable_text_title: '', translatable_text_description: '', link: '', files: [], translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'HOME_TITLE', translatable_text_title: '' },
+        { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', translatable_text_description: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
-        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-        { id: uuid(), contentBlockType: 'JOIN_US', title: '', description: '', editorState: null },
-        { id: uuid(), contentBlockType: 'PARTNERS', title: '', description: '', editorState: null },
+        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'PARTNERS', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
       ],
     }),
     [],
@@ -76,8 +81,8 @@ function HomeForm() {
 
     const raw = convertToRaw(newState.getCurrentContent());
 
-    setFieldValue(`contentBlocks.${index}.editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.description`, newState.getCurrentContent().getPlainText());
+    setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
+    setFieldValue(`contentBlocks.${index}.translatable_text_description`, newState.getCurrentContent().getPlainText());
   };
 
   useEffect(() => {
@@ -88,18 +93,25 @@ function HomeForm() {
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const blocksWithId = (result?.contentBlocks ?? []).map(block => ({
+        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          isNew: false,
+          ...(block.contentBlockType === 'SLIDER' ? {isNew: false} : {})
         }));
 
-        blocksWithId.forEach(block => {
+        const mergedBlocks = [
+          ...serverBlocks,
+          ...defaultFormValues.contentBlocks.filter(
+            defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+          )
+        ];
+
+        mergedBlocks.forEach(block => {
           let editor;
 
           try {
-            if (block.editorState) {
-              const content = convertFromRaw(block.editorState);
+            if (block.translatable_text_editorState) {
+              const content = convertFromRaw(block.translatable_text_editorState);
               editor = EditorState.createWithContent(content);
             } else {
               editor = EditorState.createEmpty();
@@ -119,7 +131,7 @@ function HomeForm() {
 
         setHomePage({
           ...result,
-          contentBlocks: blocksWithId,
+          contentBlocks: mergedBlocks,
         });
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
@@ -137,8 +149,9 @@ function HomeForm() {
     getPageByKey();
   }, [dispatch]);
 
+  //SAVE
   async function handleSubmit(values: IHomePageValues) {
-    console.log('deletedFiles', deletedFiles);
+    // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
         await deleteFile(url);
@@ -155,6 +168,21 @@ function HomeForm() {
       return;
     }
 
+    // ---- TRANSLATION ----
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
+    
+    if(translateStatusVal == 'yes') {
+      try {
+        await handleThunk(createTranslationPage, homePage?.id, setSubmitErrorTranslate);
+
+        toast.success(`The translation was successfully created`);
+      } catch (error) {
+        console.log('error translate', error);
+        toast.error(`Something go wrong with translation! ${error}`);
+      }
+    }
+
+    // ---- UPDATE PAGE ----
     try {
       const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
 
@@ -178,9 +206,19 @@ function HomeForm() {
             {({ push, remove }) => {
               const sliderBlocks = values.contentBlocks.filter(b => b.contentBlockType === 'SLIDER');
               const fixedBlocks = values.contentBlocks.filter(b => b.contentBlockType !== 'SLIDER');
+              const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
 
               return (
                 <div>
+                  <div className='mb-7'>
+                    <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
+                      name={`contentBlocks.${translateBlockIndex}.translateStatus`}
+                      labelClass="!text-admin-700" 
+                      onChange={handleChange} options={[
+                      { value: 'yes', label: 'Yes' },
+                      { value: 'no', label: 'No' },
+                    ]} />
+                  </div>
                   {/* SLIDERS FIRST */}
                   {/* FIRST SLIDER BLOCK — non removable */}
                   {sliderBlocks.length > 0 &&
@@ -190,14 +228,14 @@ function HomeForm() {
 
                       return (
                         <div className="mb-8" key={realIndex}>
-                          <Accordion title={`Slider #1 - ${block.title}`} classNameTop="min-h-14">
+                          <Accordion title={`Slider #1 - ${block.translatable_text_title}`} classNameTop="min-h-14">
                             <div className="mb-4">
                               <Input
-                                id={`contentBlocks[${realIndex}].title`}
-                                name={`contentBlocks[${realIndex}].title`}
+                                id={`contentBlocks[${realIndex}].translatable_text_title`}
+                                name={`contentBlocks[${realIndex}].translatable_text_title`}
                                 type="text"
                                 className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                value={block.title}
+                                value={block.translatable_text_title}
                                 onChange={handleChange}
                                 label="Slider title"
                                 labelClass="mb-2 !text-admin-700"
@@ -250,7 +288,7 @@ function HomeForm() {
                     return (
                       <div key={realIndex} className="mb-8">
                         <Accordion
-                          title={`Slider #${sliderNumber} - ${block?.title}`}
+                          title={`Slider #${sliderNumber} - ${block?.translatable_text_title}`}
                           initState={block.isNew || false}
                           actions={
                             <button
@@ -287,10 +325,10 @@ function HomeForm() {
                         >
                           <div className="mb-4">
                             <Input
-                              id={`contentBlocks[${realIndex}].title`}
-                              name={`contentBlocks[${realIndex}].title`}
+                              id={`contentBlocks[${realIndex}].translatable_text_title`}
+                              name={`contentBlocks[${realIndex}].translatable_text_title`}
                               type="text"
-                              value={block.title}
+                              value={block.translatable_text_title}
                               onChange={handleChange}
                               label="Slider title"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
@@ -345,10 +383,10 @@ function HomeForm() {
                       push({
                         id: blockId,
                         contentBlockType: 'SLIDER',
-                        title: '',
-                        description: '',
+                        translatable_text_title: '',
+                        translatable_text_description: '',
                         files: [],
-                        editorState: null,
+                        translatable_text_editorState: null,
                         isNew: true,
                       });
 
@@ -389,13 +427,13 @@ function HomeForm() {
 
                     return (
                       <div key={realIndex} className="mb-8">
-                        {block.title !== undefined && (
+                        {block.translatable_text_title !== undefined && (
                           <div className="mb-4">
                             <Input
-                              id={`contentBlocks[${realIndex}].title`}
-                              name={`contentBlocks[${realIndex}].title`}
+                              id={`contentBlocks[${realIndex}].translatable_text_title`}
+                              name={`contentBlocks[${realIndex}].translatable_text_title`}
                               type="text"
-                              value={block.title}
+                              value={block.translatable_text_title}
                               onChange={handleChange}
                               label={block.contentBlockType === 'HOME_TITLE' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} title`}
                               labelClass="mb-2 !text-admin-700"
@@ -403,7 +441,7 @@ function HomeForm() {
                             />
                           </div>
                         )}
-                        {block.description !== undefined && (
+                        {block.translatable_text_description !== undefined && (
                           <>
                             <div className="mb-2 text-admin-700">{block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}</div>
                             <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />

@@ -1,18 +1,19 @@
+import { EN_LOCALE, Link } from '@/i18n';
 import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
-import Link from 'next/link';
+
 
 type LogoProps = {
   textColor?: string;
-  language?: 'ua' | 'en';
+  locale?: string;
 };
 
 const Logo = ({
   textColor = 'text-font-primary',
-  language = 'ua',
+  locale = 'en',
 }: LogoProps) => {
-  const text =
-    language === 'en' ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
+
+  const text = locale === EN_LOCALE ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
   return (
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">
@@ -23,7 +24,7 @@ const Logo = ({
           height={64}
           priority
         />
-        <p className={`w-[50px] m-0 text-small1 ${textColor}`}>{text}</p>
+        <p className={`w-[80px] m-0 text-small1 ${textColor}`}>{text}</p>
       </Link>
     </>
   );

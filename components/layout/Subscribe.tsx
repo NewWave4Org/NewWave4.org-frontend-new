@@ -1,8 +1,10 @@
 import { prefix } from '@/utils/prefix';
 import SubscribeForm from './SubscribeForm';
+import { useTranslations } from 'next-intl';
 
 const Subscribe: React.FC = () => {
   const bgUrl = `${prefix}/bg-subscription.png`;
+  const t = useTranslations();
   return (
     
       <section
@@ -15,7 +17,7 @@ const Subscribe: React.FC = () => {
         <div className='container mx-auto px-4'>
           <div className="flex flex-col gap-y-6 lg:pl-[105px]">
             <h2 className="text-h2 text-font-primary font-ebGaramond">
-              Будьте в курсі наших новин та подій
+              {t('sections_title.subscription')}
             </h2>
             <SubscribeForm />
           </div>

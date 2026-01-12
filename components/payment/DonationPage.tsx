@@ -8,10 +8,13 @@ import {
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { useLocale } from 'next-intl';
 
 const DonationPage = () => {
   const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
   const paypalOptions = { clientId: NEXT_PUBLIC_PAYPAL_CLIENT_ID };
+
+  const locale = useLocale();
 
   return (
     <PayPalScriptProvider options={paypalOptions}>
@@ -19,7 +22,7 @@ const DonationPage = () => {
         <div className="p-4">
           <section className="container mx-auto payments-wrapper max-[1100px]:p-10 max-[500px]:p-6 max-[750px]:m-0">
             <header>
-              <Logo language="en" />
+              <Logo locale={locale} />
             </header>
             <PaymentForm />
           </section>

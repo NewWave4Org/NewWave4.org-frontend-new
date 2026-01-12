@@ -1,22 +1,25 @@
 import EmblaCarousel from '@/components/ui/EmblaCarousel';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useTranslations } from 'next-intl';
 
 interface IHistoryCard {
   ourHistoryTitle: string;
   ourHistoryDescription: {
-    text: string;
-    editorState: any;
+    translatable_text_text: string;
+    translatable_text_editorState: any;
   };
   ourHistoryPhotos: { files: any[] };
 }
 
 const HistoryCard = ({ ourHistoryTitle, ourHistoryDescription, ourHistoryPhotos }: IHistoryCard) => {
-  const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.editorState);
+  const t = useTranslations();
+
+  const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.translatable_text_editorState);
 
   return (
     <section className="history-card py-14 my-20">
       <div className="history-card__inner container px-4 mx-auto">
-        <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">Наша історія</h4>
+        <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">{t('sections_title.our_story')}</h4>
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="w-full lg:max-w-[718px] overflow-hidden">
             <EmblaCarousel slides={ourHistoryPhotos} />
