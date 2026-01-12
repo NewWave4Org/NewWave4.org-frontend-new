@@ -30,21 +30,6 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
     { href: `/contacts`, label: t('menu.contacts') },
   ]
 
-    // const scrollToElementWithHeaderOffset = (id: string) => {
-    //   const el = document.getElementById(id);
-    //   if (!el) return;
-
-    //   const header = document.querySelector('header');
-    //   const headerHeight = header?.getBoundingClientRect().height || 0;
-
-    //   const elementY = el.getBoundingClientRect().top + window.scrollY;
-
-    //   window.scrollTo({
-    //     top: elementY - headerHeight,
-    //     behavior: 'smooth',
-    //   });
-    // };
-
   const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
   const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
 

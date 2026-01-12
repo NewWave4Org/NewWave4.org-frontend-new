@@ -10,9 +10,9 @@ function LanguageSwitcher({currentLocale}: {currentLocale: string}) {
 	function switchLang(locale: string) {
 		if(locale === currentLocale) return;
 
-		console.log('pathname', pathname)
+		const hash = window.location.hash;
 
-		router.replace(pathname, { locale });
+		router.replace(`${pathname}${hash}`, { locale });
 	}
 
 	return (
