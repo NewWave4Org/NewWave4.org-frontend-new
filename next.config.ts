@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   // don't transpile `nexlog` - use the package's published builds/exports
@@ -18,4 +19,6 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin('./i18n/config/request.ts');
+
+export default withNextIntl(nextConfig);

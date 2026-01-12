@@ -6,11 +6,11 @@ const Quote = ({ quote, className }: { quote: any; className?: string }) => {
   const bgTopUrl = `${prefix}/icons/NewsQuoteTop.svg`;
   const bgBottomUrl = `${prefix}/icons/NewsQuoteBottom.svg`;
 
-  const isEditorObject = typeof quote === 'object' && quote !== null && 'editorState' in quote;
+  const isEditorObject = typeof quote === 'object' && quote !== null && 'translatable_text_editorState' in quote;
 
   // const quoteTextNew = convertDraftToHTML(quote?.editorState);
 
-  const quoteTextNew = isEditorObject ? convertDraftToHTML(quote.editorState) : quote;
+  const quoteTextNew = isEditorObject ? convertDraftToHTML(quote.translatable_text_editorState) : quote;
 
   return (
     <div className={`quoteBlock lg:max-w-[1035px] py-[50px] mx-auto md:max-w-full mb-[40px] ${className}`}>

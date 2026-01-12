@@ -35,6 +35,10 @@ const ApiEndpoint = {
   CREATE_PAGES: `pages/private`,
   GET_PAGES: (pageType: string) => `pages/public/${pageType}`,
   UPDATE_PAGES: (id: number) => `pages/private/${id}`,
+
+  // API FOR TRANSLATIONS
+  TRANSLATION: (id: number) => `article/private/${id}/translate`,
+  TRANSLATION_PAGE: (id: number) => `pages/private/${id}/page/translate`
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];

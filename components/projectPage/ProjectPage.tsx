@@ -5,19 +5,24 @@ import Quote from '../quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import NewsEvents from '../home/NewsEvents';
+import { useTranslations } from 'next-intl';
 
-function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; relevantProjectId: number }) {
-  const videoLink = project?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+type IProjectProps = IArticleBody & { titleToShow?: string; contentBlockToShow?: any[] }
+
+function ProjectPage({ project, relevantProjectId }: { project: IProjectProps; relevantProjectId: number }) {
+  const t = useTranslations();
+
+  const videoLink = project?.contentBlockToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const embedUrl = convertYoutubeUrlToEmbed(videoLink);
 
-  const quoteText = project?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
-  const siteLink = project?.contentBlocks?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
+  const quoteText = project?.contentBlockToShow?.find(item => item.contentBlockType === 'QUOTE');
+  const siteLink = project?.contentBlockToShow?.find(item => item.contentBlockType === 'LINK_TO_SITE')?.siteUrl;
 
-  const typeSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.typeSocialMedia;
-  const linkSocialMedia = project?.contentBlocks?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.socialMediaUrl;
+  const typeSocialMedia = project?.contentBlockToShow?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.typeSocialMedia;
+  const linkSocialMedia = project?.contentBlockToShow?.find(item => item.contentBlockType === 'SOCIAL_MEDIA')?.socialMediaUrl;
   const nameSocialMedia = typeSocialMediaList.find(item => item.value === typeSocialMedia)?.label;
 
-  const projectSections = project?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION');
+  const projectSections = project?.contentBlockToShow?.filter(item => item.contentBlockType === 'SECTION');
   const firstTwoBlocks = projectSections?.slice(0, 2);
   const otherBlocks = projectSections?.slice(2);
 
@@ -35,10 +40,10 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
 
   return (
     <div className="project-section" id={`project-${project.id}`}>
-      <ProjectHeader title={project.title} />
+      <ProjectHeader title={project?.titleToShow} />
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && quoteText?.text !== '' && (
+      {quoteText && quoteText?.translatable_text_editorState !== null && (
         <div className="container mx-auto px-4">
           <Quote quote={quoteText} className="text-font-primary" />
         </div>
@@ -58,7 +63,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IArticleBody; re
         </div>
       )}
 
-      <NewsEvents textLink="Всі новини проєкту" link="/news" titleEvents="Новини та події проєкту" projectId={relevantProjectId} />
+      <NewsEvents textLink='projects_page.all_project_new' link="/news" titleEvents='projects_page.news_events_project' projectId={relevantProjectId} />
     </div>
   );
 }

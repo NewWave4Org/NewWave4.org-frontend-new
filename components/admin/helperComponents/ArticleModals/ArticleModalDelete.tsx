@@ -5,6 +5,7 @@ import { removeArticle } from '@/store/article-content/article-content_slice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { closeModal } from '@/store/modal/ModalSlice';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -34,7 +35,10 @@ function ArticleModalDelete({ title }: { title: string }) {
       setSubmitError('');
       toast.success(`Your ${title} has been successfully deleted!`);
       dispatch(closeModal());
-      dispatch(removeArticle(currentProject.id));
+      dispatch(removeArticle({ 
+        id: currentProject.id, 
+        articleType: currentProject.articleType as ArticleTypeEnum
+      }));
 
       if (articlesOnPage === 1) {
         const params: any = {

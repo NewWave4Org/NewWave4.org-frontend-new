@@ -1,0 +1,80 @@
+{
+  "menu": {
+    "home": "Home",
+    "about_us": "About us",
+    "projects": "Projects",
+    "news": "News",
+    "events": "Events",
+    "contacts": "Contacts",
+    "emprty_projects": "There are no projects yet",
+    "programs": "Programs"
+  },
+  "sections_title": {
+    "our_programs": "Our programs",
+    "news_evens": "News and Events",
+    "join_us": "How to join us",
+    "trust_us": "They trust us",
+    "become_partner": "Become a partner",
+    "subscription": "Stay up to date with our news and events",
+    "our_mission": "Our mission",
+    "our_team": "Our team",
+    "our_story": "Our story",
+    "history_formation": "History of formation",
+    "program_events": "Program of events",
+    "other_programs": "Other programs"
+  },
+  "tabs": {
+    "news_tab": "News",
+    "events_tab": "Events"
+  },
+  "links": {
+    "all_news": "All news",
+    "all_events": "All events",
+    "more_details": "More details",
+    "nova_khvilka_school": "Nova Khvilka School"
+  },
+  "forms_label": {
+    "title": "Leave your email and we will contact you.",
+    "email": "Email",
+    "enter_email": "Enter your email",
+    "leave_comment": "Leave a comment",
+    "hide_comment": "Hide comment",
+    "message_text": "Message text",
+    "name": "Name",
+    "phone": "Phone"
+  },
+  "form_contact_us": {
+    "title": "Contact us",
+    "subtitle": "Do you have any questions? Fill out the form or contact us in a way convenient for you",
+    "location": "Brooklyn-Staten Island, New York",
+    "our_social_media": "Our social networks"
+  },
+  "buttons": {
+    "become_partner": "Become a partner",
+    "sign_up": "Sign up",
+    "send": "Send"
+  },
+  "modals": {
+    "modal_subscribe": {
+      "title": "Thank you for subscribing!",
+      "description": "Now you will be the first to receive notifications about our news and events!"
+    }
+  },
+  "social_links": {
+    "title": "Follow us:"
+  },
+  "loading": "Loading...",
+  "projects_page": {
+    "title": "Our projects",
+    "empty_title": "Our Projects page is currently under development, but we will share the results with you very soon!",
+    "empty_subtitle": "Thank you for your patience!",
+    "all_project_new": "All project news",
+    "news_events_project": "Project News and Events"
+  },
+  "program_page": {
+    "title": "Program",
+    "schedule_title": "Event Schedule",
+    "other_programs": "Other programs"
+  }
+
+}

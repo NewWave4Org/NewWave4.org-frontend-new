@@ -5,26 +5,33 @@ import { ArticleTypeEnum } from '@/utils/ArticleType';
 import Hero from '../ui/Hero';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProjectPage from './ProjectPage';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { EN_LOCALE } from '@/i18n';
+import { useAnchorScroll } from '../layout/useAnchorScroll';
 
 function ProjectsPageClient() {
+  const t = useTranslations();
+  const locale = useLocale();
+  const { scrollToAnchor } = useAnchorScroll();
+
   const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
   const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
 
-  const scrollToElementWithHeaderOffset = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+  // const scrollToElementWithHeaderOffset = (id: string) => {
+  //   const el = document.getElementById(id);
+  //   if (!el) return;
 
-    const header = document.querySelector('header');
-    const headerHeight = header?.getBoundingClientRect().height || 0;
+  //   const header = document.querySelector('header');
+  //   const headerHeight = header?.getBoundingClientRect().height || 0;
 
-    const elementY = el.getBoundingClientRect().top + window.scrollY;
+  //   const elementY = el.getBoundingClientRect().top + window.scrollY;
 
-    window.scrollTo({
-      top: elementY - headerHeight,
-      behavior: 'smooth',
-    });
-  };
+  //   window.scrollTo({
+  //     top: elementY - headerHeight,
+  //     behavior: 'smooth',
+  //   });
+  // };
 
   useEffect(() => {
     if (projectsStatus !== 'loaded') return;
@@ -33,26 +40,37 @@ function ProjectsPageClient() {
     if (!hash) return;
 
     const timeout = setTimeout(() => {
-      scrollToElementWithHeaderOffset(hash);
-    }, 1000);
+      scrollToAnchor(hash);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [projectsStatus, projects.length]);
 
+
+  const projectData = useMemo(() => {
+    if (!projects?.length) return [];
+
+    return projects.map(project => ({
+      ...project,
+      titleToShow: locale === EN_LOCALE ? project.titleEng : project.title,
+      contentBlockToShow: locale === EN_LOCALE ? project.contentBlocksEng : project.contentBlocks
+    }));
+  }, [projects, locale]);
+
   return (
     <div className="ProjectsPage">
-      <Hero title="Наші проєкти" pageBanner="/projects/img.png" />
+      <Hero title={t('projects_page.title')} pageBanner="/projects/img.png" />
 
       {projectsStatus === 'idle' || projectsStatus === 'loading' ? (
-        <div className="text-center py-16 text-lg text-font-secondary">Loading...</div>
+        <div className="text-center py-16 text-lg text-font-secondary">{t('loading')}</div>
       ) : projects.length > 0 ? (
-        projects.map((project: IArticleBody, index: number) => <ProjectPage key={index} project={project} relevantProjectId={project.id} />)
+        projectData.map((project: IArticleBody, index: number) => <ProjectPage key={index} project={project} relevantProjectId={project.id} />)
       ) : (
         <div className="container mx-auto px-4 py-16">
           <div className="text-h3 text-font-primary font-ebGaramond text-center mb-5 max-w-[600px] mx-auto">
-            Зараз сторінка &quot;Наші проєкти&quot; знаходиться на етапі розробки, але зовсім скоро ми поділимося з вами результатами!
+            {t('projects_page.empty_title')}
           </div>
-          <div className="text-center italic">Дякуємо за терпіння!</div>
+          <div className="text-center italic">{t('projects_page.empty_subtitle')}</div>
         </div>
       )}
     </div>

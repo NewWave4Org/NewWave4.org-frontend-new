@@ -7,7 +7,10 @@ export interface IPagesResponseDTO {
   authorId: string;
   updatedAt: string;
   contentBlocks: any[] | null;
+  contentBlocksEng?: any[] | null;
 }
+
+export type ChangedPagesBody = IPagesResponseDTO & {contentBlocksToShow?: any[] | null}
 
 export interface IOurPartnersResponseDTO {
   id: number;

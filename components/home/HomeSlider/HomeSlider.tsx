@@ -11,10 +11,10 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 export interface Slide {
-  title: string;
+  translatable_text_title: string;
   files: string[];
-  description?: string;
-  editorState?: any[];
+  translatable_text_description?: string;
+  translatable_text_editorState?: any[];
   link: string;
 }
 
@@ -74,13 +74,13 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
       <div className="h-full w-full">
         <Slider {...settings}>
           {slides?.map((slide, index) => {
-            const slideDescriptionText = convertDraftToHTML(slide?.editorState);
+            const slideDescriptionText = convertDraftToHTML(slide?.translatable_text_editorState);
 
             const slideContent = (
               <div className="w-full h-full slide-group px-2">
                 <div className="relative w-full h-full ">
                   {slide.files.map((file: string, idx: number) => (
-                    <Image key={idx} src={file} alt={slide.title} fill className="embla-slide-img transition-all duration-300 object-cover rounded-xl" />
+                    <Image key={idx} src={file} alt={slide.translatable_text_title ?? 'photo'} fill className="embla-slide-img transition-all duration-300 object-cover rounded-xl" />
                   ))}
 
                   <div
@@ -98,7 +98,7 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
                     "
                   >
                     <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end">
-                      <div className="text-white text-base font-medium mb-1">{slide.title}</div>
+                      <div className="text-white text-base font-medium mb-1">{slide.translatable_text_title}</div>
                       <div className="text-grey-200 line-clamp-2 text-xs" dangerouslySetInnerHTML={{ __html: slideDescriptionText }} />
                     </div>
                   </div>
