@@ -42,16 +42,37 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
     <>
       <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />
       <div className="">
-        {(titleProgram || descriptionProgram) && <ProgramFirstBlocks title={titleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
+        {(titleProgram || descriptionProgram) && (
+          <ProgramFirstBlocks
+            title={titleProgram}
+            description={descriptionProgram}
+            dateProgram={dateProgram}
+          />
+        )}
         <div className="lg:mt-20 mt-10">
-          {filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0 && <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} />}
-          {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />}
-          {filteredScheduleInfo && filteredScheduleInfo.length > 0 && <ProgramSchedule schedulePoster={schedulePoster} scheduleTitle={scheduleTitle} scheduleInfo={filteredScheduleInfo} />}
+          {filteredBlocksWithPhoto && filteredBlocksWithPhoto.length > 0 && (
+            <ProgramBlocksWithPhotos contentBlock={filteredBlocksWithPhoto} />
+          )}
+          {filteredBlocksWithText && filteredBlocksWithText?.length > 0 && (
+            <ProgramBlocksWithText contentBlock={filteredBlocksWithText} />
+          )}
+          {filteredScheduleInfo && filteredScheduleInfo.length > 0 && (
+            <ProgramSchedule
+              schedulePoster={schedulePoster}
+              scheduleTitle={scheduleTitle}
+              scheduleInfo={filteredScheduleInfo}
+            />
+          )}
 
           {videoLink && (
             <div className="lg:mb-20 mb-10">
               <div className="container mx-auto px-4">
-                <iframe src={videoLink} allowFullScreen loading="lazy" className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video" />
+                <iframe
+                  src={videoLink}
+                  allowFullScreen
+                  loading="lazy"
+                  className="rounded-2xl w-full lg:h-[640px] sm:h-auto aspect-video"
+                />
               </div>
             </div>
           )}

@@ -4,7 +4,11 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import LinkBtn from '@/components/shared/LinkBtn';
 import Select from '@/components/shared/Select';
-import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -57,26 +61,33 @@ const validationSchema = Yup.object({
         period: Yup.string().oneOf(['AM', 'PM']).nullable(),
       })
         .nullable()
-        .when(['startTime', 'contentBlockType'], ([startTime, contentBlockType], schema) => {
-          if (contentBlockType !== 'SCHEDULE_INFO') return schema;
+        .when(
+          ['startTime', 'contentBlockType'],
+          ([startTime, contentBlockType], schema) => {
+            if (contentBlockType !== 'SCHEDULE_INFO') return schema;
 
-          return schema.test('is-after-start', 'End time must be later than start time', endTime => {
-            if (!startTime?.hour || !endTime?.hour) return true;
+            return schema.test(
+              'is-after-start',
+              'End time must be later than start time',
+              endTime => {
+                if (!startTime?.hour || !endTime?.hour) return true;
 
-            const toMinutes = (t: any) => {
-              let hours = Number(t.hour);
-              const minutes = Number(t.minute) || 0;
-              if (t.period === 'PM' && hours !== 12) hours += 12;
-              if (t.period === 'AM' && hours === 12) hours = 0;
-              return hours * 60 + minutes;
-            };
+                const toMinutes = (t: any) => {
+                  let hours = Number(t.hour);
+                  const minutes = Number(t.minute) || 0;
+                  if (t.period === 'PM' && hours !== 12) hours += 12;
+                  if (t.period === 'AM' && hours === 12) hours = 0;
+                  return hours * 60 + minutes;
+                };
 
-            const start = toMinutes(startTime);
-            const end = toMinutes(endTime);
+                const start = toMinutes(startTime);
+                const end = toMinutes(endTime);
 
-            return end > start;
-          });
-        }),
+                return end > start;
+              },
+            );
+          },
+        ),
     }),
   ),
 });
@@ -91,7 +102,9 @@ function ProgramContent({ programId }: { programId: number }) {
     contentType: ArticleTypeEnum.PROGRAM,
   });
 
-  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const [submitError, setSubmitError] = useState('');
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
 
@@ -100,7 +113,9 @@ function ProgramContent({ programId }: { programId: number }) {
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const defaultFormValues: UpdateArticleFormValues = useMemo(
@@ -141,7 +156,10 @@ function ProgramContent({ programId }: { programId: number }) {
     // Update Formik field value
     setFieldValue(`contentBlocks.${blockIndex}.${field}`, raw);
 
-    setFieldValue(`contentBlocks.${blockIndex}.${rawField}`, content.getPlainText());
+    setFieldValue(
+      `contentBlocks.${blockIndex}.${rawField}`,
+      content.getPlainText(),
+    );
   };
 
   useEffect(() => {
@@ -296,11 +314,17 @@ function ProgramContent({ programId }: { programId: number }) {
     }
 
     try {
-      const result = await handleThunk(updateArticle, { id: programId, data: normalized }, setSubmitError);
+      const result = await handleThunk(
+        updateArticle,
+        { id: programId, data: normalized },
+        setSubmitError,
+      );
       setProgram(result);
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit') ? 'Your program was updated successfully!' : 'Your program was created successfully!';
+        const message = pathname.includes('/edit')
+          ? 'Your program was updated successfully!'
+          : 'Your program was created successfully!';
         toast.success(message);
       }
 
@@ -319,7 +343,9 @@ function ProgramContent({ programId }: { programId: number }) {
     });
 
     if (result) {
-      toast.success('Congratulations! Your program has been published successfully.');
+      toast.success(
+        'Congratulations! Your program has been published successfully.',
+      );
     }
   }
 
@@ -330,11 +356,18 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
-          dateOfWriting: convertFromISO(program?.dateOfWriting) || defaultFormValues.dateOfWriting,
+          dateOfWriting:
+            convertFromISO(program?.dateOfWriting) ||
+            defaultFormValues.dateOfWriting,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           articleType: program?.articleType || defaultFormValues.articleType,
-          articleStatus: program?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks: Array.isArray(program?.contentBlocks) && program.contentBlocks.length ? program.contentBlocks : defaultFormValues.contentBlocks,
+          articleStatus:
+            program?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks:
+            Array.isArray(program?.contentBlocks) &&
+            program.contentBlocks.length
+              ? program.contentBlocks
+              : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}

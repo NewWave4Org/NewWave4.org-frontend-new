@@ -11,7 +11,11 @@ import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import Button from '@/components/shared/Button';
 import ImageLoading from '../../helperComponents/ImageLoading/ImageLoading';
 import LinkBtn from '@/components/shared/LinkBtn';
-import { getArticleById, publishArticle, updateArticle } from '@/store/article-content/action';
+import {
+  getArticleById,
+  publishArticle,
+  updateArticle,
+} from '@/store/article-content/action';
 import Input from '@/components/shared/Input';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -45,7 +49,9 @@ const validationSchema = Yup.object({
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
 
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -62,7 +68,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
@@ -153,7 +161,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
   }, [projectId, dispatch]);
 
   //Action for Save the project
-  async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+  async function handleSubmit(
+    values: UpdateArticleFormValues,
+    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  ) {
     let payload = { ...values };
 
     for (const url of deletedFiles) {
@@ -184,12 +195,18 @@ function ProjectContent({ projectId }: { projectId: number }) {
     };
 
     try {
-      const result = await handleThunk(updateArticle, { id: projectId, data: payload }, setSubmitError);
+      const result = await handleThunk(
+        updateArticle,
+        { id: projectId, data: payload },
+        setSubmitError,
+      );
       setProject(result);
 
       if (result) {
         setSubmitError('');
-        const message = pathname.includes('/edit') ? 'Your project was updated successfully!' : 'Your project was created successfully!';
+        const message = pathname.includes('/edit')
+          ? 'Your project was updated successfully!'
+          : 'Your project was created successfully!';
         toast.success(message);
       }
 
@@ -208,11 +225,18 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if (result) {
-      toast.success('Congratulations! Your project has been published successfully.');
+      toast.success(
+        'Congratulations! Your project has been published successfully.',
+      );
     }
   }
 
-  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (
+    id: string,
+    values: any,
+    newState: EditorState,
+    setFieldValue: any,
+  ) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
     const content = newState.getCurrentContent();
@@ -233,10 +257,17 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-          dateOfWriting: convertFromISO(project?.dateOfWriting) || defaultFormValues.dateOfWriting,
+          dateOfWriting:
+            convertFromISO(project?.dateOfWriting) ||
+            defaultFormValues.dateOfWriting,
           articleType: project?.articleType || defaultFormValues.articleType,
-          articleStatus: project?.articleStatus || defaultFormValues.articleStatus,
-          contentBlocks: Array.isArray(project?.contentBlocks) && project.contentBlocks.length ? project.contentBlocks : defaultFormValues.contentBlocks,
+          articleStatus:
+            project?.articleStatus || defaultFormValues.articleStatus,
+          contentBlocks:
+            Array.isArray(project?.contentBlocks) &&
+            project.contentBlocks.length
+              ? project.contentBlocks
+              : defaultFormValues.contentBlocks,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}

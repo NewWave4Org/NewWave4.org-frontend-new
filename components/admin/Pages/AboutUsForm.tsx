@@ -31,10 +31,13 @@ function AboutUsForm() {
   });
 
   const [submitError, setSubmitError] = useState('');
+
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -68,7 +71,12 @@ function AboutUsForm() {
       : defaultFormValues.contentBlocks,
   };
 
-  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (
+    id: string,
+    values: any,
+    newState: EditorState,
+    setFieldValue: any,
+  ) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
     const index = values.contentBlocks.findIndex(block => block.id === id);
@@ -171,7 +179,11 @@ function AboutUsForm() {
         setAboutUsPage(result);
         setSubmitError('');
         setDeletedFiles([]);
-        toast.success(isUpdate ? 'About us page updated successfully!' : 'About us page created successfully!');
+        toast.success(
+          isUpdate
+            ? 'About us page updated successfully!'
+            : 'About us page created successfully!',
+        );
       }
     } catch (error) {
       toast.error(`Something went wrong! ${error}`);
