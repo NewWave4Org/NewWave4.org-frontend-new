@@ -10,8 +10,9 @@ type LogoProps = {
 
 const Logo = ({
   textColor = 'text-font-primary',
-  locale,
+  locale = 'en',
 }: LogoProps) => {
+
   const text = locale === EN_LOCALE ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
   return (
     <>
