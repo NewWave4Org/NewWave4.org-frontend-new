@@ -5,39 +5,42 @@ import ProgramBlocksWithText from '@/components/program/programPageComponents/Pr
 import ProgramFirstBlocks from '@/components/program/programPageComponents/ProgramFirstBlocks';
 import ProgramHeader from '@/components/program/programPageComponents/ProgramHeader';
 import ProgramSchedule from '@/components/program/programPageComponents/ProgramSchedule';
-import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { ChangedArticleByIdBody } from '@/utils/article-content/type/interfaces';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
+import { useTranslations } from 'next-intl';
 
-function ProgramPreview({ program }: { program: GetArticleByIdResponseDTO | undefined }) {
-  const titleProgram = program?.title;
-  const pageBanner = program?.contentBlocks?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
-  const dateProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
-  const descriptionProgram = program?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.editorState;
+function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefined }) {
+  const t = useTranslations();
 
-  const blocksWithPhoto = program?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
+  const titleProgram = program?.titleToShow;
+  const pageBanner = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
+  const dateProgram = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
+  const descriptionProgram = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_editorState;
+
+  const blocksWithPhoto = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
   const filteredBlocksWithPhoto = blocksWithPhoto?.filter(item => {
-    return item.sectionTitle !== '' || item.text !== '' || item.files.length > 0;
+    return item.translatable_text_sectionTitle !== '' || item.translatable_text_text !== '' || item.files.length > 0;
   });
 
-  const blocksWithText = program?.contentBlocks?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
+  const blocksWithText = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
   const filteredBlocksWithText = blocksWithText?.filter(item => {
-    return item.sectionTitle !== '' || item.text1 !== '' || item.text2 !== '';
+    return item.translatable_text_sectionTitle !== '' || item.translatable_text_text1 !== '' || item.translatable_text_text2 !== '';
   });
 
-  const videoURL = program?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+  const videoURL = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
-  const schedulePoster = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
-  const scheduleTitle = program?.contentBlocks?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.title;
+  const schedulePoster = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
+  const scheduleTitle = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.translatable_text_title;
 
-  const scheduleInfo = program?.contentBlocks?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
+  const scheduleInfo = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
   const filteredScheduleInfo = scheduleInfo?.filter(item => {
-    return item.location !== '' || item.title !== '';
+    return item.location !== '' || item.translatable_text_title !== '';
   });
 
   return (
     <>
-      <ProgramHeader title="Програма" pageBanner={pageBanner} classNameParent="!mb-0" />
+      <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />
       <div className="">
         {(titleProgram || descriptionProgram) && <ProgramFirstBlocks title={titleProgram} description={descriptionProgram} dateProgram={dateProgram} />}
         <div className="lg:mt-20 mt-10">

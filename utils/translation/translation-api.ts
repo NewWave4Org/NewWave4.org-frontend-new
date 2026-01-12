@@ -10,6 +10,13 @@ class TranslationApi implements ITranslationApi {
             url: ApiEndpoint.TRANSLATION(id)
         })
     }
+
+    async translatePage(id: number) {
+        return request({
+            method: HttpMethod.PUT,
+            url: ApiEndpoint.TRANSLATION_PAGE(id)
+        })
+    }
 }
 
 export default TranslationApi;

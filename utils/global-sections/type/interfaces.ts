@@ -3,6 +3,8 @@ export interface IGlobalSectionsResponseDTO {
   key: string;
   title: string;
   contentBlocks: any[];
+  contentBlocksEng?: any[],
+  titleEng?: string
 }
 
 export interface IGlobalSectionsRequestDTO {

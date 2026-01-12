@@ -1,4 +1,79 @@
 {
-  "hello": "Hello",
-  "welcome": "Welcome to the site"
+  "menu": {
+    "home": "Головна",
+    "about_us": "Про нас",
+    "projects": "Проєкти",
+    "news": "Новини",
+    "events": "Події",
+    "contacts": "Контакти",
+    "emprty_projects": "Поки що немає проектів",
+    "programs": "Програми"
+  },
+  "sections_title": {
+    "our_programs": "Наші програми",
+    "news_evens": "Новини та події",
+    "join_us": "Як долучитися до нас",
+    "become_partner": "Стати партнером",
+    "trust_us": "Нам довіряють",
+    "subscription": "Будьте в курсі наших новин та подій",
+    "our_mission": "Наша місія",
+    "our_team": "Наша команда",
+    "our_story": "Наша історія",
+    "history_formation": "Історія становлення",
+    "program_events": "Програма заходів",
+    "other_programs": "Інші програми"
+  },
+  "tabs": {
+    "news_tab": "Новини",
+    "events_tab": "Події"
+  },
+  "links": {
+    "all_news": "Всі новини",
+    "all_events": "Всі події",
+    "more_details": "Детальніше",
+    "nova_khvilka_school": "Школа &ldquo;Нова Хвилька&rdquo;"
+  },
+  "forms_label": {
+    "title": "Залиште свій email та ми з Вами зв’яжемось",
+    "email": "Email",
+    "enter_email": "Введіть Ваш email",
+    "leave_comment": "Залишити коментар",
+    "hide_comment": "Сховати коментар",
+    "message_text": "Текст повідомлення",
+    "name": "Ім'я",
+    "phone": "Телефон"
+  },
+  "form_contact_us": {
+    "title": "Зв’яжіться з нами",
+    "subtitle": "Маєте запитання? Заповніть форму або зв’яжіться зручним для вас способом",
+    "location": "Бруклін-Статен Айленд, Нью Йорк",
+    "our_social_media": "Наші соц. мережі"
+  },
+  "buttons": {
+    "become_partner": "Стати партнером",
+    "sign_up": "Підписатися",
+    "send": "Надіслати"
+  },
+  "modals": {
+    "modal_subscribe": {
+      "title": "Дякуємо за підписку!",
+      "description": "Тепер Ви будете першими отримувати повідомлення щодо наших новин та подій!"
+    }
+  },
+  "social_links": {
+    "title": "Стежте за нами:"
+  },
+  "loading": "Завантаження...",
+  "projects_page": {
+    "title": "Наші проєкти",
+    "empty_title": "Зараз сторінка Наші проєкти знаходиться на етапі розробки, але зовсім скоро ми поділимося з вами результатами!",
+    "subtitle": "Дякуємо за терпіння!",
+    "all_project_new": "Всі новини проєкту",
+    "news_events_project": "Новини та події проєкту"
+  },
+  "program_page": {
+    "title": "Програма",
+    "schedule_title": "Програма заходів",
+    "other_programs": "Інші програми"
+  }
 }

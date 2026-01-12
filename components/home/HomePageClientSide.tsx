@@ -2,7 +2,7 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { getPages } from '@/store/pages/action';
-import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
+import { ChangedPagesBody, IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';
@@ -17,25 +17,32 @@ import { getGlobalSectionByKey } from '@/store/global-sections/action';
 import { GlobalSectionsType } from '../admin/GlobalSections/enum/types';
 import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
 import HomeSlider from './HomeSlider/HomeSlider';
+import { EN_LOCALE } from '@/i18n';
+import { useLocale } from 'next-intl';
 
 function HomePageClientSide() {
   const dispatch = useAppDispatch();
-  const [homePage, setHomePage] = useState<IPagesResponseDTO | null>(null);
+  const locale = useLocale();
+
+  const [homePage, setHomePage] = useState<ChangedPagesBody | null>(null);
   const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
 
-  const slides = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'SLIDER') || [];
-  const homeTitle = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE');
-  const homeDescription = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
-  const joinUs = homePage?.contentBlocks?.filter(item => item.contentBlockType === 'JOIN_US') || [];
-  const ourPartnersContent = homePage?.contentBlocks?.find(item => item.contentBlockType === 'PARTNERS');
-  const videoUrl = homePage?.contentBlocks?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
+  const slides = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SLIDER') || [];
+  const homeTitle = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_TITLE');
+  const homeDescription = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
+  const joinUs = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'JOIN_US') || [];
+  const ourPartnersContent = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'PARTNERS');
+  const videoUrl = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
 
   useEffect(() => {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
 
-        setHomePage(result);
+        setHomePage({
+          ...result,
+          contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks
+        });
       } catch (error: any) {
         console.log('error', error);
         setHomePage(null);

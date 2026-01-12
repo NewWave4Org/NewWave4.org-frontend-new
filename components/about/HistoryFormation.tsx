@@ -1,23 +1,27 @@
 import Image from 'next/image';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useTranslations } from 'next-intl';
 
 interface IOurTimeLine {
   year: string;
-  title: string;
-  text: string;
-  editorState: any;
+  translatable_text_title: string;
+  translatable_text_text: string;
+  translatable_text_editorState: any;
 }
 
 const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
+  const t = useTranslations();
   return (
     <section className="history-formation py-14">
       <div className="history-formation__inner">
-        <h4 className="preheader mb-14 text-center md:text-left container px-4 mx-auto !text-font-primary">Історія становлення</h4>
+        <h4 className="preheader mb-14 text-center md:text-left container px-4 mx-auto !text-font-primary">
+          {t('sections_title.history_formation')}
+        </h4>
 
         <div className="container mx-auto px-4">
           <div className="xl:py-[300px] w-full flex xl:flex-row flex-col relative">
             {ourTimeLine?.map((event, index) => {
-              const ourTimeLineText = convertDraftToHTML(event?.editorState);
+              const ourTimeLineText = convertDraftToHTML(event?.translatable_text_editorState);
               const iconCircus = `after:content-[""] after:absolute xl:after:w-[8px] after:w-[20px] xl:after:h-[8px] after:h-[20px] after:bg-accent-600 after:z-[1] after:rounded-full xl:after:left-1/2 after:-translate-x-1/2 ${
                 index % 2 === 0 ? 'xl:after:-bottom-1 xl:after:top-auto after:top-1/2 after:-right-[36px] after:left-auto' : 'xl:after:-top-1  after:top-1/2 after:-left-4 after:right-auto'
               }`;
@@ -42,7 +46,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                       <div className={`history-formation__timeline-date ${index % 2 === 0 ? 'mt-4' : 'mb-4'}`}>{event.year}</div>
 
                       <div className={`history-formation__timeline-info text-center`}>
-                        <h4 className="text-xl font-semibold text-font-primary mb-4 line-clamp-1">{event.title}</h4>
+                        <h4 className="text-xl font-semibold text-font-primary mb-4 line-clamp-1">{event.translatable_text_title}</h4>
                         <p className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv line-clamp-4" dangerouslySetInnerHTML={{ __html: ourTimeLineText }} />
                       </div>
                     </div>

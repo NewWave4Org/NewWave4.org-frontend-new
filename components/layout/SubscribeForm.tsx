@@ -6,6 +6,7 @@ import Input from '../shared/Input';
 import { useState } from 'react';
 import Modal from '../shared/Modal';
 import { emailValidation } from '@/utils/validation';
+import { useTranslations } from 'next-intl';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -18,13 +19,15 @@ interface InnerSubscribeFormValues {
 const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
   const { touched, errors, isSubmitting, handleChange, values } = props;
 
+  const t = useTranslations();
+
   return (
     <>
       <Form className="flex gap-x-4 items-start sm:flex-row flex-col">
         <div className='sm:w-[264px] w-full'>
           <Input
             id="email"
-            label="Введіть Ваш email"
+            label={t('forms_label.enter_email')}
             maxLength={50}
             required
             validationText={touched.email && errors.email ? errors.email : ''}
@@ -34,7 +37,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
         </div>
         <div className="mt-[28px]">
           <Button type="submit" disabled={isSubmitting}>
-            Підписатися
+            {t('buttons.sign_up')}
           </Button>
         </div>
       </Form>
@@ -49,6 +52,7 @@ interface SubscribeFormProps {
 
 const SubscribeForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const t = useTranslations();
 
   const SubscribeFormikWrapper = withFormik<
     SubscribeFormProps,
@@ -74,8 +78,8 @@ const SubscribeForm = () => {
       <SubscribeFormikWrapper onOpenModal={() => setIsOpenModal(true)} />
       <Modal
         type="success"
-        title="Дякуємо за підписку!"
-        description="Тепер Ви будете першими отримувати повідомлення щодо наших новин та подій!"
+        title={t('modals.modal_subscribe.title')}
+        description={t('modals.modal_subscribe.description')}
         isOpen={isOpenModal}
         onClose={() => setIsOpenModal(false)}
         onBtnClick={() => setIsOpenModal(false)}

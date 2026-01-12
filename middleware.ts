@@ -7,7 +7,7 @@ const intlMiddleware = createMiddleware(routing)
 export function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl;
 
-    if(pathname === '/donation' || pathname.startsWith('/donation/')) {
+    if(pathname === '/donation' || pathname.startsWith('/donation/') || pathname === '/admin' || pathname.startsWith('/admin/') ) {
         return
     }
 

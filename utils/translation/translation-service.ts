@@ -11,6 +11,10 @@ class TranslationServices implements ITranslateService {
     async translate(id: number) {
         return this.translateVal.translate(id)
     }
+
+    async translatePage(id: number) {
+        return this.translateVal.translatePage(id)
+    }
 }
 
 export default TranslationServices;

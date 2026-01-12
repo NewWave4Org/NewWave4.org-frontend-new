@@ -1,18 +1,16 @@
-import { EN_LOCALE, Link } from '@/i18n';
 import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
+import Link from 'next/link';
 
 
 type LogoProps = {
   textColor?: string;
-  locale?: string;
 };
 
-const Logo = ({
-  textColor = 'text-font-primary',
-  locale,
+const LogoAdmin = ({
+  textColor = 'text-font-primary'
 }: LogoProps) => {
-  const text = locale === EN_LOCALE ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
+  const text = 'Ukrainian New Wave'
   return (
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">
@@ -29,4 +27,4 @@ const Logo = ({
   );
 };
 
-export default Logo;
+export default LogoAdmin;

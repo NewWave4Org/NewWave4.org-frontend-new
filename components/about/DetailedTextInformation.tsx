@@ -3,8 +3,8 @@ import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 
 type DetailedTextInformationProps = {
   quote: {
-    description: string;
-    editorState: any;
+    translatable_text_description: string;
+    translatable_text_editorState: any;
   };
 };
 
@@ -12,7 +12,7 @@ const DetailedTextInformation = ({ quote }: DetailedTextInformationProps) => {
   const beforeBg = `${prefix}/background/decor-element-yellow.svg`;
   const afterBg = `${prefix}/background/decor-element-blue.svg`;
 
-  const quoteText = convertDraftToHTML(quote?.editorState);
+  const quoteText = convertDraftToHTML(quote?.translatable_text_editorState);
 
   return (
     <section className="detailed-text-information lg:my-20 my-10 lg:py-10 py-6">

@@ -6,11 +6,11 @@ function ProgramBlocksWithText({ contentBlock }: { contentBlock: any[] }) {
       <div className="content">
         <div className="container mx-auto px-4">
           {contentBlock?.map((content, index) => {
-            const htmlText1 = convertDraftToHTML(content?.editorState1);
-            const htmlText2 = convertDraftToHTML(content?.editorState2);
+            const htmlText1 = convertDraftToHTML(content?.translatable_text_editorState1);
+            const htmlText2 = convertDraftToHTML(content?.translatable_text_editorState2);
             return (
               <div key={index} className="pt-3 lg:mb-20 mb-10">
-                <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.sectionTitle}</div>
+                <div className="text-h3 font-ebGaramond mb-5 max-w-[530px] text-font-primary ">{content?.translatable_text_sectionTitle}</div>
                 <div className="flex lg:flex-row flex-col gap-4">
                   <div className="text-body lg:w-1/2 w-full text-font-primary" dangerouslySetInnerHTML={{ __html: htmlText1 }} />
                   <div className="text-body lg:w-1/2 w-full text-font-primary" dangerouslySetInnerHTML={{ __html: htmlText2 }} />

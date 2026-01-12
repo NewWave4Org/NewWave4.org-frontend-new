@@ -1,11 +1,7 @@
 'use client';
 
-import { Locale, LOCALES, routing } from "@/i18n";
+import { LOCALES, usePathname, useRouter } from "@/i18n";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-
-const NO_LOCALE_PAGES = ['/donation'];
-
 
 function LanguageSwitcher({currentLocale}: {currentLocale: string}) {
 	const router = useRouter()
@@ -14,24 +10,9 @@ function LanguageSwitcher({currentLocale}: {currentLocale: string}) {
 	function switchLang(locale: string) {
 		if(locale === currentLocale) return;
 
-		let newPath: string;
+		console.log('pathname', pathname)
 
-		if(NO_LOCALE_PAGES.includes(locale)) {
-			newPath = pathname
-		} else {
-			const segments = pathname.split('/');
-			const currentSegment = segments[1] as Locale;
-
-			if(currentSegment && routing.locales.includes(currentSegment)) {
-				segments[1] = locale
-			} else {
-				segments.splice(1, 0, locale)
-			}
-
-			newPath = segments.join('/')
-		}
-
-		router.push(newPath)
+		router.replace(pathname, { locale });
 	}
 
 	return (
@@ -40,7 +21,7 @@ function LanguageSwitcher({currentLocale}: {currentLocale: string}) {
 				<button key={code} type="button" className="language-btn bg-white/60 rounded-lg relative" onClick={() => switchLang(code)}>
 					{currentLocale === code && 
 						<span className="inline border-b border-primary-500 text-primary-500 font-medium text-xl">
-							{label}
+							{label.toLocaleUpperCase()}
 						</span>
 					}
 					<Image src={flag} width={32} height={32} alt="flag" />

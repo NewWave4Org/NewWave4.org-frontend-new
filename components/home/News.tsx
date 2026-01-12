@@ -2,10 +2,10 @@
 
 import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
 import Button from '../shared/Button';
-import { useRouter } from 'next/navigation';
 import { useArticles } from '@/utils/hooks/useArticles';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import ArticlesGrid from '@/components/news/ArticlesGrid';
+import { useRouter } from '@/i18n';
 
 interface NewsProps {
   title?: boolean;

@@ -14,7 +14,10 @@ export const LOCALES = [
 ]
 
 
-export const locales = LOCALES.map(locale => locale.code)
+export const locales = LOCALES.map(locale => locale.code);
+
+export const EN_LOCALE = LOCALES.find(l => l.code === 'en')!.code;
+
 export type Locale = (typeof LOCALES)[number]['code'];
 
 export const routing = defineRouting({

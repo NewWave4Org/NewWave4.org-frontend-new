@@ -7,8 +7,11 @@ import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useLocale } from 'next-intl';
 
 const Header = ({currentLocale}: {currentLocale: string}) => {
+  const locale = useLocale();
+
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuShow, setisMenuShow] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -41,7 +44,7 @@ const Header = ({currentLocale}: {currentLocale: string}) => {
     <>
       <header className={`header  ${isMenuShow ? 'menuOpen' : ''}`}>
         <div className="header__inner">
-          <Logo />
+          <Logo locale={locale} />
           {!isMobile && (
             <div className={`flex items-center justify-between flex-1`}>
               <div className="mx-auto">
