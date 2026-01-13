@@ -52,12 +52,22 @@
   "buttons": {
     "become_partner": "Become a partner",
     "sign_up": "Sign up",
-    "send": "Send"
+    "send": "Send",
+    "thank": "Thank you",
+    "try_ageen": "Try again",
+    "continue": "Continue"
+
   },
   "modals": {
     "modal_subscribe": {
       "title": "Thank you for subscribing!",
-      "description": "Now you will be the first to receive notifications about our news and events!"
+      "description": "Now you will be the first to receive notifications about our news and events!",
+      "error_message": "Something went wrong. Please try again."
+    },
+    "modal_parthner": {
+      "title": "Thank you for your application!",
+      "description": "We have received your application for partnership. Our manager will contact you shortly.",
+      "error_message": "Something went wrong. Please try again."
     }
   },
   "social_links": {

@@ -9,6 +9,7 @@ import DoneIcon from '../icons/status/DoneIcon';
 import InfoIcon from '../icons/status/InfoIcon';
 import WarningIcon from '../icons/status/WarningIcon';
 import Button from './Button';
+import { useTranslations } from 'next-intl';
 
 type ModalProps = {
   type?: 'success' | 'info' | 'error' | 'warning';
@@ -34,6 +35,8 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
     onBtnClick,
     children,
   } = props;
+
+  const t = useTranslations();
 
   useEffect(() => {
     if (isOpen) {
@@ -73,11 +76,11 @@ const Modal: FC<ModalProps> = (props: ModalProps) => {
   const getBtnText = () => {
     switch (type) {
       case 'warning':
-        return 'Продовжити';
+        return `${t('buttons.continue')}`;
       case 'error':
-        return 'Спробувати ще раз';
+        return `${t('buttons.try_ageen')}`;
       default:
-        return 'Дякую';
+        return `${t('buttons.thank')}`;
     }
   };
 

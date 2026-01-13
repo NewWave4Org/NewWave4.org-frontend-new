@@ -21,7 +21,6 @@ type ProgramCardProps = {
 const ProgramCard: React.FC<ProgramCardProps> = ({ slide, onDetailsClick, onDonateClick }: ProgramCardProps) => {
   const t = useTranslations();
 
-  console.log('slide', slide)
   return (
     <div className={`min-w-0 flex-[0_0_360px] mx-3 cursor-pointer transition-all duration-300 `}>
       <div className="bg-grey-50 shadow-custom pb-6 rounded-lg">

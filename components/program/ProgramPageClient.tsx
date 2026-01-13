@@ -4,7 +4,7 @@ import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { ChangedArticleByIdBody, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -13,7 +13,7 @@ import ProgramBlocks from './ProgramDopBlocks/ProgramBlocks';
 import Button from '../shared/Button';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import { useLocale, useTranslations } from 'next-intl';
-import { EN_LOCALE } from '@/i18n';
+import { EN_LOCALE, useRouter } from '@/i18n';
 
 function ProgramPageClient() {
   const t = useTranslations();
