@@ -40,7 +40,11 @@ const ApiEndpoint = {
   TRANSLATION: (id: number) => `article/private/${id}/translate`,
   TRANSLATION_PAGE: (id: number) => `pages/private/${id}/page/translate`,
 
-  BECOME_PARTHNER: 'mail/become-partners',
+  //FORMS
+  BECOME_PARTHNER: 'mail/become-partner',
+  CREATE_SUBSCRIBE: 'mail/public/subscribe',
+  CONFIRM_SUBSCRIBE: 'mail/public/subscribe/confirm',
+  
 
 } as const;
 

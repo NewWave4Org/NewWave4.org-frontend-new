@@ -7,6 +7,8 @@ import { useState } from 'react';
 import Modal from '../shared/Modal';
 import { emailValidation } from '@/utils/validation';
 import { useTranslations } from 'next-intl';
+import { useAppDispatch } from '@/store/hook';
+import { createSubscribe } from '@/store/froms/action';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -53,6 +55,7 @@ interface SubscribeFormProps {
 const SubscribeForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const t = useTranslations();
+  const dispatch = useAppDispatch();
 
   const SubscribeFormikWrapper = withFormik<
     SubscribeFormProps,
@@ -66,10 +69,19 @@ const SubscribeForm = () => {
 
     validationSchema: validationSchema,
 
-    handleSubmit: (values, { setSubmitting, resetForm, props }) => {
-      props.onOpenModal();
-      setSubmitting(false);
-      resetForm();
+    handleSubmit: async (values, { setSubmitting, resetForm,setStatus, props }) => {
+      try {
+        await dispatch(createSubscribe(values.email)).unwrap();
+        props.onOpenModal();
+        setSubmitting(false);
+        resetForm();
+      } catch (error) {
+        setStatus(t('modals.modal_subscribe.error_message'));
+        console.log('becomeParthner', error)
+        setSubmitting(false);
+      }finally {
+        setSubmitting(false);
+      }
     },
   })(InnerSubscribeForm);
 

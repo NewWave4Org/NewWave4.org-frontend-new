@@ -3,18 +3,16 @@
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useLocale, useTranslations } from 'next-intl';
-import { EN_LOCALE, Link } from '@/i18n';
+import { EN_LOCALE, Link, usePathname } from '@/i18n';
 import { useAnchorScroll } from './useAnchorScroll';
 
 const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
-  const router = useRouter();
 
   const { scrollToAnchor } = useAnchorScroll();
 

@@ -12,6 +12,13 @@ class FormsServices implements IFormsServices {
     return this.formServices.becomeParthner(data)
   }
 
+  async createSubscribe(email:  string) {
+    return this.formServices.createSubscribe(email)
+  }
+
+  async confirmSubscribe(token:  string) {
+    return this.formServices.confirmSubscribe(token)
+  }
 }
 
 

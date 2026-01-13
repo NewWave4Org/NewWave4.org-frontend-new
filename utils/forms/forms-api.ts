@@ -12,6 +12,22 @@ class FormsAPI implements IFormsAPI {
       body: data
     })
   }
+
+  async createSubscribe(email: string) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.CREATE_SUBSCRIBE,
+      body: email
+    })
+  }
+
+  async confirmSubscribe(token: string) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.CREATE_SUBSCRIBE,
+      body: token
+    })
+  }
 }
 
 

@@ -95,6 +95,7 @@ const PartnerForm = () => {
       } catch (error: any) {
         setStatus(t('modals.modal_parthner.error_message'));
         console.log('becomeParthner', error)
+        setSubmitting(false);
       }finally {
         setSubmitting(false);
       }

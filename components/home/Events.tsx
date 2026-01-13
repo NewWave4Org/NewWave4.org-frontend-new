@@ -2,11 +2,11 @@
 
 import ArrowRightIcon from '../icons/navigation/ArrowRightIcon';
 import Button from '../shared/Button';
-import { useRouter } from 'next/navigation';
 import { useArticles } from '@/utils/hooks/useArticles';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import ArticlesGrid from '@/components/news/ArticlesGrid';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n';
 
 const Events = () => {
   const router = useRouter();
