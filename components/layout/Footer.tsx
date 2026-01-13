@@ -2,15 +2,17 @@
 import Logo from '@/components/layout/Logo';
 import Link from 'next/link';
 import SocialButtons from '../socialButtons/SocialButtons';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 const Footer = () => {
   const t = useTranslations();
+  const locale = useLocale();
+  
   return (
     <footer className="footer">
       <div className="footer__inner md:flex-row flex-col md:gap-y-0 sm:gap-y-4">
         <div className="md:w-auto w-full md:mb-0 mb-6">
-          <Logo />
+          <Logo locale={locale} />
         </div>
         <div className="footer-links md:w-auto w-full">
           <Link className="menu-link py-1" href="/about">

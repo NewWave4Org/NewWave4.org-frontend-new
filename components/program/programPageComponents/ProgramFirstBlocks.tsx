@@ -1,11 +1,10 @@
-import { useRouter } from 'next/navigation';
 import { format, isValid } from 'date-fns';
 import { enUS, uk } from 'date-fns/locale';
 import Button from '@/components/shared/Button';
 import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
-import { EN_LOCALE } from '@/i18n';
+import { EN_LOCALE, useRouter } from '@/i18n';
 
 interface IDateProgram {
   year: number;

@@ -5,9 +5,9 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import ArrowRight4Icon from '../icons/navigation/ArrowRight4Icon';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
+import { useRouter } from '@/i18n';
 
 const slides = [
   {

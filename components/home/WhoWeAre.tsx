@@ -12,7 +12,7 @@ interface IWhoWeAre {
 
 const WhoWeAre: React.FC<IWhoWeAre> = ({ homeTitle, homeDescription, className }) => {
   const homeDescriptionText = convertDraftToHTML(homeDescription?.translatable_text_editorState);
-  console.log('homeDescriptionText', homeDescriptionText)
+
   return (
     <div className={`whoWeAre ${className} lg:pt-0 pt-5`}>
       <div className="max-w-[1440px] lg:px-0 px-4 mx-auto lg:h-full overflow-hidden">

@@ -38,7 +38,14 @@ const ApiEndpoint = {
 
   // API FOR TRANSLATIONS
   TRANSLATION: (id: number) => `article/private/${id}/translate`,
-  TRANSLATION_PAGE: (id: number) => `pages/private/${id}/page/translate`
+  TRANSLATION_PAGE: (id: number) => `pages/private/${id}/page/translate`,
+
+  //FORMS
+  BECOME_PARTHNER: 'mail/become-partner',
+  CREATE_SUBSCRIBE: 'mail/public/subscribe',
+  CONFIRM_SUBSCRIBE: 'mail/public/subscribe/confirm',
+  
+
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];
