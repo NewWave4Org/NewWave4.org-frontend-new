@@ -10,7 +10,7 @@ class FormsAPI implements IFormsAPI {
       method: HttpMethod.POST,
       url: ApiEndpoint.BECOME_PARTHNER,
       body: data
-    })
+    });
   }
 
   async createSubscribe(email: string) {
@@ -18,15 +18,15 @@ class FormsAPI implements IFormsAPI {
       method: HttpMethod.POST,
       url: ApiEndpoint.CREATE_SUBSCRIBE,
       body: email
-    })
+    });
   }
 
   async confirmSubscribe(token: string) {
     return request({
       method: HttpMethod.POST,
-      url: ApiEndpoint.CREATE_SUBSCRIBE,
+      url: ApiEndpoint.CONFIRM_SUBSCRIBE,
       body: token
-    })
+    });
   }
 }
 
