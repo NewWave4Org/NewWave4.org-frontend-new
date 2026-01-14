@@ -26,7 +26,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
     { href: `/news`, label: t('menu.news') },
     { href: `/events`, label: t('menu.events') },
     { href: `/contacts`, label: t('menu.contacts') },
-  ]
+  ];
 
   const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
   const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
@@ -117,7 +117,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
           return (
             <li key={href} className="py-1 before:content-none pl-0 !mb-0">
-              <Link className={`menu-link ${activeStyle}`} href={href} onClick={() => setOpenSubMenu(null)}>
+              <Link className={`menu-link ${activeStyle}`} href={href} onClick={() => {setOpenSubMenu(null); handleToggleMenu?.();}}>
                 <span>{label}</span>
               </Link>
             </li>

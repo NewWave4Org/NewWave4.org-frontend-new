@@ -64,7 +64,7 @@ function HomePageClientSide() {
 
     getBlockByKey();
     getPageByKey();
-  }, [dispatch]);
+  }, [dispatch, locale]);
 
   return (
     <>

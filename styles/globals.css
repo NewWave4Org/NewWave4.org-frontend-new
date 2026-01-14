@@ -71,7 +71,7 @@ html {
     @apply hidden
   }
   .headerShowMobile {
-    @apply bg-white px-12 py-4 rounded-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
+    @apply bg-white px-12 py-4 rounded-bl-[20px] rounded-br-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
   }
 
   /* Menu */
@@ -92,7 +92,7 @@ html {
     @apply flex justify-between items-center mx-auto w-full max-w-[var(--max-width)] px-12 py-12
   }
   .footer-links {
-    @apply flex flex-col gap-y-4 text-large font-helv;
+    @apply flex flex-col text-large font-helv;
   }
 
   /* Main Slider */
@@ -375,7 +375,7 @@ p {
   }
 }
 
-@media(max-width: 1280px) {
+@media(min-width: 992px) and (max-width: 1280px) {
   .menu-link {
     font-size: 14px;
   }
@@ -390,6 +390,9 @@ p {
   filter: drop-shadow(0 0 14px rgba(255, 255, 255, 1));
 }
 
+body.menu-open {
+  overflow: hidden;
+}
 /* List */
 
 @layer utilities {
