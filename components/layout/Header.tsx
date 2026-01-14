@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Logo from '@/components/layout/Logo';
 import Menu from './Menu';
-import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -38,6 +37,7 @@ const Header = ({currentLocale}: {currentLocale: string}) => {
   function handleToggleMenu() {
     setisMenuShow(prev => !prev);
     setIsActive(prev => !prev);
+    document.querySelector('body')?.classList.toggle('menu-open');
   }
 
   return (
@@ -48,7 +48,7 @@ const Header = ({currentLocale}: {currentLocale: string}) => {
           {!isMobile && (
             <div className={`flex items-center justify-between flex-1`}>
               <div className="mx-auto">
-                <Menu />
+                <Menu handleToggleMenu={handleToggleMenu} />
               </div>
               <div className="flex items-center lg:order-2 gap-x-4">
                 <LanguageSwitcher currentLocale={currentLocale} />
@@ -75,12 +75,11 @@ const Header = ({currentLocale}: {currentLocale: string}) => {
       {isMobile && (
         <div className={`${isMobile ? 'headerMobile' : ''} ${isMenuShow ? 'headerShowMobile' : ''}`}>
           <Menu handleToggleMenu={handleToggleMenu} />
-          <div className="flex items-start md:flex-row flex-col lg:order-2 gap-x-4 mt-5">
-            <button type="button" className="language-btn md:mb-0 mb-3 bg-white/60 rounded-lg !w-[80px]">
-              UA
-              <ArrowDown4Icon size="16" color="#0F1B40" />
-            </button>
-            <Link href="/donation" className="donate-btn custom-donate-btn flex items-center">
+          <div className="flex items-start flex-col lg:order-2 gap-x-4 mt-5">
+
+            <LanguageSwitcher currentLocale={currentLocale} />
+
+            <Link href="/donation" className="donate-btn custom-donate-btn flex items-center mt-5">
               Donate
               <span className="ml-2 flex-1 duration-500  w-[26px]">
                 <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
