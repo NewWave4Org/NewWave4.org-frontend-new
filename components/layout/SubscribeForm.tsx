@@ -77,7 +77,7 @@ const SubscribeForm = () => {
         resetForm();
       } catch (error) {
         setStatus(t('modals.modal_subscribe.error_message'));
-        console.log('becomeParthner', error)
+        console.log('becomeParthner', error);
         setSubmitting(false);
       }finally {
         setSubmitting(false);

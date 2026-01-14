@@ -1,8 +1,8 @@
 'use client';
 import Logo from '@/components/layout/Logo';
-import Link from 'next/link';
 import SocialButtons from '../socialButtons/SocialButtons';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n';
 
 const Footer = () => {
   const t = useTranslations();
@@ -15,18 +15,18 @@ const Footer = () => {
           <Logo locale={locale} />
         </div>
         <div className="footer-links md:w-auto w-full">
-          <Link className="menu-link py-1" href="/about">
+          <Link className="menu-link py-1 mb-3" href="/about">
             <span>{t('menu.about_us')}</span>
           </Link>
-          <Link className="menu-link py-1" href="https://newwaveschool.org/" target="_blank">
+          <Link className="menu-link py-1 mb-3" href="https://newwaveschool.org/" target="_blank">
             <span>{t('links.nova_khvilka_school')}</span>
           </Link>
         </div>
         <div className="footer-links md:w-auto w-full">
-          <Link className="menu-link py-1" href="/news">
+          <Link className="menu-link py-1 mb-3" href="/news">
             <span>{t('menu.news')}</span>
           </Link>
-          <Link className="menu-link py-1" href="/contacts">
+          <Link className="menu-link py-1 mb-3" href="/contacts">
             <span>{t('menu.contacts')}</span>
           </Link>
         </div>

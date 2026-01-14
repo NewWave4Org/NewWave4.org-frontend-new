@@ -17,7 +17,7 @@ const WhoWeAre: React.FC<IWhoWeAre> = ({ homeTitle, homeDescription, className }
     <div className={`whoWeAre ${className} lg:pt-0 pt-5`}>
       <div className="max-w-[1440px] lg:px-0 px-4 mx-auto lg:h-full overflow-hidden">
         <div className="flex xl:flex-row flex-col items-center lg:h-full">
-          <div className="lg:max-w-[820px] min-w-[820px] xl:ml-[96px] xl:mr-[85px] mx-4 lg:py-5 lg:mb-0 mb-5">
+          <div className="lg:max-w-[820px] lg:min-w-[820px] xl:ml-[96px] xl:mr-[85px] mx-4 lg:py-5 lg:mb-0 mb-5">
             <h1 className="lg:text-h1 text-h3 text-font-primary font-ebGaramond mb-3">{homeTitle?.translatable_text_title}</h1>
             <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: homeDescriptionText }} />
           </div>
