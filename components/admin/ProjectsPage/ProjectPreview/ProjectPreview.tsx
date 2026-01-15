@@ -38,7 +38,7 @@ function ProjectPreview({ project }: { project: GetArticleByIdResponseDTO | unde
 
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && <Quote quote={quoteText} className="text-font-primary" />}
+      {quoteText && quoteText?.translatable_text_editorState !== null && (<Quote quote={quoteText} className="text-font-primary" />)}
 
       <ProjectContent
         contentBlock={otherBlocks}

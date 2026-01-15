@@ -37,7 +37,10 @@ const Header = ({currentLocale}: {currentLocale: string}) => {
   function handleToggleMenu() {
     setisMenuShow(prev => !prev);
     setIsActive(prev => !prev);
-    document.querySelector('body')?.classList.toggle('menu-open');
+
+    if(isMobile) {
+      document.querySelector('body')?.classList.toggle('menu-open');
+    }
   }
 
   return (
