@@ -19,29 +19,32 @@ interface InnerSubscribeFormValues {
 }
 
 const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
-  const { touched, errors, isSubmitting, handleChange, values } = props;
+  const { touched, errors, isSubmitting, handleChange, values, status } = props;
 
   const t = useTranslations();
 
   return (
     <>
-      <Form className="flex gap-x-4 items-start sm:flex-row flex-col">
-        <div className='sm:w-[264px] w-full'>
-          <Input
-            id="email"
-            label={t('forms_label.enter_email')}
-            maxLength={50}
-            required
-            validationText={touched.email && errors.email ? errors.email : ''}
-            onChange={handleChange}
-            value={values.email}
-          />
+      <Form>
+        <div className="flex gap-x-4 items-start sm:flex-row flex-col">
+          <div className='sm:w-[264px] w-full'>
+            <Input
+              id="email"
+              label={t('forms_label.enter_email')}
+              maxLength={50}
+              required
+              validationText={touched.email && errors.email ? errors.email : ''}
+              onChange={handleChange}
+              value={values.email}
+            />
+          </div>
+          <div className="mt-[28px]">
+            <Button type="submit" disabled={isSubmitting}>
+              {t('buttons.sign_up')}
+            </Button>
+          </div>
         </div>
-        <div className="mt-[28px]">
-          <Button type="submit" disabled={isSubmitting}>
-            {t('buttons.sign_up')}
-          </Button>
-        </div>
+        {status && <div className='text-small2 mt-[4px] text-status-danger-500'>{status}</div>}
       </Form>
     </>
   );
@@ -69,15 +72,17 @@ const SubscribeForm = () => {
 
     validationSchema: validationSchema,
 
-    handleSubmit: async (values, { setSubmitting, resetForm,setStatus, props }) => {
+    handleSubmit: async (values, { setSubmitting, resetForm, setStatus, props }) => {
       try {
         await dispatch(createSubscribe(values.email)).unwrap();
         props.onOpenModal();
         setSubmitting(false);
         resetForm();
-      } catch (error) {
-        setStatus(t('modals.modal_subscribe.error_message'));
-        console.log('becomeParthner', error);
+      } catch (error: any) {
+        setStatus(error?.original?.errors[0] || t('modals.modal_subscribe.error_message'));
+
+        console.log('createSubscribe', error);
+
         setSubmitting(false);
       }finally {
         setSubmitting(false);
