@@ -7,6 +7,7 @@ import { Bounce, ToastContainer } from 'react-toastify';
 import ReduxProvider from '../../store/ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
 import localFont from 'next/font/local';
+import { NextIntlClientProvider } from 'next-intl';
 
 const ebGaramondFont = EB_Garamond({
   weight: ['500', '600'],
@@ -52,25 +53,27 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body className={`${RobotoFont.variable} ${helveticaFont.variable} ${ebGaramondFont.variable} antialiased flex flex-col min-h-screen relative`}>
-        <ReduxProvider>
-          <AuthGate>
-            {children}
+        <NextIntlClientProvider>
+          <ReduxProvider>
+            <AuthGate>
+              {children}
 
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick={false}
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-              transition={Bounce}
-            />
-          </AuthGate>
-        </ReduxProvider>
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                transition={Bounce}
+              />
+            </AuthGate>
+          </ReduxProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

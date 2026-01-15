@@ -2,7 +2,7 @@
 
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
-import { ChangedArticleByIdBody, IArticleBody } from '@/utils/article-content/type/interfaces';
+import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useParams } from 'next/navigation';
 
@@ -13,7 +13,7 @@ import ProgramBlocks from './ProgramDopBlocks/ProgramBlocks';
 import Button from '../shared/Button';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import { useLocale, useTranslations } from 'next-intl';
-import { EN_LOCALE, useRouter } from '@/i18n';
+import { useRouter } from '@/i18n';
 
 function ProgramPageClient() {
   const t = useTranslations();
@@ -26,7 +26,7 @@ function ProgramPageClient() {
   const id = params.id;
   const programId = Number(id);
 
-  const [program, setProgram] = useState<ChangedArticleByIdBody | undefined>(undefined);
+  const [program, setProgram] = useState<any | undefined>(undefined);
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,11 +40,8 @@ function ProgramPageClient() {
           }),
         ).unwrap();
 
-        setProgram({
-          ...result,
-          titleToShow: locale === EN_LOCALE ? result.titleEng : result.title,
-          contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks
-        });
+        setProgram(result);
+
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -54,7 +51,7 @@ function ProgramPageClient() {
     }
 
     fetchFullProgramById();
-  }, [programId, dispatch]);
+  }, [programId, dispatch, locale]);
 
   useEffect(() => {
     async function fetchDopPrograms() {

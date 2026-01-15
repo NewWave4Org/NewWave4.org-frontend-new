@@ -5,35 +5,44 @@ import ProgramBlocksWithText from '@/components/program/programPageComponents/Pr
 import ProgramFirstBlocks from '@/components/program/programPageComponents/ProgramFirstBlocks';
 import ProgramHeader from '@/components/program/programPageComponents/ProgramHeader';
 import ProgramSchedule from '@/components/program/programPageComponents/ProgramSchedule';
+import { EN_LOCALE } from '@/i18n';
 import { ChangedArticleByIdBody } from '@/utils/article-content/type/interfaces';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefined }) {
+
   const t = useTranslations();
+  const locale = useLocale();
 
-  const titleProgram = program?.titleToShow;
-  const pageBanner = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
-  const dateProgram = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
-  const descriptionProgram = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_editorState;
+  const programData = {
+    ...program,
+    titleToShow: locale === EN_LOCALE ? program?.titleEng : program?.title,
+    contentBlocksToShow: locale === EN_LOCALE ? program?.contentBlocksEng : program?.contentBlocks
+  };
 
-  const blocksWithPhoto = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
+  const titleProgram = programData?.titleToShow;
+  const pageBanner = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
+  const dateProgram = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
+  const descriptionProgram = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_editorState;
+
+  const blocksWithPhoto = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
   const filteredBlocksWithPhoto = blocksWithPhoto?.filter(item => {
     return item.translatable_text_sectionTitle !== '' || item.translatable_text_text !== '' || item.files.length > 0;
   });
 
-  const blocksWithText = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
+  const blocksWithText = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
   const filteredBlocksWithText = blocksWithText?.filter(item => {
     return item.translatable_text_sectionTitle !== '' || item.translatable_text_text1 !== '' || item.translatable_text_text2 !== '';
   });
 
-  const videoURL = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+  const videoURL = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
-  const schedulePoster = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
-  const scheduleTitle = program?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.translatable_text_title;
+  const schedulePoster = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
+  const scheduleTitle = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.translatable_text_title;
 
-  const scheduleInfo = program?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
+  const scheduleInfo = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
   const filteredScheduleInfo = scheduleInfo?.filter(item => {
     return item.location !== '' || item.translatable_text_title !== '';
   });
