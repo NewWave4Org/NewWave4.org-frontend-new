@@ -21,6 +21,7 @@ interface InnerSubscribeFormValues {
 const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
   const { touched, errors, isSubmitting, handleChange, values, status } = props;
 
+  console.log('status', status);
   const t = useTranslations();
 
   return (
@@ -74,16 +75,17 @@ const SubscribeForm = () => {
 
     handleSubmit: async (values, { setSubmitting, resetForm, setStatus, props }) => {
       try {
-        await dispatch(createSubscribe(values.email)).unwrap();
+        const result = await dispatch(createSubscribe(values.email)).unwrap();
         props.onOpenModal();
-        setSubmitting(false);
+
+        console.log('result', result);
+
         resetForm();
       } catch (error: any) {
-        setStatus(error?.original?.errors[0] || t('modals.modal_subscribe.error_message'));
+        console.log('createSubscribe', error );
+        setStatus(error?.original?.errors?.[0] ?? t('modals.modal_subscribe.error_message'));
 
-        console.log('createSubscribe', error);
-
-        setSubmitting(false);
+        
       }finally {
         setSubmitting(false);
       }
