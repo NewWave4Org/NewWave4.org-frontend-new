@@ -90,12 +90,12 @@ const PartnerForm = () => {
       try {
         await dispatch(becomeParthner(values)).unwrap();
         props.onOpenModal();
-        setSubmitting(false);
+
         resetForm();
       } catch (error: any) {
-        setStatus(t('modals.modal_parthner.error_message'));
-        console.log('becomeParthner', error)
-        setSubmitting(false);
+        setStatus(error?.original?.errors?.[0] ?? t('modals.modal_parthner.error_message'));
+        console.log('becomeParthner', error);
+
       }finally {
         setSubmitting(false);
       }
