@@ -2,7 +2,7 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { getPages } from '@/store/pages/action';
-import { ChangedPagesBody, IPagesResponseDTO } from '@/utils/pages/types/interfaces';
+import { ChangedPagesBody } from '@/utils/pages/types/interfaces';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';

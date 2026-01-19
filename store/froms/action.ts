@@ -12,7 +12,7 @@ export const becomeParthner = createAsyncThunk('becomeParthner', async(data: Bec
     const normalized = normalizeApiError(error);
     return rejectWithValue(normalized);
   }
-})
+});
 
 export const createSubscribe = createAsyncThunk('createSubscribe', async(email: string, {rejectWithValue}) => {
   try {
@@ -23,7 +23,7 @@ export const createSubscribe = createAsyncThunk('createSubscribe', async(email: 
     const normalized = normalizeApiError(error);
     return rejectWithValue(normalized);
   }
-})
+});
 
 export const confirmSubscribe = createAsyncThunk('confirmSubscribe', async(token: string, {rejectWithValue}) => {
   try {
@@ -34,4 +34,4 @@ export const confirmSubscribe = createAsyncThunk('confirmSubscribe', async(token
     const normalized = normalizeApiError(error);
     return rejectWithValue(normalized);
   }
-})
+});

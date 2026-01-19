@@ -61,7 +61,7 @@
   "modals": {
     "modal_subscribe": {
       "title": "Thank you for subscribing!",
-      "description": "Now you will be the first to receive notifications about our news and events!",
+      "description": "A confirmation email has been sent. Please follow the link in the email to complete your subscription!",
       "error_message": "Something went wrong. Please try again."
     },
     "modal_parthner": {
