@@ -17,6 +17,7 @@ const adminLinkSidebar = {
   ADMIN_PROGRAMS: '/admin/programs',
   ADMIN_ARCHIVE: '/admin/archive',
   ADMIN_GLOBAL_SECTIONS: '/admin/global-sections',
+  ADMIN_NEWS_LETTER: '/admin/news-letter'
 } as const;
 
 type adminLinkSidebar = (typeof adminLinkSidebar)[keyof typeof adminLinkSidebar];

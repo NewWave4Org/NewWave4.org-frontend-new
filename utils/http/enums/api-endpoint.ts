@@ -44,6 +44,9 @@ const ApiEndpoint = {
   BECOME_PARTHNER: 'mail/become-partner',
   CREATE_SUBSCRIBE: 'mail/public/subscribe',
   CONFIRM_SUBSCRIBE: 'mail/public/subscribe/confirm',
+
+  //NEWSLETTER
+  NEWSLETTER: 'mail/newsletter/send'
   
 
 } as const;

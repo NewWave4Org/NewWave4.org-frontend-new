@@ -65,6 +65,13 @@ const adminMenu = [
     href: adminLinkSidebar.ADMIN_ARCHIVE,
     allowedToAdmin: false,
   },
+  {
+    id: '9',
+    title: 'News letter',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_NEWS_LETTER,
+    allowedToAdmin: false,
+  },
 ];
 
 const AdminSidebar = () => {
