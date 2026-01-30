@@ -175,7 +175,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
       }
     }
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
     if(translateStatusVal == 'yes') {
       try {
@@ -586,7 +586,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 )}
               </div>
             </Form>
-          )
+          );
         }}
       </Formik>
     </div>
