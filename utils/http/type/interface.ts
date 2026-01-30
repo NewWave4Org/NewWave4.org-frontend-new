@@ -7,7 +7,7 @@ export type RequestOptions = {
   readonly url: ApiEndpoint | string | ((id: string | number) => string);
   readonly accessToken?: string | null;
   readonly body?: unknown;
-  readonly params?: Record<string, string | number | boolean>;
+  readonly params?: Record<string, any>;
   readonly config?: AxiosRequestConfig;
   readonly headers?: Record<string, string>;
   _retry?: boolean;

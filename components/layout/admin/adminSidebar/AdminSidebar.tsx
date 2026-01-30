@@ -17,6 +17,13 @@ const adminMenu = [
     allowedToAdmin: true,
   },
   {
+    id: '23',
+    title: 'All donations',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_ALL_DONATIONS,
+    allowedToAdmin: true,
+  },
+  {
     id: '2',
     title: 'Pages',
     icon: <PagesIcon />,
@@ -65,6 +72,13 @@ const adminMenu = [
     href: adminLinkSidebar.ADMIN_ARCHIVE,
     allowedToAdmin: false,
   },
+  {
+    id: '9',
+    title: 'News letter',
+    icon: <PagesIcon />,
+    href: adminLinkSidebar.ADMIN_NEWS_LETTER,
+    allowedToAdmin: false,
+  },
 ];
 
 const AdminSidebar = () => {
@@ -78,22 +92,46 @@ const AdminSidebar = () => {
     <div className="adminSidebar xl:p-12 p-9">
       <div className="admin-menu">
         <div className="admin-menu__items">
+          {/* Admin's links*/}
+          {isAdmin && (
+            <div className="admin-only-links mt-6 mb-5 border-b-2 border-b-slate-900">
+              {adminMenu
+                .filter(link => link.allowedToAdmin)
+                .map(link => {
+                  const isActive = pathName === link.href || pathName.startsWith(`${link.href}/`);
+                  return (
+                    <Link
+                      key={link.id}
+                      href={link.href}
+                      className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''} bg-admin-only-class px-2 rounded`}
+                    >
+                      <div className="mr-[13px]">{link.icon}</div>
+                      {link.title}
+                    </Link>
+                  );
+                })}
+            </div>
+          )}
+          
+          {/* Anothers links */}
           {adminMenu
-            .filter(link => {
-              if (link.allowedToAdmin) return isAdmin;
-              return true;
-            })
+            .filter(link => !link.allowedToAdmin)
             .map(link => {
               const isActive = pathName === link.href || pathName.startsWith(`${link.href}/`);
               return (
-                <Link key={link.id} href={link.href} className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''}`}>
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  className={`text-primary-800 flex items-center py-1 my-5 ${isActive ? 'font-black' : ''}`}
+                >
                   <div className="mr-[13px]">{link.icon}</div>
                   {link.title}
                 </Link>
               );
-            })}
+            })}   
         </div>
-      </div>
+</div>
+
     </div>
   );
 };

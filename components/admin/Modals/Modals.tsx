@@ -10,6 +10,7 @@ import DeleteUser from '../UserActions/DeleteUser/DeleteUser';
 
 import { ArticleModalDelete, ArticleModalArchive } from '../helperComponents/ArticleModals';
 import ArticleModalRestore from '../helperComponents/ArticleModals/ArticleModalRestore';
+import DonationPaymentsInfo from '../DonationPaymentsPage/DonationPaymentsInfo';
 
 const CreateNewUserValidationSchema = Yup.object({
   email: emailValidation,
@@ -29,6 +30,7 @@ const Modals = () => {
           {modalType === ModalType.EDIT_USER && <EditUser validationSchema={CreateNewUserValidationSchema} />}
           {modalType === ModalType.DELETE_USER && <DeleteUser />}
           {modalType === ModalType.DELETE_ARTICLE && <ArticleModalDelete title={modalTitle || ''} />}
+          {modalType === ModalType.DONATION_DEATILS && <DonationPaymentsInfo />}
 
           {modalType === ModalType.ARCHIVED_ARTICLE && <ArticleModalArchive title={modalTitle} />}
           {modalType === ModalType.ARTICLE_RESTORE && <ArticleModalRestore title={modalTitle} />}
