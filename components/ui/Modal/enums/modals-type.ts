@@ -4,7 +4,8 @@ const ModalType = {
   DELETE_USER: 'deleteUser',
   DELETE_ARTICLE: 'deleteArticle',
   ARCHIVED_ARTICLE: 'archivedArticle',
-  ARTICLE_RESTORE: 'articleRestore'
+  ARTICLE_RESTORE: 'articleRestore',
+  DONATION_DEATILS: 'donationDetails'
 } as const;
 
 type ModalType = (typeof ModalType)[keyof typeof ModalType];

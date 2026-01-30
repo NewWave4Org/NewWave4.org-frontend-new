@@ -46,7 +46,10 @@ const ApiEndpoint = {
   CONFIRM_SUBSCRIBE: 'mail/public/subscribe/confirm',
 
   //NEWSLETTER
-  NEWSLETTER: 'mail/newsletter/send'
+  NEWSLETTER: 'mail/newsletter/send',
+
+  //Fetches a paginated list of all donation payments, sorted by most recent.
+  GET_ALL_DONATION: 'payments/donations/search'
   
 
 } as const;

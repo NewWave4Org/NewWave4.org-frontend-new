@@ -50,7 +50,7 @@ function ArchivePage() {
         setAllArchiveArticles(result?.content);
         setTotalPages(result.totalPages);
       } catch (err) {
-        console.error('Ошибка при загрузке архивных статей:', err);
+        console.error('Error loading archived articles:', err);
         setTotalPages(0);
       }
     }
