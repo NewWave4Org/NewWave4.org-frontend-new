@@ -200,7 +200,7 @@ function DonationPayments() {
               type="text"
               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
               value={emailSearch}
-              label="Serach by email"
+              label="Search by email"
               labelClass="!text-admin-700"
             />
           </div>
@@ -212,7 +212,7 @@ function DonationPayments() {
               type="text"
               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
               value={transactionIdSearch}
-              label="Serach by transaction Id (Payment Intent Id)"
+              label="Search by transaction Id (Payment Intent Id)"
               labelClass="!text-admin-700"
             />
           </div>
