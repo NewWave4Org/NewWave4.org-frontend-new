@@ -28,6 +28,14 @@ class FormsAPI implements IFormsAPI {
       body: token
     });
   }
+
+  async confirmUnsubscribe(id: string) {
+    return request({
+      method: HttpMethod.PATCH,
+      url: ApiEndpoint.CONFIRM_UNSUBSCRIBE,
+      body: id
+    });
+  }
 }
 
 

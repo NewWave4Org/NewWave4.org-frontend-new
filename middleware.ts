@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n';
 import { NextRequest } from 'next/server';
 
-const intlMiddleware = createMiddleware(routing)
+const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl;
@@ -12,13 +12,14 @@ export function middleware(request: NextRequest) {
         || pathname === '/admin' 
         || pathname.startsWith('/admin/') 
         || pathname === '/subscribe'
+        || pathname === '/unsubscribe'
     ) {
-        return
+        return;
     }
 
-    return intlMiddleware(request)
+    return intlMiddleware(request);
 }
 
 export const config = {
     matcher: ['/((?!api|_next|.*\\..*).*)']
-}
+};

@@ -9,15 +9,19 @@ class FormsServices implements IFormsServices {
   }
 
   async becomeParthner(data: BecomeParthnerRequestDTO) {
-    return this.formServices.becomeParthner(data)
+    return this.formServices.becomeParthner(data);
   }
 
   async createSubscribe(email:  string) {
-    return this.formServices.createSubscribe(email)
+    return this.formServices.createSubscribe(email);
   }
 
   async confirmSubscribe(token:  string) {
-    return this.formServices.confirmSubscribe(token)
+    return this.formServices.confirmSubscribe(token);
+  }
+
+  async confirmUnsubscribe(id: string) {
+    return this.formServices.confirmUnsubscribe(id);
   }
 }
 

@@ -7,6 +7,8 @@ export const DonationStatus = {
   PENDING: 'PENDING',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
+  PROCESSING: 'PROCESSING',
+  REFUNDED: 'REFUNDED'
 } as const;
 
 export type DonationProviderType = typeof DonationProvider[keyof typeof DonationProvider];

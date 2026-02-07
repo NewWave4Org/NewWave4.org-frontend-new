@@ -25,6 +25,8 @@ const statusTypes = [
   { value: DonationStatus.PENDING, label: DonationStatus.PENDING },
   { value: DonationStatus.SUCCESS, label: DonationStatus.SUCCESS },
   { value: DonationStatus.FAILED, label: DonationStatus.FAILED },
+  { value: DonationStatus.PROCESSING, label: DonationStatus.PROCESSING },
+  { value: DonationStatus.REFUNDED, label: DonationStatus.REFUNDED },
 ];
 
 const providerTypes = [
@@ -47,25 +49,23 @@ function DonationPayments() {
   const [transactionIdSearch, setЕransactionIdSearch] = useState('');
   const [resetDatePicker, setResetDatePicker] = useState(false);
 
-  async function fetchAllDonation(page = currentPage) {
-    const params: IDonationRequestDTO = {
-      page,
-      size: 10,
-    };
-
+  async function fetchDonations(page = currentPage) {
     try {
+      const params = buildParams(page);
       const result = await dispatch(getAllDonations(params)).unwrap();
+
       setAllDonations(result?.content);
       setTotalPages(result.totalPages);
     } catch (error) {
-      console.error('Error loading all donation payments:', error);
+      console.error('Error loading donation payments:', error);
       setTotalPages(0);
     }
   }
 
-   useEffect(() => {
-    fetchAllDonation(currentPage);
-  }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    fetchDonations(currentPage);
+  }, [currentPage]);
 
   const changePage = useCallback((page: number) => {
     setCurrentPage(page);
@@ -90,13 +90,18 @@ function DonationPayments() {
     setCurrentPage(0);
   }
 
-  async function handleDonationSearch() {
+  function handleDonationSearch() {
+    setCurrentPage(0);
+    fetchDonations(0);
+  }
+
+  const buildParams = useCallback((page: number): IDonationRequestDTO => {
     const params: IDonationRequestDTO = {
-      page: currentPage,
+      page,
       size: 10,
     };
 
-    if (dateFilter && dateFilter.from && dateFilter.to) {
+    if (dateFilter?.from && dateFilter?.to) {
       params.dateFrom = convertToISO(dateFilter.from);
       params.dateTo = convertToISO(dateFilter.to);
     }
@@ -109,24 +114,24 @@ function DonationPayments() {
       params.provider = chooseProviderType as DonationProviderType;
     }
 
-    if(emailSearch !== '') {
+    if (emailSearch) {
       params.userEmail = emailSearch;
     }
 
-    if(transactionIdSearch !== '') {
+    if (transactionIdSearch) {
       params.transactionId = transactionIdSearch;
     }
 
-    try {
-      const result = await dispatch(getAllDonations(params)).unwrap();
+    return params;
+  }, [
+    dateFilter,
+    chooseStatusType,
+    chooseProviderType,
+    emailSearch,
+    transactionIdSearch
+  ]);
 
-      setAllDonations(result?.content);
-      setTotalPages(result.totalPages);
-    } catch (error) {
-      console.error('Error loading all donaiotn payments:', error);
-      setTotalPages(0);
-    }
-  }
+
 
   function handleCleanAllFields() {
     setChooseStatusType(statusTypes[0].value);
@@ -137,7 +142,7 @@ function DonationPayments() {
     setЕransactionIdSearch('');
     setCurrentPage(0);
 
-    fetchAllDonation(0);
+    fetchDonations(0);
   }
 
   return (
@@ -200,7 +205,7 @@ function DonationPayments() {
               type="text"
               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
               value={emailSearch}
-              label="Serach by email"
+              label="Search by email"
               labelClass="!text-admin-700"
             />
           </div>
@@ -212,7 +217,7 @@ function DonationPayments() {
               type="text"
               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
               value={transactionIdSearch}
-              label="Serach by transaction Id (Payment Intent Id)"
+              label="Search by transaction Id (Payment Intent Id)"
               labelClass="!text-admin-700"
             />
           </div>
