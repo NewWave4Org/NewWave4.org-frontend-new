@@ -25,7 +25,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ slide, onDetailsClick, onDona
     <div className={`min-w-0 flex-[0_0_360px] mx-3 cursor-pointer transition-all duration-300 `}>
       <div className="bg-grey-50 shadow-custom pb-6 rounded-lg">
         <div className="relative w-[360px] h-[183px] rounded-t-lg">
-          <Image src={slide.imgSrc ? slide.imgSrc : `${prefix}/logo.svg`} alt={slide.alt} fill className={`object-cover transition-all duration-300 rounded-t-lg`} />
+          <Image src={slide.imgSrc ? slide.imgSrc : `${prefix}/logo.svg`} alt={slide.alt ? slide.alt : 'slide image'} fill className={`object-cover transition-all duration-300 rounded-t-lg`} />
         </div>
         <div className="flex flex-col pt-2 pb-4 px-4 gap-y-4">
           <div className="flex flex-col gap-y-4">

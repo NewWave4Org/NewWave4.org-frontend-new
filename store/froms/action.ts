@@ -35,3 +35,14 @@ export const confirmSubscribe = createAsyncThunk('confirmSubscribe', async(token
     return rejectWithValue(normalized);
   }
 });
+
+export const confirmUnsubscribe = createAsyncThunk('confirmUnsubscribe', async(id: string, {rejectWithValue}) => {
+  try {
+    const response = await formsServices.confirmUnsubscribe(id);
+
+    return response;
+  } catch (error) {
+     const normalized = normalizeApiError(error);
+    return rejectWithValue(normalized);
+  }
+});
