@@ -52,7 +52,7 @@ function DonationPaymentsTable({allDonations, currentPage, totalPages, changePag
           )}
           renderRow={donation => {
             const { name, email, amount, createdAt, paymentProvider, paymentStatus } = donation;
-            console.log('createdAt', createdAt);
+
             const status = paymentStatus.slice(0, 1).toUpperCase() + paymentStatus.toLowerCase().slice(1);
             return (
               <>
