@@ -33,7 +33,7 @@ class FormsAPI implements IFormsAPI {
     return request({
       method: HttpMethod.PATCH,
       url: ApiEndpoint.CONFIRM_UNSUBSCRIBE,
-      body: id
+      params: { id },
     });
   }
 }
