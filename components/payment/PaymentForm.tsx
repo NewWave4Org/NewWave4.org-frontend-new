@@ -352,9 +352,12 @@ const PaymentForm = () => {
               <Button
                 variant="primary"
                 type="submit"
-                className="max-[500px]:w-full max-[500px]:mt-8"
+                className="max-[500px]:w-full max-[500px]:mt-8 donate-btn custom-donate-btn flex items-center"
               >
                 {loading ? 'Loading...' : 'Donate'}
+                {loading ? <></> : <span className="ml-2 duration-500 w-[26px]">
+                  <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                </span>}
               </Button>
             </div>
           </div>
