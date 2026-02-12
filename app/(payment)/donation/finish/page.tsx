@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 const FinishPage = () => {
   const router = useRouter();
   const [datafromlocal, setDatafromlocal] = useState<any>({});
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const data: any = localStorage.getItem('donationformdata');
@@ -55,24 +55,6 @@ const FinishPage = () => {
     }
   }, [datafromlocal]);
 
-  /**
-   * {
-    "email": "dhanur297@gmail.com",
-    "name": "Dhanur",
-    "purpose": "Культурний центр \"Свій до свого по своє\"",
-    "amount": "120",
-    "comment": "",
-    "paymentMethod": "stripe"
-}
-   */
-
-//if in future neede to swithc language then uncomment this line 
-// const locale = useLocale();
-
-//for now setting the language constant
-const locale:string = 'en';
-
-
   return (
     <section className="mx-auto finish-wrapper">
       <div className="container mx-auto finish-content flex justify-center items-center">
@@ -86,10 +68,10 @@ const locale:string = 'en';
           <div className="flex flex-col gap-y-[32px] justify-center items-center mx-auto">
             <div className="flex flex-col gap-y-[16px] justify-center items-center mx-auto">
               <h2 className="text-h3 text-font-primary font-ebGaramond">
-                {locale === 'ua' ? 'Дякуємо за вашу підтримку!' : 'Thank you for your support!'}
+                Thank you for your support!
               </h2>
               <p className="text-body text-font-primary">
-                {locale === 'ua' ? 'Ваша підтримка допомагає нам рухатися вперед.' : 'Your input helps us make a difference'}
+                Your input helps us make a difference
               </p>
             </div>
             <Button
@@ -97,7 +79,7 @@ const locale:string = 'en';
               size="large"
               onClick={() => router.push('/')}
             >
-              {locale === 'ua' ? 'На головну' : 'Go to Homepage'}
+              Go to Homepage
             </Button>
           </div>
         </div>

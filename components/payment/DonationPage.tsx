@@ -4,7 +4,6 @@ import PaymentForm from '@/components/payment/PaymentForm';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-// import { useLocale } from 'next-intl';
 
 const DonationPage = () => {
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
