@@ -27,8 +27,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
-  const hasHtml = (value: string) => /<[^>]+>/.test(value);
-
   useEffect(() => {
     if (!articleId) return;
 
@@ -151,14 +149,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         </div>
 
         <div className="mb-[40px]">
-          {hasHtml(article.mainText) ? (
-            <div
-              className="text-font-primary text-body"
-              dangerouslySetInnerHTML={{ __html: article.mainText }}
-            />
-          ) : (
-            <p className="text-font-primary text-body">{article.mainText}</p>
-          )}
+          <div
+            className="text-font-primary text-body"
+            dangerouslySetInnerHTML={{ __html: article.mainText }}
+          />
         </div>
 
         {article.photoList.length > 0 && (
@@ -191,14 +185,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         {article.quote && <Quote quote={article.quote} />}
 
         <div className="mb-[56px]">
-          {hasHtml(article.textblock2) ? (
-            <div
-              className="text-font-primary text-body"
-              dangerouslySetInnerHTML={{ __html: article.textblock2 }}
-            />
-          ) : (
-            <p className="text-font-primary text-body">{article.textblock2}</p>
-          )}
+          <div
+            className="text-font-primary text-body"
+            dangerouslySetInnerHTML={{ __html: article.textblock2 }}
+          />
         </div>
       </div>
 
