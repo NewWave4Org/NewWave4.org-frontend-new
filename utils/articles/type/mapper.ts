@@ -5,13 +5,16 @@ import { getBlockValue } from "./prepareArticle";
 
 
 export function mapGetArticleByIdResponseToFull(
-    dto: GetArticleByIdResponseDTO
+    dto: GetArticleByIdResponseDTO,
+    locale: string = 'ua'
 ): ArticleFull {
-
-    const blocks = dto.contentBlocks ?? [];
+    const isEng = locale === 'en';
+    const blocks = isEng && dto.contentBlocksEng ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
+    const title = isEng && dto.titleEng ? dto.titleEng : dto.title;
 
     return {
         ...dto,
+        title,
         mainPhoto: (() => {
             const data = getBlockValue<string | string[]>(
                 blocks,

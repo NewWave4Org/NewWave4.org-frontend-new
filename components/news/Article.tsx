@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider, { Slide } from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import Quote from '@/components/quote/Quote';
-import { formatDateUk } from '@/utils/date';
+import { formatDate } from '@/utils/date';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { ArticleFull } from '@/utils/articles/type/interface';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
@@ -18,19 +19,27 @@ import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 const fetchArticle = async (
   id: number,
   type: ArticleTypeEnum.NEWS | ArticleTypeEnum.PROJECT | ArticleTypeEnum.EVENT,
+  locale: string,
 ) => {
+  const apiLang = locale === 'ua' ? 'uk' : locale;
   const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(
     id,
   )}`;
   const url = new URL(baseUrl);
   url.search = new URLSearchParams({ articleType: type }).toString();
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), {
+    headers: {
+      'Accept-Language': apiLang,
+    },
+  });
   if (!res.ok) throw new Error(`Failed to fetch ${type.toLowerCase()}`);
   return res.json();
 };
 
 export default function Article() {
   const params = useParams();
+  const locale = useLocale();
+  const t = useTranslations('news_events');
   const articleId = Number(params.id);
 
   const [article, setArticle] = useState<ArticleFull | null>(null);
@@ -44,14 +53,15 @@ export default function Article() {
     const loadArticle = async () => {
       try {
         setLoading(true);
-        const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS);
-        const mapped = mapGetArticleByIdResponseToFull(articleData);
+        const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS, locale);
+        const mapped = mapGetArticleByIdResponseToFull(articleData, locale);
         setArticle(mapped);
 
         if (mapped?.relevantProjectId) {
           const projectData = await fetchArticle(
             mapped.relevantProjectId,
             ArticleTypeEnum.PROJECT,
+            locale
           );
           setProjectTitle(projectData?.title || '');
         }
@@ -84,11 +94,13 @@ export default function Article() {
     };
 
     loadArticle();
-  }, [articleId]);
+  }, [articleId, locale]);
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article) return <div>Article not found</div>;
+
+  const hasHtml = (value: string) => /<[^>]+>/.test(value);
 
   return (
     <div className="article_page pt-[145px]">
@@ -127,7 +139,7 @@ export default function Article() {
                   <UserIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  Автор
+                  {t('author')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
@@ -139,17 +151,17 @@ export default function Article() {
                   <CalendarIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  Дата
+                  {t('date')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
-                {formatDateUk(article.dateOfWriting)}
+                {formatDate(article.dateOfWriting, locale)}
               </div>
             </div>
 
             <div className="mt-6">
               <div className="text-small text-grey-700 mb-2">
-                Поділись з друзями
+                {t('share')}
               </div>
               <SocialButtons />
             </div>
@@ -158,7 +170,14 @@ export default function Article() {
 
         {article.mainText && (
           <div className="mb-[40px]">
-            <p className="text-font-primary text-body">{article.mainText}</p>
+            {hasHtml(article.mainText) ? (
+              <div
+                className="text-font-primary text-body"
+                dangerouslySetInnerHTML={{ __html: article.mainText }}
+              />
+            ) : (
+              <p className="text-font-primary text-body">{article.mainText}</p>
+            )}
           </div>
         )}
 
@@ -195,7 +214,14 @@ export default function Article() {
 
         {article.textblock2 && (
           <div className="mb-[56px]">
-            <p className="text-font-primary text-body">{article.textblock2}</p>
+            {hasHtml(article.textblock2) ? (
+              <div
+                className="text-font-primary text-body"
+                dangerouslySetInnerHTML={{ __html: article.textblock2 }}
+              />
+            ) : (
+              <p className="text-font-primary text-body">{article.textblock2}</p>
+            )}
           </div>
         )}
 
