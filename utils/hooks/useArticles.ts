@@ -31,9 +31,6 @@ export const useArticles = ({
         const fetchArticles = async () => {
             try {
                 setLoading(true);
-
-                const apiLang = locale === 'ua' ? 'uk' : locale;
-
                 const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
 
                 const params: Record<string, string> = {
@@ -59,9 +56,6 @@ export const useArticles = ({
 
                 const res = await fetch(url.toString(), {
                     method: HttpMethod.GET,
-                    headers: {
-                        'Accept-Language': apiLang,
-                    },
                 });
                 const data = await res.json();
 

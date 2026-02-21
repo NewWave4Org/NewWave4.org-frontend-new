@@ -21,7 +21,6 @@ const fetchArticle = async (
   type: ArticleTypeEnum.NEWS | ArticleTypeEnum.PROJECT | ArticleTypeEnum.EVENT,
   locale: string,
 ) => {
-  const apiLang = locale === 'ua' ? 'uk' : locale;
   const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(
     id,
   )}`;
@@ -29,7 +28,7 @@ const fetchArticle = async (
   url.search = new URLSearchParams({ articleType: type }).toString();
   const res = await fetch(url.toString(), {
     headers: {
-      'Accept-Language': apiLang,
+      'Accept-Language': locale,
     },
   });
   if (!res.ok) throw new Error(`Failed to fetch ${type.toLowerCase()}`);
@@ -99,9 +98,6 @@ export default function Article() {
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article) return <div>Article not found</div>;
-
-  const hasHtml = (value: string) => /<[^>]+>/.test(value);
-
   return (
     <div className="article_page pt-[145px]">
       <div className="container px-4 mx-auto">
@@ -170,14 +166,10 @@ export default function Article() {
 
         {article.mainText && (
           <div className="mb-[40px]">
-            {hasHtml(article.mainText) ? (
-              <div
-                className="text-font-primary text-body"
-                dangerouslySetInnerHTML={{ __html: article.mainText }}
-              />
-            ) : (
-              <p className="text-font-primary text-body">{article.mainText}</p>
-            )}
+            <div
+              className="text-font-primary text-body"
+              dangerouslySetInnerHTML={{ __html: article.mainText }}
+            />
           </div>
         )}
 
@@ -214,14 +206,10 @@ export default function Article() {
 
         {article.textblock2 && (
           <div className="mb-[56px]">
-            {hasHtml(article.textblock2) ? (
-              <div
-                className="text-font-primary text-body"
-                dangerouslySetInnerHTML={{ __html: article.textblock2 }}
-              />
-            ) : (
-              <p className="text-font-primary text-body">{article.textblock2}</p>
-            )}
+            <div
+              className="text-font-primary text-body"
+              dangerouslySetInnerHTML={{ __html: article.textblock2 }}
+            />
           </div>
         )}
 

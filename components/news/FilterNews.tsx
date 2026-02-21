@@ -33,9 +33,6 @@ const FilterNews = ({
     const fetchProjects = async () => {
       try {
         setLoading(true);
-
-        const apiLang = locale === 'ua' ? 'uk' : locale;
-
         const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
         const params = {
           page: '0',
@@ -49,9 +46,6 @@ const FilterNews = ({
 
         const response = await fetch(url.toString(), {
           method: HttpMethod.GET,
-          headers: {
-            'Accept-Language': apiLang,
-          },
         });
 
         if (!response.ok) {
