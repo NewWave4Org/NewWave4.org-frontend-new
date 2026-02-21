@@ -74,13 +74,6 @@ export default function Article() {
             title: mapped.title || '',
             files: [src],
             link: '',
-            // id: index,
-            // src,
-            // srchover: src,
-            // alt: `Slide ${index + 1}`,
-            // title: mapped.title || '',
-            // text: '',
-            // link: '',
           }));
           setSlides(slidesData);
         }
@@ -93,7 +86,7 @@ export default function Article() {
     };
 
     loadArticle();
-  }, [articleId, locale]);
+  }, [articleId]);
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
