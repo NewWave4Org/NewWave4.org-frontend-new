@@ -7,11 +7,6 @@ const Quote = ({ quote, className }: { quote: any; className?: string }) => {
   const bgBottomUrl = `${prefix}/icons/NewsQuoteBottom.svg`;
 
   const isEditorObject = typeof quote === 'object' && quote !== null && 'translatable_text_editorState' in quote;
-
-  const isHtmlString = typeof quote === 'string' && /<[^>]+>/.test(quote);
-
-  // const quoteTextNew = convertDraftToHTML(quote?.editorState);
-
   const quoteTextNew = isEditorObject ? convertDraftToHTML(quote.translatable_text_editorState) : quote;
 
   return (
@@ -21,8 +16,6 @@ const Quote = ({ quote, className }: { quote: any; className?: string }) => {
         <div className="quoteBlock__content text-center text-font-primary text-base py-[48px] px-[15px] lg:max-w-[642px] md:max-w-full mx-auto">
           {isEditorObject ? (
             <div dangerouslySetInnerHTML={{ __html: quoteTextNew }} />
-          ) : isHtmlString ? (
-            <div dangerouslySetInnerHTML={{ __html: quote }} />
           ) : (
             quoteTextNew
           )}
