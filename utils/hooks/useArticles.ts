@@ -72,7 +72,7 @@ export const useArticles = ({
         };
 
         fetchArticles();
-    }, [articleType, page, pageSize, projectId, limit, locale]);
+    }, [articleType, page, pageSize, projectId, limit]);
 
     return {
         articles,

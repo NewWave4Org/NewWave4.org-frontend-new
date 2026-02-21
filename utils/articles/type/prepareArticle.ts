@@ -1,3 +1,4 @@
+import { EN_LOCALE } from "@/i18n";
 import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
 
 export interface ContentBlock<T = unknown> {
@@ -32,7 +33,7 @@ export interface PreparedArticle {
     publishedAt: string;
 }
 export const prepareArticle = (article: Article, locale: string = 'ua'): PreparedArticle => {
-    const isEng = locale === 'en';
+    const isEng = EN_LOCALE;
     const blocks = isEng && article.contentBlocksEng ? article.contentBlocksEng : article.contentBlocks;
     const title = isEng && article.titleEng ? article.titleEng : article.title;
 
