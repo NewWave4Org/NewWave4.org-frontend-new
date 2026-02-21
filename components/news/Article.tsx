@@ -19,18 +19,13 @@ import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 const fetchArticle = async (
   id: number,
   type: ArticleTypeEnum.NEWS | ArticleTypeEnum.PROJECT | ArticleTypeEnum.EVENT,
-  locale: string,
 ) => {
   const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(
     id,
   )}`;
   const url = new URL(baseUrl);
   url.search = new URLSearchParams({ articleType: type }).toString();
-  const res = await fetch(url.toString(), {
-    headers: {
-      'Accept-Language': locale,
-    },
-  });
+  const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`Failed to fetch ${type.toLowerCase()}`);
   return res.json();
 };
@@ -52,15 +47,14 @@ export default function Article() {
     const loadArticle = async () => {
       try {
         setLoading(true);
-        const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS, locale);
-        const mapped = mapGetArticleByIdResponseToFull(articleData, locale);
+        const articleData = await fetchArticle(articleId, ArticleTypeEnum.NEWS);
+        const mapped = mapGetArticleByIdResponseToFull(articleData);
         setArticle(mapped);
 
         if (mapped?.relevantProjectId) {
           const projectData = await fetchArticle(
             mapped.relevantProjectId,
             ArticleTypeEnum.PROJECT,
-            locale
           );
           setProjectTitle(projectData?.title || '');
         }
