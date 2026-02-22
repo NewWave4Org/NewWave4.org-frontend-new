@@ -77,8 +77,6 @@ function AboutPageClientSide() {
     getBlockByKey();
   }, [dispatch]);
 
-  console.log('aboutPage', aboutPage)
-
   return (
     <div>
       <Hero title={t('menu.about_us')} pageBanner="/about/about-us_banner.png" />
