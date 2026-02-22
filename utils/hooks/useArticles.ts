@@ -2,82 +2,72 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import HttpMethod from '@/utils/http/enums/http-method';
-import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
 import { ArticleStatusEnum } from '@/utils/ArticleType';
-import { prepareArticle, PreparedArticle } from '@/utils/articles/type/prepareArticle';
+import {
+  prepareArticle,
+  PreparedArticle,
+} from '@/utils/articles/type/prepareArticle';
+import { useAppDispatch } from '@/store/hook';
+import { getAllArticle } from '@/store/article-content/action';
 
 interface UseArticlesParams {
-    articleType: string;
-    page?: number;
-    pageSize?: number;
-    projectId?: number;
-    limit?: number;
+  articleType: string;
+  page?: number;
+  pageSize?: number;
+  projectId?: number;
+  limit?: number;
 }
 
 export const useArticles = ({
-    articleType,
-    page = 1,
-    pageSize = 9,
-    projectId,
-    limit,
+  articleType,
+  page = 1,
+  pageSize = 9,
+  projectId,
+  limit,
 }: UseArticlesParams) => {
-    const locale = useLocale();
-    const [articles, setArticles] = useState<PreparedArticle[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [totalElements, setTotalElements] = useState(0);
+	const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            try {
-                setLoading(true);
-                const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
+  const locale = useLocale();
+  const [articles, setArticles] = useState<PreparedArticle[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalElements, setTotalElements] = useState(0);
+	const [totalPages, setTotalPages] = useState(0);
 
-                const params: Record<string, string> = {
-                    articleType,
-                    articleStatus: ArticleStatusEnum.PUBLISHED,
-                    sortByCreatedAtDescending: 'true',
-                    sortByDateOfWriting: 'true'
-                };
+  useEffect(() => {
+    const fetchArticles = async () => {
+			console.log('asdkjk');
+      try {
+        setLoading(true);
 
-                if (!limit) {
-                    params.page = String(page - 1);
-                    params.size = String(pageSize);
-                } else {
-                    params.size = String(limit);
-                }
+				const result = await dispatch(getAllArticle({
+					articleType,
+          articleStatus: ArticleStatusEnum.PUBLISHED,
+          sortByCreatedAtDescending: true,
+          sortByDateOfWriting: true,
+					relevantProjectId: projectId
+				})).unwrap();
 
-                if (projectId) {
-                    params.relevantProjectId = String(projectId);
-                }
-
-                const url = new URL(baseUrl);
-                url.search = new URLSearchParams(params).toString();
-
-                const res = await fetch(url.toString(), {
-                    method: HttpMethod.GET,
-                });
-                const data = await res.json();
-
-                const mapped = data.content.map((article: any) => prepareArticle(article, locale));
-                setArticles(mapped);
-                setTotalElements(data.totalElements || mapped.length);
-
-            } catch (error) {
-                setArticles([]);
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchArticles();
-    }, [articleType, page, pageSize, projectId, limit]);
-
-    return {
-        articles,
-        loading,
-        totalElements,
-        totalPages: Math.ceil(totalElements / pageSize),
+        const mapped = result?.content?.map((article: any) =>
+          prepareArticle(article, locale),
+        );
+        setArticles(mapped ?? []);
+        setTotalElements(result?.totalElements);
+				setTotalPages(result?.totalPages);
+      } catch (error) {
+        setArticles([]);
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
+
+    fetchArticles();
+  }, [articleType, page, pageSize, projectId, limit]);
+
+  return {
+    articles,
+    loading,
+    totalElements,
+    totalPages,
+  };
 };

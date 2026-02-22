@@ -5,8 +5,10 @@ import FilterItem from './FilterItem';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import HttpMethod from '@/utils/http/enums/http-method';
-import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { getAllArticle } from '@/store/article-content/action';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { EN_LOCALE } from '@/i18n';
 
 interface Item {
   id: number;
@@ -25,58 +27,39 @@ const FilterNews = ({
   articleType,
 }: FilterNewsProps) => {
   const t = useTranslations();
+
   const locale = useLocale();
-  const [projects, setProjects] = useState<Item[]>([]);
+
   const [loading, setLoading] = useState<boolean>(false);
 
+  const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
+  const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
+    const load = async () => {
+      if (projectsStatus === 'loading') {
         setLoading(true);
-        const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
-        const params = {
-          page: '0',
-          size: '10',
-          articleType: ArticleTypeEnum.PROJECT,
-          articleStatus: ArticleStatusEnum.PUBLISHED,
-        };
-
-        const url = new URL(baseUrl);
-        url.search = new URLSearchParams(params).toString();
-
-        const response = await fetch(url.toString(), {
-          method: HttpMethod.GET,
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const data = await response.json();
-        const mappedProjects: Item[] = data.content.map((proj: any) => ({
-          id: proj.id,
-          title: locale === 'en' && proj.titleEng ? proj.titleEng : proj.title,
-        }));
-
-        setProjects(mappedProjects);
-      } catch (err) {
-        console.error('Error fetching projects:', err);
-      } finally {
+      } else {
         setLoading(false);
       }
     };
 
-    fetchProjects();
-  }, [articleType]);
+    load();
+  }, [projectsStatus]);
+
 
   function handleFilterActive(e: React.MouseEvent<HTMLLIElement>) {
     const id = Number(e.currentTarget.dataset.id);
     setActiveFilter(id);
   }
 
-  const allTitle =
-    articleType === ArticleTypeEnum.NEWS ? t('links.all_news') : t('links.all_events');
-  const filterItems: Item[] = [{ id: 0, title: allTitle }, ...projects];
+  const projectItem = projects?.map(proj => ({
+    id: proj.id,
+    title: locale === EN_LOCALE && proj.titleEng ? proj.titleEng : proj.title,
+  }));
+
+  const allTitle = articleType === ArticleTypeEnum.NEWS ? t('links.all_news') : t('links.all_events');
+  const filterItems: Item[] = [{ id: 0, title: allTitle }, ...projectItem];
 
   return (
     <div className="filterNews mb-[14px]">
@@ -84,7 +67,7 @@ const FilterNews = ({
         <div className="container px-4 mx-auto">
           <ul className="filterNews__items flex lg:px-[32px] px-0 justify-start bg-background-primary flex-wrap">
             {loading ? (
-              <li className="px-4 py-2 text-gray-500">Loading...</li>
+              <li className="px-4 py-2 text-gray-500 before:content-none">Loading...</li>
             ) : (
               filterItems.map(item => (
                 <FilterItem
