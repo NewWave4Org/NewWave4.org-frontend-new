@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale } from 'next-intl';
 import HttpMethod from '@/utils/http/enums/http-method';
 import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
 import { ArticleStatusEnum } from '@/utils/ArticleType';
@@ -21,6 +22,7 @@ export const useArticles = ({
     projectId,
     limit,
 }: UseArticlesParams) => {
+    const locale = useLocale();
     const [articles, setArticles] = useState<PreparedArticle[]>([]);
     const [loading, setLoading] = useState(false);
     const [totalElements, setTotalElements] = useState(0);
@@ -29,7 +31,6 @@ export const useArticles = ({
         const fetchArticles = async () => {
             try {
                 setLoading(true);
-
                 const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
 
                 const params: Record<string, string> = {
@@ -53,10 +54,12 @@ export const useArticles = ({
                 const url = new URL(baseUrl);
                 url.search = new URLSearchParams(params).toString();
 
-                const res = await fetch(url.toString(), { method: HttpMethod.GET });
+                const res = await fetch(url.toString(), {
+                    method: HttpMethod.GET,
+                });
                 const data = await res.json();
 
-                const mapped = data.content.map(prepareArticle);
+                const mapped = data.content.map((article: any) => prepareArticle(article, locale));
                 setArticles(mapped);
                 setTotalElements(data.totalElements || mapped.length);
 

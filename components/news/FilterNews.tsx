@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import FilterItem from './FilterItem';
+import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import HttpMethod from '@/utils/http/enums/http-method';
 import { ApiEndpoint } from '@/utils/http/enums/api-endpoint';
@@ -22,6 +24,8 @@ const FilterNews = ({
   setActiveFilter,
   articleType,
 }: FilterNewsProps) => {
+  const t = useTranslations();
+  const locale = useLocale();
   const [projects, setProjects] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -29,7 +33,6 @@ const FilterNews = ({
     const fetchProjects = async () => {
       try {
         setLoading(true);
-
         const baseUrl = `https://api.stage.newwave4.org/api/v1/${ApiEndpoint.GET_ARTICLE_CONTENT_ALL}`;
         const params = {
           page: '0',
@@ -41,7 +44,7 @@ const FilterNews = ({
         const url = new URL(baseUrl);
         url.search = new URLSearchParams(params).toString();
 
-        const response = await fetch(url, {
+        const response = await fetch(url.toString(), {
           method: HttpMethod.GET,
         });
 
@@ -52,7 +55,7 @@ const FilterNews = ({
         const data = await response.json();
         const mappedProjects: Item[] = data.content.map((proj: any) => ({
           id: proj.id,
-          title: proj.title,
+          title: locale === 'en' && proj.titleEng ? proj.titleEng : proj.title,
         }));
 
         setProjects(mappedProjects);
@@ -72,7 +75,7 @@ const FilterNews = ({
   }
 
   const allTitle =
-    articleType === ArticleTypeEnum.NEWS ? 'Всі новини' : 'Всі події';
+    articleType === ArticleTypeEnum.NEWS ? t('links.all_news') : t('links.all_events');
   const filterItems: Item[] = [{ id: 0, title: allTitle }, ...projects];
 
   return (

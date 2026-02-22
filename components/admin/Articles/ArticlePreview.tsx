@@ -149,7 +149,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         </div>
 
         <div className="mb-[40px]">
-          <p className="text-font-primary text-body">{article.mainText}</p>
+          <div
+            className="text-font-primary text-body"
+            dangerouslySetInnerHTML={{ __html: article.mainText }}
+          />
         </div>
 
         {article.photoList.length > 0 && (
@@ -182,7 +185,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
         {article.quote && <Quote quote={article.quote} />}
 
         <div className="mb-[56px]">
-          <p className="text-font-primary text-body">{article.textblock2}</p>
+          <div
+            className="text-font-primary text-body"
+            dangerouslySetInnerHTML={{ __html: article.textblock2 }}
+          />
         </div>
       </div>
 

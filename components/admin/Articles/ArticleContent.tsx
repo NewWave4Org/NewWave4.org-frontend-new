@@ -1,7 +1,9 @@
 'use client';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
-import TextArea from '@/components/shared/TextArea';
+import TextEditor from '@/components/TextEditor/TextEditor';
+import { ContentState, convertToRaw, EditorState } from 'draft-js';
+import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 import {
   getAllArticle,
   getArticleById,
@@ -78,6 +80,22 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
   const router = useRouter();
 
+  const [editorStates, setEditorStates] = useState<{
+    textblock1: EditorState;
+    textblock2: EditorState;
+    quote: EditorState;
+  }>({
+    textblock1: EditorState.createEmpty(),
+    textblock2: EditorState.createEmpty(),
+    quote: EditorState.createEmpty(),
+  });
+
+  const [editorKey, setEditorKey] = useState<{ textblock1: string; textblock2: string; quote: string }>({
+    textblock1: 'textblock1-init',
+    textblock2: 'textblock2-init',
+    quote: 'quote-init',
+  });
+
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
@@ -143,6 +161,52 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
 
     fetchArticle();
   }, [articleId, articleType, dispatch]);
+
+  useEffect(() => {
+    const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '');
+
+    const textblock1 =
+      article?.contentBlocks?.find(
+        b => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+      )?.translatable_text_data || '';
+
+    const textblock2 =
+      article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.TEXT)
+        ?.translatable_text_data || '';
+
+    const quote =
+      article?.contentBlocks?.find(b => b.contentBlockType === ContentBlockType.QUOTE)
+        ?.translatable_text_data || '';
+
+    const nextTextblock1 = ContentState.createFromText(stripHtml(String(textblock1 || '')));
+    const nextTextblock2 = ContentState.createFromText(stripHtml(String(textblock2 || '')));
+    const nextQuote = ContentState.createFromText(stripHtml(String(quote || '')));
+
+    setEditorStates({
+      textblock1: EditorState.createWithContent(nextTextblock1),
+      textblock2: EditorState.createWithContent(nextTextblock2),
+      quote: EditorState.createWithContent(nextQuote),
+    });
+
+    setEditorKey({
+      textblock1: `textblock1-${Date.now()}`,
+      textblock2: `textblock2-${Date.now()}`,
+      quote: `quote-${Date.now()}`,
+    });
+  }, [article?.contentBlocks]);
+
+  const handleArticleEditorChange = (
+    field: 'textblock1' | 'textblock2' | 'quote',
+    newState: EditorState,
+    setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
+  ) => {
+    setEditorStates(prev => ({ ...prev, [field]: newState }));
+
+    const raw = convertToRaw(newState.getCurrentContent());
+    const html = convertDraftToHTML(raw);
+
+    setFieldValue(field, html);
+  };
 
   async function handleSaveArticleContent(
     values: ArticleContentDTO,
@@ -432,42 +496,54 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                 </div>
 
                 <div className="w-full mb-2">
-                  <TextArea
-                    id="textblock1"
-                    label="Text block 1"
-                    required
-                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                    labelClass=" !text-admin-700"
-                    value={values.textblock1}
-                    onChange={handleChange}
-                    validationText={
-                      touched.textblock1 && errors.textblock1
-                        ? (errors.textblock1 as string)
-                        : ''
-                    }
-                  />
+                  <div>
+                    <label className="block mb-2 text-admin-700 font-medium">
+                      Text block 1
+                      <sup className="font-bold text-red-600 text-small2">*</sup>
+                    </label>
+                    <TextEditor
+                      key={editorKey.textblock1}
+                      value={editorStates.textblock1}
+                      onChange={newState =>
+                        handleArticleEditorChange('textblock1', newState, setFieldValue)
+                      }
+                    />
+                    {touched.textblock1 && errors.textblock1 ? (
+                      <div className="text-red-700 text-small2 mt-1">
+                        {errors.textblock1 as string}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="w-full mb-2">
-                  <TextArea
-                    id="quote"
-                    label="Quote"
-                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                    labelClass=" !text-admin-700"
-                    value={values.quote}
-                    onChange={handleChange}
-                  />
+                  <div>
+                    <label className="block mb-2 text-admin-700 font-medium">
+                      Quote
+                    </label>
+                    <TextEditor
+                      key={editorKey.quote}
+                      value={editorStates.quote}
+                      onChange={newState =>
+                        handleArticleEditorChange('quote', newState, setFieldValue)
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="w-full mb-2">
-                  <TextArea
-                    id="textblock2"
-                    label="Text block 2"
-                    className="!bg-background-light w-full h-[100px] px-5 rounded-lg !ring-0 !max-w-full"
-                    labelClass=" !text-admin-700"
-                    value={values.textblock2}
-                    onChange={handleChange}
-                  />
+                  <div>
+                    <label className="block mb-2 text-admin-700 font-medium">
+                      Text block 2
+                    </label>
+                    <TextEditor
+                      key={editorKey.textblock2}
+                      value={editorStates.textblock2}
+                      onChange={newState =>
+                        handleArticleEditorChange('textblock2', newState, setFieldValue)
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="mb-5">

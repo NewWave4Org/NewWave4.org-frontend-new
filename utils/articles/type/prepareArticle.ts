@@ -1,3 +1,4 @@
+import { EN_LOCALE } from "@/i18n";
 import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
 
 export interface ContentBlock<T = unknown> {
@@ -18,7 +19,9 @@ export function getBlockValue<T>(
 export interface Article {
     id: number;
     title: string;
+    titleEng?: string;
     contentBlocks: ContentBlock[];
+    contentBlocksEng?: ContentBlock[];
     publishedAt: string;
 }
 
@@ -29,14 +32,18 @@ export interface PreparedArticle {
     imageSrc: string;
     publishedAt: string;
 }
-export const prepareArticle = (article: Article): PreparedArticle => {
+export const prepareArticle = (article: Article, locale: string = 'ua'): PreparedArticle => {
+    const isEng = EN_LOCALE;
+    const blocks = isEng && article.contentBlocksEng ? article.contentBlocksEng : article.contentBlocks;
+    const title = isEng && article.titleEng ? article.titleEng : article.title;
+
     const text =
-        getBlockValue<string>(article.contentBlocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
-        getBlockValue<string>(article.contentBlocks, ContentBlockType.TEXT) ??
+        getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
+        getBlockValue<string>(blocks, ContentBlockType.TEXT) ??
         "";
 
     const photoData = getBlockValue<string | string[]>(
-        article.contentBlocks,
+        blocks,
         ContentBlockType.PHOTO
     );
 
@@ -46,7 +53,7 @@ export const prepareArticle = (article: Article): PreparedArticle => {
 
     return {
         id: article.id,
-        title: article.title,
+        title,
         text,
         imageSrc,
         publishedAt: article.publishedAt,
