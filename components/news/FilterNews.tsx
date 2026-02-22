@@ -67,7 +67,7 @@ const FilterNews = ({
     };
 
     fetchProjects();
-  }, [articleType, locale]);
+  }, [articleType]);
 
   function handleFilterActive(e: React.MouseEvent<HTMLLIElement>) {
     const id = Number(e.currentTarget.dataset.id);
