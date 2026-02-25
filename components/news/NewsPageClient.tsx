@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Hero from '../ui/Hero';
 import FilterNews from './FilterNews';
 import NewsContent from './NewsContent';
@@ -15,9 +16,12 @@ const NewsPageClient: React.FC<NewsPageClientProps> = ({ articleType }: NewsPage
   const searchParams = useSearchParams();
   const projectIdParam = searchParams.get('projectId');
 
+  const t = useTranslations();
+
   const [activeFilter, setActiveFilter] = useState<number>(projectIdParam ? +projectIdParam : 0);
 
-  const pageBannerTitle = articleType === ArticleTypeEnum.NEWS ? 'Новини' : 'Події';
+  const pageBannerTitle =
+    articleType === ArticleTypeEnum.NEWS ? t('menu.news') : t('menu.events');
 
   return (
     <div>

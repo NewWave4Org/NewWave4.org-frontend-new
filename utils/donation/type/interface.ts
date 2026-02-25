@@ -17,8 +17,8 @@ export type DonationStatusType = typeof DonationStatus[keyof typeof DonationStat
 export interface IDonationRequestDTO {
   page: number;
   size?: number,
-  transactionId?: string;
-  userEmail?: string;
+  transactionId?: string | null;
+  userEmail?: string | null;
   provider?:  DonationProviderType;
   status?: DonationStatusType;
   dateFrom?: string;

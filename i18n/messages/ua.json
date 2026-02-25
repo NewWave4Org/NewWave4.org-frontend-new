@@ -84,5 +84,10 @@
     "title": "Програма",
     "schedule_title": "Програма заходів",
     "other_programs": "Інші програми"
+  },
+  "news_events": {
+    "author": "Автор",
+    "date": "Дата",
+    "share": "Поділись з друзями"
   }
 }

@@ -56,7 +56,6 @@
     "thank": "Thank you",
     "try_ageen": "Try again",
     "continue": "Continue"
-
   },
   "modals": {
     "modal_subscribe": {
@@ -85,6 +84,10 @@
     "title": "Program",
     "schedule_title": "Event Schedule",
     "other_programs": "Other programs"
+  },
+  "news_events": {
+    "author": "Author",
+    "date": "Date",
+    "share": "Share with friends"
   }
-
 }

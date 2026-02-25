@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
 import GeneralSlider, { Slide } from '@/components/generalSlider/GeneralSlider';
 import UserIcon from '@/components/icons/symbolic/UserIcon';
 import CalendarIcon from '@/components/icons/symbolic/CalendarIcon';
 import Quote from '@/components/quote/Quote';
-import { formatDateUk } from '@/utils/date';
+import { formatDate } from '@/utils/date';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { ArticleFull } from '@/utils/articles/type/interface';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
@@ -31,6 +32,8 @@ const fetchArticle = async (
 
 export default function Article() {
   const params = useParams();
+  const locale = useLocale();
+  const t = useTranslations('news_events');
   const articleId = Number(params.id);
 
   const [article, setArticle] = useState<ArticleFull | null>(null);
@@ -65,13 +68,6 @@ export default function Article() {
             title: mapped.title || '',
             files: [src],
             link: '',
-            // id: index,
-            // src,
-            // srchover: src,
-            // alt: `Slide ${index + 1}`,
-            // title: mapped.title || '',
-            // text: '',
-            // link: '',
           }));
           setSlides(slidesData);
         }
@@ -89,7 +85,6 @@ export default function Article() {
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article) return <div>Article not found</div>;
-
   return (
     <div className="article_page pt-[145px]">
       <div className="container px-4 mx-auto">
@@ -127,7 +122,7 @@ export default function Article() {
                   <UserIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  Автор
+                  {t('author')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
@@ -139,17 +134,17 @@ export default function Article() {
                   <CalendarIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  Дата
+                  {t('date')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
-                {formatDateUk(article.dateOfWriting)}
+                {formatDate(article.dateOfWriting, locale)}
               </div>
             </div>
 
             <div className="mt-6">
               <div className="text-small text-grey-700 mb-2">
-                Поділись з друзями
+                {t('share')}
               </div>
               <SocialButtons />
             </div>
@@ -158,7 +153,10 @@ export default function Article() {
 
         {article.mainText && (
           <div className="mb-[40px]">
-            <p className="text-font-primary text-body">{article.mainText}</p>
+            <div
+              className="text-font-primary text-body"
+              dangerouslySetInnerHTML={{ __html: article.mainText }}
+            />
           </div>
         )}
 
@@ -195,7 +193,10 @@ export default function Article() {
 
         {article.textblock2 && (
           <div className="mb-[56px]">
-            <p className="text-font-primary text-body">{article.textblock2}</p>
+            <div
+              className="text-font-primary text-body"
+              dangerouslySetInnerHTML={{ __html: article.textblock2 }}
+            />
           </div>
         )}
 

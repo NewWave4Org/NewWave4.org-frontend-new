@@ -46,12 +46,17 @@ function DonationPayments() {
   const [chooseProviderType, setChooseProviderType] = useState<string | number>(providerTypes[0].value);
   const [dateFilter, setDateFilter] = useState<IPickerValue | null>({});
   const [emailSearch, setEmailSearch] = useState('');
-  const [transactionIdSearch, setЕransactionIdSearch] = useState('');
+  const [transactionIdSearch, setTransactionIdSearch] = useState('');
   const [resetDatePicker, setResetDatePicker] = useState(false);
 
-  async function fetchDonations(page = currentPage) {
+  async function fetchDonations(page = currentPage, overrideParams?: Partial<IDonationRequestDTO>) {
     try {
-      const params = buildParams(page);
+      let params = buildParams(page);
+
+      if (overrideParams) {
+        params = { ...params, ...overrideParams };
+      }
+
       const result = await dispatch(getAllDonations(params)).unwrap();
 
       setAllDonations(result?.content);
@@ -86,7 +91,7 @@ function DonationPayments() {
   }
 
   function handleTransactionIdSearch(e: React.ChangeEvent<HTMLInputElement>) {
-    setЕransactionIdSearch(e.target.value);
+    setTransactionIdSearch(e.target.value);
     setCurrentPage(0);
   }
 
@@ -95,7 +100,7 @@ function DonationPayments() {
     fetchDonations(0);
   }
 
-  const buildParams = useCallback((page: number): IDonationRequestDTO => {
+  function buildParams(page: number): IDonationRequestDTO {
     const params: IDonationRequestDTO = {
       page,
       size: 10,
@@ -123,13 +128,7 @@ function DonationPayments() {
     }
 
     return params;
-  }, [
-    dateFilter,
-    chooseStatusType,
-    chooseProviderType,
-    emailSearch,
-    transactionIdSearch
-  ]);
+  };
 
 
 
@@ -139,10 +138,17 @@ function DonationPayments() {
     setResetDatePicker(true);
     setDateFilter({ from: null, to: null });
     setEmailSearch('');
-    setЕransactionIdSearch('');
+    setTransactionIdSearch('');
     setCurrentPage(0);
 
-    fetchDonations(0);
+    fetchDonations(0, {
+      status: undefined,
+      provider: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+      userEmail: null,
+      transactionId: null
+    });
   }
 
   return (

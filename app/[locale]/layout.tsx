@@ -6,6 +6,7 @@ import { EB_Garamond } from "next/font/google";
 import type { Metadata } from 'next';
 import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from 'next-intl/server';
 import ReduxProvider from "@/store/ReduxProvider";
 import Header from "@/components/layout/Header";
 import Subscribe from "@/components/layout/Subscribe";
@@ -55,10 +56,12 @@ export default async function  LocaleLayout({children, params}: ILocaleLayout) {
 		notFound();
 	}
 
+	const messages = await getMessages();
+
 	return (
 		<html lang={locale}>
 			<body className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}>
-				<NextIntlClientProvider>
+				<NextIntlClientProvider locale={locale} messages={messages}>
           <ReduxProvider>
             <Header currentLocale={locale} />
             <main className="flex-1 overflow-hidden pt-[96px]">{children}</main>
