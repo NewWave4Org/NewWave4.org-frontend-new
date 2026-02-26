@@ -10,8 +10,11 @@ export function mapGetArticleByIdResponseToFull(
     locale: string = 'ua'
 ): ArticleFull {
     const isEng = EN_LOCALE;
-    const blocks = isEng && dto.contentBlocksEng ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
+    const blocks = isEng && dto.contentBlocksEng?.length ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
     const title = isEng && dto.titleEng ? dto.titleEng : dto.title;
+
+    const raw = getBlockValue(blocks, ContentBlockType.PHOTO);
+    console.log('PHOTO RAW:', raw);
 
     return {
         ...dto,
@@ -21,7 +24,8 @@ export function mapGetArticleByIdResponseToFull(
                 blocks,
                 ContentBlockType.PHOTO
             );
-            return Array.isArray(data) ? data[0] ?? "" : data ?? "";
+            
+            return Array.isArray(data) ? data[0] :  "";
         })(),
         photoList:
             getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_LIST) ?? [],
