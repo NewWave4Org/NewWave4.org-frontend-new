@@ -68,9 +68,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
-    {},
-  );
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);

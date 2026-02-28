@@ -16,9 +16,9 @@ export const deleteArticle = createAsyncThunk('article-content/deleteArticle', a
   }
 });
 
-export const getArticleById = createAsyncThunk('article-content/getArticleById', async ({ id }: { id: number }, { rejectWithValue }) => {
+export const getArticleById = createAsyncThunk('article-content/getArticleById', async (id: number, { rejectWithValue }) => {
   try {
-    const response = await articleContentService.getArticleById({ id });
+    const response = await articleContentService.getArticleById(id);
 
     return response;
   } catch (error) {

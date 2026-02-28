@@ -23,6 +23,8 @@ const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
     limit: 3,
   });
 
+  console.log('asd articles', articles);
+
   return (
     <section>
       <div className="container mx-auto px-4">

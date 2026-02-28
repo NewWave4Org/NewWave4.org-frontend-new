@@ -7,15 +7,13 @@ import { EN_LOCALE } from "@/i18n";
 
 export function mapGetArticleByIdResponseToFull(
     dto: GetArticleByIdResponseDTO,
-    locale: string = 'ua'
+    locale: string
 ): ArticleFull {
     const isEng = EN_LOCALE;
-    const blocks = isEng && dto.contentBlocksEng?.length ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
-    const title = isEng && dto.titleEng ? dto.titleEng : dto.title;
+    const blocks = isEng === locale && dto.contentBlocksEng ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
+    const title = isEng === locale && dto.titleEng ? dto.titleEng : dto.title;
 
-    const raw = getBlockValue(blocks, ContentBlockType.PHOTO);
-    console.log('PHOTO RAW:', raw);
-
+    console.log('locale', locale);
     return {
         ...dto,
         title,

@@ -17,8 +17,8 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
 
   const programData = {
     ...program,
-    titleToShow: locale === EN_LOCALE ? program?.titleEng : program?.title,
-    contentBlocksToShow: locale === EN_LOCALE ? program?.contentBlocksEng : program?.contentBlocks
+    titleToShow: locale === EN_LOCALE ? program?.titleEng ?? program?.title : program?.title,
+    contentBlocksToShow: locale === EN_LOCALE && program?.contentBlocksEng?.length ? program?.contentBlocksEng : program?.contentBlocks
   };
 
   const titleProgram = programData?.titleToShow;
@@ -47,6 +47,7 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
     return item.location !== '' || item.translatable_text_title !== '';
   });
 
+  console.log('programData', programData);
   return (
     <>
       <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />

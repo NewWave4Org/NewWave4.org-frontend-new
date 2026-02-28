@@ -22,7 +22,7 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async getArticleById({ id }: { id: number }): Promise<GetArticleByIdResponseDTO> {
+  async getArticleById(id: number): Promise<GetArticleByIdResponseDTO> {
     return request({
       method: HttpMethod.GET,
       url: ApiEndpoint.GET_ARTICLE_CONTENT_BY_ID(id),
