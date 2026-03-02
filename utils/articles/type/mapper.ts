@@ -3,17 +3,17 @@ import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
 import { GetArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
 import { getBlockValue } from "./prepareArticle";
 import { EN_LOCALE } from "@/i18n";
+import { convertDraftToHTML } from "@/components/TextEditor/utils/convertDraftToHTML";
 
 
 export function mapGetArticleByIdResponseToFull(
     dto: GetArticleByIdResponseDTO,
-    locale: string
+    locale: string = 'ua'
 ): ArticleFull {
     const isEng = EN_LOCALE;
     const blocks = isEng === locale && dto.contentBlocksEng ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
     const title = isEng === locale && dto.titleEng ? dto.titleEng : dto.title;
 
-    console.log('locale', locale);
     return {
         ...dto,
         title,
@@ -30,11 +30,11 @@ export function mapGetArticleByIdResponseToFull(
         photoSlider:
             getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_SLIDER) ?? [],
         quote:
-            getBlockValue<string>(blocks, ContentBlockType.QUOTE) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.QUOTE)) ?? "",
         mainText:
-            getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK)) ?? "",
         textblock2:
-            getBlockValue<string>(blocks, ContentBlockType.TEXT) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.TEXT)) ?? "",
         video:
             getBlockValue<string>(blocks, ContentBlockType.VIDEO) ?? "",
     };

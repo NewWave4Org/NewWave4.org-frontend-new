@@ -17,7 +17,7 @@ const Quote = ({ quote, className }: { quote: any; className?: string }) => {
           {isEditorObject ? (
             <div dangerouslySetInnerHTML={{ __html: quoteTextNew }} />
           ) : (
-            quoteTextNew
+            <div dangerouslySetInnerHTML={{ __html: quoteTextNew }} />
           )}
         </div>
         <div className="quoteBlock__innerBottom absolute bottom-[-52px] left-[40px] w-[104px] h-[104px]" style={{ backgroundImage: `url(${bgBottomUrl})` }}></div>

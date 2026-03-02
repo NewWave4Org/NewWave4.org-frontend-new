@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/config/navigation';
+import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 
 interface CardProps {
   imageSrc?: string;
@@ -9,6 +10,7 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
+  const cardText = convertDraftToHTML(text);
   
   return (
     <Link
@@ -25,7 +27,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
       </div>
       <div className="pt-2 pb-4 px-4 flex flex-col gap-y-2 flex-1">
         <h2 className="text-font-primary text-body font-medium">{title}</h2>
-        <div className="text-grey-700 text-info truncate" dangerouslySetInnerHTML={{ __html: text }} />
+        <div className="text-grey-700 text-info truncate" dangerouslySetInnerHTML={{ __html: cardText }} />
         {/* <p className="text-grey-700 text-info truncate">{text}</p> */}
       </div>
     </Link>

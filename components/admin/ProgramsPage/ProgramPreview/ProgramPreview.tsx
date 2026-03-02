@@ -47,7 +47,6 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
     return item.location !== '' || item.translatable_text_title !== '';
   });
 
-  console.log('programData', programData);
   return (
     <>
       <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />

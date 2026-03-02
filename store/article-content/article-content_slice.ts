@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getAllArticle } from './action';
-import { ArticleTypeEnum } from '@/utils/ArticleType';
+import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 
 interface IArticleByType {
   items: any[];
@@ -25,10 +25,17 @@ const articleContentSlice = createSlice({
   name: 'articleContentSlice',
   initialState,
   reducers: {
-    removeArticle(state, action: PayloadAction<{ id: number; articleType: ArticleTypeEnum }>) {
+    removeArticle(state, action: PayloadAction<{ id: number; articleType: ArticleType }>) {
       const { id, articleType } = action.payload;
 
       state.byType[articleType].items = state.byType[articleType].items.filter(article => article.id !== id);
+    },
+    removeArticleFromArchive(state, action: PayloadAction<{ id: number }>) {
+      const { id } = action.payload;
+
+      Object.values(state.byType).forEach(t => {
+        t.items = t.items.filter(article => article.id !== id);
+      });
     },
   },
   extraReducers(builder) {
@@ -62,6 +69,6 @@ const articleContentSlice = createSlice({
   },
 });
 
-export const { removeArticle } = articleContentSlice.actions;
+export const { removeArticle, removeArticleFromArchive } = articleContentSlice.actions;
 
 export default articleContentSlice.reducer;

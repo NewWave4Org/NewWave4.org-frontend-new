@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 
 const NewsPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className='container mx-auto px-4'>Loading...</div>}>
       <NewsPageClient articleType={ArticleTypeEnum.NEWS} />
     </Suspense>
   );

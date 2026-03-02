@@ -1,6 +1,6 @@
 import Button from "@/components/shared/Button";
 import { getAllArticle, publishArticle } from "@/store/article-content/action";
-import { removeArticle } from "@/store/article-content/article-content_slice";
+import { removeArticleFromArchive } from "@/store/article-content/article-content_slice";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { closeModal } from "@/store/modal/ModalSlice";
 import { IArticleBody } from "@/utils/article-content/type/interfaces";
@@ -15,20 +15,19 @@ function ArticleModalRestore({title}: {title?: string}) {
   const handleThunk = useHandleThunk();
 
   const currentProject = useAppSelector(state => state.modal.payload) as IArticleBody & {id: number};
-  const currentPage = useAppSelector(state => state.modal.currentPage)
-  const articleStatus = useAppSelector(state => state.modal.articleStatus)
-  const chooseSortType = useAppSelector(state => state.modal.chooseSortType)
-  const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage)
-  console.log('articlesOnPage', articlesOnPage)
+  const currentPage = useAppSelector(state => state.modal.currentPage);
+  const articleStatus = useAppSelector(state => state.modal.articleStatus);
+  const chooseSortType = useAppSelector(state => state.modal.chooseSortType);
+  const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage);
 
   async function handleRestoreArticle() {
     const result = await handleThunk(publishArticle, currentProject.id, setSubmitError);
     
     if(result) {
-      setSubmitError('')
-      toast.success(`Congratulations! Your ${currentProject.articleType.toLowerCase()} has been restored successfully.`)
+      setSubmitError('');
+      toast.success(`Congratulations! Your ${currentProject.articleType.toLowerCase()} has been restored successfully.`);
       dispatch(closeModal());
-      dispatch(removeArticle(currentProject.id))
+      dispatch(removeArticleFromArchive({ id: currentProject.id }));
 
       if(articlesOnPage === 1) {
         const params: any = {
@@ -45,6 +44,7 @@ function ArticleModalRestore({title}: {title?: string}) {
     }
   }
 
+
   return (
     <>
       <div className="modal__header font-medium text-[22px] text-admin-700 mb-[32px]">
@@ -53,7 +53,7 @@ function ArticleModalRestore({title}: {title?: string}) {
 
       <div className="text-admin-700 text-[15px] mb-[40px]">
         Are you sure you want to restore the {title?.toLowerCase()}
-        <span className="font-bold"> "{currentProject.title}"</span>?
+        <span className="font-bold"> `{currentProject.title}`</span>?
       </div>
 
       {submitError && (

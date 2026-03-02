@@ -100,7 +100,7 @@ function ProgramsPage() {
       openModal({
         modalType: ModalType.ARCHIVED_ARTICLE,
         payload: program,
-        title: 'project',
+        title: 'program',
         currentPage: currentPage,
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
         articlesOnPage: programs.length,

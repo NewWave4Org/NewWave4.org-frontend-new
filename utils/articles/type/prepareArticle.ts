@@ -4,6 +4,7 @@ import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
 export interface ContentBlock<T = unknown> {
     contentBlockType: ContentBlockType | string;
     translatable_text_data?: T;
+    translatable_text_editorState?: T;
     data?: T;
 }
 
@@ -12,7 +13,7 @@ export function getBlockValue<T>(
     type: ContentBlockType
 ): T | undefined {
     const block = blocks.find(b => b.contentBlockType === type);
-    return (block?.translatable_text_data ?? block?.data) as T | undefined;
+    return (block?.translatable_text_editorState ?? block?.data) as T | undefined;
 }
 
 

@@ -5,7 +5,7 @@ import Pagination from '@/components/shared/Pagination';
 import Select from '@/components/shared/Select';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
 import { getAllArticle } from '@/store/article-content/action';
-import { useAppDispatch } from '@/store/hook';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
 import { GetArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
@@ -30,8 +30,20 @@ function ArchivePage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [chooseSortType, setChooseSortType] = useState(sortTypes[0].value);
 
-  const [allArchiveArticles, setAllArchiveArticles] = useState<any>([]);
+  // const [allArchiveArticles, setAllArchiveArticles] = useState<any>([]);
   const [totalPages, setTotalPages] = useState(0);
+
+  const allArchiveArticles = useAppSelector(state => {
+  if (chooseSortType === 'all') {
+    const allItems = Object.values(state.articleContent.byType).flatMap(t => t.items);
+    const uniqueItemsMap: Record<number, typeof allItems[0]> = {};
+    allItems.forEach(item => {
+      uniqueItemsMap[item.id] = item;
+    });
+    return Object.values(uniqueItemsMap);
+  }
+  return state.articleContent.byType[chooseSortType as ArticleTypeEnum].items;
+});
 
   useEffect(() => {
     async function fetchArticles() {
@@ -47,7 +59,7 @@ function ArchivePage() {
       try {
         const result = await dispatch(getAllArticle(params)).unwrap();
         console.log('result', result);
-        setAllArchiveArticles(result?.content);
+        //setAllArchiveArticles(result?.content);
         setTotalPages(result.totalPages);
       } catch (err) {
         console.error('Error loading archived articles:', err);

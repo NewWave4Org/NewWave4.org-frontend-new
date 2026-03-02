@@ -88,6 +88,8 @@ export default function Article() {
     );
   }
 
+
+
   return (
     <div className="article_page pt-12">
       <div className="container px-4 mx-auto">

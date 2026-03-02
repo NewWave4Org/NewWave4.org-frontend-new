@@ -21,7 +21,7 @@ function EditProgramPage() {
         <ProgramContent programId={programId} />
       ) : (
         <>
-          <div className="text-h4 mb-5">Project wasn&apos;t created</div>
+          <div className="text-h4 mb-5">Project wasn't created</div>
           <Button onClick={() => router.back()} className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] font-normal text-xl p-4 hover:opacity-80 duration-300">
             <ArrowLeft4Icon />
             Back

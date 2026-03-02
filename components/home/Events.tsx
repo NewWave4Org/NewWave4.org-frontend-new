@@ -33,11 +33,16 @@ const Events = () => {
             </Button>
           </div>
 
-          <ArticlesGrid
-            articles={articles}
-            loading={loading}
-            basePath="/events"
-          />
+          {articles.length > 0
+            ? <ArticlesGrid
+                articles={articles}
+                loading={loading}
+                basePath="/events"
+              />
+            : <div className='text-center'>{t('projects_page.project_events_empty')}</div>
+          }
+
+          
         </div>
       </div>
     </section>

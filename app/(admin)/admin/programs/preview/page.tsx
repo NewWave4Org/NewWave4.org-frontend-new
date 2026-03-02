@@ -1,12 +1,12 @@
 'use client';
 
+import Loading from '@/components/admin/helperComponents/Loading/Loading';
 import ProgramPreview from '@/components/admin/ProgramsPage/ProgramPreview/ProgramPreview';
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import Button from '@/components/shared/Button';
 import { getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
 import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
-import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -16,6 +16,8 @@ function ProgramPreviewPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const [loadingProgram, setLoadingProgram] = useState(false);
+
   const idParam = searchParams.get('id');
   const programId = idParam ? Number(idParam) : NaN;
 
@@ -24,21 +26,28 @@ function ProgramPreviewPage() {
   useEffect(() => {
     async function fetchFullProjectById() {
       try {
-        const result = await dispatch(
-          getArticleById({
-            id: programId,
-            articleType: ArticleTypeEnum.PROGRAM,
-          }),
-        ).unwrap();
+        setLoadingProgram(true);
+
+        const result = await dispatch(getArticleById(programId)).unwrap();
 
         setProgram(result);
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch project');
+      } finally {
+        setLoadingProgram(false);
       }
     }
     fetchFullProjectById();
   }, [programId, dispatch]);
+
+  if (loadingProgram) {
+    return (
+      <div className="relative h-full">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <>
