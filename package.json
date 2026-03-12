@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@swc/helpers": "^0.5.19",
     "@types/draft-js": "^0.11.18",
     "@types/node": "^20",
     "@types/react": "^19",
