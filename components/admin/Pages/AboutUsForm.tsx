@@ -149,11 +149,8 @@ function AboutUsForm() {
 
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
-    console.log('Submited', values);
-    console.log('deletedFiles', deletedFiles);
-    
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
     try {
       for (const url of deletedFiles) {
@@ -164,7 +161,7 @@ function AboutUsForm() {
         try {
           const responce = await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
 
-          console.log('translation responce', responce)
+          console.log('translation responce', responce);
           toast.success(`The translation was successfully created`);
         } catch (error) {
           console.log('error translate', error);
@@ -477,7 +474,7 @@ function AboutUsForm() {
               </Button>
             </div>
           </Form>
-        )
+        );
       }}
     </Formik>
   );

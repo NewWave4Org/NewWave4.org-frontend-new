@@ -31,6 +31,7 @@ import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLo
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
+import Loading from '../../helperComponents/Loading/Loading';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -102,9 +103,8 @@ function ProgramContent({ programId }: { programId: number }) {
     contentType: ArticleTypeEnum.PROGRAM,
   });
 
-  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(
-    null,
-  );
+  const [program, setProgram] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [loadingProgram, setLoadingProgram] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
 
@@ -139,6 +139,10 @@ function ProgramContent({ programId }: { programId: number }) {
       ],
     }),
     [defaultAuthorId],
+  );
+
+  const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
   );
 
   // Handle editor changes
@@ -176,11 +180,9 @@ function ProgramContent({ programId }: { programId: number }) {
 
     async function fetchFullProgramById() {
       try {
-        const result = await dispatch(
-          getArticleById({
-            id: programId,
-          }),
-        ).unwrap();
+        setLoadingProgram(true);
+
+        const result = await dispatch(getArticleById(programId)).unwrap();
 
         const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
           ...block,
@@ -206,7 +208,7 @@ function ProgramContent({ programId }: { programId: number }) {
             let editor;
 
             try {
-              const rawContent = block.editorState;
+              const rawContent = block.translatable_text_editorState;
               if (rawContent) {
                 const content = convertFromRaw(rawContent);
                 editor = EditorState.createWithContent(content);
@@ -225,7 +227,7 @@ function ProgramContent({ programId }: { programId: number }) {
             // --- 1. init Text 1 ---
             let editor1 = EditorState.createEmpty();
             try {
-              const rawContent1 = block.editorState1;
+              const rawContent1 = block.translatable_text_editorState1;
               if (rawContent1) {
                 const content = convertFromRaw(rawContent1);
                 editor1 = EditorState.createWithContent(content);
@@ -239,7 +241,7 @@ function ProgramContent({ programId }: { programId: number }) {
             // --- 2. init Text 2 ---
             let editor2 = EditorState.createEmpty();
             try {
-              const rawContent2 = block.editorState2;
+              const rawContent2 = block.translatable_text_editorState2;
               if (rawContent2) {
                 const content = convertFromRaw(rawContent2);
                 editor2 = EditorState.createWithContent(content);
@@ -260,6 +262,8 @@ function ProgramContent({ programId }: { programId: number }) {
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch program');
+      } finally {
+        setLoadingProgram(false);
       }
     }
 
@@ -299,7 +303,7 @@ function ProgramContent({ programId }: { programId: number }) {
       }
     }
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
     if(translateStatusVal == 'yes') {
       try {
@@ -348,6 +352,9 @@ function ProgramContent({ programId }: { programId: number }) {
       );
     }
   }
+
+
+  if(loadingProgram) return <div className='relative h-full'><Loading /></div>;
 
 
   return (
@@ -435,7 +442,7 @@ function ProgramContent({ programId }: { programId: number }) {
                               <div className="mb-5">
                                 <div className="mb-2 !text-admin-700">Description program</div>
                                 <TextEditor
-                                  key={editorKey[`${block.id}_text`]}
+                                  key={editorKey[`${block.id}_translatable_text_text`]}
                                   value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty()}
                                   onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                                 />
@@ -536,8 +543,8 @@ function ProgramContent({ programId }: { programId: number }) {
                                       <div>
                                         <div className="mb-2 !text-admin-700">Text block</div>
                                         <TextEditor
-                                          key={editorKey[`${block.id}_text`]}
-                                          value={editorStates[`${block.id}_text`] || EditorState.createEmpty()}
+                                          key={editorKey[`${block.id}_translatable_text_text`]}
+                                          value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty()}
                                           onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                                         />
                                       </div>
@@ -842,9 +849,18 @@ function ProgramContent({ programId }: { programId: number }) {
                 <em>You must save the page before you can preview or publish it</em>
               </div>
 
+              {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
+
               <div className="flex gap-x-6 mt-2">
                 <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-                  Save
+                  {isSubmitting ? (
+                    <div className='flex items-center'>
+                      <Spinner />
+                      <span className='ml-2'>Saving...</span>
+                    </div>
+                  ) : (
+                    'Save'
+                  )}
                 </Button>
 
                 <LinkBtn href={`/admin/programs/preview?id=${programId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
@@ -858,7 +874,7 @@ function ProgramContent({ programId }: { programId: number }) {
                 )}
               </div>
             </Form>
-          )
+          );
         }}
       </Formik>
     </div>

@@ -4,7 +4,8 @@ import Button from '@/components/shared/Button';
 import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
-import { EN_LOCALE, useRouter } from '@/i18n';
+import { EN_LOCALE } from '@/i18n';
+import { useRouter } from 'next/navigation';
 
 interface IDateProgram {
   year: number;

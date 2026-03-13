@@ -43,11 +43,11 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                       <span className={`flex justify-center ${index % 2 === 0 ? 'mt-5 mb-3' : 'mb-5 mt-3'}`}>
                         <Image src="/icons/history-icon.svg" width={35} height={36} alt="icon" />
                       </span>
-                      <div className={`history-formation__timeline-date ${index % 2 === 0 ? 'mt-4' : 'mb-4'}`}>{event.year}</div>
+                      <div className={`history-formation__timeline-date ${index % 2 === 0 ? '' : 'mb-4'}`}>{event.year}</div>
 
                       <div className={`history-formation__timeline-info text-center`}>
-                        <h4 className="text-xl font-semibold text-font-primary mb-4 line-clamp-1">{event.translatable_text_title}</h4>
-                        <p className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv line-clamp-4" dangerouslySetInnerHTML={{ __html: ourTimeLineText }} />
+                        <h4 className="text-xl font-semibold text-font-primary mb-4">{event.translatable_text_title}</h4>
+                        <p className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv" dangerouslySetInnerHTML={{ __html: ourTimeLineText }} />
                       </div>
                     </div>
                   </div>

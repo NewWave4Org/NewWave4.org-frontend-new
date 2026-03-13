@@ -27,13 +27,15 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
+  const quoteText = article?.contentBlocks?.find(item => item.contentBlockType === 'QUOTE');
+
   useEffect(() => {
     if (!articleId) return;
 
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const data = await dispatch(getArticleById({ id: articleId })).unwrap();
+        const data = await dispatch(getArticleById(articleId)).unwrap();
         const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
         setArticle(articleFull);
         if (articleFull.video) {
@@ -64,9 +66,8 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     const fetchProject = async () => {
       try {
         const project = await dispatch(
-          getArticleById({
-            id: article.relevantProjectId!,
-          }),
+          getArticleById(article.relevantProjectId!,
+          ),
         ).unwrap();
         setProjectTitle(project.title);
       } catch (err) {
@@ -84,6 +85,10 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   if (!article) {
     return <div>Article not found</div>;
   }
+
+  console.log('article', article);
+  console.log('mainText', article.mainText);
+
 
   return (
     <div className="article_page">
@@ -182,7 +187,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
           </div>
         )}
 
-        {article.quote && <Quote quote={article.quote} />}
+        {quoteText && quoteText?.translatable_text_editorState.blocks[0].text !== '' && <Quote quote={quoteText} />}
 
         <div className="mb-[56px]">
           <div

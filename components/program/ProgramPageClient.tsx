@@ -35,9 +35,7 @@ function ProgramPageClient() {
       try {
         setLoading(true);
         const result = await dispatch(
-          getArticleById({
-            id: programId,
-          }),
+          getArticleById(programId),
         ).unwrap();
 
         setProgram(result);

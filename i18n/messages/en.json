@@ -78,7 +78,9 @@
     "empty_title": "Our Projects page is currently under development, but we will share the results with you very soon!",
     "empty_subtitle": "Thank you for your patience!",
     "all_project_new": "All project news",
-    "news_events_project": "Project News and Events"
+    "news_events_project": "Project News and Events",
+    "project_news_empty": "There are no updates for this project yet. Stay tuned for upcoming news",
+    "project_events_empty": "There are no updates for this project yet. Stay tuned for upcoming events"
   },
   "program_page": {
     "title": "Program",
@@ -89,5 +91,9 @@
     "author": "Author",
     "date": "Date",
     "share": "Share with friends"
+  },
+  "articles": {
+    "articles_empty": "Unfortunately, there are no articles available yet. Stay tuned for updates!"
   }
+  
 }

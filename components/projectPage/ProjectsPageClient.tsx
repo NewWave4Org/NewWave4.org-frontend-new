@@ -57,6 +57,8 @@ function ProjectsPageClient() {
     }));
   }, [projects, locale]);
 
+  console.log('projects', projects);
+
   return (
     <div className="ProjectsPage">
       <Hero title={t('projects_page.title')} pageBanner="/projects/img.png" />

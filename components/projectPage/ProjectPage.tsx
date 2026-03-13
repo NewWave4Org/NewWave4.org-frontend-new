@@ -5,12 +5,11 @@ import Quote from '../quote/Quote';
 import { typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import NewsEvents from '../home/NewsEvents';
-import { useTranslations } from 'next-intl';
+
 
 type IProjectProps = IArticleBody & { titleToShow?: string; contentBlockToShow?: any[] }
 
 function ProjectPage({ project, relevantProjectId }: { project: IProjectProps; relevantProjectId: number }) {
-  const t = useTranslations();
 
   const videoLink = project?.contentBlockToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
   const embedUrl = convertYoutubeUrlToEmbed(videoLink);
@@ -43,7 +42,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IProjectProps; r
       <ProjectHeader title={project?.titleToShow} />
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && quoteText?.translatable_text_editorState !== null && (
+      {quoteText && quoteText?.translatable_text_editorState.blocks[0].text !== '' && (
         <div className="container mx-auto px-4">
           <Quote quote={quoteText} className="text-font-primary" />
         </div>

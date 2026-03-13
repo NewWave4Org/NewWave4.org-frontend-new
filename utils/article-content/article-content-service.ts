@@ -22,8 +22,8 @@ class ArticleService implements IArticleService {
     return this.articleApi.deleteArticle({ id, articleType });
   }
 
-  async getArticleById({ id }: { id: number }): Promise<GetArticleByIdResponseDTO> {
-    return this.articleApi.getArticleById({ id });
+  async getArticleById(id: number): Promise<GetArticleByIdResponseDTO> {
+    return this.articleApi.getArticleById(id);
   }
 
   async getAllArticle({
