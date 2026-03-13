@@ -21,6 +21,7 @@ const ArticlesGrid: React.FC<ArticlesGridProps> = ({
   onPageChange,
   basePath,
 }) => {
+
   return (
     <>
       <div className="newsBlocks">

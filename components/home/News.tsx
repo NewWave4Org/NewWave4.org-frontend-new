@@ -6,6 +6,7 @@ import { useArticles } from '@/utils/hooks/useArticles';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import ArticlesGrid from '@/components/news/ArticlesGrid';
 import { useRouter } from '@/i18n';
+import { useTranslations } from 'next-intl';
 
 interface NewsProps {
   title?: boolean;
@@ -16,6 +17,7 @@ interface NewsProps {
 
 const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
   const router = useRouter();
+  const t = useTranslations();
 
   const { articles, loading } = useArticles({
     articleType: ArticleTypeEnum.NEWS,
@@ -46,11 +48,16 @@ const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
             </Button>
           </div>
 
-          <ArticlesGrid
-            articles={articles}
-            loading={loading}
-            basePath="/news"
-          />
+          {articles.length > 0
+            ? <ArticlesGrid
+                articles={articles}
+                loading={loading}
+                basePath="/news"
+              />
+            : <div className='text-center'>{t('projects_page.project_news_empty')}</div>
+          }
+
+          
         </div>
       </div>
     </section>

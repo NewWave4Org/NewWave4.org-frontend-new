@@ -33,6 +33,7 @@ import useImageLoading from '../../helperComponents/ImageLoading/hook/useImageLo
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
+import Loading from '../../helperComponents/Loading/Loading';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -49,9 +50,8 @@ const validationSchema = Yup.object({
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
-    null,
-  );
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [loadingProject, setLoadingProgect] = useState(false);
 
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -68,13 +68,15 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
-    {},
-  );
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
   const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
+
+  const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  );
 
   useEffect(() => {
     setDefaultAuthorId(project?.authorId ?? currentAuthor?.id);
@@ -102,11 +104,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
     async function fetchFullProjectById() {
       try {
-        const result = await dispatch(
-          getArticleById({
-            id: projectId,
-          }),
-        ).unwrap();
+        setLoadingProgect(true);
+
+        const result = await dispatch(getArticleById(projectId)).unwrap();
 
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
@@ -155,6 +155,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
       } catch (error) {
         console.log('error', error);
         toast.error('Failed to fetch project');
+      } finally {
+        setLoadingProgect(false);
       }
     }
     fetchFullProjectById();
@@ -249,6 +251,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
     setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
     setFieldValue(`contentBlocks.${index}.translatable_text_text`, content.getPlainText());
   };
+
+  if (loadingProject) {
+    return (
+      <div className="relative h-full">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -572,7 +582,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
               <div className="flex gap-x-6 mt-2">
                 <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-                  Save
+                  {isSubmitting ? (
+                    <div className='flex items-center'>
+                      <Spinner />
+                      <span className='ml-2'>Saving...</span>
+                    </div>
+                  ) : (
+                    'Save'
+                  )}
                 </Button>
 
                 <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">

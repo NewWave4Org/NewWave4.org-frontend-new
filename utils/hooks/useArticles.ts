@@ -35,7 +35,6 @@ export const useArticles = ({
 
   useEffect(() => {
     const fetchArticles = async () => {
-			console.log('asdkjk');
       try {
         setLoading(true);
 
