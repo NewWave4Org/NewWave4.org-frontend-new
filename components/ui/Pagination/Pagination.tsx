@@ -1,63 +1,39 @@
+'use client';
+
+import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
+import ArrowRight4Icon from '@/components/icons/navigation/ArrowRight4Icon';
+import ReactPaginate from 'react-paginate';
+
 interface PaginationProps {
-  currentPage: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
+  onPageChange:(page: number) => void;
+  currentPage: number
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
-  const getPages = () => {
-    const pages: (number | '...')[] = [];
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage > 3) pages.push(1, '...');
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (currentPage < totalPages - 2) pages.push('...', totalPages);
-      else if (!pages.includes(totalPages)) pages.push(totalPages);
-    }
-    return pages;
-  };
-
+function Pagination({totalPages, onPageChange, currentPage}: PaginationProps) {
   return (
-    <div className="paginationBlock mt-6">
-      <div className="container px-4 mx-auto">
-        <nav
-          aria-label="Pagination"
-          className="flex items-center justify-center gap-2"
-        >
-          {getPages().map((page, index) =>
-            page === '...' ? (
-              <span
-                key={`dots-${index}`}
-                className="flex items-center justify-center bg-none p-1 h-[32px] px-2 min-w-[32px] text-medium2 text-font-primary rounded-lg"
-              >
-                ...
-              </span>
-            ) : (
-              <button
-                key={page}
-                type="button"
-                onClick={() => onPageChange(page)}
-                className={`flex font-helv items-center justify-center p-1 h-[32px] px-2 min-w-[32px] text-medium2 rounded-lg duration-500 ${
-                  page === currentPage
-                    ? 'bg-primary-700 text-white'
-                    : 'bg-none text-font-primary hover:bg-primary-500 hover:text-white'
-                }`}
-              >
-                {page}
-              </button>
-            ),
-          )}
-        </nav>
-      </div>
+    <div className='container mx-auto px-4'>
+      <ReactPaginate
+        breakLabel="..."
+        nextLabel={<ArrowRight4Icon />}
+        previousLabel={<ArrowLeft4Icon />}
+        forcePage={currentPage}
+        onPageChange={(event) => onPageChange(event.selected)}
+        pageRangeDisplayed={2}
+        marginPagesDisplayed={2}
+        pageCount={totalPages}
+        renderOnZeroPageCount={null}
+        pageLinkClassName="flex items-center justify-center w-full h-full  font-normal"
+        pageClassName="before:content-none p-0 !m-0 hover:bg-admin-300 text-admin-700 flex items-center justify-center size-[32px] rounded-lg transition-all duration-300"
+        previousClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
+        nextClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
+        disabledClassName="!hover:bg-transparent pointer-events-none opacity-40"
+        breakClassName="before:content-none p-0 !m-0 list-none"
+        containerClassName="flex justify-center gap-2.5 w-full"
+        activeClassName="bg-admin-700 text-white"
+      />
     </div>
   );
-};
+}
 
 export default Pagination;

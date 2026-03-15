@@ -6,16 +6,14 @@ import { PreparedArticle } from '@/utils/articles/type/prepareArticle';
 
 interface ArticlesGridProps {
   articles: PreparedArticle[];
-  loading: boolean;
   totalPages?: number;
   currentPage?: number;
   onPageChange?: (p: number) => void;
-  basePath: string; // /news або /events
+  basePath: string; // /news or /events
 }
 
 const ArticlesGrid: React.FC<ArticlesGridProps> = ({
   articles,
-  loading,
   totalPages,
   currentPage,
   onPageChange,
@@ -27,11 +25,7 @@ const ArticlesGrid: React.FC<ArticlesGridProps> = ({
       <div className="newsBlocks">
         <div className="container px-4 mx-auto">
           <div className="flex flex-wrap mx-[-12px]">
-            {loading ? (
-              <div className="w-full text-center py-8 text-gray-500">
-                Loading...
-              </div>
-            ) : (
+            {
               articles.map(a => (
                 <div
                   key={a.id}
@@ -45,7 +39,7 @@ const ArticlesGrid: React.FC<ArticlesGridProps> = ({
                   />
                 </div>
               ))
-            )}
+            }
           </div>
         </div>
       </div>
