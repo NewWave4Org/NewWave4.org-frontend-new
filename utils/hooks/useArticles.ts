@@ -20,7 +20,7 @@ interface UseArticlesParams {
 
 export const useArticles = ({
   articleType,
-  page = 1,
+  page = 0,
   pageSize = 9,
   projectId,
   limit,
@@ -29,7 +29,7 @@ export const useArticles = ({
 
   const locale = useLocale();
   const [articles, setArticles] = useState<PreparedArticle[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
 	const [totalPages, setTotalPages] = useState(0);
 
@@ -40,6 +40,7 @@ export const useArticles = ({
 
 				const result = await dispatch(getAllArticle({
 					articleType,
+          page,
           articleStatus: ArticleStatusEnum.PUBLISHED,
           sortByCreatedAtDescending: true,
           sortByDateOfWriting: true,

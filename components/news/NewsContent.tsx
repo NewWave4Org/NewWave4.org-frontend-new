@@ -12,7 +12,7 @@ interface NewsContentProps {
 }
 
 const NewsContent = ({ activeFilter, articleType }: NewsContentProps) => {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const t = useTranslations('articles');
 
 
@@ -24,16 +24,25 @@ const NewsContent = ({ activeFilter, articleType }: NewsContentProps) => {
   });
 
   useEffect(() => {
-    setPage(1);
+    setPage(0);
   }, [activeFilter]);
 
+  if(loading || !articles) {
+    return (
+
+      <div className="w-full text-center py-8 text-gray-500">
+        Loading...
+      </div>
+    );
+  }
+
+  console.log('page', page);
 
   return (
     <>
       {articles.length > 0
         ? <ArticlesGrid
           articles={articles}
-          loading={loading}
           totalPages={totalPages}
           currentPage={page}
           onPageChange={setPage}

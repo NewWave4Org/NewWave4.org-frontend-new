@@ -1,9 +1,9 @@
 'use client';
 
 import ArchivedPageTable from '@/components/admin/ArchivedPage/ArchivedPageTable';
-import Pagination from '@/components/shared/Pagination';
 import Select from '@/components/shared/Select';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
+import Pagination from '@/components/ui/Pagination/Pagination';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
