@@ -109,7 +109,7 @@ function ArchivePage() {
     );
   };
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
+  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
 
   return (
     <>
