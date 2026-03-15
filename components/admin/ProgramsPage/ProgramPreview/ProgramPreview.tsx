@@ -51,7 +51,7 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
     <>
       <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />
       <div className="">
-        {(titleProgram || descriptionProgram) && (
+        {titleProgram && (
           <ProgramFirstBlocks
             title={titleProgram}
             description={descriptionProgram}
