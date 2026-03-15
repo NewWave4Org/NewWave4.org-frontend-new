@@ -1,8 +1,8 @@
 'use client';
 
 import ProgramsTable from '@/components/admin/ProgramsPage/ProgramsTable/ProgramsTable';
-import Pagination from '@/components/shared/Pagination';
 import ModalType from '@/components/ui/Modal/enums/modals-type';
+import Pagination from '@/components/ui/Pagination/Pagination';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
@@ -78,7 +78,7 @@ function ProgramsPage() {
     setCurrentPage(0);
   }
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
+  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
 
   //Delete
   const handleDeleteProject = (program: GetArticleByIdResponseDTO) => {
