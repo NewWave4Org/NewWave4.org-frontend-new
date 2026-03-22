@@ -25,7 +25,7 @@ const NewsPageClient: React.FC<NewsPageClientProps> = ({ articleType }: NewsPage
 
   return (
     <div>
-      <Hero title={pageBannerTitle} />
+      <Hero title={pageBannerTitle} pageBanner="/news/news-img.png" />
       <div className="pt-[46px] pb-[80px] relative">
         <FilterNews activeFilter={activeFilter} setActiveFilter={setActiveFilter} articleType={articleType} />
         <NewsContent activeFilter={activeFilter} articleType={articleType} />

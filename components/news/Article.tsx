@@ -77,8 +77,8 @@ export default function Article() {
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article) return <div className="container px-4 mx-auto">Article not found</div>;
-
-  if(locale === EN_LOCALE && article?.contentBlocksEng) {
+  console.log('locale === EN_LOCALE && article?.contentBlocksEng', locale === EN_LOCALE && article?.contentBlocksEng);
+  if(locale === EN_LOCALE && article?.contentBlocksEng.length == 0) {
     return (
       <div className='pt-16'>
         <div className='text-h4 text-center mb-4'>Oops! This page hasn’t been translated into English yet</div>
@@ -87,6 +87,7 @@ export default function Article() {
       </div>
     );
   }
+
 
 
 
