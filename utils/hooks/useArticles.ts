@@ -41,6 +41,7 @@ export const useArticles = ({
 				const result = await dispatch(getAllArticle({
 					articleType,
           page,
+          size: pageSize,
           articleStatus: ArticleStatusEnum.PUBLISHED,
           sortByCreatedAtDescending: true,
           sortByDateOfWriting: true,
