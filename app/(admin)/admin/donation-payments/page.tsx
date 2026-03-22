@@ -5,7 +5,6 @@ import DatePicker, { IPickerValue } from "@/components/admin/helperComponents/Da
 import { convertToISO } from "@/components/admin/helperComponents/DatePicker/utils/convertToISO";
 import Button from "@/components/shared/Button";
 import Input from "@/components/shared/Input";
-import Pagination from "@/components/shared/Pagination";
 import ModalType from "@/components/ui/Modal/enums/modals-type";
 import { getAllDonations } from "@/store/donations/action";
 import { useAppDispatch } from "@/store/hook";
@@ -13,6 +12,7 @@ import { openModal } from "@/store/modal/ModalSlice";
 import { DonationProvider, DonationProviderType, DonationStatus, DonationStatusType, IDonationRequestDTO } from "@/utils/donation/type/interface";
 import React, { useCallback, useEffect, useState } from "react";
 import SelectLocal from "../../../../components/shared/SelectLocale";
+import Pagination from "@/components/ui/Pagination/Pagination";
 
 interface RenderPaginationProps {
   currentPage: number;
@@ -77,7 +77,7 @@ function DonationPayments() {
   }, []);
 
   const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => 
-  <Pagination currentPage={currentPage} totalPages={totalPages} changePage={changePage} />, []);
+  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
 
   function handleShowDetails(donatInfo: any) {
     dispatch(openModal({

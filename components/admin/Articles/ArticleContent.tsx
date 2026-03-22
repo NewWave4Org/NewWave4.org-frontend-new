@@ -26,6 +26,8 @@ import { useUsers } from '@/utils/hooks/useUsers';
 import DatePicker from '../helperComponents/DatePicker/DatePicker';
 import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
 import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
+import useHandleThunk from '@/utils/useHandleThunk';
+import { createTranslation } from '@/store/translation/action';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -52,9 +54,11 @@ const getDefaultContentBlocks = () => [
 const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const handleThunk = useHandleThunk();
 
   const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(null);
   const [projects, setProjects] = useState<{ value: string | number; label: string }[]>([]);
+  const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
 
   const [editorStates, setEditorStates] = useState<{
@@ -211,34 +215,49 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
 
   async function handleSubmit(values: any) {
     console.log('values', values);
+
+    const textblock1Block = values.contentBlocks.find(
+      (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+    );
+    const isTextblock1Empty = !textblock1Block?.translatable_text_editorState
+      || (() => {
+        try {
+          return !convertFromRaw(textblock1Block.translatable_text_editorState).hasText();
+        } catch {
+          return true;
+        }
+      })();
+
+    if (isTextblock1Empty) {
+      toast.error('Text block 1 is required');
+      return;
+    }
+
+    // Checking mainPhoto
+    const mainPhotoBlock = values.contentBlocks.find(
+      (b: any) => b.contentBlockType === ContentBlockType.PHOTO,
+    );
+    if (!mainPhotoBlock?.data?.length) {
+      toast.error('Main photo is required');
+      return;
+    }
+
+    const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+    if(translateStatusVal == 'yes') {
+      try {
+        await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
+
+        toast.success(`The translation was successfully created`);
+
+      } catch (error) {
+        console.log('error translate', error);
+        toast.error(`Something go wrong with translation! ${error}`);
+      }
+    }
+
     try {
       if(articleId) {
-         const textblock1Block = values.contentBlocks.find(
-          (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-        );
-        const isTextblock1Empty = !textblock1Block?.translatable_text_editorState
-          || (() => {
-            try {
-              return !convertFromRaw(textblock1Block.translatable_text_editorState).hasText();
-            } catch {
-              return true;
-            }
-          })();
-
-        if (isTextblock1Empty) {
-          toast.error('Text block 1 is required');
-          return;
-        }
-
-        // Checking mainPhoto
-        const mainPhotoBlock = values.contentBlocks.find(
-          (b: any) => b.contentBlockType === ContentBlockType.PHOTO,
-        );
-        if (!mainPhotoBlock?.data?.length) {
-          toast.error('Main photo is required');
-          return;
-        }
-
         await dispatch(
           updateArticle({
             id: articleId,
@@ -548,6 +567,8 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                     </div>
                   )}
                 </div>
+
+                {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
 
                 <div className="mt-10">
                   <sup className="font-bold text-red-600 text-small2">*</sup>
