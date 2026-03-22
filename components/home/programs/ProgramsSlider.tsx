@@ -89,8 +89,8 @@ const ProgramsSlider = () => {
     }
 
     if (diff === 0) return 'z-10 opacity-100 translate-x-0 translate-y-[25px] transition-all duration-700';
-    if (diff === 1) return 'z-0 translate-x-[85%] filter blur-[2px] opacity-90 transition-all duration-700';
-    if (diff === slidesData.length - 1) return 'z-0 -translate-x-[85%] filter blur-[2px] opacity-90 transition-all duration-700';
+    if (diff === 1) return 'z-0 translate-x-[85%]  transition-all duration-700';
+    if (diff === slidesData.length - 1) return 'z-0 -translate-x-[85%] transition-all duration-700';
     return 'hidden';
   };
 
