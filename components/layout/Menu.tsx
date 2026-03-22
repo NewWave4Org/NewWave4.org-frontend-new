@@ -56,59 +56,57 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
           if (subMenu) {
             return (
-              <li key={label} className=" py-1 before:content-none pl-0 !mb-0 !static">
+              <li key={label} className=" py-1 before:content-none pl-0 !mb-0">
                 <button className={`menu-link flex items-center gap-1 !p-0 ${activeStyle}`} onClick={() => setOpenSubMenu(prev => (prev === label ? null : label))}>
                   {label}
                   <ArrowDown4Icon className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500 mt-1.5`} />
                 </button>
 
                 {openSubMenu === label && (
-                  <div className="submenu lg:absolute top-full left-0 bg-primary-100 w-full z-50">
-                    <div className="container mx-auto px-4">
-                      <ul className="flex lg:items-center lg:flex-row flex-col lg:overflow-auto mb-1 submenu-ul">
-                        {projectsStatus === 'loading' ? (
-                          <li className="px-4 py-2 font-medium text-font-accent text-base before:content-none !mb-0 !static">
-                            {t('loading')}
-                          </li>
-                        ) : projects.length > 0 ? (
-                          projects.map(project => {
-                            const currentHash = window.location.hash.replace('#project-', '');
-                            const isActive = currentHash === project.id.toString();
+                  <div className="submenu mt-3 lg:mt-0 lg:absolute top-full lg:left-1/2 lg:-translate-x-1/2 bg-primary-100 w-80 rounded-lg shadow-custom z-50">
+                    <ul className="py-1 submenu-ul">
+                      {projectsStatus === 'loading' ? (
+                        <li className="px-4 py-2 font-medium text-font-accent text-base before:content-none !mb-0">
+                          {t('loading')}
+                        </li>
+                      ) : projects.length > 0 ? (
+                        projects.map(project => {
+                          const currentHash = window.location.hash.replace('#project-', '');
+                          const isActive = currentHash === project.id.toString();
 
-                            return (
-                              <li key={project.id} className="before:content-none pl-0 !mb-0 !static">
-                                <Link
-                                  scroll={false}
-                                  href={{
-                                    pathname: '/projects',
-                                    hash: `project-${project.id}`,
-                                  }}
-                                  onClick={() => {
-                                    const hash = `project-${project.id}`;
+                          return (
+                            <li key={project.id} className="before:content-none pl-0 !mb-0">
+                              <Link
+                                scroll={false}
+                                href={{
+                                  pathname: '/projects',
+                                  hash: `project-${project.id}`,
+                                }}
+                                onClick={() => {
+                                  const hash = `project-${project.id}`;
 
-                                    history.pushState(null, '', `#${hash}`);
+                                  history.pushState(null, '', `#${hash}`);
 
-                                    setOpenSubMenu(null);
-                                    handleToggleMenu?.();
+                                  setOpenSubMenu(null);
+                                  handleToggleMenu?.();
 
-                                    setTimeout(() => {
-                                      scrollToAnchor(hash);
-                                    }, 50);
-                                  }}
-                                  className={`block pb-2.5 p-2 lg:mx-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''} whitespace-nowrap`}
-                                >
-                                  {locale === EN_LOCALE ? project.titleEng : project.title}
-                                </Link>
-                              </li>
-                            );
-                          })
-                        ) : (
-                          <li className="px-4 py-2 before:content-none text-center text-base font-medium text-font-accent !mb-0 !static">
-                            {t('menu.emprty_projects')}
-                          </li>
-                        )}
-                      </ul>
-                    </div>
+                                  setTimeout(() => {
+                                    scrollToAnchor(hash);
+                                  }, 50);
+                                }}
+                                className={`block pb-2.5 p-2 lg:px-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''} whitespace-nowrap`}
+                              >
+                                {locale === EN_LOCALE ? project.titleEng : project.title}
+                              </Link>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <li className="px-4 py-2 before:content-none text-center text-base font-medium text-font-accent !mb-0">
+                          {t('menu.emprty_projects')}
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 )}
               </li>
