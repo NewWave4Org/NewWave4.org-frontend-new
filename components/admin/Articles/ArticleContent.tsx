@@ -242,20 +242,6 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
-    const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-    if(translateStatusVal == 'yes') {
-      try {
-        await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
-
-        toast.success(`The translation was successfully created`);
-
-      } catch (error) {
-        console.log('error translate', error);
-        toast.error(`Something go wrong with translation! ${error}`);
-      }
-    }
-
     try {
       if(articleId) {
         await dispatch(
@@ -271,6 +257,20 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
             },
           }),
         ).unwrap();
+
+        const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+        if(translateStatusVal == 'yes') {
+          try {
+            await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
+
+            toast.success(`The translation was successfully created`);
+
+          } catch (error) {
+            console.log('error translate', error);
+            toast.error(`Something go wrong with translation! ${error}`);
+          }
+        }
       }
 
       toast.success(`${getTypeName(articleType)} content saved successfully!`);

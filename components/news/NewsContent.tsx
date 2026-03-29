@@ -36,8 +36,6 @@ const NewsContent = ({ activeFilter, articleType }: NewsContentProps) => {
     );
   }
 
-  console.log('page', page);
-
   return (
     <>
       {articles.length > 0

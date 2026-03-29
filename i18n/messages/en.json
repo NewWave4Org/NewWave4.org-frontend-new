@@ -80,7 +80,10 @@
     "all_project_new": "All project news",
     "news_events_project": "Project News and Events",
     "project_news_empty": "There are no updates for this project yet. Stay tuned for upcoming news",
-    "project_events_empty": "There are no updates for this project yet. Stay tuned for upcoming events"
+    "project_events_empty": "There are no updates for this project yet. Stay tuned for upcoming events",
+    "learn_more": "Learn more:",
+    "on_the_site": "Visit website",
+    "on_the_page": "View page"
   },
   "program_page": {
     "title": "Program",
@@ -91,6 +94,13 @@
     "author": "Author",
     "date": "Date",
     "share": "Share with friends"
+  },
+  "news_page": {
+    "empty_page": ".",
+    "other_news": "Other news"
+  },
+  "events_page": {
+    "other_events": "Other events"
   },
   "articles": {
     "articles_empty": "Unfortunately, there are no articles available yet. Stay tuned for updates!"

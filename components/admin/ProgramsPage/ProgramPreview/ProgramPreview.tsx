@@ -15,10 +15,12 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
   const t = useTranslations();
   const locale = useLocale();
 
-  const programData = {
+  if (!program) return null;
+
+  const programData: ChangedArticleByIdBody = {
     ...program,
-    titleToShow: locale === EN_LOCALE ? program?.titleEng ?? program?.title : program?.title,
-    contentBlocksToShow: locale === EN_LOCALE && program?.contentBlocksEng?.length ? program?.contentBlocksEng : program?.contentBlocks
+    titleToShow: locale === EN_LOCALE ? program?.titleEng ?? "" : program?.title,
+    contentBlocksToShow: locale === EN_LOCALE ? program?.contentBlocksEng ?? null : program?.contentBlocks ?? null
   };
 
   const titleProgram = programData?.titleToShow;
@@ -46,6 +48,16 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
   const filteredScheduleInfo = scheduleInfo?.filter(item => {
     return item.location !== '' || item.translatable_text_title !== '';
   });
+
+  if(locale === EN_LOCALE && (!programData?.contentBlocksEng || programData?.contentBlocksEng.length == 0)) {
+    return (
+      <div className='pt-16'>
+        <div className='text-h4 text-center mb-4'>Oops! This page hasn’t been translated into English yet</div>
+        <p className='text-center'>We’re working on it and hope to have it ready soon.</p>
+        <p className='text-center'>Thanks for your patience!</p>
+      </div>
+    );
+  }
 
   return (
     <>

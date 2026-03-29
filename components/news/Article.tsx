@@ -15,26 +15,51 @@ import { useParams } from 'next/navigation';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import { EN_LOCALE } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
-import { getArticleById } from '@/store/article-content/action';
+import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import EmblaCarousel, { SliderCarousel } from '../ui/EmblaCarousel';
+import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import { toast } from 'react-toastify';
+import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 
 
-export default function Article() {
+export default function Article({articleType} : {articleType?: ArticleTypeEnum}) {
   const dispatch = useAppDispatch();
 
   const params = useParams();
   const locale = useLocale();
-  const t = useTranslations('news_events');
+  const t = useTranslations();
   const articleId = Number(params.id);
 
   const [article, setArticle] = useState<(ArticleFull & { contentBlocksEng?: any }) | null>(null);
   const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<SliderCarousel>({ files: [] });
+  const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
+
   useEffect(() => {
+    async function fetchDopPrograms() {
+      try {
+        const result = await dispatch(
+          getAllArticle({
+            page: 0,
+            size: 3,
+            articleType: ArticleTypeEnum.articleType,
+            articleStatus: ArticleStatusEnum.PUBLISHED,
+            excludeArticleId: articleId,
+          }),
+        ).unwrap();
+
+        setDopPrograms(result?.content);
+      } catch (error) {
+        console.log('error', error);
+        toast.error('Failed to fetch project');
+      }
+    }
+
     const loadArticle = async () => {
       try {
         setLoading(true);
@@ -72,12 +97,13 @@ export default function Article() {
     };
 
     loadArticle();
+    fetchDopPrograms();
   }, [articleId]);
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article) return <div className="container px-4 mx-auto">Article not found</div>;
-  console.log('locale === EN_LOCALE && article?.contentBlocksEng', locale === EN_LOCALE && article?.contentBlocksEng);
+
   if(locale === EN_LOCALE && article?.contentBlocksEng.length == 0) {
     return (
       <div className='pt-16'>
@@ -87,8 +113,6 @@ export default function Article() {
       </div>
     );
   }
-
-
 
 
   return (
@@ -118,7 +142,7 @@ export default function Article() {
 
             <div>
               {projectTitle && (
-                <div className="filterNews__item bg-primary-100 text-medium1 text-primary-700 py-2 px-4 rounded-[50px] my-[10px] h-[40px] font-helv leading-[1.3] whitespace-nowrap">
+                <div className="filterNews__item bg-primary-100 text-medium1 text-primary-700 py-2 px-4 rounded-[50px] my-[10px] min-h-[40px] font-helv leading-[1.3]">
                   {projectTitle}
                 </div>
               )}
@@ -128,7 +152,7 @@ export default function Article() {
                   <UserIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  {t('author')}
+                  {t('news_events.author')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
@@ -140,7 +164,7 @@ export default function Article() {
                   <CalendarIcon size="16" color="#7A7A7A" />
                 </div>
                 <span className="text-grey-600 text-small2 inline-block leading-none">
-                  {t('date')}
+                  {t('news_events.date')}
                 </span>
               </div>
               <div className="text-font-primary text-small">
@@ -150,7 +174,7 @@ export default function Article() {
 
             <div className="mt-6">
               <div className="text-small text-grey-700 mb-2">
-                {t('share')}
+                {t('news_events.share')}
               </div>
               <SocialButtons />
             </div>
@@ -232,6 +256,9 @@ export default function Article() {
             />
           </div>
         )}
+
+        {dopPrograms && dopPrograms.length > 0 && <OtherDopBlocks dopBlocks={dopPrograms} link={articleType?.toLowerCase() as ArticleTypeEnum} 
+        title={articleType === ArticleTypeEnum.NEWS ? 'news_page.other_news' : 'events_page.other_events'} />}
 
         {article.video && articleVideoUrl && (
           <div className="mb-[80px]">

@@ -14,8 +14,16 @@ const Events = () => {
 
   const { articles, loading } = useArticles({
     articleType: ArticleTypeEnum.EVENT,
-    limit: 3,
+    pageSize: 3,
   });
+
+  if(loading || !articles) {
+    return (
+      <div className="w-full text-center py-8 text-gray-500">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <section>
@@ -36,10 +44,9 @@ const Events = () => {
           {articles.length > 0
             ? <ArticlesGrid
                 articles={articles}
-                loading={loading}
                 basePath="/events"
               />
-            : <div className='text-center'>{t('projects_page.project_events_empty')}</div>
+            : <div className='text-center'>{t('articles.articles_empty')}</div>
           }
 
           

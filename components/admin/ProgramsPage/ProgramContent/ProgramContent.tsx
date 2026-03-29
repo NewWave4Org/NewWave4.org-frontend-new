@@ -303,20 +303,6 @@ function ProgramContent({ programId }: { programId: number }) {
       }
     }
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-    if(translateStatusVal == 'yes') {
-      try {
-        await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
-
-        toast.success(`The translation was successfully created`);
-
-      } catch (error) {
-        console.log('error translate', error);
-        toast.error(`Something go wrong with translation! ${error}`);
-      }
-    }
-
     try {
       const result = await handleThunk(
         updateArticle,
@@ -325,6 +311,21 @@ function ProgramContent({ programId }: { programId: number }) {
       );
       setProgram(result);
       if (result) {
+        const translateStatusVal = result.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+        if(translateStatusVal == 'yes') {
+          try {
+            await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
+
+            toast.success(`The translation was successfully created`);
+
+          } catch (error) {
+            console.log('error translate', error);
+            toast.error(`Something go wrong with translation! ${error}`);
+          }
+        }
+
+
         setSubmitError('');
         const message = pathname.includes('/edit')
           ? 'Your program was updated successfully!'
