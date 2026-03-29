@@ -177,20 +177,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
       }
     }
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-    if(translateStatusVal == 'yes') {
-      try {
-        await handleThunk(createTranslation, projectId, setSubmitErrorTranslate);
-
-        toast.success(`The translation was successfully created`);
-
-      } catch (error) {
-        console.log('error translate', error);
-        toast.error(`Something go wrong with translation! ${error}`);
-      }
-    }
-
     payload = {
       ...values,
       dateOfWriting: convertToISO(values.dateOfWriting),
@@ -205,6 +191,21 @@ function ProjectContent({ projectId }: { projectId: number }) {
       setProject(result);
 
       if (result) {
+        const translateStatusVal = result.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+
+        if(translateStatusVal == 'yes') {
+          try {
+            await handleThunk(createTranslation, projectId, setSubmitErrorTranslate);
+
+            toast.success(`The translation was successfully created`);
+
+          } catch (error) {
+            console.log('error translate', error);
+            toast.error(`Something go wrong with translation! ${error}`);
+          }
+        }
+
         setSubmitError('');
         const message = pathname.includes('/edit')
           ? 'Your project was updated successfully!'

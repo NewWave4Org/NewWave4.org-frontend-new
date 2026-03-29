@@ -94,7 +94,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                                     scrollToAnchor(hash);
                                   }, 50);
                                 }}
-                                className={`block pb-2.5 p-2 lg:px-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''} whitespace-nowrap`}
+                                className={`block pb-2.5 p-2 lg:px-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''}`}
                               >
                                 {locale === EN_LOCALE ? project.titleEng : project.title}
                               </Link>

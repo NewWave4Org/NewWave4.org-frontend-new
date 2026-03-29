@@ -50,6 +50,7 @@ const ProgramsSlider = () => {
       dispatch(
         getAllArticle({
           page: 0,
+          size: 10,
           articleType: ArticleTypeEnum.PROGRAM,
           articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
           sortByCreatedAtDescending: true,

@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 import FilterItem from './FilterItem';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { getAllArticle } from '@/store/article-content/action';
-import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
+import { useAppSelector } from '@/store/hook';
 import { EN_LOCALE } from '@/i18n';
 
 interface Item {

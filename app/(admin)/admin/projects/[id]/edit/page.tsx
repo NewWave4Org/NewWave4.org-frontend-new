@@ -21,7 +21,7 @@ function EditProjectPage() {
         <ProjectContent projectId={projectId} />
       ) : (
         <>
-          <div className="text-h4 mb-5">Project wasn&apos;t created</div>
+          <div className="text-h4 mb-5">Project wasnt created</div>
           <Button onClick={() => router.back()} className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
             <ArrowLeft4Icon />
             Back
