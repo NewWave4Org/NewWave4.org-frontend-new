@@ -57,7 +57,6 @@ function ProjectsPageClient() {
     }));
   }, [projects, locale]);
 
-  console.log('projects', projects);
 
   return (
     <div className="ProjectsPage">

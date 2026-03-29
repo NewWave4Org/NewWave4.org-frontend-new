@@ -22,8 +22,16 @@ const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
   const { articles, loading } = useArticles({
     articleType: ArticleTypeEnum.NEWS,
     projectId,
-    limit: 3,
+    pageSize: 3,
   });
+
+  if(loading || !articles) {
+    return (
+      <div className="w-full text-center py-8 text-gray-500">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <section>
@@ -51,10 +59,9 @@ const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
           {articles.length > 0
             ? <ArticlesGrid
                 articles={articles}
-                loading={loading}
                 basePath="/news"
               />
-            : <div className='text-center'>{t('projects_page.project_news_empty')}</div>
+            : <div className='text-center'>{t('articles.articles_empty')}</div>
           }
 
           
