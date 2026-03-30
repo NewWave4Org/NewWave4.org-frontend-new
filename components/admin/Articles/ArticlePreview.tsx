@@ -86,10 +86,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     return <div>Article not found</div>;
   }
 
-  console.log('article', article);
-  console.log('mainText', article.mainText);
-
-
   return (
     <div className="article_page">
       <div className="container px-4 mx-auto">
@@ -187,7 +183,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
           </div>
         )}
 
-        {quoteText && quoteText?.translatable_text_editorState.blocks[0].text !== '' && <Quote quote={quoteText} />}
+        {quoteText && quoteText?.translatable_text_editorState !== null && <Quote quote={quoteText} />}
 
         <div className="mb-[56px]">
           <div
