@@ -257,9 +257,6 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
           </div>
         )}
 
-        {dopPrograms && dopPrograms.length > 0 && <OtherDopBlocks dopBlocks={dopPrograms} link={articleType?.toLowerCase() as ArticleTypeEnum} 
-        title={articleType === ArticleTypeEnum.NEWS ? 'news_page.other_news' : 'events_page.other_events'} />}
-
         {article.video && articleVideoUrl && (
           <div className="mb-[80px]">
             <iframe
@@ -270,6 +267,9 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
             />
           </div>
         )}
+
+        {dopPrograms && dopPrograms.length > 0 && <OtherDopBlocks dopBlocks={dopPrograms} link={articleType?.toLowerCase() as ArticleTypeEnum} 
+        title={articleType === ArticleTypeEnum.NEWS ? 'news_page.other_news' : 'events_page.other_events'} />}
       </div>
     </div>
   );
