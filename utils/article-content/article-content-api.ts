@@ -42,7 +42,7 @@ class ArticleApi implements IArticleApi {
   }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
     const params: Record<string, string | number | boolean> = {
       page,
-      size,
+      size: 1,
       ...(articleType !== undefined && { articleType }),
       ...(articleStatus !== undefined && { articleStatus }),
       ...(relevantProjectId !== null && { relevantProjectId }),
