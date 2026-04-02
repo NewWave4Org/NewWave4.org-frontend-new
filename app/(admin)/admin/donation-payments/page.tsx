@@ -103,7 +103,7 @@ function DonationPayments() {
   function buildParams(page: number): IDonationRequestDTO {
     const params: IDonationRequestDTO = {
       page,
-      size: 10,
+      size: 1,
     };
 
     if (dateFilter?.from && dateFilter?.to) {
