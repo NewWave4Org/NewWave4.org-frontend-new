@@ -102,7 +102,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error || !article) return <div className="container px-4 mx-auto">Article not found</div>;
+  if (error || !article) return <div className="container px-4 mx-auto pt-16 text-center text-h4">Article not found</div>;
 
   if(locale === EN_LOCALE && article?.contentBlocksEng.length == 0) {
     return (
