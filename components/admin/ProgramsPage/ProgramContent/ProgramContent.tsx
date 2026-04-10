@@ -107,6 +107,7 @@ function ProgramContent({ programId }: { programId: number }) {
   const [loadingProgram, setLoadingProgram] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
+  const [programStatus, setProgramStatus] = useState(false);
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
@@ -348,13 +349,15 @@ function ProgramContent({ programId }: { programId: number }) {
     });
 
     if (result) {
+      setProgramStatus(true);
       toast.success(
         'Congratulations! Your program has been published successfully.',
       );
     }
   }
 
-
+console.log('programStatus', programStatus);
+console.log('program?.articleStatus', program?.articleStatus);
   if(loadingProgram) return <div className='relative h-full'><Loading /></div>;
 
 
@@ -868,7 +871,7 @@ function ProgramContent({ programId }: { programId: number }) {
                   Preview
                 </LinkBtn>
 
-                {program?.articleStatus !== 'PUBLISHED' && (
+                {(program?.articleStatus !== 'PUBLISHED' && !programStatus) && (
                   <Button onClick={() => handlePublish(programId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
                     Publish
                   </Button>

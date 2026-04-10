@@ -3,7 +3,7 @@
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 import { useLocale, useTranslations } from 'next-intl';
 import { EN_LOCALE, Link, usePathname } from '@/i18n';
@@ -18,6 +18,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
   const dispatch = useAppDispatch();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+  const wrapperRef = useRef<HTMLLIElement | null>(null);
 
   const menuLinks = [
     { href: `/`, label: t('menu.home') },
@@ -47,6 +48,20 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
     load();
   }, [projectsStatus, dispatch]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setOpenSubMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <nav className="justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
       <ul className="flex gap-x-8 text-large font-helv menu__items list-none">
@@ -56,7 +71,7 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
           if (subMenu) {
             return (
-              <li key={label} className=" py-1 before:content-none pl-0 !mb-0">
+              <li ref={wrapperRef} key={label} className=" py-1 before:content-none pl-0 !mb-0">
                 <button className={`menu-link flex items-center gap-1 !p-0 ${activeStyle}`} onClick={() => setOpenSubMenu(prev => (prev === label ? null : label))}>
                   {label}
                   <ArrowDown4Icon className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500 mt-1.5`} />
