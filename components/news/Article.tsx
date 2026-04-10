@@ -47,7 +47,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
           getAllArticle({
             page: 0,
             size: 3,
-            articleType: ArticleTypeEnum.articleType,
+            articleType: ArticleTypeEnum.NEWS,
             articleStatus: ArticleStatusEnum.PUBLISHED,
             excludeArticleId: articleId,
           }),

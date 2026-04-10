@@ -52,6 +52,7 @@ const validationSchema = Yup.object({
 function ProjectContent({ projectId }: { projectId: number }) {
   const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [loadingProject, setLoadingProgect] = useState(false);
+  const [projectStatus, setProjectsStatus] = useState(false);
 
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -228,6 +229,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     });
 
     if (result) {
+      setProjectsStatus(true);
       toast.success(
         'Congratulations! Your project has been published successfully.',
       );
@@ -597,7 +599,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                   Preview
                 </LinkBtn>
 
-                {project?.articleStatus !== 'PUBLISHED' && (
+                {(project?.articleStatus !== 'PUBLISHED' && !projectStatus) && (
                   <Button onClick={() => handlePublish(projectId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
                     Publish
                   </Button>
