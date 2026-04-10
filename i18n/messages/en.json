@@ -67,6 +67,12 @@
       "title": "Thank you for your application!",
       "description": "We have received your application for partnership. Our manager will contact you shortly.",
       "error_message": "Something went wrong. Please try again."
+    },
+    "modal_contacts": {
+      "error_title": "Something went wrong",
+      "error_description": "Your message couldn’t be sent. Please try again.",
+      "succeed_title": "Your message has been sent",
+      "succeed_description": "We will contact you using the provided details"
     }
   },
   "social_links": {

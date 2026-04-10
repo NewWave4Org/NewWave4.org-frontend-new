@@ -103,20 +103,22 @@ interface ContactFormProps {
 
 const ContactForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'info' | 'error' | 'warning'>('success');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalDescription, setModalDescription] = useState('');
+
+  const t = useTranslations();
 
   const handleSubmitContactForm = async (values: any) => {
-    try {
-      const res = await axiosOpenInstance.post('/mail/contact', {
-        name: values.name,
-        email: values.email,
-        phone: values.tel,
-        description: values.message,
-      });
-      return await res.data;
-    } catch (error) {
-      return error
-    }
-  }
+    const res = await axiosOpenInstance.post('/mail/contact', {
+      name: values.name,
+      email: values.email,
+      phone: values.tel,
+      description: values.message,
+    });
+
+    return res.data;
+  };
 
   const ContactFormikWrapper = withFormik<
     ContactFormProps,
@@ -133,18 +135,28 @@ const ContactForm = () => {
 
     validationSchema: validationSchema,
 
-    handleSubmit: (values, { setSubmitting, resetForm, props }) => {
-      console.log(values);
-      handleSubmitContactForm(values).then((res) => {
-        if (res) {
-          console.log(res);
-          props.onOpenModal();
-        }
-      }).catch((err) => {
-        console.warn(err);
-      })
-      setSubmitting(false);
-      resetForm();
+    handleSubmit: async (values, { setSubmitting, resetForm, props }) => {
+      try {
+        const res = await handleSubmitContactForm(values);
+
+        console.log('res', res);
+
+        setModalType('success');
+        setModalTitle(t('modals.modal_contacts.succeed_title'));
+        setModalDescription(t('modals.modal_contacts.succeed_description'));
+
+        props.onOpenModal();
+
+        resetForm();
+      } catch (err) {
+        console.warn('err', err);
+        setModalType('error');
+        setModalTitle(t('modals.modal_contacts.error_title'));
+        setModalDescription(t('modals.modal_contacts.error_description'));
+        props.onOpenModal();
+      } finally {
+        setSubmitting(false);
+      }
     },
   })(InnerContactForm);
 
@@ -152,9 +164,9 @@ const ContactForm = () => {
     <>
       <ContactFormikWrapper onOpenModal={() => setIsOpenModal(true)} />
       <Modal
-        type="success"
-        title="Ваше повідомлення відправлено"
-        description="Ми зв’яжемося з Вами за вказаними контактами."
+        type={modalType}
+        title={modalTitle}
+        description={modalDescription}
         isOpen={isOpenModal}
         onClose={() => setIsOpenModal(false)}
         onBtnClick={() => setIsOpenModal(false)}
