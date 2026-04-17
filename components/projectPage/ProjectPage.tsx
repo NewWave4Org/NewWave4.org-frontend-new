@@ -42,7 +42,7 @@ function ProjectPage({ project, relevantProjectId }: { project: IProjectProps; r
       <ProjectHeader title={project?.titleToShow} />
       <ProjectContent contentBlock={firstTwoBlocks} siteLink={siteLink} nameSocialMedia={nameSocialMedia} linkSocialMedia={linkSocialMedia} showLinksInIndex={!linkInOtherBlocks ? linkBlockIndex : null} />
 
-      {quoteText && quoteText?.translatable_text_editorState?.blocks[0].text !== '' && (
+      {quoteText?.translatable_text_editorState !== null && quoteText?.translatable_text_editorState?.blocks[0].text !== '' && (
         <div className="container mx-auto px-4">
           <Quote quote={quoteText} className="text-font-primary" />
         </div>

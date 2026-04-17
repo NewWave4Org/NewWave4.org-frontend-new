@@ -9,7 +9,7 @@ interface IProgramHeader {
 }
 
 function ProgramHeader({ title, classNameParent = '', classNametext = '', pageBanner }: IProgramHeader) {
-  console.log('pageBanner', pageBanner);
+
   const overlayClasses = pageBanner ? 'after:content-[""] after:absolute after:inset-0 after:z-[1] after:bg-[rgba(0,0,0,0.2)]' : '';
   return (
     <section className={`${classNameParent} relative ${overlayClasses} min-h-[420px] md:min-h-[420px] flex items-end justify-start text-white`}>

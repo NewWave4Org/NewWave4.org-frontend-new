@@ -11,15 +11,6 @@ import { EN_LOCALE, useRouter } from '@/i18n';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter as useRouterNext} from 'next/navigation';
 
-interface ISlidesData {
-  id: string;
-  imgSrc: string;
-  alt: string;
-  link: string;
-  title: string;
-  text: string;
-}
-
 const ProgramsSlider = () => {
   const locale = useLocale();
   const t = useTranslations();
@@ -46,19 +37,17 @@ const ProgramsSlider = () => {
   }, []);
 
   useEffect(() => {
-    if (!programs?.length) {
-      dispatch(
-        getAllArticle({
-          page: 0,
-          size: 10,
-          articleType: ArticleTypeEnum.PROGRAM,
-          articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
-          sortByCreatedAtDescending: true,
-          sortByDateOfWriting: false,
-        }),
-      );
-    }
-  }, [programs, dispatch]);
+    dispatch(
+      getAllArticle({
+        page: 0,
+        size: 10,
+        articleType: ArticleTypeEnum.PROGRAM,
+        articleStatus: `${ArticleStatusEnum.PUBLISHED}`,
+        sortByCreatedAtDescending: true,
+        sortByDateOfWriting: false,
+      }),
+    );
+  }, [dispatch]);
 
   const slidesData = useMemo(() => {
     return programs.map(program => ({

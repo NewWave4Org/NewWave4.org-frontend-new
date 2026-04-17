@@ -21,7 +21,6 @@ interface InnerSubscribeFormValues {
 const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
   const { touched, errors, isSubmitting, handleChange, values, status } = props;
 
-  console.log('status', status);
   const t = useTranslations();
 
   return (

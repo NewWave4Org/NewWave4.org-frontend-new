@@ -1,9 +1,10 @@
 import Article from '@/components/news/Article';
+import { ArticleTypeEnum } from '@/utils/ArticleType';
 
 const EventArticlePage = () => {
   return (
     <>
-      <Article />
+      <Article articleType={ArticleTypeEnum.EVENT}  />
     </>
   );
 };

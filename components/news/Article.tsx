@@ -114,6 +114,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
     );
   }
 
+  console.log('articleType', articleType);
 
   return (
     <div className="article_page pt-12">
@@ -219,7 +220,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
           </div>
         )}
 
-        {article.quote && <Quote quote={article.quote} />}
+        {article.quote?.translatable_text_editorState?.blocks[0].text !== undefined && <Quote quote={article.quote} />}
 
         {article.textblock2 && (
           <div className="mb-[56px]">
