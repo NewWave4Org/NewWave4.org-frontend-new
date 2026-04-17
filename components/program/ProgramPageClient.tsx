@@ -64,8 +64,6 @@ function ProgramPageClient() {
           }),
         ).unwrap();
 
-        console.log('result', result);
-
         setDopPrograms(result?.content);
       } catch (error) {
         console.log('error', error);

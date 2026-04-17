@@ -31,7 +31,6 @@ function ProgramScheduleItem({ scheduleItem }: { scheduleItem: IScheduleItem }) 
 
   const formattedDate = scheduleItem?.date ? format(new Date(scheduleItem.date.year, scheduleItem.date.month - 1, scheduleItem.date.day), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk}) : '';
 
-  console.log('scheduleItem', scheduleItem)
   return (
     <div className="schedule-item">
       <div className="flex items-center mb-1">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { ArticleStatusEnum } from '@/utils/ArticleType';
+import { ArticleStatusEnum, ArticleType } from '@/utils/ArticleType';
 import {
   prepareArticle,
   PreparedArticle,
@@ -11,7 +11,7 @@ import { useAppDispatch } from '@/store/hook';
 import { getAllArticle } from '@/store/article-content/action';
 
 interface UseArticlesParams {
-  articleType: string;
+  articleType: ArticleType;
   page?: number;
   pageSize?: number;
   projectId?: number;

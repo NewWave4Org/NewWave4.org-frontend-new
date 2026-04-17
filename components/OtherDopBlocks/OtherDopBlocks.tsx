@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import DopBlockItem from "./DopBlockItem/DopBlockItem";
 import { prefix } from "@/utils/prefix";
 import { IArticleBody } from "@/utils/article-content/type/interfaces";
-import { EN_LOCALE, Link } from "@/i18n";
+import { EN_LOCALE } from "@/i18n";
 import { ArticleTypeEnum } from "@/utils/ArticleType";
 
 function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | null, link: ArticleTypeEnum , title: string}) {
@@ -22,7 +22,7 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
               ? item?.contentBlocksEng?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text 
               : item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text;
 
-            const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SECTION_WITH_PHOTO')?.files[0];
+            const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'PHOTO')?.data[0];
             const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.svg`;
 
             const title = locale === EN_LOCALE 
