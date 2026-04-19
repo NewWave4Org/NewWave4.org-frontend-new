@@ -86,8 +86,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     return <div>Article not found</div>;
   }
 
-  console.log('quoteText', quoteText.translatable_text_editorState.blocks[0].text);
-
   return (
     <div className="article_page">
       <div className="container px-4 mx-auto">
