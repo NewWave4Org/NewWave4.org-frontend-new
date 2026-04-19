@@ -17,13 +17,13 @@ import { EN_LOCALE } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import EmblaCarousel, { SliderCarousel } from '../ui/EmblaCarousel';
-import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
+import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import { toast } from 'react-toastify';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 
 
-export default function Article({articleType} : {articleType?: ArticleTypeEnum}) {
+export default function Article({articleType} : {articleType?: ArticleType}) {
   const dispatch = useAppDispatch();
 
   const params = useParams();
@@ -47,7 +47,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
           getAllArticle({
             page: 0,
             size: 3,
-            articleType: ArticleTypeEnum.EVENT,
+            articleType: articleType,
             articleStatus: ArticleStatusEnum.PUBLISHED,
             excludeArticleId: articleId,
           }),
@@ -114,7 +114,9 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
     );
   }
 
-  console.log('articleType', articleType);
+  const articleQuote = article.quote;
+  const hasContent = articleQuote?.replace(/<[^>]+>/g, '').trim();
+
 
   return (
     <div className="article_page pt-12">
@@ -220,7 +222,7 @@ export default function Article({articleType} : {articleType?: ArticleTypeEnum})
           </div>
         )}
 
-        {article.quote?.translatable_text_editorState?.blocks[0].text !== undefined && <Quote quote={article.quote} />}
+        {hasContent && <Quote quote={article.quote} />}
 
         {article.textblock2 && (
           <div className="mb-[56px]">

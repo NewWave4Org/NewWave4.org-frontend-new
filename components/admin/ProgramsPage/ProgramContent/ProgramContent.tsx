@@ -14,7 +14,7 @@ import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfac
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
@@ -97,6 +97,7 @@ function ProgramContent({ programId }: { programId: number }) {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
   const pathname = usePathname();
+  const router = useRouter();
 
   const { deleteFile } = useImageLoading({
     articleId: programId,
@@ -262,6 +263,7 @@ function ProgramContent({ programId }: { programId: number }) {
         setProgram({ ...result, contentBlocks: mergedBlocks });
       } catch (error) {
         console.log('error', error);
+        router.push(`/admin/projects`);
         toast.error('Failed to fetch program');
       } finally {
         setLoadingProgram(false);
@@ -356,8 +358,6 @@ function ProgramContent({ programId }: { programId: number }) {
     }
   }
 
-console.log('programStatus', programStatus);
-console.log('program?.articleStatus', program?.articleStatus);
   if(loadingProgram) return <div className='relative h-full'><Loading /></div>;
 
 

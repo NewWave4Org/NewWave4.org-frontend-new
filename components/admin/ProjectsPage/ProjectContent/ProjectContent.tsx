@@ -1,7 +1,7 @@
 'use client';
 
 import { useAppDispatch } from '@/store/hook';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
@@ -53,6 +53,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
   const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [loadingProject, setLoadingProgect] = useState(false);
   const [projectStatus, setProjectsStatus] = useState(false);
+  const router = useRouter();
 
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
@@ -155,7 +156,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
         });
       } catch (error) {
         console.log('error', error);
+        router.push(`/admin/projects`);
         toast.error('Failed to fetch project');
+
       } finally {
         setLoadingProgect(false);
       }
