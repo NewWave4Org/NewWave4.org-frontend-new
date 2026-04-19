@@ -5,12 +5,13 @@ import DopBlockItem from "./DopBlockItem/DopBlockItem";
 import { prefix } from "@/utils/prefix";
 import { IArticleBody } from "@/utils/article-content/type/interfaces";
 import { EN_LOCALE } from "@/i18n";
-import { ArticleTypeEnum } from "@/utils/ArticleType";
+import { ArticleType } from "@/utils/ArticleType";
 
-function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | null, link: ArticleTypeEnum , title: string}) {
+function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | null, link: ArticleType , title: string}) {
   const t = useTranslations();
   const locale = useLocale();
 
+  console.log('link', link);
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
