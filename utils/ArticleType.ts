@@ -1,8 +1,9 @@
-export type ArticleType = 'NEWS' | 'EVENT' | 'PROGRAM' | 'PROJECT';
+export type ArticleType = 'NEWS' | 'EVENT' | 'EVENTS' | 'PROGRAM' | 'PROJECT';
 
 export enum ArticleTypeEnum {
   NEWS = 'NEWS',
   EVENT = 'EVENT',
+  EVENTS = 'EVENTS',
   PROGRAM = 'PROGRAM',
   PROJECT = 'PROJECT',
 }
