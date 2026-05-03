@@ -1,6 +1,6 @@
 import EmblaCarousel from '@/components/ui/EmblaCarousel';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface IHistoryCard {
   ourHistoryTitle: string;
@@ -13,8 +13,9 @@ interface IHistoryCard {
 
 const HistoryCard = ({ ourHistoryTitle, ourHistoryDescription, ourHistoryPhotos }: IHistoryCard) => {
   const t = useTranslations();
+  const locale = useLocale();
 
-  const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.translatable_text_editorState);
+  const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.translatable_text_editorState, locale);
 
   return (
     <section className="history-card py-14 my-20">

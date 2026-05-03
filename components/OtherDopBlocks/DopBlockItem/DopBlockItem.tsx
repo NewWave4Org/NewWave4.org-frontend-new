@@ -1,19 +1,23 @@
 'use client';
 
+import { convertDraftToHTML } from "@/components/TextEditor/utils/convertDraftToHTML";
 import { Link } from "@/i18n";
 import { ArticleType, ArticleTypeEnum } from "@/utils/ArticleType";
+import { Locale } from "next-intl";
 import Image from "next/image";
 
 interface IProgramBlockItem {
   id: number;
   title: string;
-  description: string;
+  description: any;
   imageSrc: string[];
   link: ArticleType;
+  locale: Locale
 }
 
-function DopBlockItem({ title, description, imageSrc, id, link }: IProgramBlockItem) {
+function DopBlockItem({ title, description, imageSrc, id, link, locale }: IProgramBlockItem) {
   const curLink = link === `${ArticleTypeEnum.EVENT}`.toLowerCase() ? `${ArticleTypeEnum.EVENTS}`.toLowerCase() : link.toLowerCase();
+  const newDescription = convertDraftToHTML(description, locale);
 
   return (
       <div className="w-full md:w-1/2 lg:w-1/3 px-3 mb-6 program-block">
@@ -23,7 +27,7 @@ function DopBlockItem({ title, description, imageSrc, id, link }: IProgramBlockI
             </div>
           <div className="pt-2 pb-4 px-4 flex flex-col gap-y-2 flex-1">
             <h2 className="text-font-primary text-body font-medium">{title}</h2>
-            <p className="text-grey-700 text-info truncate">{description}</p>
+            <div className="text-grey-700 text-info line-clamp-3" dangerouslySetInnerHTML={{ __html: newDescription }} />
           </div>
         </Link>
       </div>

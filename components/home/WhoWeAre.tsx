@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useLocale } from 'next-intl';
 
 interface IWhoWeAre {
   homeTitle: { translatable_text_title: string };
@@ -11,7 +12,9 @@ interface IWhoWeAre {
 }
 
 const WhoWeAre: React.FC<IWhoWeAre> = ({ homeTitle, homeDescription, className }) => {
-  const homeDescriptionText = convertDraftToHTML(homeDescription?.translatable_text_editorState);
+  const locale = useLocale();
+
+  const homeDescriptionText = convertDraftToHTML(homeDescription?.translatable_text_editorState, locale);
 
   return (
     <div className={`whoWeAre ${className} lg:pt-0 pt-5`}>

@@ -17,6 +17,7 @@ import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
+import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -112,13 +113,13 @@ function HomeForm() {
           try {
             if (block.translatable_text_editorState) {
               const content = convertFromRaw(block.translatable_text_editorState);
-              editor = EditorState.createWithContent(content);
+              editor = EditorState.createWithContent(content, decorator);
             } else {
-              editor = EditorState.createEmpty();
+              editor = EditorState.createEmpty(decorator);
             }
           } catch (err: any) {
             console.log('err', err);
-            editor = EditorState.createEmpty();
+            editor = EditorState.createEmpty(decorator);
           }
 
           editors[block.id] = editor;
@@ -168,8 +169,27 @@ function HomeForm() {
       return;
     }
 
+    // ---- UPDATE PAGE ----
+    let updateSuccess = false;
+
+    try {
+      const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
+
+      if (result) {
+        setHomePage(result);
+        setSubmitError('');
+        updateSuccess = true;
+        toast.success(isUpdate ? 'Home page updated successfully!' : 'Home page created successfully!');
+        setDeletedFiles([]);
+      }
+
+    } catch (error) {
+      toast.error(`Something went wrong! ${error}`);
+    }
+
     // ---- TRANSLATION ----
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no'
+    if (!updateSuccess) return;
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
     
     if(translateStatusVal == 'yes') {
       try {
@@ -182,20 +202,6 @@ function HomeForm() {
       }
     }
 
-    // ---- UPDATE PAGE ----
-    try {
-      const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
-
-      if (result) {
-        setHomePage(result);
-        setSubmitError('');
-        toast.success(isUpdate ? 'Home page updated successfully!' : 'Home page created successfully!');
-      }
-
-      setDeletedFiles([]);
-    } catch (error) {
-      toast.error(`Something went wrong! ${error}`);
-    }
   }
 
   return (
@@ -255,7 +261,7 @@ function HomeForm() {
                             </div>
                             <div className="mb-4">
                               <div className="mb-2 !text-admin-700">Slider description</div>
-                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                             </div>
 
                             <div>
@@ -351,7 +357,7 @@ function HomeForm() {
 
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">Slider description</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </div>
 
                           <div className="mb-4">
@@ -392,7 +398,7 @@ function HomeForm() {
 
                       setEditorStates(prev => ({
                         ...prev,
-                        [blockId]: EditorState.createEmpty(),
+                        [blockId]: EditorState.createEmpty(decorator),
                       }));
 
                       setEditorKey(prev => ({
@@ -444,7 +450,7 @@ function HomeForm() {
                         {block.translatable_text_description !== undefined && (
                           <>
                             <div className="mb-2 text-admin-700">{block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           </>
                         )}
                       </div>

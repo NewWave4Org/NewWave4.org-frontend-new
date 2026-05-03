@@ -406,3 +406,8 @@ body.menu-open {
     }
   }
 }
+
+p a {
+  color: rgb(37, 99, 235);
+  text-decoration: underline;
+}

@@ -6,7 +6,7 @@ import { stateToHTML } from 'draft-js-export-html';
  * @param rawState - объект editorState из backend'а (RawDraftContentState)
  * @returns HTML-строка
  */
-export function convertDraftToHTML(rawState: any): string {
+export function convertDraftToHTML(rawState: any, locale?: string): string {
   if (!rawState) return '';
 
   const options = {
@@ -40,6 +40,29 @@ export function convertDraftToHTML(rawState: any): string {
           return { element: 'p' };
       }
     },
+
+    entityStyleFn: (entity) => {
+      if (entity.getType() === 'LINK') {
+        const { url } = entity.getData();
+        
+        const resolvedUrl = () => {
+          if (!locale) return url;
+          if (url.startsWith('https')) return url;
+          if (url.startsWith(`/${locale}`)) return url;
+          return `/${locale}/${url.replace(/^\//, '')}`;
+        };
+
+        return {
+          element: 'a',
+          attributes: {
+            href: resolvedUrl(),
+            // target: '_blank',
+            rel: 'noreferrer',
+          },
+        };
+      }
+    },
+
   };
 
   try {

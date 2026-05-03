@@ -32,7 +32,7 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
   const formattedDateFrom = isValid(dateNumberFormatFrom) ? format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
   const formattedDateTo = isValid(dateNumberFormatTo) ? format(new Date(dateNumberFormatTo), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
 
-  const descriptionText = convertDraftToHTML(description);
+  const descriptionText = convertDraftToHTML(description, locale);
 
   return (
     <section className="flex lg:flex-row flex-col items-stretch lg:mb-20 mb-10">

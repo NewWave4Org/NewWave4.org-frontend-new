@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import ProjectContentLinks from './ProjectContentLinks';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useLocale } from 'next-intl';
 
 interface ProjectContent {
   id: string;
@@ -26,6 +27,7 @@ interface ProjectContentProps {
 
 function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMedia, projectVideoUrl, showLinksInIndex }: ProjectContentProps) {
   const videoLink = convertYoutubeUrlToEmbed(projectVideoUrl!);
+  const locale = useLocale();
 
   return (
     <>
@@ -33,7 +35,7 @@ function ProjectContent({ contentBlock, siteLink, nameSocialMedia, linkSocialMed
         <div className="container mx-auto px-4">
           {contentBlock?.map((content, index) => {
             const oddBlock = index % 2 !== 0;
-            const htmlText = convertDraftToHTML(content?.translatable_text_editorState);
+            const htmlText = convertDraftToHTML(content?.translatable_text_editorState, locale);
 
             return (
               <div key={index} className={`flex items-center lg:flex-row flex-col lg:mb-[40px] mb-[20px] gap-x-3 ${oddBlock ? 'odd' : ''}`}>

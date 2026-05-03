@@ -32,6 +32,7 @@ import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
+import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -213,13 +214,13 @@ function ProgramContent({ programId }: { programId: number }) {
               const rawContent = block.translatable_text_editorState;
               if (rawContent) {
                 const content = convertFromRaw(rawContent);
-                editor = EditorState.createWithContent(content);
+                editor = EditorState.createWithContent(content, decorator);
               } else {
-                editor = EditorState.createEmpty();
+                editor = EditorState.createEmpty(decorator);
               }
             } catch (err: any) {
               console.error('Error loading single editor state:', err);
-              editor = EditorState.createEmpty();
+              editor = EditorState.createEmpty(decorator);
             }
             editors[`${block.id}_translatable_text_text`] = editor;
             keys[`${block.id}_translatable_text_text`] = `${block.id}_text-init`;
@@ -227,12 +228,12 @@ function ProgramContent({ programId }: { programId: number }) {
 
           if (block.contentBlockType === 'SECTION_WITH_TEXT') {
             // --- 1. init Text 1 ---
-            let editor1 = EditorState.createEmpty();
+            let editor1 = EditorState.createEmpty(decorator);
             try {
               const rawContent1 = block.translatable_text_editorState1;
               if (rawContent1) {
                 const content = convertFromRaw(rawContent1);
-                editor1 = EditorState.createWithContent(content);
+                editor1 = EditorState.createWithContent(content, decorator);
               }
             } catch (err) {
               console.error('Error loading text1 editor state:', err);
@@ -241,12 +242,12 @@ function ProgramContent({ programId }: { programId: number }) {
             keys[`${block.id}_translatable_text_text1`] = `${block.id}_text1-init`;
 
             // --- 2. init Text 2 ---
-            let editor2 = EditorState.createEmpty();
+            let editor2 = EditorState.createEmpty(decorator);
             try {
               const rawContent2 = block.translatable_text_editorState2;
               if (rawContent2) {
                 const content = convertFromRaw(rawContent2);
-                editor2 = EditorState.createWithContent(content);
+                editor2 = EditorState.createWithContent(content, decorator);
               }
             } catch (err) {
               console.error('Error loading text2 editor state:', err);
@@ -312,8 +313,9 @@ function ProgramContent({ programId }: { programId: number }) {
         { id: programId, data: normalized },
         setSubmitError,
       );
-      setProgram(result);
+      
       if (result) {
+        setProgram(result);
         const translateStatusVal = result.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
         if(translateStatusVal == 'yes') {
@@ -447,7 +449,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                 <div className="mb-2 !text-admin-700">Description program</div>
                                 <TextEditor
                                   key={editorKey[`${block.id}_translatable_text_text`]}
-                                  value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty()}
+                                  value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty(decorator)}
                                   onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                                 />
                               </div>
@@ -548,7 +550,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                         <div className="mb-2 !text-admin-700">Text block</div>
                                         <TextEditor
                                           key={editorKey[`${block.id}_translatable_text_text`]}
-                                          value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty()}
+                                          value={editorStates[`${block.id}_translatable_text_text`] || EditorState.createEmpty(decorator)}
                                           onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState', 'translatable_text_text', newState, setFieldValue)}
                                         />
                                       </div>
@@ -630,7 +632,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                           <div className="mb-2 !text-admin-700">Text block left</div>
                                           <TextEditor
                                             key={editorKey[`${block.id}_translatable_text_text1`]}
-                                            value={editorStates[`${block.id}_translatable_text_text1`] || EditorState.createEmpty()}
+                                            value={editorStates[`${block.id}_translatable_text_text1`] || EditorState.createEmpty(decorator)}
                                             onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState1', 'translatable_text_text1', newState, setFieldValue)}
                                           />
                                         </div>
@@ -641,7 +643,7 @@ function ProgramContent({ programId }: { programId: number }) {
                                         <div className="mb-2 !text-admin-700">Text block right</div>
                                         <TextEditor
                                           key={editorKey[`${block.id}_translatable_text_text2`]}
-                                          value={editorStates[`${block.id}_translatable_text_text2`] || EditorState.createEmpty()}
+                                          value={editorStates[`${block.id}_translatable_text_text2`] || EditorState.createEmpty(decorator)}
                                           onChange={newState => handleEditorChange(index, block.id, 'translatable_text_editorState2', 'translatable_text_text2', newState, setFieldValue)}
                                         />
                                       </div>

@@ -32,7 +32,7 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
   const articleId = Number(params.id);
 
   const [article, setArticle] = useState<(ArticleFull & { contentBlocksEng?: any }) | null>(null);
-  const [projectTitle, setProjectTitle] = useState('');
+  // const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<SliderCarousel>({ files: [] });
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,11 +70,11 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
 
         setArticle(mapped);
 
-        if (mapped?.relevantProjectId) {
-          const projectData = await dispatch(getArticleById(mapped.relevantProjectId)).unwrap(); 
+        // if (mapped?.relevantProjectId) {
+        //   const projectData = await dispatch(getArticleById(mapped.relevantProjectId)).unwrap(); 
 
-          setProjectTitle(locale === EN_LOCALE ? projectData?.titleEng ?? '' : projectData?.title);
-        }
+        //   setProjectTitle(locale === EN_LOCALE ? projectData?.titleEng ?? '' : projectData?.title);
+        // }
 
         if (mapped.video) {
           setArticleVideoUrl(convertYoutubeUrlToEmbed(mapped.video));
@@ -121,17 +121,17 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
   return (
     <div className="article_page pt-12">
       <div className="container px-4 mx-auto">
-        <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
+        <div className="flex lg:items-stretch items-start lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
           {article.mainPhoto?.[0] && (
-            <div className="lg:max-w-[718px] lg:mb-0 mb-6">
+            <div className="lg:max-w-[718px] lg:mb-0 mb-6 min-h-[365px] flex-1 relative overflow-hidden">
               <Image
                 src={
                   Array.isArray(article.mainPhoto)
                     ? article.mainPhoto[0]
                     : article.mainPhoto
                 }
-                width={718}
-                height={400}
+                fill
+                className="object-cover object-top"
                 alt={article.title}
                 priority
               />
@@ -139,39 +139,41 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
           )}
 
           <div className="lg:max-w-[506px] flex flex-col justify-between">
-            <div className="font-ebGaramond text-h3 text-font-primary mb-6">
-              {article.title}
-            </div>
-
             <div>
-              {projectTitle && (
-                <div className="filterNews__item bg-primary-100 text-medium1 text-primary-700 py-2 px-4 rounded-[50px] my-[10px] min-h-[40px] font-helv leading-[1.3]">
-                  {projectTitle}
-                </div>
-              )}
+              <h2 className="font-ebGaramond text-h2 text-font-primary mb-6">
+                {article.title}
+              </h2>
 
-              <div className="flex items-center mb-1">
-                <div className="mr-2">
-                  <UserIcon size="16" color="#7A7A7A" />
-                </div>
-                <span className="text-grey-600 text-small2 inline-block leading-none">
-                  {t('news_events.author')}
-                </span>
-              </div>
-              <div className="text-font-primary text-small">
-                {article.authorName}
-              </div>
+              <div>
+                {/* {projectTitle && (
+                  <div className="filterNews__item bg-primary-100 text-medium1 text-primary-700 py-2 px-4 rounded-[50px] my-[10px] min-h-[40px] font-helv leading-[1.3]">
+                    {projectTitle}
+                  </div>
+                )} */}
 
-              <div className="flex items-center mb-1 mt-4">
-                <div className="mr-2">
-                  <CalendarIcon size="16" color="#7A7A7A" />
+                <div className="flex items-center mb-1">
+                  <div className="mr-2">
+                    <UserIcon size="16" color="#7A7A7A" />
+                  </div>
+                  <span className="text-grey-600 text-small2 inline-block leading-none">
+                    {t('news_events.author')}
+                  </span>
                 </div>
-                <span className="text-grey-600 text-small2 inline-block leading-none">
-                  {t('news_events.date')}
-                </span>
-              </div>
-              <div className="text-font-primary text-small">
-                {formatDate(article.dateOfWriting, locale)}
+                <div className="text-font-primary text-small">
+                  {article.authorName}
+                </div>
+
+                <div className="flex items-center mb-1 mt-4">
+                  <div className="mr-2">
+                    <CalendarIcon size="16" color="#7A7A7A" />
+                  </div>
+                  <span className="text-grey-600 text-small2 inline-block leading-none">
+                    {t('news_events.date')}
+                  </span>
+                </div>
+                <div className="text-font-primary text-small">
+                  {formatDate(article.dateOfWriting, locale)}
+                </div>
               </div>
             </div>
 

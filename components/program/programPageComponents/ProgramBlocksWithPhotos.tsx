@@ -1,5 +1,5 @@
 import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
-import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
+import { useLocale } from 'next-intl';
 import Image from 'next/image';
 
 interface IProgramContentProps {
@@ -7,11 +7,14 @@ interface IProgramContentProps {
 }
 
 function ProgramBlocksWithPhotos({ contentBlock }: IProgramContentProps) {
+  const locale = useLocale();
+
   return (
     <div className="container mx-auto px-4">
       {contentBlock?.map((content, index) => {
         const oddBlock = index % 2 !== 0;
-        const htmlText = convertDraftToHTML(content?.translatable_text_editorState);
+        const htmlText = convertDraftToHTML(content?.translatable_text_editorState, locale);
+
         return (
           <div key={index} className={`flex lg:flex-row flex-col lg:mb-20 mb-10 gap-x-3 ${oddBlock ? 'odd' : ''}`}>
             <div className={`flex-1 lg:pr-[64px] lg:pb-0 pr-0 pb-5 ${oddBlock ? 'lg:order-2 order-1 !pr-0 lg:pl-10 pl-0' : ''}`}>

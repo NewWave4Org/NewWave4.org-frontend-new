@@ -1,24 +1,34 @@
-'use client';
+import { EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
 
-import { EditorState, RichUtils } from 'draft-js';
-
-function AddLink(editorState, setEditorState, url, selection) {
-  if (!selection) return;
-
+export function addLink(
+  editorState: EditorState,
+  url: string,
+  selection: ReturnType<typeof editorState.getSelection>
+): EditorState {
   const contentState = editorState.getCurrentContent();
-  const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', { url });
-  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
-  // создаём новый EditorState с entity
-  let newEditorState = EditorState.set(editorState, {
-    currentContent: contentStateWithEntity,
-  });
+  console.log('selection isCollapsed:', selection.isCollapsed());
+  console.log('selection start:', selection.getStartOffset(), 'end:', selection.getEndOffset());
 
-  // восстанавливаем выделение
-  newEditorState = EditorState.forceSelection(newEditorState, selection);
+  const contentWithEntity = contentState.createEntity('LINK', 'MUTABLE', { url });
+  const entityKey = contentWithEntity.getLastCreatedEntityKey();
 
-  // применяем ссылку к выделенному тексту
-  setEditorState(RichUtils.toggleLink(newEditorState, selection, entityKey));
+   console.log('entityKey:', entityKey);
+
+  const newContent = Modifier.applyEntity(contentWithEntity, selection, entityKey);
+
+  const newState = EditorState.set(editorState, { currentContent: newContent });
+
+  console.log('raw after:', convertToRaw(newState.getCurrentContent()));
+
+
+  return EditorState.set(editorState, { currentContent: newContent });
 }
 
-export default AddLink;
+export function removeLink(
+  editorState: EditorState,
+): EditorState {
+  const selection = editorState.getSelection();
+  if (selection.isCollapsed()) return editorState;
+  return RichUtils.toggleLink(editorState, selection, null);
+}

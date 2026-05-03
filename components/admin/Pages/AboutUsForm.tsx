@@ -17,6 +17,7 @@ import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
+import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
@@ -116,12 +117,12 @@ function AboutUsForm() {
           let editor: EditorState;
           try {
             if (block.translatable_text_editorState) {
-              editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState));
+              editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
             } else {
-              editor = EditorState.createEmpty();
+              editor = EditorState.createEmpty(decorator);
             }
           } catch (err) {
-            editor = EditorState.createEmpty();
+            editor = EditorState.createEmpty(decorator);
           }
 
           editors[block.id] = editor;
@@ -149,33 +150,26 @@ function AboutUsForm() {
 
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
+    // ---- DELETE FILES ----
+    for (const url of deletedFiles) {
+      try {
+        await deleteFile(url);
+      } catch (error: any) {
+        console.log('Failed to delete file', url, error);
+      }
+    }
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+    // ---- UPDATE PAGE ----
+    let updateSuccess = false;
 
     try {
-      for (const url of deletedFiles) {
-        await deleteFile(url);
-      }
-
-      if(translateStatusVal == 'yes') {
-        try {
-          const responce = await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
-
-          console.log('translation responce', responce);
-          toast.success(`The translation was successfully created`);
-        } catch (error) {
-          console.log('error translate', error);
-          toast.error(`Something go wrong with translation! ${error}`);
-        }
-      }
-
-
       const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
 
       if (result) {
         setAboutUsPage(result);
         setSubmitError('');
         setDeletedFiles([]);
+        updateSuccess = true;
         toast.success(
           isUpdate
             ? 'About us page updated successfully!'
@@ -184,6 +178,22 @@ function AboutUsForm() {
       }
     } catch (error) {
       toast.error(`Something went wrong! ${error}`);
+    }
+
+    // ---- TRANSLATION ----
+    if (!updateSuccess) return;
+
+    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+    if(translateStatusVal == 'yes') {
+      try {
+        await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
+
+        toast.success(`The translation was successfully created`);
+      } catch (error) {
+        console.log('error translate', error);
+        toast.error(`Something go wrong with translation! ${error}`);
+      }
     }
   }
   
@@ -246,7 +256,7 @@ function AboutUsForm() {
                             {/* Text */}
                             <div className="mt-2 mb-4">
                               <div className="mb-2 !text-admin-700">Mission text</div>
-                              <TextEditor key={block.id} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                              <TextEditor key={block.id} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                             </div>
                           </div>
                         );
@@ -257,7 +267,7 @@ function AboutUsForm() {
                       {values.contentBlocks.map(block => (
                         <React.Fragment key={block.id}>
                           {block.contentBlockType === 'QUOTE' && (
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           )}
                         </React.Fragment>
                       ))}
@@ -281,7 +291,7 @@ function AboutUsForm() {
                       {values.contentBlocks.map(block => (
                         <React.Fragment key={block.id}>
                           {block.contentBlockType === 'OUR_HISTORY_DESCRIPTION' && (
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                           )}
                         </React.Fragment>
                       ))}
@@ -339,7 +349,7 @@ function AboutUsForm() {
 
                             <TextEditor
                               key={editorKey[firstHistoryBlock.id]}
-                              value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty()}
+                              value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty(decorator)}
                               onChange={newState => handleEditorChange(firstHistoryBlock.id, values, newState, setFieldValue)}
                             />
                           </div>
@@ -417,7 +427,7 @@ function AboutUsForm() {
                               </div>
                               <div className="mb-4">
                                 <div className="mb-2 !text-admin-700">Our history formation description</div>
-                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                               </div>
                             </div>
                           </Accordion>
@@ -443,7 +453,7 @@ function AboutUsForm() {
 
                           setEditorStates(prev => ({
                             ...prev,
-                            [blockId]: EditorState.createEmpty(),
+                            [blockId]: EditorState.createEmpty(decorator),
                           }));
 
                           setEditorKey(prev => ({

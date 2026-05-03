@@ -11,7 +11,6 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
   const t = useTranslations();
   const locale = useLocale();
 
-  console.log('link', link);
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
@@ -20,8 +19,10 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
         <div className="flex flex-col lg:flex-row -ml-3 -mr-3">
           {dopBlocks?.map(item => {
             const description = locale === EN_LOCALE 
-              ? item?.contentBlocksEng?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text 
-              : item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text;
+              ? item?.contentBlocksEng?.find(item => item.contentBlockType === 'MAIN_NEWS_BLOCK')?.translatable_text_editorState 
+              : item?.contentBlocks?.find(item => item.contentBlockType === 'MAIN_NEWS_BLOCK')?.translatable_text_editorState;
+
+            
 
             const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'PHOTO')?.data[0];
             const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.svg`;
@@ -30,7 +31,7 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
               ? item?.titleEng ?? item.title ?? ''
               : item?.title ?? item.titleEng ?? '';
 
-            return <DopBlockItem key={item.id} title={title} description={description} id={item.id} imageSrc={imgSrc} link={link} />;
+            return <DopBlockItem key={item.id} title={title} description={description} id={item.id} imageSrc={imgSrc} link={link} locale={locale} />;
           })}
         </div>
       </div>

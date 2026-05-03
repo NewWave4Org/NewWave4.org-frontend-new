@@ -34,6 +34,7 @@ import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
+import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -133,13 +134,13 @@ function ProjectContent({ projectId }: { projectId: number }) {
           try {
             if (block.translatable_text_editorState) {
               const content = convertFromRaw(block.translatable_text_editorState);
-              editor = EditorState.createWithContent(content);
+              editor = EditorState.createWithContent(content, decorator);
             } else {
-              editor = EditorState.createEmpty();
+              editor = EditorState.createEmpty(decorator);
             }
           } catch (err: any) {
             console.log('err', err);
-            editor = EditorState.createEmpty();
+            editor = EditorState.createEmpty(decorator);
           }
 
           editors[block.id] = editor;
@@ -358,7 +359,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               <div className="mb-4">
                                 <div>
                                   <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
-                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                                 </div>
                               </div>
                             )}
@@ -428,7 +429,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                         <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
                                         <TextEditor
                                           key={editorKey[block.id]}
-                                          value={editorStates[block.id] || EditorState.createEmpty()}
+                                          value={editorStates[block.id] || EditorState.createEmpty(decorator)}
                                           onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
                                         />
                                       </div>
@@ -516,7 +517,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                                   <div className="flex-1 flex flex-col">
                                     <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                    <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty()} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                    <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
                                   </div>
                                 </div>
 
@@ -557,7 +558,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                           setEditorStates(prev => ({
                             ...prev,
-                            [blockId]: EditorState.createEmpty(),
+                            [blockId]: EditorState.createEmpty(decorator),
                           }));
 
                           setEditorKey(prev => ({
