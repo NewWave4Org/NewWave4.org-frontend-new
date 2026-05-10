@@ -1,4 +1,4 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 import PartnerForm from './PartnerForm';
 
@@ -15,8 +15,9 @@ interface PartnersProps {
 
 const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) => {
   const t = useTranslations();
+  const locale = useLocale();
 
-  const partnerDescriptionText = convertDraftToHTML(ourPartnersContent?.translatable_text_editorState);
+  const partnerDescriptionText = convertDraftToHTML(ourPartnersContent?.translatable_text_editorState, locale);
 
   return (
     <section className={`${className} sponsors py-14`}>

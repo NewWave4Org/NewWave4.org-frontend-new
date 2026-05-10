@@ -1,5 +1,6 @@
 import { prefix } from '@/utils/prefix';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useLocale } from 'next-intl';
 
 type DetailedTextInformationProps = {
   quote: {
@@ -11,8 +12,9 @@ type DetailedTextInformationProps = {
 const DetailedTextInformation = ({ quote }: DetailedTextInformationProps) => {
   const beforeBg = `${prefix}/background/decor-element-yellow.svg`;
   const afterBg = `${prefix}/background/decor-element-blue.svg`;
+  const locale = useLocale();
 
-  const quoteText = convertDraftToHTML(quote?.translatable_text_editorState);
+  const quoteText = convertDraftToHTML(quote?.translatable_text_editorState, locale);
 
   return (
     <section className="detailed-text-information lg:my-20 my-10 lg:py-10 py-6">

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EditorState, RichUtils } from 'draft-js';
 import { BLOCK_TOOLS_MAP, INLINE_TOOLS_MAP } from '../config';
 import { useEffect, useRef, useState } from 'react';
-import AddLink from './Link/AddLink';
+import { addLink, removeLink } from './Link/AddLink';
 
 type IMethod = 'block' | 'inline';
 
@@ -16,40 +16,62 @@ interface ITool {
 
 interface IToolbar {
   editorState: EditorState;
-  setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
+  setEditorState: (state: EditorState) => void;
 }
 
 function Toolbar({ editorState, setEditorState }: IToolbar) {
-  // const [url, setUrl] = useState('');
-  // const [showLinkInput, setShowLinkInput] = useState(false);
-  // const inputRef = useRef<HTMLInputElement>(null);
-  // const savedSelection = useRef<ReturnType<typeof editorState.getSelection> | null>(null);
+  const [url, setUrl] = useState('');
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const savedSelection = useRef<ReturnType<typeof editorState.getSelection> | null>(null);
 
-  // useEffect(() => {
-  //   if (showLinkInput && inputRef.current) {
-  //     // Небольшая задержка чтобы выделение успело сохраниться
-  //     setTimeout(() => {
-  //       inputRef.current?.focus();
-  //     }, 0);
-  //   }
-  // }, [showLinkInput]);
 
-  // const handleAddLink = () => {
-  //   const selection = savedSelection.current;
+  useEffect(() => {
+    if (showLinkInput && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+    }
+  }, [showLinkInput]);
 
-  //   if (!selection || selection.isCollapsed() || !url.trim()) {
-  //     alert('Сначала выдели текст и введи ссылку');
-  //     return;
-  //   }
+  const handleRemoveLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newState = removeLink(editorState);
+    setEditorState(newState);
+  };
 
-  //   AddLink(editorState, setEditorState, url, selection);
+  const handleLinkButtonMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const selection = editorState.getSelection();
 
-  //   // setEditorState(newEditorState);
-  //   savedSelection.current = null;
-  //   setUrl('');
-  //   setShowLinkInput(false);
-  //   savedSelection.current = null;
-  // };
+    if (selection.isCollapsed()) {
+      alert('First, select the text');
+      return;
+    }
+
+    savedSelection.current = selection;
+    setShowLinkInput(true);
+
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleAddLink = () => {
+    if (!savedSelection.current || !url.trim()) return;
+
+    const newState = addLink(editorState, url, savedSelection.current);
+    setEditorState(newState);
+
+    savedSelection.current = null;
+    setUrl('');
+    setShowLinkInput(false);
+  };
+
+  const handleCancel = () => {
+    setShowLinkInput(false);
+    setUrl('');
+    savedSelection.current = null;
+  };
+  
 
   const applyStyle = (e: React.MouseEvent, style: string, method: IMethod) => {
     e.preventDefault();
@@ -85,71 +107,49 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
     );
   };
 
-  // const handleLinkButtonClick = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   const selection = editorState.getSelection();
-
-  //   if (selection.isCollapsed()) {
-  //     alert('Сначала выдели текст');
-  //     return;
-  //   }
-
-  //   // Сохраняем выделение
-  //   savedSelection.current = selection;
-  //   setShowLinkInput(true);
-  // };
-
-  return (
-    <div className="">
-      {/* Inline styles */}
+   return (
+    <div className='mb-5'>
       <div>{INLINE_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'inline', idx))}</div>
-
-      {/* Block styles */}
       <div>{BLOCK_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'block', idx))}</div>
 
-      {/* Кнопка для показа инпута ссылки */}
-      {/* <button type="button" className="bg-gray-600 text-white px-2 py-1 rounded ml-2" onMouseDown={handleLinkButtonClick}>
+      <button
+        type="button"
+        className="bg-gray-600 text-white px-2 py-1 rounded ml-2"
+        onMouseDown={handleLinkButtonMouseDown}
+      >
         🔗 Link
-      </button> */}
+      </button>
 
-      {/* Инпут и кнопка добавления ссылки */}
-      {/* {showLinkInput && (
+      <button
+        type="button"
+        className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+        onMouseDown={handleRemoveLink}
+      >
+        🔗 Remove Link
+      </button>
+
+      {showLinkInput && (
         <div className="inline-flex items-center ml-2">
           <input
-            type="text"
             ref={inputRef}
+            type="text"
             value={url}
             onChange={e => setUrl(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleAddLink();
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                setShowLinkInput(false);
-                setUrl('');
-                savedSelection.current = null;
-              }
+              if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); }
+              if (e.key === 'Escape') { e.preventDefault(); handleCancel(); }
             }}
             placeholder="https://..."
             className="border rounded px-2 py-1 w-48"
           />
           <button type="button" className="bg-blue-600 text-white px-2 py-1 rounded ml-2" onClick={handleAddLink}>
-            Добавить
+            Add link
           </button>
-          <button
-            type="button"
-            className="bg-gray-400 text-white px-2 py-1 rounded ml-2"
-            onClick={() => {
-              setShowLinkInput(false);
-              setUrl('');
-              savedSelection.current = null;
-            }}
-          >
-            Отмена
+          <button type="button" className="bg-gray-400 text-white px-2 py-1 rounded ml-2" onClick={handleCancel}>
+            Cancel
           </button>
         </div>
-      )} */}
+      )}
     </div>
   );
 }

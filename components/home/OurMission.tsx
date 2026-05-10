@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface IOurMission {
   id: string;
@@ -30,6 +30,7 @@ const ourMissionData = {
 
 const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
   const t = useTranslations();
+  const locale = useLocale();
   
   return (
     <section className="our-mission lg:py-14 py-7 lg:mb-20 mb-10 bg-skyBlue-300">
@@ -37,7 +38,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
         <h3 className="section-title text-h3 text-center text-font-accent mb-10 font-ebGaramond">{t('sections_title.our_mission')}</h3>
         <div className="flex flex-col items-baseline gap-6 md:flex-row md:justify-between">
           {ourMission?.map((item, index) => {
-            const ourMissionDescriptionText = convertDraftToHTML(item?.translatable_text_editorState);
+            const ourMissionDescriptionText = convertDraftToHTML(item?.translatable_text_editorState, locale);
             const icon = ourMissionData.items[index]?.icon;
             const iconWidth = ourMissionData.items[index]?.width;
 

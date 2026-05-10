@@ -5,6 +5,7 @@ import Toolbar from './toolBar/ToolPanel';
 import { useEffect, useRef, useState } from 'react';
 
 import './editor-style.css';
+import { decorator } from './toolBar/Link/Link';
 
 interface TextEditorProps {
   value: EditorState;
@@ -14,7 +15,10 @@ interface TextEditorProps {
 function TextEditor({ value, onChange }: TextEditorProps) {
   const [mounted, setMounted] = useState(false);
 
-  const [editorState, setEditorState] = useState(() => value || EditorState.createEmpty());
+  // const [editorState, setEditorState] = useState(() => value || EditorState.createEmpty());
+  const [editorState, setEditorState] = useState(
+    () => value || EditorState.createEmpty(decorator)
+  );
   const editor = useRef<Editor | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
@@ -98,21 +102,15 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   return (
     <div className="editor-wrapper flex flex-col flex-1" onClick={handleWrapperClick}>
       <div ref={toolbarRef}>
-        <Toolbar editorState={editorState} setEditorState={setEditorState} />
+        <Toolbar editorState={editorState} setEditorState={handleEditorChange} />
       </div>
       <div className="editor-container">
         <Editor
           ref={editor}
-          placeholder="Write Here"
           editorState={editorState}
           customStyleMap={styleMap}
           blockStyleFn={myBlockStyleFn}
           onChange={handleEditorChange}
-          // onChange={editorState => {
-          //   const contentState = editorState.getCurrentContent();
-          //   console.log(convertToRaw(contentState));
-          //   setEditorState(editorState);
-          // }}
         />
       </div>
     </div>

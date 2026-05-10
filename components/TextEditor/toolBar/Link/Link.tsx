@@ -1,22 +1,35 @@
 'use client';
 
-import { ContentState } from 'draft-js';
-import React from 'react';
+import { CompositeDecorator } from "draft-js";
+import { useLocale } from "next-intl";
 
-interface LinkProps {
-  children: React.ReactNode;
-  contentState: ContentState;
-  entityKey: string;
-}
-
-function Link({ contentState, entityKey, children }: LinkProps) {
+const LinkComponent = ({ contentState, entityKey, children }: any) => {
   const { url } = contentState.getEntity(entityKey).getData();
+  const locale = useLocale();
+
+  const resolvedUrl = () => {
+    if (url.startsWith('https')) return url;
+    if (url.startsWith(`/${locale}`)) return url;
+    return `/${locale}/${url.replace(/^\//, '')}`;
+  };
 
   return (
-    <a href={url} rel="noopener noreferrer" className="text-admin-600 underline inline">
+    <a href={resolvedUrl()} title={resolvedUrl()} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline cursor-pointer">
       {children}
     </a>
   );
-}
+};
 
-export default Link;
+const linkStrategy = (contentBlock: any, callback: any, contentState: any) => {
+  contentBlock.findEntityRanges(
+    (char: any) => {
+      const key = char.getEntity();
+      return key !== null && contentState.getEntity(key).getType() === 'LINK';
+    },
+    callback
+  );
+};
+
+export const decorator = new CompositeDecorator([
+  { strategy: linkStrategy, component: LinkComponent }
+]);

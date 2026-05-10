@@ -7,6 +7,9 @@ import { useTranslations } from 'next-intl';
 import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { useAppSelector } from '@/store/hook';
 import { EN_LOCALE } from '@/i18n';
+import DropDown from '../shared/DropDown';
+import FilterIcon from '../icons/symbolic/FilterIcon';
+import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 
 interface Item {
   id: number;
@@ -46,7 +49,7 @@ const FilterNews = ({
   }, [projectsStatus]);
 
 
-  function handleFilterActive(e: React.MouseEvent<HTMLLIElement>) {
+  function handleFilterActive(e: React.MouseEvent<HTMLDivElement>) {
     const id = Number(e.currentTarget.dataset.id);
     setActiveFilter(id);
   }
@@ -63,20 +66,30 @@ const FilterNews = ({
     <div className="filterNews mb-[14px]">
       <div className="filterNews__inner">
         <div className="container px-4 mx-auto">
-          <ul className="filterNews__items flex lg:px-[32px] px-0 justify-start bg-background-primary flex-wrap">
-            {loading ? (
-              <li className="px-4 py-2 text-gray-500 before:content-none">Loading...</li>
-            ) : (
-              filterItems.map(item => (
-                <FilterItem
-                  key={item.id}
-                  item={item}
-                  handleFilterActive={handleFilterActive}
-                  activeFilter={activeFilter}
-                />
-              ))
+          <DropDown
+            classNameParent="inline-block"
+            classNameMenu="min-w-[320px] p-3"
+            items={filterItems.map(item => ({ label: item.title, id: item.id }))}
+            renderBth={(isOpen, toggle) => (
+              <button onClick={toggle} className='shadow-md rounded-3xl bg-white py-2.5 px-5 flex items-center'>
+                {filterItems.find(i => i.id === activeFilter)?.title} 
+                <span className='ml-2'>
+                  <ArrowDown4Icon />
+                </span>
+              </button>
             )}
-          </ul>
+            renderItem={(item, close) => (
+              <FilterItem
+                key={item.id}
+                item={{ id: item.id, title: item.label }}
+                activeFilter={activeFilter}
+                handleFilterActive={(e) => {
+                  handleFilterActive(e);
+                  close();
+                }}
+              />
+            )}
+          />
         </div>
       </div>
     </div>
