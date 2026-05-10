@@ -52,6 +52,7 @@ function HomeForm() {
         { id: uuid(), contentBlockType: 'SLIDER', translatable_text_title: '', translatable_text_description: '', link: '', files: [], translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'HOME_TITLE', translatable_text_title: '' },
         { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', translatable_text_description: '', translatable_text_editorState: null },
+        { id: uuid(), contentBlockType: 'HOME_PHOTO', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
         { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
@@ -213,6 +214,8 @@ function HomeForm() {
               const sliderBlocks = values.contentBlocks.filter(b => b.contentBlockType === 'SLIDER');
               const fixedBlocks = values.contentBlocks.filter(b => b.contentBlockType !== 'SLIDER');
               const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
+              const photoBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_PHOTO');
+              const photoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'HOME_PHOTO');
 
               return (
                 <div>
@@ -431,6 +434,48 @@ function HomeForm() {
                       );
                     }
 
+                    if (block.contentBlockType === 'JOIN_US') {
+                      const joinUsBlocks = values.contentBlocks.filter(b => b.contentBlockType === 'JOIN_US');
+                      const joinUsNumber = joinUsBlocks.indexOf(block) + 1;
+
+                      return (
+                        <div key={realIndex} className="mb-8">
+                          <Accordion title={`Join Us #${joinUsNumber} - ${block.translatable_text_title || ''}`} classNameTop="min-h-14">
+                            {block.translatable_text_title !== undefined && (
+                              <div className="mb-4">
+                                <Input
+                                  id={`contentBlocks[${realIndex}].translatable_text_title`}
+                                  name={`contentBlocks[${realIndex}].translatable_text_title`}
+                                  type="text"
+                                  value={block.translatable_text_title}
+                                  onChange={handleChange}
+                                  label="Join Us title"
+                                  labelClass="mb-2 !text-admin-700"
+                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                />
+                              </div>
+                            )}
+                            {block.translatable_text_description !== undefined && (
+                              <>
+                                <div className="mb-2 !text-admin-700">Join Us description</div>
+                                <TextEditor
+                                  key={editorKey[block.id]}
+                                  value={editorStates[block.id] || EditorState.createEmpty(decorator)}
+                                  onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                                />
+                              </>
+                            )}
+                          </Accordion>
+                        </div>
+                      );
+                    }
+
+                    // HOME_PHOTO
+                    if (block.contentBlockType === 'HOME_PHOTO') {
+                      return null;
+                    }
+
+                    // HOME_TITLE, HOME_DESCRIPTION, PARTNERS
                     return (
                       <div key={realIndex} className="mb-8">
                         {block.translatable_text_title !== undefined && (
@@ -449,8 +494,30 @@ function HomeForm() {
                         )}
                         {block.translatable_text_description !== undefined && (
                           <>
-                            <div className="mb-2 text-admin-700">{block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <div className="mb-2 !text-admin-700">
+                              {block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}
+                            </div>
+                            <TextEditor
+                              key={editorKey[block.id]}
+                              value={editorStates[block.id] || EditorState.createEmpty(decorator)}
+                              onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                            />
+                            {/* HOME_PHOTO вставляем сразу после HOME_DESCRIPTION */}
+                            {block.contentBlockType === 'HOME_DESCRIPTION' && photoBlock && (
+                              <div className="mt-4">
+                                <div className="mb-2 !text-admin-700">Home photo</div>
+                                <ImageLoading
+                                  classBlock="min-h-[300px]"
+                                  maxFiles={1}
+                                  isAttach={true}
+                                  uploadedUrls={photoBlock.files ?? []}
+                                  onFilesChange={(files, deleted) => {
+                                    setFieldValue(`contentBlocks.${photoIndex}.files`, files);
+                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  }}
+                                />
+                              </div>
+                            )}
                           </>
                         )}
                       </div>

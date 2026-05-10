@@ -306,7 +306,7 @@ ol {
 .filterNews__item:before {
   content: none;
 }
-p {
+p:not(:last-child) {
   margin-bottom: 10px;
 }
 

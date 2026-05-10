@@ -18,9 +18,9 @@ const FilterItem: React.FC<FilterItemProps> = ({
     <div
       className={`filterNews__item 
         bg-primary-100 text-medium1
-        text-primary-700 py-2 px-4 rounded-[50px] 
+        text-primary-700 py-2 px-6 rounded-[50px] 
         mx-1 my-[10px] min-h-[40px] font-helv leading-[1.3]
-        cursor-pointer whitespace-nowrap
+        cursor-pointer
         ${activeFilter === item.id ? '!bg-primary-700 text-white' : ''}
         hover:bg-primary-500 hover:text-white duration-500
       `}

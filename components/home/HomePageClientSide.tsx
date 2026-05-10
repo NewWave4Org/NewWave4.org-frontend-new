@@ -30,6 +30,7 @@ function HomePageClientSide() {
   const slides = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SLIDER') || [];
   const homeTitle = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_TITLE');
   const homeDescription = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
+  const homePhoto = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_PHOTO');
   const joinUs = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'JOIN_US') || [];
   const ourPartnersContent = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'PARTNERS');
   const videoUrl = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
@@ -70,7 +71,7 @@ function HomePageClientSide() {
     <>
       <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 lg:pb-0 mb-0 pb-5">
         <HomeSlider slides={slides} className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider" />
-        <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} className="lg:h-1/2" />
+        <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} homePhoto={homePhoto} className="lg:h-1/2" />
       </section>
       <Programs />
       <NewsEvents link="/news" className="!lg:py-10 !py-5" />
