@@ -1,13 +1,16 @@
 import { prefix } from '@/utils/prefix';
 import React from 'react';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { useLocale } from 'next-intl';
 
 const Quote = ({ quote, className }: { quote: any; className?: string }) => {
   const bgTopUrl = `${prefix}/icons/NewsQuoteTop.svg`;
   const bgBottomUrl = `${prefix}/icons/NewsQuoteBottom.svg`;
 
+  const locale = useLocale();
+
   const isEditorObject = typeof quote === 'object' && quote !== null && 'translatable_text_editorState' in quote;
-  const quoteTextNew = isEditorObject ? convertDraftToHTML(quote.translatable_text_editorState) : quote;
+  const quoteTextNew = isEditorObject ? convertDraftToHTML(quote.translatable_text_editorState, locale) : quote;
 
   return (
     <div className={`quoteBlock lg:max-w-[1035px] py-[50px] mx-auto md:max-w-full mb-[40px] ${className}`}>

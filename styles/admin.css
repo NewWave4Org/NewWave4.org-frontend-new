@@ -142,3 +142,13 @@ body {
   .react-calendar-datetime-picker  {
     background: transparent !important;
   }
+
+
+p:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+p a {
+  color: rgb(37, 99, 235);
+  text-decoration: underline;
+}

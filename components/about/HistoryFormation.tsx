@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface IOurTimeLine {
   year: string;
@@ -11,6 +11,8 @@ interface IOurTimeLine {
 
 const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
   const t = useTranslations();
+  const locale = useLocale();
+
   return (
     <section className="history-formation py-14">
       <div className="history-formation__inner">
@@ -21,7 +23,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
         <div className="container mx-auto px-4">
           <div className="xl:py-[300px] w-full flex xl:flex-row flex-col relative">
             {ourTimeLine?.map((event, index) => {
-              const ourTimeLineText = convertDraftToHTML(event?.translatable_text_editorState);
+              const ourTimeLineText = convertDraftToHTML(event?.translatable_text_editorState, locale);
               const iconCircus = `after:content-[""] after:absolute xl:after:w-[8px] after:w-[20px] xl:after:h-[8px] after:h-[20px] after:bg-accent-600 after:z-[1] after:rounded-full xl:after:left-1/2 after:-translate-x-1/2 ${
                 index % 2 === 0 ? 'xl:after:-bottom-1 xl:after:top-auto after:top-1/2 after:-right-[36px] after:left-auto' : 'xl:after:-top-1  after:top-1/2 after:-left-4 after:right-auto'
               }`;

@@ -23,7 +23,7 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const [article, setArticle] = useState<ArticleFull | null>(null);
-  const [projectTitle, setProjectTitle] = useState('');
+  // const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<Slide[]>([]);
   const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
@@ -60,23 +60,23 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
     fetchArticle();
   }, [articleId, dispatch]);
 
-  useEffect(() => {
-    if (!article?.relevantProjectId) return;
+  // useEffect(() => {
+  //   if (!article?.relevantProjectId) return;
 
-    const fetchProject = async () => {
-      try {
-        const project = await dispatch(
-          getArticleById(article.relevantProjectId!,
-          ),
-        ).unwrap();
-        setProjectTitle(project.title);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  //   const fetchProject = async () => {
+  //     try {
+  //       const project = await dispatch(
+  //         getArticleById(article.relevantProjectId!,
+  //         ),
+  //       ).unwrap();
+  //       setProjectTitle(project.title);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
 
-    fetchProject();
-  }, [article?.relevantProjectId, dispatch]);
+  //   fetchProject();
+  // }, [article?.relevantProjectId, dispatch]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -89,54 +89,56 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   return (
     <div className="article_page">
       <div className="container px-4 mx-auto">
-        <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
-          <div className="lg:max-w-[718px] lg:mb-0 mb-6">
+        <div className="flex lg:items-stretch items-start lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
+          <div className="lg:max-w-[718px] lg:mb-0 mb-6 min-h-[365px] overflow-hidden flex-1 relative">
             <Image
               src={article?.mainPhoto}
-              className="w-full"
-              width={100}
-              height={100}
-              alt=""
+              fill
+              className="object-cover object-top"
+              alt={article.title}
+              priority
             />
           </div>
           <div className="lg:max-w-[506px] flex flex-col justify-between">
-            <div className="font-ebGaramond text-h3 text-font-primary mb-6">
-              {article.title}
-            </div>
             <div>
-              <div className="mb-4">
-                <div
-                  className="filterNews__item 
-                  bg-primary-100 text-medium1
-                  text-primary-700 py-2 px-4 rounded-[50px] 
-                  my-[10px] h-[40px] font-helv leading-[1.3]
-                  whitespace-nowrap "
-                >
-                  {projectTitle}
-                </div>
-                <div className="flex items-center mb-1">
-                  <div className="mr-2">
-                    <UserIcon size="16" color="#7A7A7A" />
+              <h2 className="font-ebGaramond text-h2 text-font-primary mb-6">
+                {article.title}
+              </h2>
+              <div>
+                <div className="mb-4">
+                  {/* <div
+                    className="filterNews__item 
+                    bg-primary-100 text-medium1
+                    text-primary-700 py-2 px-4 rounded-[50px] 
+                    my-[10px] h-[40px] font-helv leading-[1.3]
+                    whitespace-nowrap "
+                  >
+                    {projectTitle}
+                  </div> */}
+                  <div className="flex items-center mb-1">
+                    <div className="mr-2">
+                      <UserIcon size="16" color="#7A7A7A" />
+                    </div>
+                    <span className="text-grey-600 text-small2 inline-block leading-none">
+                      Автор
+                    </span>
                   </div>
-                  <span className="text-grey-600 text-small2 inline-block leading-none">
-                    Автор
-                  </span>
-                </div>
-                <div className="text-font-primary text-small">
-                  {article.authorName}
-                </div>
-              </div>
-              <div className="mb-4">
-                <div className="flex items-center mb-1">
-                  <div className="mr-2">
-                    <CalendarIcon size="16" color="#7A7A7A" />
+                  <div className="text-font-primary text-small">
+                    {article.authorName}
                   </div>
-                  <span className="text-grey-600 text-small2 inline-block leading-none">
-                    Дата
-                  </span>
                 </div>
-                <div className="text-font-primary text-small">
-                  {formatDateUk(article.dateOfWriting)}
+                <div className="mb-4">
+                  <div className="flex items-center mb-1">
+                    <div className="mr-2">
+                      <CalendarIcon size="16" color="#7A7A7A" />
+                    </div>
+                    <span className="text-grey-600 text-small2 inline-block leading-none">
+                      Дата
+                    </span>
+                  </div>
+                  <div className="text-font-primary text-small">
+                    {formatDateUk(article.dateOfWriting)}
+                  </div>
                 </div>
               </div>
             </div>

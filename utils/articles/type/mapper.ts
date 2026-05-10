@@ -30,11 +30,11 @@ export function mapGetArticleByIdResponseToFull(
         photoSlider:
             getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_SLIDER) ?? [],
         quote:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.QUOTE)) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.QUOTE), locale) ?? "",
         mainText:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK)) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK), locale) ?? "",
         textblock2:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.TEXT)) ?? "",
+            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.TEXT), locale) ?? "",
         video:
             getBlockValue<string>(blocks, ContentBlockType.VIDEO) ?? "",
     };

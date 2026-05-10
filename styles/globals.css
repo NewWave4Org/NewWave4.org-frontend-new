@@ -306,7 +306,7 @@ ol {
 .filterNews__item:before {
   content: none;
 }
-p {
+p:not(:last-child) {
   margin-bottom: 10px;
 }
 
@@ -405,4 +405,9 @@ body.menu-open {
       background-image: var(--list-before-bg-image);
     }
   }
+}
+
+p a {
+  color: rgb(37, 99, 235);
+  text-decoration: underline;
 }

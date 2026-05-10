@@ -28,6 +28,7 @@ import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFrom
 import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { createTranslation } from '@/store/translation/action';
+import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -66,9 +67,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     textblock2: EditorState;
     quote: EditorState;
   }>({
-    textblock1: EditorState.createEmpty(),
-    textblock2: EditorState.createEmpty(),
-    quote: EditorState.createEmpty(),
+    textblock1: EditorState.createEmpty(decorator),
+    textblock2: EditorState.createEmpty(decorator),
+    quote: EditorState.createEmpty(decorator),
   });
 
   const [editorKey, setEditorKey] = useState({
@@ -161,10 +162,10 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           const block = data.contentBlocks?.find((b: any) => b.contentBlockType === blockType);
           try {
             return block?.translatable_text_editorState
-              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState))
-              : EditorState.createEmpty();
+              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              : EditorState.createEmpty(decorator);
           } catch {
-            return EditorState.createEmpty();
+            return EditorState.createEmpty(decorator);
           }
         };
 
@@ -214,8 +215,6 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   };
 
   async function handleSubmit(values: any) {
-    console.log('values', values);
-
     const textblock1Block = values.contentBlocks.find(
       (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
     );
@@ -242,6 +241,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
+    // ---- UPDATE PAGE ----
+    let updateSuccess = false;
+
     try {
       if(articleId) {
         await dispatch(
@@ -258,24 +260,34 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           }),
         ).unwrap();
 
-        const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+        updateSuccess = true;
 
-        if(translateStatusVal == 'yes') {
-          try {
-            await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
+        setArticle(prev => ({
+          ...prev!,
+          contentBlocks: values.contentBlocks,
+        }));
 
-            toast.success(`The translation was successfully created`);
-
-          } catch (error) {
-            console.log('error translate', error);
-            toast.error(`Something go wrong with translation! ${error}`);
-          }
-        }
+        toast.success(`${getTypeName(articleType)} content saved successfully!`);
       }
+    } catch (error) {
+      toast.error(`Something went wrong! ${error}`);
+    }
 
-      toast.success(`${getTypeName(articleType)} content saved successfully!`);
-    } catch {
-      toast.error(`Failed to save ${getTypeName(articleType)}`);
+    // ---- TRANSLATION ----
+    if (!updateSuccess) return;
+
+    const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+    if(translateStatusVal == 'yes') {
+      try {
+        await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
+
+        toast.success(`The translation was successfully created`);
+
+      } catch (error) {
+        console.log('error translate', error);
+        toast.error(`Something go wrong with translation! ${error}`);
+      }
     }
   }
 
@@ -401,7 +413,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                     id="title"
                     name="title"
                     type="text"
-                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                    className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
                     value={values.title}
                     label="Title"
                     labelClass="!text-admin-700"
@@ -499,7 +511,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                     id={`contentBlocks.${videoIndex}.data`}
                     name={`contentBlocks.${videoIndex}.data`}
                     type="text"
-                    className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                    className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
                     value={values.contentBlocks[videoIndex]?.data || ''}
                     label="Video"
                     labelClass="!text-admin-700"

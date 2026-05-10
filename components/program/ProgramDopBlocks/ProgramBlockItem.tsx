@@ -18,7 +18,7 @@ function ProgramBlockItem({ title, description, imageSrc, id }: IProgramBlockIte
           </div>
         <div className="pt-2 pb-4 px-4 flex flex-col gap-y-2 flex-1">
           <h2 className="text-font-primary text-body font-medium">{title}</h2>
-          <p className="text-grey-700 text-info truncate">{description}</p>
+          <p className="text-grey-700 text-info line-clamp-3">{description}</p>
         </div>
       </Link>
     </div>
