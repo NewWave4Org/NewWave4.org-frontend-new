@@ -37,9 +37,7 @@ function AboutUsForm() {
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
-    {},
-  );
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -95,14 +93,71 @@ function AboutUsForm() {
   };
 
   useEffect(() => {
+    // async function getPageByKey() {
+    //   try {
+    //     const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
+
+    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+    //       ...block,
+    //       id: block.id ?? uuid(),
+    //       ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
+    //     }));
+
+    //     // Add default blocks
+    //     const mergedBlocks = [
+    //       ...serverBlocks,
+    //       ...defaultFormValues.contentBlocks.filter(
+    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+    //       )
+    //     ];
+
+    //     const editors: Record<string, EditorState> = {};
+    //     const keys: Record<string, string> = {};
+
+    //     mergedBlocks.forEach(block => {
+    //       let editor: EditorState;
+    //       try {
+    //         if (block.translatable_text_editorState) {
+    //           editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
+    //         } else {
+    //           editor = EditorState.createEmpty(decorator);
+    //         }
+    //       } catch (err) {
+    //         editor = EditorState.createEmpty(decorator);
+    //       }
+
+    //       editors[block.id] = editor;
+    //       keys[block.id] = `${block.id}-init`;
+    //     });
+
+    //     setEditorStates(editors);
+    //     setEditorKey(keys);
+
+    //     setAboutUsPage({
+    //       ...result,
+    //       contentBlocks: mergedBlocks,
+    //     });
+
+    //   } catch (error: any) {
+    //     console.log('error', error);
+    //     setAboutUsPage(null);
+    //     toast.error('Failed to fetch About us page');
+    //   }
+    // }
+
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const sourceBlocks = isEngDirection
+          ? (result?.contentBlocksEng ?? [])
+          : (result?.contentBlocks ?? []);
+
+        const serverBlocks = sourceBlocks.map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? { isNew: false } : {}),
         }));
 
         // Add default blocks
@@ -110,7 +165,7 @@ function AboutUsForm() {
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+          ),
         ];
 
         const editors: Record<string, EditorState> = {};
@@ -119,12 +174,10 @@ function AboutUsForm() {
         mergedBlocks.forEach(block => {
           let editor: EditorState;
           try {
-            if (block.translatable_text_editorState) {
-              editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
-            } else {
-              editor = EditorState.createEmpty(decorator);
-            }
-          } catch (err) {
+            editor = block.translatable_text_editorState
+              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              : EditorState.createEmpty(decorator);
+          } catch {
             editor = EditorState.createEmpty(decorator);
           }
 
@@ -192,10 +245,11 @@ function AboutUsForm() {
     if (!updateSuccess) return;
 
     const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+    const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
 
     if(translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, direction: values.translateDirection}, setSubmitErrorTranslate);
+        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, direction: translateFrom}, setSubmitErrorTranslate);
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
@@ -215,19 +269,8 @@ function AboutUsForm() {
 
         return(
           <Form>
-            {/* <div className='mb-5'>
-              <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                labelClass="!text-admin-700" 
-                onChange={handleChange} options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]} />
-            </div> */}
-
             <TranslateSection
               translateBlockIndex={translateBlockIndex}
-              translateDirection={values.translateDirection}
               translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
               handleChange={handleChange}
             />

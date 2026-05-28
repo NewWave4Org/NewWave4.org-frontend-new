@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/store/hook';
 import { FieldArray, Form, Formik } from 'formik';
-import { PagesType } from './enum/types';
+import { PagesType, TranslateDirection, TranslateDirectionEnum } from './enum/types';
 import Input from '@/components/shared/Input';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import { useEffect, useMemo, useState } from 'react';
@@ -18,9 +18,11 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
 
 interface IHomePageValues {
   pageType: PagesType;
+  translateDirection: string;
   contentBlocks: any[];
 }
 
@@ -47,6 +49,7 @@ function HomeForm() {
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.HOME,
+      translateDirection: 'uk_to_en' as TranslateDirection,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
         { id: uuid(), contentBlockType: 'SLIDER', translatable_text_title: '', translatable_text_description: '', link: '', files: [], translatable_text_editorState: null },
@@ -65,6 +68,7 @@ function HomeForm() {
 
   const initialValues = {
     pageType: PagesType.HOME,
+    translateDirection: homePage?.translateDirection ?? defaultFormValues.translateDirection,
     contentBlocks: homePage?.contentBlocks?.length ? homePage.contentBlocks : defaultFormValues.contentBlocks,
   };
 
@@ -88,36 +92,97 @@ function HomeForm() {
   };
 
   useEffect(() => {
+    // async function getPageByKey() {
+    //   try {
+    //     const result = await dispatch(getPages(PagesType.HOME)).unwrap();
+
+    //     const editors: Record<string, EditorState> = {};
+    //     const keys: Record<string, string> = {};
+
+    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+    //       ...block,
+    //       id: block.id ?? uuid(),
+    //       ...(block.contentBlockType === 'SLIDER' ? {isNew: false} : {})
+    //     }));
+
+    //     const mergedBlocks = [
+    //       ...serverBlocks,
+    //       ...defaultFormValues.contentBlocks.filter(
+    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+    //       )
+    //     ];
+
+    //     mergedBlocks.forEach(block => {
+    //       let editor;
+
+    //       try {
+    //         if (block.translatable_text_editorState) {
+    //           const content = convertFromRaw(block.translatable_text_editorState);
+    //           editor = EditorState.createWithContent(content, decorator);
+    //         } else {
+    //           editor = EditorState.createEmpty(decorator);
+    //         }
+    //       } catch (err: any) {
+    //         console.log('err', err);
+    //         editor = EditorState.createEmpty(decorator);
+    //       }
+
+    //       editors[block.id] = editor;
+    //       keys[block.id] = `${block.id}-init`;
+    //     });
+
+    //     setEditorStates(editors);
+
+    //     setEditorKey(keys);
+
+    //     setHomePage({
+    //       ...result,
+    //       contentBlocks: mergedBlocks,
+    //     });
+    //   } catch (error: any) {
+    //     if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+    //       console.log('Section does not exist yet → creating new one');
+    //       setHomePage(null);
+    //       return;
+    //     }
+
+    //     console.log('error', error);
+    //     setHomePage(null);
+    //     toast.error('Failed to fetch Home page');
+    //   }
+    // }
+
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
 
+        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const sourceBlocks = isEngDirection
+          ? (result?.contentBlocksEng ?? [])
+          : (result?.contentBlocks ?? []);
+
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const serverBlocks = sourceBlocks.map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'SLIDER' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'SLIDER' ? { isNew: false } : {}),
         }));
 
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+          ),
         ];
 
         mergedBlocks.forEach(block => {
           let editor;
-
           try {
-            if (block.translatable_text_editorState) {
-              const content = convertFromRaw(block.translatable_text_editorState);
-              editor = EditorState.createWithContent(content, decorator);
-            } else {
-              editor = EditorState.createEmpty(decorator);
-            }
+            editor = block.translatable_text_editorState
+              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              : EditorState.createEmpty(decorator);
           } catch (err: any) {
             console.log('err', err);
             editor = EditorState.createEmpty(decorator);
@@ -128,13 +193,13 @@ function HomeForm() {
         });
 
         setEditorStates(editors);
-
         setEditorKey(keys);
 
         setHomePage({
           ...result,
           contentBlocks: mergedBlocks,
         });
+
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
           console.log('Section does not exist yet → creating new one');
@@ -153,6 +218,11 @@ function HomeForm() {
 
   //SAVE
   async function handleSubmit(values: IHomePageValues) {
+    const { translateDirection, contentBlocks, ...rest } = values;
+    const preparedData = translateDirection === `${TranslateDirectionEnum.UK_TO_EN}`
+    ? { ...rest, translateDirection, contentBlocks, contentBlocksEng: [] }
+    : { ...rest, translateDirection, contentBlocksEng: contentBlocks, contentBlocks: [] };
+
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -174,7 +244,7 @@ function HomeForm() {
     let updateSuccess = false;
 
     try {
-      const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
+      const result = await handleThunk(updatePages, { id: homePage?.id, data: preparedData }, setSubmitError);
 
       if (result) {
         setHomePage(result);
@@ -191,10 +261,11 @@ function HomeForm() {
     // ---- TRANSLATION ----
     if (!updateSuccess) return;
     const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+    const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
     
     if(translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, homePage?.id, setSubmitErrorTranslate);
+        await handleThunk(createTranslationPage, {id: homePage?.id, translateFrom: translateFrom}, setSubmitErrorTranslate);
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
@@ -220,14 +291,13 @@ function HomeForm() {
               return (
                 <div>
                   <div className='mb-7'>
-                    <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                      name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                      labelClass="!text-admin-700" 
-                      onChange={handleChange} options={[
-                      { value: 'yes', label: 'Yes' },
-                      { value: 'no', label: 'No' },
-                    ]} />
+                    <TranslateSection
+                      translateBlockIndex={translateBlockIndex}
+                      translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                      handleChange={handleChange}
+                    />
                   </div>
+
                   {/* SLIDERS FIRST */}
                   {/* FIRST SLIDER BLOCK — non removable */}
                   {sliderBlocks.length > 0 &&

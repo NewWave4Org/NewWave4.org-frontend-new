@@ -4,18 +4,18 @@ import { request } from "../http/http-request-service";
 import { ITranslationApi } from "./type/translation-api.interface";
 
 class TranslationApi implements ITranslationApi {
-    async translate(id: number) {
+    async translate({id, translateFrom }: {id: number, translateFrom: string}) {
         return request({
             method: HttpMethod.PUT,
             url: ApiEndpoint.TRANSLATION(id)
-        })
+        });
     }
 
-    async translatePage(id: number) {
+    async translatePage({id, translateFrom }: {id: number, translateFrom: string}) {
         return request({
             method: HttpMethod.PUT,
             url: ApiEndpoint.TRANSLATION_PAGE(id)
-        })
+        });
     }
 }
 

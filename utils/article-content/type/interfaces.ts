@@ -18,6 +18,7 @@ export interface IArticleBody {
 export interface GetArticleByIdResponseDTO {
   articleStatus: string;
   articleType: ArticleType;
+  translateDirection: string;
   authorId: number;
   authorName: string;
   contentBlocks: any[] | null;
