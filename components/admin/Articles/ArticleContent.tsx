@@ -24,12 +24,12 @@ import Select from '@/components/shared/Select';
 import WarningIcon from '@/components/icons/status/WarningIcon';
 import { useUsers } from '@/utils/hooks/useUsers';
 import DatePicker from '../helperComponents/DatePicker/DatePicker';
-import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { createTranslation } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
-import { TranslateDirectionEnum } from '../Pages/enum/types';
+import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
+import { TranslateDirection } from '../Pages/enum/types';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -445,13 +445,16 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       <Formik
         enableReinitialize
         initialValues={{
-          title: article?.translateDirection === 'en_to_uk'
-            ? article?.titleEng || ''
-            : article?.title || '',
-          // ...остальные поля
-          contentBlocks: article?.translateDirection === 'en_to_uk'
-            ? article?.contentBlocksEng?.length ? article.contentBlocksEng : getDefaultContentBlocks()
-            : article?.contentBlocks?.length ? article.contentBlocks : getDefaultContentBlocks(),
+          title: article?.title || '',
+          ranslateDirection: 'uk_to_en' as TranslateDirection,
+          dateOfWriting: article?.dateOfWriting
+            ? convertFromISO(article.dateOfWriting)
+            : convertFromISO(new Date()),
+          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+          relevantProjectId: article?.relevantProjectId,
+          contentBlocks: article?.contentBlocks?.length
+            ? article.contentBlocks
+            : getDefaultContentBlocks(),
         }}
         validationSchema={validationSchema}
         onSubmit={async (values, { resetForm }) => {

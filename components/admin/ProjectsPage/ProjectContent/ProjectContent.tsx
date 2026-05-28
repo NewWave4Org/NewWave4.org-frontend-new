@@ -35,6 +35,7 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import { TranslateDirection } from '../../Pages/enum/types';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -43,6 +44,7 @@ export interface UpdateArticleFormValues {
   articleStatus: string;
   contentBlocks: any[];
   dateOfWriting: any;
+  translateDirection: string;
 }
 
 const validationSchema = Yup.object({
@@ -89,6 +91,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+    translateDirection: 'uk_to_en' as TranslateDirection,
     dateOfWriting: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
@@ -105,39 +108,99 @@ function ProjectContent({ projectId }: { projectId: number }) {
   useEffect(() => {
     if (!projectId) return;
 
+    // async function fetchFullProjectById() {
+    //   try {
+    //     setLoadingProgect(true);
+
+    //     const result = await dispatch(getArticleById(projectId)).unwrap();
+
+    //     const editors: Record<string, EditorState> = {};
+    //     const keys: Record<string, string> = {};
+
+    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+    //       ...block,
+    //       id: block.id ?? uuid(),
+    //       ...(block.contentBlockType === 'SECTION' ? {isNew: false} : {})
+    //     }));
+
+    //     // Add default blocks
+    //     const mergedBlocks = [
+    //       ...serverBlocks,
+    //       ...defaultFormValues.contentBlocks.filter(
+    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+    //       )
+    //     ];
+
+    //     mergedBlocks.forEach(block => {
+    //       let editor;
+
+    //       try {
+    //         if (block.translatable_text_editorState) {
+    //           const content = convertFromRaw(block.translatable_text_editorState);
+    //           editor = EditorState.createWithContent(content, decorator);
+    //         } else {
+    //           editor = EditorState.createEmpty(decorator);
+    //         }
+    //       } catch (err: any) {
+    //         console.log('err', err);
+    //         editor = EditorState.createEmpty(decorator);
+    //       }
+
+    //       editors[block.id] = editor;
+    //       keys[block.id] = `${block.id}-init`;
+    //     });
+
+    //     setEditorStates(editors);
+
+    //     setEditorKey(keys);
+
+    //     setProject({
+    //       ...result,
+    //       contentBlocks: mergedBlocks,
+    //     });
+    //   } catch (error) {
+    //     console.log('error', error);
+    //     router.push(`/admin/projects`);
+    //     toast.error('Failed to fetch project');
+
+    //   } finally {
+    //     setLoadingProgect(false);
+    //   }
+    // }
+
     async function fetchFullProjectById() {
       try {
         setLoadingProgect(true);
 
         const result = await dispatch(getArticleById(projectId)).unwrap();
 
+        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const sourceBlocks = isEngDirection
+          ? (result?.contentBlocksEng ?? [])
+          : (result?.contentBlocks ?? []);
+
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const serverBlocks = sourceBlocks.map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'SECTION' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'SECTION' ? { isNew: false } : {}),
         }));
 
-        // Add default blocks
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+          ),
         ];
 
         mergedBlocks.forEach(block => {
           let editor;
-
           try {
-            if (block.translatable_text_editorState) {
-              const content = convertFromRaw(block.translatable_text_editorState);
-              editor = EditorState.createWithContent(content, decorator);
-            } else {
-              editor = EditorState.createEmpty(decorator);
-            }
+            editor = block.translatable_text_editorState
+              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              : EditorState.createEmpty(decorator);
           } catch (err: any) {
             console.log('err', err);
             editor = EditorState.createEmpty(decorator);
@@ -148,7 +211,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
         });
 
         setEditorStates(editors);
-
         setEditorKey(keys);
 
         setProject({
@@ -159,7 +221,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
         console.log('error', error);
         router.push(`/admin/projects`);
         toast.error('Failed to fetch project');
-
       } finally {
         setLoadingProgect(false);
       }
@@ -168,63 +229,139 @@ function ProjectContent({ projectId }: { projectId: number }) {
   }, [projectId, dispatch]);
 
   //Action for Save the project
+  // async function handleSubmit(
+  //   values: UpdateArticleFormValues,
+  //   { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  // ) {
+  //   let payload = { ...values };
+
+  //   for (const url of deletedFiles) {
+  //     try {
+  //       await deleteFile(url);
+  //     } catch (error: any) {
+  //       console.log('Failed to delete file', url, error);
+  //     }
+  //   }
+
+  //   payload = {
+  //     ...values,
+  //     dateOfWriting: convertToISO(values.dateOfWriting),
+  //   };
+
+  //   try {
+  //     const result = await handleThunk(
+  //       updateArticle,
+  //       { id: projectId, data: payload },
+  //       setSubmitError,
+  //     );
+  //     setProject(result);
+
+  //     if (result) {
+  //       const translateStatusVal = result.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+
+  //       if(translateStatusVal == 'yes') {
+  //         try {
+  //           await handleThunk(createTranslation, projectId, setSubmitErrorTranslate);
+
+  //           toast.success(`The translation was successfully created`);
+
+  //         } catch (error) {
+  //           console.log('error translate', error);
+  //           toast.error(`Something go wrong with translation! ${error}`);
+  //         }
+  //       }
+
+  //       setSubmitError('');
+  //       const message = pathname.includes('/edit')
+  //         ? 'Your project was updated successfully!'
+  //         : 'Your project was created successfully!';
+  //       toast.success(message);
+  //     }
+
+  //     setDeletedFiles([]);
+  //   } catch (error) {
+  //     toast.error(`Something go wrong! ${error}`);
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // }
+
   async function handleSubmit(
-    values: UpdateArticleFormValues,
-    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
-  ) {
-    let payload = { ...values };
-
-    for (const url of deletedFiles) {
-      try {
-        await deleteFile(url);
-      } catch (error: any) {
-        console.log('Failed to delete file', url, error);
-      }
-    }
-
-    payload = {
-      ...values,
-      dateOfWriting: convertToISO(values.dateOfWriting),
-    };
-
-    try {
-      const result = await handleThunk(
-        updateArticle,
-        { id: projectId, data: payload },
-        setSubmitError,
-      );
-      setProject(result);
-
-      if (result) {
-        const translateStatusVal = result.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-
-        if(translateStatusVal == 'yes') {
-          try {
-            await handleThunk(createTranslation, projectId, setSubmitErrorTranslate);
-
-            toast.success(`The translation was successfully created`);
-
-          } catch (error) {
-            console.log('error translate', error);
-            toast.error(`Something go wrong with translation! ${error}`);
-          }
+      values: UpdateArticleFormValues,
+      { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+    ) {
+      for (const url of deletedFiles) {
+        try {
+          await deleteFile(url);
+        } catch (error: any) {
+          console.log('Failed to delete file', url, error);
         }
-
-        setSubmitError('');
-        const message = pathname.includes('/edit')
-          ? 'Your project was updated successfully!'
-          : 'Your project was created successfully!';
-        toast.success(message);
       }
 
-      setDeletedFiles([]);
-    } catch (error) {
-      toast.error(`Something go wrong! ${error}`);
-    } finally {
-      setSubmitting(false);
+      const translateStatus = values.contentBlocks?.find(
+        block => block.contentBlockType === 'TRANSLATE'
+      )?.translateStatus ?? 'no';
+
+      const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+
+      const { translateDirection, contentBlocks, ...rest } = values;
+
+      const preparedData = isEngDirection
+        ? {
+            ...rest,
+            translateDirection,
+            titleEng: values.title,
+            title: '',
+            contentBlocksEng: contentBlocks,
+            contentBlocks: [],
+            dateOfWriting: convertToISO(values.dateOfWriting),
+          }
+        : {
+            ...rest,
+            translateDirection,
+            title: values.title,
+            titleEng: '',
+            contentBlocks,
+            contentBlocksEng: [],
+            dateOfWriting: convertToISO(values.dateOfWriting),
+          };
+
+      try {
+        const result = await handleThunk(
+          updateArticle,
+          { id: projectId, data: preparedData },
+          setSubmitError,
+        );
+        setProject(result);
+
+        const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
+
+        if (result) {
+          // ---- TRANSLATION ----
+          if (translateStatus === 'yes') {
+            try {
+              await handleThunk(createTranslation, {id: projectId, translateFrom: translateFrom}, setSubmitErrorTranslate);
+              toast.success(`The translation was successfully created`);
+            } catch (error) {
+              console.log('error translate', error);
+              toast.error(`Something go wrong with translation! ${error}`);
+            }
+          }
+
+          setSubmitError('');
+          setDeletedFiles([]);
+          const message = pathname.includes('/edit')
+            ? 'Your project was updated successfully!'
+            : 'Your project was created successfully!';
+          toast.success(message);
+        }
+      } catch (error) {
+        toast.error(`Something go wrong! ${error}`);
+      } finally {
+        setSubmitting(false);
+      }
     }
-  }
 
   //Action for publish the project
   async function handlePublish(projectId: number) {
@@ -273,6 +410,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
+          translateDirection: 'uk_to_en' as TranslateDirection,
           authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
           dateOfWriting:
             convertFromISO(project?.dateOfWriting) ||

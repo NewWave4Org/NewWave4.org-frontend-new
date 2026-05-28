@@ -15,7 +15,6 @@ import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';

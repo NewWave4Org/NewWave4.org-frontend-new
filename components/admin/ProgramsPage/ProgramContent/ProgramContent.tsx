@@ -33,6 +33,7 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import { TranslateDirection } from '../../Pages/enum/types';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -41,6 +42,7 @@ export interface UpdateArticleFormValues {
   articleStatus: string;
   contentBlocks: any[];
   dateOfWriting: any;
+  translateDirection: string;
 }
 
 const validationSchema = Yup.object({
@@ -127,6 +129,7 @@ function ProgramContent({ programId }: { programId: number }) {
       articleType: ArticleTypeEnum.PROGRAM,
       dateOfWriting: convertFromISO(new Date()),
       authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+      translateDirection: 'uk_to_en' as TranslateDirection,
       articleStatus: '',
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
@@ -139,7 +142,7 @@ function ProgramContent({ programId }: { programId: number }) {
         { id: uuid(), contentBlockType: 'SCHEDULE_TITLE', translatable_text_title: '' },
         { id: uuid(), contentBlockType: 'SCHEDULE_POSTER', files: [] },
         { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, translatable_text_title: '', location: '' },
-      ],
+      ]
     }),
     [defaultAuthorId],
   );
@@ -181,18 +184,113 @@ function ProgramContent({ programId }: { programId: number }) {
   useEffect(() => {
     if (!programId) return;
 
+    // async function fetchFullProgramById() {
+    //   try {
+    //     setLoadingProgram(true);
+
+    //     const result = await dispatch(getArticleById(programId)).unwrap();
+
+    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+    //       ...block,
+    //       id: block.id ?? uuid(),
+    //       ...(block.contentBlockType === 'SECTION_WITH_PHOTO' ? {isNew: false} : {}),
+    //       ...(block.contentBlockType === 'SECTION_WITH_TEXT' ? {isNew: false} : {}),
+    //       ...(block.contentBlockType === 'SCHEDULE_INFO' ? {isNew: false} : {}),
+    //     }));
+
+    //     // Add default blocks
+    //     const mergedBlocks = [
+    //       ...serverBlocks,
+    //       ...defaultFormValues.contentBlocks.filter(
+    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+    //       )
+    //     ];
+
+    //     const editors: Record<string, EditorState> = {};
+    //     const keys: Record<string, string> = {};
+
+    //     mergedBlocks.forEach(block => {
+    //       if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {
+    //         let editor;
+
+    //         try {
+    //           const rawContent = block.translatable_text_editorState;
+    //           if (rawContent) {
+    //             const content = convertFromRaw(rawContent);
+    //             editor = EditorState.createWithContent(content, decorator);
+    //           } else {
+    //             editor = EditorState.createEmpty(decorator);
+    //           }
+    //         } catch (err: any) {
+    //           console.error('Error loading single editor state:', err);
+    //           editor = EditorState.createEmpty(decorator);
+    //         }
+    //         editors[`${block.id}_translatable_text_text`] = editor;
+    //         keys[`${block.id}_translatable_text_text`] = `${block.id}_text-init`;
+    //       }
+
+    //       if (block.contentBlockType === 'SECTION_WITH_TEXT') {
+    //         // --- 1. init Text 1 ---
+    //         let editor1 = EditorState.createEmpty(decorator);
+    //         try {
+    //           const rawContent1 = block.translatable_text_editorState1;
+    //           if (rawContent1) {
+    //             const content = convertFromRaw(rawContent1);
+    //             editor1 = EditorState.createWithContent(content, decorator);
+    //           }
+    //         } catch (err) {
+    //           console.error('Error loading text1 editor state:', err);
+    //         }
+    //         editors[`${block.id}_translatable_text_text1`] = editor1;
+    //         keys[`${block.id}_translatable_text_text1`] = `${block.id}_text1-init`;
+
+    //         // --- 2. init Text 2 ---
+    //         let editor2 = EditorState.createEmpty(decorator);
+    //         try {
+    //           const rawContent2 = block.translatable_text_editorState2;
+    //           if (rawContent2) {
+    //             const content = convertFromRaw(rawContent2);
+    //             editor2 = EditorState.createWithContent(content, decorator);
+    //           }
+    //         } catch (err) {
+    //           console.error('Error loading text2 editor state:', err);
+    //         }
+    //         editors[`${block.id}_translatable_text_text2`] = editor2;
+    //         keys[`${block.id}_translatable_text_text2`] = `${block.id}_text2-init`;
+    //       }
+    //     });
+
+    //     setEditorStates(editors);
+
+    //     setEditorKey(keys);
+
+    //     setProgram({ ...result, contentBlocks: mergedBlocks });
+    //   } catch (error) {
+    //     console.log('error', error);
+    //     router.push(`/admin/projects`);
+    //     toast.error('Failed to fetch program');
+    //   } finally {
+    //     setLoadingProgram(false);
+    //   }
+    // }
+
     async function fetchFullProgramById() {
       try {
         setLoadingProgram(true);
 
         const result = await dispatch(getArticleById(programId)).unwrap();
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const sourceBlocks = isEngDirection
+          ? (result?.contentBlocksEng ?? [])
+          : (result?.contentBlocks ?? []);
+
+        const serverBlocks = sourceBlocks.map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'SECTION_WITH_PHOTO' ? {isNew: false} : {}),
-          ...(block.contentBlockType === 'SECTION_WITH_TEXT' ? {isNew: false} : {}),
-          ...(block.contentBlockType === 'SCHEDULE_INFO' ? {isNew: false} : {}),
+          ...(block.contentBlockType === 'SECTION_WITH_PHOTO' ? { isNew: false } : {}),
+          ...(block.contentBlockType === 'SECTION_WITH_TEXT' ? { isNew: false } : {}),
+          ...(block.contentBlockType === 'SCHEDULE_INFO' ? { isNew: false } : {}),
         }));
 
         // Add default blocks
@@ -200,7 +298,7 @@ function ProgramContent({ programId }: { programId: number }) {
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+          ),
         ];
 
         const editors: Record<string, EditorState> = {};
@@ -209,15 +307,10 @@ function ProgramContent({ programId }: { programId: number }) {
         mergedBlocks.forEach(block => {
           if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {
             let editor;
-
             try {
-              const rawContent = block.translatable_text_editorState;
-              if (rawContent) {
-                const content = convertFromRaw(rawContent);
-                editor = EditorState.createWithContent(content, decorator);
-              } else {
-                editor = EditorState.createEmpty(decorator);
-              }
+              editor = block.translatable_text_editorState
+                ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+                : EditorState.createEmpty(decorator);
             } catch (err: any) {
               console.error('Error loading single editor state:', err);
               editor = EditorState.createEmpty(decorator);
@@ -230,10 +323,8 @@ function ProgramContent({ programId }: { programId: number }) {
             // --- 1. init Text 1 ---
             let editor1 = EditorState.createEmpty(decorator);
             try {
-              const rawContent1 = block.translatable_text_editorState1;
-              if (rawContent1) {
-                const content = convertFromRaw(rawContent1);
-                editor1 = EditorState.createWithContent(content, decorator);
+              if (block.translatable_text_editorState1) {
+                editor1 = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState1), decorator);
               }
             } catch (err) {
               console.error('Error loading text1 editor state:', err);
@@ -244,10 +335,8 @@ function ProgramContent({ programId }: { programId: number }) {
             // --- 2. init Text 2 ---
             let editor2 = EditorState.createEmpty(decorator);
             try {
-              const rawContent2 = block.translatable_text_editorState2;
-              if (rawContent2) {
-                const content = convertFromRaw(rawContent2);
-                editor2 = EditorState.createWithContent(content, decorator);
+              if (block.translatable_text_editorState2) {
+                editor2 = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState2), decorator);
               }
             } catch (err) {
               console.error('Error loading text2 editor state:', err);
@@ -258,7 +347,6 @@ function ProgramContent({ programId }: { programId: number }) {
         });
 
         setEditorStates(editors);
-
         setEditorKey(keys);
 
         setProgram({ ...result, contentBlocks: mergedBlocks });
@@ -276,28 +364,77 @@ function ProgramContent({ programId }: { programId: number }) {
 
 
   //SAVE
+  // async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
+  //   const normalized = {
+  //     ...values,
+  //     dateOfWriting: convertToISO(values.dateOfWriting),
+  //     contentBlocks: values.contentBlocks.map(block => {
+  //       if (block.contentBlockType === 'SCHEDULE_INFO') {
+  //         const fixTime = (t: any) => ({
+  //           hour: t?.hour || '',
+  //           minute: t?.minute || '00',
+  //           period: t?.period || 'AM',
+  //         });
+
+  //         return {
+  //           ...block,
+  //           startTime: fixTime(block.startTime),
+  //           endTime: fixTime(block.endTime),
+  //         };
+  //       }
+  //       return block;
+  //     }),
+  //   };
+
+  //   for (const url of deletedFiles) {
+  //     try {
+  //       console.log('deleted url', url);
+  //       await deleteFile(url);
+  //     } catch (error: any) {
+  //       console.log('Failed to delete file', url, error);
+  //     }
+  //   }
+
+  //   try {
+  //     const result = await handleThunk(
+  //       updateArticle,
+  //       { id: programId, data: normalized },
+  //       setSubmitError,
+  //     );
+      
+  //     if (result) {
+  //       setProgram(result);
+  //       const translateStatusVal = result.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+
+  //       if(translateStatusVal == 'yes') {
+  //         try {
+  //           await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
+
+  //           toast.success(`The translation was successfully created`);
+
+  //         } catch (error) {
+  //           console.log('error translate', error);
+  //           toast.error(`Something go wrong with translation! ${error}`);
+  //         }
+  //       }
+
+
+  //       setSubmitError('');
+  //       const message = pathname.includes('/edit')
+  //         ? 'Your program was updated successfully!'
+  //         : 'Your program was created successfully!';
+  //       toast.success(message);
+  //     }
+
+  //     setDeletedFiles([]);
+  //   } catch (error) {
+  //     toast.error(`Something go wrong! ${error}`);
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // }
+
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-    const normalized = {
-      ...values,
-      dateOfWriting: convertToISO(values.dateOfWriting),
-      contentBlocks: values.contentBlocks.map(block => {
-        if (block.contentBlockType === 'SCHEDULE_INFO') {
-          const fixTime = (t: any) => ({
-            hour: t?.hour || '',
-            minute: t?.minute || '00',
-            period: t?.period || 'AM',
-          });
-
-          return {
-            ...block,
-            startTime: fixTime(block.startTime),
-            endTime: fixTime(block.endTime),
-          };
-        }
-        return block;
-      }),
-    };
-
     for (const url of deletedFiles) {
       try {
         console.log('deleted url', url);
@@ -307,38 +444,80 @@ function ProgramContent({ programId }: { programId: number }) {
       }
     }
 
+    const translateStatus = values.contentBlocks?.find(
+      block => block.contentBlockType === 'TRANSLATE'
+    )?.translateStatus ?? 'no';
+
+    const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+
+    const normalizedBlocks = values.contentBlocks.map(block => {
+      if (block.contentBlockType === 'SCHEDULE_INFO') {
+        const fixTime = (t: any) => ({
+          hour: t?.hour || '',
+          minute: t?.minute || '00',
+          period: t?.period || 'AM',
+        });
+        return {
+          ...block,
+          startTime: fixTime(block.startTime),
+          endTime: fixTime(block.endTime),
+        };
+      }
+      return block;
+    });
+
+    const { translateDirection, contentBlocks, ...rest } = values;
+
+    const preparedData = isEngDirection
+      ? {
+          ...rest,
+          translateDirection,
+          titleEng: values.title,
+          title: '',
+          contentBlocksEng: normalizedBlocks,
+          contentBlocks: [],
+          dateOfWriting: convertToISO(values.dateOfWriting),
+        }
+      : {
+          ...rest,
+          translateDirection,
+          title: values.title,
+          titleEng: '',
+          contentBlocks: normalizedBlocks,
+          contentBlocksEng: [],
+          dateOfWriting: convertToISO(values.dateOfWriting),
+        };
+
     try {
       const result = await handleThunk(
         updateArticle,
-        { id: programId, data: normalized },
+        { id: programId, data: preparedData },
         setSubmitError,
       );
-      
+
+      const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
+
       if (result) {
         setProgram(result);
-        const translateStatusVal = result.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
-        if(translateStatusVal == 'yes') {
+        // ---- TRANSLATION ----
+        if (translateStatus === 'yes') {
           try {
-            await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
-
+            await handleThunk(createTranslation, {id: programId, translateFrom: translateFrom}, setSubmitErrorTranslate);
             toast.success(`The translation was successfully created`);
-
           } catch (error) {
             console.log('error translate', error);
             toast.error(`Something go wrong with translation! ${error}`);
           }
         }
 
-
         setSubmitError('');
+        setDeletedFiles([]);
         const message = pathname.includes('/edit')
           ? 'Your program was updated successfully!'
           : 'Your program was created successfully!';
         toast.success(message);
       }
-
-      setDeletedFiles([]);
     } catch (error) {
       toast.error(`Something go wrong! ${error}`);
     } finally {
@@ -369,6 +548,7 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
+          translateDirection: 'uk_to_en' as TranslateDirection,
           dateOfWriting:
             convertFromISO(program?.dateOfWriting) ||
             defaultFormValues.dateOfWriting,
@@ -380,7 +560,7 @@ function ProgramContent({ programId }: { programId: number }) {
             Array.isArray(program?.contentBlocks) &&
             program.contentBlocks.length
               ? program.contentBlocks
-              : defaultFormValues.contentBlocks,
+              : defaultFormValues.contentBlocks
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}

@@ -60,7 +60,7 @@ function AboutUsForm() {
         { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', translatable_text_text: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
         { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-      ],
+      ]
     }),
     [],
   );
@@ -249,7 +249,7 @@ function AboutUsForm() {
 
     if(translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, direction: translateFrom}, setSubmitErrorTranslate);
+        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, translateFrom: translateFrom}, setSubmitErrorTranslate);
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
