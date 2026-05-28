@@ -1,4 +1,4 @@
-import { PagesType } from '@/components/admin/Pages/enum/types';
+import { PagesType, TranslateDirection } from '@/components/admin/Pages/enum/types';
 
 export interface IPagesResponseDTO {
   id: number;
@@ -6,6 +6,7 @@ export interface IPagesResponseDTO {
   authorName: string;
   authorId: string;
   updatedAt: string;
+  translateDirection: TranslateDirection;
   contentBlocks: any[] | null;
   contentBlocksEng?: any[] | null;
 }

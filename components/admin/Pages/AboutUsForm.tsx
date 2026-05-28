@@ -1,5 +1,5 @@
 import { useAppDispatch } from '@/store/hook';
-import { PagesType } from './enum/types';
+import { PagesType, TranslateDirection, TranslateDirectionEnum } from './enum/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
@@ -15,12 +15,13 @@ import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
+  translateDirection: TranslateDirection;
   contentBlocks: any[];
 }
 
@@ -50,6 +51,7 @@ function AboutUsForm() {
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.ABOUT_US,
+      translateDirection: 'uk_to_en' as TranslateDirection,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
         { id: uuid(), contentBlockType: 'MISSION_BLOCK', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
@@ -67,6 +69,7 @@ function AboutUsForm() {
 
   const initialValues = {
     pageType: PagesType.ABOUT_US,
+    translateDirection: aboutUsPage?.translateDirection ?? defaultFormValues.translateDirection,
     contentBlocks: aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length 
       ? aboutUsPage?.contentBlocks 
       : defaultFormValues.contentBlocks,
@@ -150,6 +153,11 @@ function AboutUsForm() {
 
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
+    const { translateDirection, contentBlocks, ...rest } = values;
+    const preparedData = translateDirection === `${TranslateDirectionEnum.UK_TO_EN}`
+    ? { ...rest, translateDirection, contentBlocks, contentBlocksEng: [] }
+    : { ...rest, translateDirection, contentBlocksEng: contentBlocks, contentBlocks: [] };
+    
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -163,7 +171,7 @@ function AboutUsForm() {
     let updateSuccess = false;
 
     try {
-      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
+      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: preparedData }, setSubmitError);
 
       if (result) {
         setAboutUsPage(result);
@@ -187,7 +195,7 @@ function AboutUsForm() {
 
     if(translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
+        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, direction: values.translateDirection}, setSubmitErrorTranslate);
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
@@ -207,7 +215,7 @@ function AboutUsForm() {
 
         return(
           <Form>
-            <div className='mb-5'>
+            {/* <div className='mb-5'>
               <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
                 name={`contentBlocks.${translateBlockIndex}.translateStatus`}
                 labelClass="!text-admin-700" 
@@ -215,7 +223,14 @@ function AboutUsForm() {
                 { value: 'yes', label: 'Yes' },
                 { value: 'no', label: 'No' },
               ]} />
-            </div>
+            </div> */}
+
+            <TranslateSection
+              translateBlockIndex={translateBlockIndex}
+              translateDirection={values.translateDirection}
+              translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+              handleChange={handleChange}
+            />
 
             <FieldArray name="contentBlocks">
               {({ push, remove }) => {
