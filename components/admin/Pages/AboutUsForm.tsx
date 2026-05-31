@@ -15,9 +15,9 @@ import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
 
 interface IAboutUsPageValues {
   pageType: PagesType;
@@ -36,9 +36,7 @@ function AboutUsForm() {
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
-    {},
-  );
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -60,7 +58,7 @@ function AboutUsForm() {
         { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', translatable_text_text: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
         { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-      ],
+      ]
     }),
     [],
   );
@@ -150,6 +148,7 @@ function AboutUsForm() {
 
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
+
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -207,15 +206,11 @@ function AboutUsForm() {
 
         return(
           <Form>
-            <div className='mb-5'>
-              <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                labelClass="!text-admin-700" 
-                onChange={handleChange} options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]} />
-            </div>
+            <TranslateSection
+              translateBlockIndex={translateBlockIndex}
+              translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+              handleChange={handleChange}
+            />
 
             <FieldArray name="contentBlocks">
               {({ push, remove }) => {

@@ -1,4 +1,5 @@
 export enum ContentBlockType {
+  TRANSLATE = 'TRANSLATE',
   MAIN_NEWS_BLOCK = "MAIN_NEWS_BLOCK",
   TEXT = "TEXT",
   QUOTE = "QUOTE",

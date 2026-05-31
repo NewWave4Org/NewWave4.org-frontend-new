@@ -21,6 +21,7 @@ import { extractErrorMessage } from '@/utils/apiErrors';
 import { useAppDispatch } from '@/store/hook';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { useUsers } from '@/utils/hooks/useUsers';
+import AuthorField from '../helperComponents/AuthorField/AuthorField';
 
 const getContentPath = (articleType: ArticleTypeEnum, id: number) => {
   const base = articleType === ArticleTypeEnum.EVENT ? 'events' : 'articles';
@@ -33,12 +34,12 @@ const getSuccessMessage = (articleType: ArticleTypeEnum) => {
     : 'Article created successfully';
 };
 
-interface newArticleDTO {
+export interface newArticleDTO {
   articleType: string;
   title: string;
   contentBlocks: any[] | null;
   relevantProjectId?: number;
-  authorId?: number;
+  authorName?: number | string;
 }
 
 interface ProjectOption {
@@ -61,7 +62,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
     relevantProjectId: Yup.number().required('Please select a project'),
-    authorId: Yup.number().required('Author field cannot be empty'),
+    authorName: Yup.string().required('Author field cannot be empty'),
   });
 
   useEffect(() => {
@@ -93,7 +94,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
     try {
       const result = await handleThunk(
         createNewArticle,
-        { ...values, articleType },
+        { ...values, articleType},
         msg => toast.error(msg),
       );
 
@@ -118,7 +119,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
           relevantProjectId: undefined,
           articleType,
           contentBlocks: [],
-          authorId: currentAuthor?.id,
+          authorName: currentAuthor?.name,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -133,7 +134,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
                 id="title"
                 name="title"
                 type="text"
-                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                 value={values.title}
                 label="Title"
                 labelClass="!text-admin-700"
@@ -169,7 +170,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
 
             {/* Author */}
             <div className="mb-5">
-              <Select
+              {/* <Select
                 label="Author"
                 adminSelectClass={true}
                 name="authorId"
@@ -177,7 +178,8 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
                 labelClass="!text-admin-700"
                 onChange={handleChange}
                 options={usersList}
-              />
+              /> */}
+              <AuthorField usersList={usersList} defaultValue={currentAuthor?.name} />
             </div>
 
             <Button

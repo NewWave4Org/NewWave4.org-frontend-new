@@ -24,11 +24,13 @@ import Select from '@/components/shared/Select';
 import WarningIcon from '@/components/icons/status/WarningIcon';
 import { useUsers } from '@/utils/hooks/useUsers';
 import DatePicker from '../helperComponents/DatePicker/DatePicker';
-import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
-import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { createTranslation } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
+import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
+import AuthorField from '../helperComponents/AuthorField/AuthorField';
+import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -61,6 +63,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const [projects, setProjects] = useState<{ value: string | number; label: string }[]>([]);
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'saving' | 'translating'>('idle');
 
   const [editorStates, setEditorStates] = useState<{
     textblock1: EditorState;
@@ -78,58 +81,67 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     quote: 'quote-init',
   });
 
-  const { usersList, currentAuthor } = useUsers(true);
-  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
+  const { usersList } = useUsers(true);
 
   const validationSchema = Yup.object({
-  title: Yup.string().required('Title is required'),
-  relevantProjectId: Yup.number().required('Please select a project'),
-  authorId: Yup.number().required('Author field cannot be empty'),
-  contentBlocks: Yup.array().of(
-    Yup.lazy((block: any) => {
-      switch (block?.contentBlockType) {
-        case ContentBlockType.MAIN_NEWS_BLOCK:
-          return Yup.object({
-            translatable_text_editorState: Yup.mixed()
-              .required('Text block 1 is required')
-              .test('not-empty', 'Text block 1 is required', value => {
-                if (!value) return false;
-                try {
-                  return convertFromRaw(value).hasText();
-                } catch {
-                  return false;
-                }
-              }),
-          });
-
-        case ContentBlockType.VIDEO:
-          return Yup.object({
-            data: Yup.string().url('Must be a valid URL').nullable(),
-          });
-
-        case ContentBlockType.PHOTO:
-          return Yup.object({
-            data: Yup.array()
-              .of(Yup.string().url('Main photo must be a valid URL'))
-              .min(1, 'Main photo is required'),
-          });
-
-        case ContentBlockType.PHOTOS_SLIDER:
-          return Yup.object({
-            data: Yup.array().of(Yup.string().url('Invalid image URL')),
-          });
-
-        default:
-          return Yup.object();
+    title: Yup.string().required('Title is required'),
+    relevantProjectId: Yup.number().required('Please select a project'),
+    authorName: Yup.string().required('Author field cannot be empty'),
+    translateDirection: Yup.string().test(
+      'required-if-translate',
+      'Translation direction is required',
+      function(value) {
+        const contentBlocks = this.parent.contentBlocks;
+        const translateBlock = contentBlocks?.find(
+          (b: any) => b.contentBlockType === 'TRANSLATE'
+        );
+        if (translateBlock?.translateStatus === 'yes') {
+          return !!value;
+        }
+        return true;
       }
-    }),
-  ),
-});
+    ),
+    contentBlocks: Yup.array().of(
+      Yup.lazy((block: any) => {
+        switch (block?.contentBlockType) {
+          case ContentBlockType.MAIN_NEWS_BLOCK:
+            return Yup.object({
+              translatable_text_editorState: Yup.mixed()
+                .required('Text block 1 is required')
+                .test('not-empty', 'Text block 1 is required', value => {
+                  if (!value) return false;
+                  try {
+                    return convertFromRaw(value).hasText();
+                  } catch {
+                    return false;
+                  }
+                }),
+            });
 
-  useEffect(() => {
-    if (article?.authorId) setDefaultAuthorId(article.authorId);
-    else if (currentAuthor?.id) setDefaultAuthorId(currentAuthor.id);
-  }, [article?.authorId, currentAuthor]);
+          case ContentBlockType.VIDEO:
+            return Yup.object({
+              data: Yup.string().url('Must be a valid URL').nullable(),
+            });
+
+          case ContentBlockType.PHOTO:
+            return Yup.object({
+              data: Yup.array()
+                .of(Yup.string().url('Main photo must be a valid URL'))
+                .min(1, 'Main photo is required'),
+            });
+
+          case ContentBlockType.PHOTOS_SLIDER:
+            return Yup.object({
+              data: Yup.array().of(Yup.string().url('Invalid image URL')),
+            });
+
+          default:
+            return Yup.object();
+        }
+      }),
+    ),
+  });
+
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -158,8 +170,14 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
         const data = await dispatch(getArticleById(articleId)).unwrap();
         setArticle(data);
 
+        const isEngDirection = data.translateDirection === 'en_to_uk';
+
+        const activeBlocks = isEngDirection
+          ? data.contentBlocksEng
+          : data.contentBlocks;
+
         const getState = (blockType: ContentBlockType): EditorState => {
-          const block = data.contentBlocks?.find((b: any) => b.contentBlockType === blockType);
+          const block = activeBlocks?.find((b: any) => b.contentBlockType === blockType);
           try {
             return block?.translatable_text_editorState
               ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
@@ -215,16 +233,51 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   };
 
   async function handleSubmit(values: any) {
-    const textblock1Block = values.contentBlocks.find(
+    const translateStatus = values.contentBlocks.find(
+      (b: any) => b.contentBlockType === 'TRANSLATE'
+    )?.translateStatus ?? 'no';
+
+    const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+
+    // ---- PREPARE DATA ----
+    const { translateDirection, ...rest } = values;
+
+    const preparedData = isEngDirection
+      ? {
+          ...rest,
+          title: '',
+          titleEng: values.title,  
+          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+          englishPublished: translateStatus === 'yes',
+          dateOfWriting: convertToISO(values.dateOfWriting),
+          articleType,
+          contentBlocks: [],
+          contentBlocksEng: values.contentBlocks,
+        }
+      : {
+          ...rest,
+          title: values.title,
+          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+          englishPublished: translateStatus === 'yes',
+          dateOfWriting: convertToISO(values.dateOfWriting),
+          articleType,
+          titleEng: null,
+          contentBlocks: values.contentBlocks,
+          contentBlocksEng: [],
+        };
+
+    // ---- VALIDATION ----
+    const textblock1Block = preparedData.contentBlocks?.find(
+      (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+    ) ?? preparedData.contentBlocksEng?.find(
       (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
     );
+
     const isTextblock1Empty = !textblock1Block?.translatable_text_editorState
       || (() => {
         try {
           return !convertFromRaw(textblock1Block.translatable_text_editorState).hasText();
-        } catch {
-          return true;
-        }
+        } catch { return true; }
       })();
 
     if (isTextblock1Empty) {
@@ -232,7 +285,6 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
-    // Checking mainPhoto
     const mainPhotoBlock = values.contentBlocks.find(
       (b: any) => b.contentBlockType === ContentBlockType.PHOTO,
     );
@@ -241,53 +293,38 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
-    // ---- UPDATE PAGE ----
+    
+    // ---- UPDATE ----
     let updateSuccess = false;
 
     try {
-      if(articleId) {
-        await dispatch(
-          updateArticle({
-            id: articleId,
-            data: {
-              title: values.title,
-              dateOfWriting: convertToISO(values.dateOfWriting),
-              articleType,
-              authorId: Number(values.authorId),
-              relevantProjectId: Number(values.relevantProjectId),
-              contentBlocks: values.contentBlocks,
-            },
-          }),
-        ).unwrap();
+      if (articleId) {
+        await dispatch(updateArticle({ id: articleId, data: preparedData })).unwrap();
 
         updateSuccess = true;
-
-        setArticle(prev => ({
-          ...prev!,
-          contentBlocks: values.contentBlocks,
-        }));
-
+        setArticle(prev => ({ ...prev!, contentBlocks: values.contentBlocks }));
         toast.success(`${getTypeName(articleType)} content saved successfully!`);
       }
     } catch (error) {
+      setSubmitStatus('idle');
       toast.error(`Something went wrong! ${error}`);
+    }finally {
+      setSubmitStatus('idle');
     }
 
     // ---- TRANSLATION ----
-    if (!updateSuccess) return;
+    if (!updateSuccess || translateStatus !== 'yes') return;
 
-    const translateStatusVal = values.contentBlocks.find((block: any) => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-    if(translateStatusVal == 'yes') {
-      try {
-        await handleThunk(createTranslation, articleId, setSubmitErrorTranslate);
-
-        toast.success(`The translation was successfully created`);
-
-      } catch (error) {
-        console.log('error translate', error);
-        toast.error(`Something go wrong with translation! ${error}`);
-      }
+    const translateFrom = values.translateDirection;
+    setSubmitStatus('translating');
+    try {
+      await handleThunk(createTranslation, {id: articleId, translateFrom: translateFrom.toUpperCase()}, setSubmitErrorTranslate);
+      toast.success(`The translation was successfully created`);
+    } catch (error) {
+      setSubmitStatus('idle');
+      toast.error(`Something went wrong with translation! ${error}`);
+    }finally {
+      setSubmitStatus('idle');
     }
   }
 
@@ -326,303 +363,305 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
 
   return (
     <div className="modal__body">
-      {defaultAuthorId !== undefined && (
-        <Formik
-          enableReinitialize
-          initialValues={{
-            title: article?.title || '',
-            dateOfWriting: article?.dateOfWriting
-              ? convertFromISO(article.dateOfWriting)
-              : convertFromISO(new Date()),
-            authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-            relevantProjectId: article?.relevantProjectId,
-            contentBlocks: article?.contentBlocks?.length
-              ? article.contentBlocks
-              : getDefaultContentBlocks(),
-          }}
-          validationSchema={validationSchema}
-          onSubmit={async (values, { resetForm }) => {
-            await handleSubmit(values);
-            setSliderPhotosChanged(false);
-            resetForm({ values });
-          }}
-        >
-          {({ handleChange, isSubmitting, dirty, values, setFieldValue, setFieldTouched, errors, touched, validateForm, handleSubmit }) => {
-            const mainNewsIndex = values.contentBlocks.findIndex(
-              (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-            );
-            const photoIndex = values.contentBlocks.findIndex(
-              (b: any) => b.contentBlockType === ContentBlockType.PHOTO,
-            );
-            const photosListIndex = values.contentBlocks.findIndex(
-              (b: any) => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
-            );
-            const sliderIndex = values.contentBlocks.findIndex(
-              (b: any) => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
-            );
-            const videoIndex = values.contentBlocks.findIndex(
-              (b: any) => b.contentBlockType === ContentBlockType.VIDEO,
-            );
+      <Formik
+        enableReinitialize
+        initialValues={{
+          title: article?.title || '',
+          translateDirection: article?.translateDirection || undefined,
+          dateOfWriting: article?.dateOfWriting
+            ? convertFromISO(article.dateOfWriting)
+            : convertFromISO(new Date()),
+          authorName: article?.authorName,
+          englishPublished: false,
+          relevantProjectId: article?.relevantProjectId,
+          contentBlocks: article?.contentBlocks?.length
+            ? article.contentBlocks
+            : getDefaultContentBlocks(),
+        }}
+        validationSchema={validationSchema}
+        onSubmit={async (values, { resetForm }) => {
+          await handleSubmit(values);
+          setSliderPhotosChanged(false);
+          resetForm({ values });
+        }}
+      >
+        {({ handleChange, isSubmitting, dirty, values, setFieldValue, setFieldTouched, errors, touched, validateForm, handleSubmit }) => {
+          const mainNewsIndex = values.contentBlocks.findIndex(
+            (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+          );
+          const photoIndex = values.contentBlocks.findIndex(
+            (b: any) => b.contentBlockType === ContentBlockType.PHOTO,
+          );
+          const photosListIndex = values.contentBlocks.findIndex(
+            (b: any) => b.contentBlockType === ContentBlockType.PHOTOS_LIST,
+          );
+          const sliderIndex = values.contentBlocks.findIndex(
+            (b: any) => b.contentBlockType === ContentBlockType.PHOTOS_SLIDER,
+          );
+          const videoIndex = values.contentBlocks.findIndex(
+            (b: any) => b.contentBlockType === ContentBlockType.VIDEO,
+          );
 
-            const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
+          const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
 
-            const mainPhotoData = values.contentBlocks[photoIndex]?.data;
-            const mainPhotoUrls = Array.isArray(mainPhotoData) ? mainPhotoData : mainPhotoData ? [mainPhotoData] : [];
+          const mainPhotoData = values.contentBlocks[photoIndex]?.data;
+          const mainPhotoUrls = Array.isArray(mainPhotoData) ? mainPhotoData : mainPhotoData ? [mainPhotoData] : [];
 
-            const photosListData = values.contentBlocks[photosListIndex]?.data;
-            const photosListUrls = Array.isArray(photosListData) ? photosListData : [];
+          const photosListData = values.contentBlocks[photosListIndex]?.data;
+          const photosListUrls = Array.isArray(photosListData) ? photosListData : [];
 
-            const sliderData = values.contentBlocks[sliderIndex]?.data;
-            const sliderUrls = Array.isArray(sliderData) ? sliderData : [];
+          const sliderData = values.contentBlocks[sliderIndex]?.data;
+          const sliderUrls = Array.isArray(sliderData) ? sliderData : [];
 
-            return (
-              <Form
-                onSubmit={async e => {
-                  e.preventDefault();
-                  const formErrors = await validateForm();
+          return (
+            <Form
+              onSubmit={async e => {
+                e.preventDefault();
+                const formErrors = await validateForm();
 
-                  if (Object.keys(formErrors).length > 0) {
-                    Object.keys(formErrors).forEach(field => setFieldTouched(field, true));
-                    
-                    values.contentBlocks.forEach((_: any, index: number) => {
-                      setFieldTouched(`contentBlocks.${index}.translatable_text_editorState`, true);
-                      setFieldTouched(`contentBlocks.${index}.data`, true);
-                    });
+                if (Object.keys(formErrors).length > 0) {
+                  Object.keys(formErrors).forEach(field => setFieldTouched(field, true));
+                  
+                  values.contentBlocks.forEach((_: any, index: number) => {
+                    setFieldTouched(`contentBlocks.${index}.translatable_text_editorState`, true);
+                    setFieldTouched(`contentBlocks.${index}.data`, true);
+                  });
 
-                    toast.error('Please fix validation errors highlighted in the form.');
-                    return;
+                  toast.error('Please fix validation errors highlighted in the form.');
+                  return;
+                }
+
+                handleSubmit();
+              }}
+            >
+              <div className='mb-5'>
+                <TranslateSection
+                  translateBlockIndex={translateBlockIndex}
+                  translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                  handleChange={handleChange}
+                />
+              </div>
+
+              <div className="mb-5">
+                <Input
+                  required
+                  onChange={handleChange}
+                  id="title"
+                  name="title"
+                  type="text"
+                  className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
+                  value={values.title}
+                  label="Title"
+                  labelClass="!text-admin-700"
+                  validationText={
+                    touched.title && errors.title ? errors.title : ''
                   }
+                />
+              </div>
 
-                  handleSubmit();
-                }}
-              >
-                <div className='mb-5'>
-                  <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                    name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                    labelClass="!text-admin-700" 
-                    onChange={handleChange} options={[
-                    { value: 'yes', label: 'Yes' },
-                    { value: 'no', label: 'No' },
-                  ]} />
-                </div>
+              <div className="mb-5">
+                <Select
+                  label="Relevant Project"
+                  labelClass="!text-admin-700"
+                  adminSelectClass={true}
+                  name="relevantProjectId"
+                  required
+                  placeholder="Choose project"
+                  onChange={handleChange}
+                  options={
+                    projects.length > 0
+                      ? projects
+                      : [{ value: '', label: 'No published projects available', disabled: true }]
+                  }
+                />
+              </div>
 
-                <div className="mb-5">
-                  <Input
-                    required
-                    onChange={handleChange}
-                    id="title"
-                    name="title"
-                    type="text"
-                    className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
-                    value={values.title}
-                    label="Title"
-                    labelClass="!text-admin-700"
-                    validationText={
-                      touched.title && errors.title ? errors.title : ''
-                    }
-                  />
-                </div>
+              <div className="mb-5">
+                <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+                <DatePicker
+                  name="dateOfWriting"
+                  pickerId="article-creationDate"
+                  pickerWithTime={false}
+                  pickerType="single"
+                  pickerPlaceholder="Choose date"
+                  pickerValue={values?.dateOfWriting}
+                />
+              </div>
 
-                <div className="mb-5">
-                  <Select
-                    label="Relevant Project"
-                    labelClass="!text-admin-700"
-                    adminSelectClass={true}
-                    name="relevantProjectId"
-                    required
-                    placeholder="Choose project"
-                    onChange={handleChange}
-                    options={
-                      projects.length > 0
-                        ? projects
-                        : [{ value: '', label: 'No published projects available', disabled: true }]
-                    }
-                  />
-                </div>
+              <div className="mb-5">
+                <AuthorField usersList={usersList} defaultValue={article?.authorName}  />
+              </div>
 
-                <div className="mb-5">
-                  <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-                  <DatePicker
-                    name="dateOfWriting"
-                    pickerId="article-creationDate"
-                    pickerWithTime={false}
-                    pickerType="single"
-                    pickerPlaceholder="Choose date"
-                    pickerValue={values?.dateOfWriting}
-                  />
-                </div>
+              <div className="w-full mb-2">
+                <label className="block mb-2 text-admin-700 font-medium">
+                  Text block 1 <sup className="font-bold text-red-600 text-small2">*</sup>
+                </label>
+                <TextEditor
+                  key={editorKey.textblock1}
+                  value={editorStates.textblock1}
+                  onChange={newState =>
+                    handleEditorChange(ContentBlockType.MAIN_NEWS_BLOCK, newState, values, setFieldValue, setFieldTouched)
+                  }
+                />
+                {(touched.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState &&
+                  (errors.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState && (
+                    <div className="text-red-700 text-small2 mt-1">
+                      {(errors.contentBlocks as any)[mainNewsIndex].translatable_text_editorState}
+                    </div>
+                )}
+              </div>
 
-                <div className="mb-5">
-                  <Select
-                    label="Change Author (if needed)"
-                    adminSelectClass={true}
-                    name="authorId"
-                    required
-                    labelClass="!text-admin-700"
-                    onChange={handleChange}
-                    options={usersList}
-                  />
-                </div>
+              <div className="w-full mb-2">
+                <label className="block mb-2 text-admin-700 font-medium">Quote</label>
+                <TextEditor
+                  key={editorKey.quote}
+                  value={editorStates.quote}
+                  onChange={newState =>
+                    handleEditorChange(ContentBlockType.QUOTE, newState, values, setFieldValue, setFieldTouched)
+                  }
+                />
+              </div>
 
-                <div className="w-full mb-2">
-                  <label className="block mb-2 text-admin-700 font-medium">
-                    Text block 1 <sup className="font-bold text-red-600 text-small2">*</sup>
-                  </label>
-                  <TextEditor
-                    key={editorKey.textblock1}
-                    value={editorStates.textblock1}
-                    onChange={newState =>
-                      handleEditorChange(ContentBlockType.MAIN_NEWS_BLOCK, newState, values, setFieldValue, setFieldTouched)
-                    }
-                  />
-                  {(touched.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState &&
-                    (errors.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState && (
-                      <div className="text-red-700 text-small2 mt-1">
-                        {(errors.contentBlocks as any)[mainNewsIndex].translatable_text_editorState}
-                      </div>
-                  )}
-                </div>
+              <div className="w-full mb-2">
+                <label className="block mb-2 text-admin-700 font-medium">Text block 2</label>
+                <TextEditor
+                  key={editorKey.textblock2}
+                  value={editorStates.textblock2}
+                  onChange={newState =>
+                    handleEditorChange(ContentBlockType.TEXT, newState, values, setFieldValue, setFieldTouched)
+                  }
+                />
+              </div>
 
-                <div className="w-full mb-2">
-                  <label className="block mb-2 text-admin-700 font-medium">Quote</label>
-                  <TextEditor
-                    key={editorKey.quote}
-                    value={editorStates.quote}
-                    onChange={newState =>
-                      handleEditorChange(ContentBlockType.QUOTE, newState, values, setFieldValue, setFieldTouched)
-                    }
-                  />
-                </div>
+              <div className="mb-5">
+                <Input
+                  onChange={handleChange}
+                  id={`contentBlocks.${videoIndex}.data`}
+                  name={`contentBlocks.${videoIndex}.data`}
+                  type="text"
+                  className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
+                  value={values.contentBlocks[videoIndex]?.data || ''}
+                  label="Video"
+                  labelClass="!text-admin-700"
+                />
+              </div>
 
-                <div className="w-full mb-2">
-                  <label className="block mb-2 text-admin-700 font-medium">Text block 2</label>
-                  <TextEditor
-                    key={editorKey.textblock2}
-                    value={editorStates.textblock2}
-                    onChange={newState =>
-                      handleEditorChange(ContentBlockType.TEXT, newState, values, setFieldValue, setFieldTouched)
-                    }
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <Input
-                    onChange={handleChange}
-                    id={`contentBlocks.${videoIndex}.data`}
-                    name={`contentBlocks.${videoIndex}.data`}
-                    type="text"
-                    className="!bg-background-light w-full h-[56px] px-5 rounded-lg !ring-0"
-                    value={values.contentBlocks[videoIndex]?.data || ''}
-                    label="Video"
-                    labelClass="!text-admin-700"
-                  />
-                </div>
-
-                <div>
-                  <div className="w-1/2 h-[442px]">
-                    <ImageLoading
-                      label="Main Photo"
-                      required
-                      contentType={articleType}
-                      articleId={articleId!}
-                      maxFiles={1}
-                      uploadedUrls={mainPhotoUrls}
-                      onFilesChange={urls => {
-                        setFieldValue(`contentBlocks.${photoIndex}.data`, urls);
-                        setFieldTouched(`contentBlocks.${photoIndex}.data`, true, false);
-                      }}
-                      previewSize={300}
-                    />
-                    
-                  </div>
-                  {(touched.contentBlocks as any)?.[photoIndex]?.data &&
-                    (errors.contentBlocks as any)?.[photoIndex]?.data && (
-                      <div className="text-red-700 text-small2 my-1">
-                        {(errors.contentBlocks as any)[photoIndex].data}
-                      </div>
-                  )}
-                </div>
-                
-
-                <div className="w-full h-[442px] my-2">
+              <div>
+                <div className="w-1/2 h-[442px]">
                   <ImageLoading
-                    label="Photo List"
-                    note="You can upload 1 or 2 photos here."
+                    label="Main Photo"
+                    required
                     contentType={articleType}
                     articleId={articleId!}
-                    maxFiles={2}
-                    uploadedUrls={photosListUrls}
-                    onFilesChange={urls => setFieldValue(`contentBlocks.${photosListIndex}.data`, urls)}
-                    previewSize={200}
+                    maxFiles={1}
+                    uploadedUrls={mainPhotoUrls}
+                    onFilesChange={urls => {
+                      setFieldValue(`contentBlocks.${photoIndex}.data`, urls);
+                      setFieldTouched(`contentBlocks.${photoIndex}.data`, true, false);
+                    }}
+                    previewSize={300}
                   />
                   
                 </div>
+                {(touched.contentBlocks as any)?.[photoIndex]?.data &&
+                  (errors.contentBlocks as any)?.[photoIndex]?.data && (
+                    <div className="text-red-700 text-small2 my-1">
+                      {(errors.contentBlocks as any)[photoIndex].data}
+                    </div>
+                )}
+              </div>
+              
 
-                <div className="w-full h-[442px]">
-                  <ImageLoading
-                    label="Photo Slider"
-                    note="Minimum 3 and maximum 5 photos."
-                    contentType={articleType}
-                    articleId={articleId!}
-                    maxFiles={5}
-                    uploadedUrls={sliderUrls}
-                    onFilesChange={urls => {
-                      setSliderPhotosChanged(urls.length < sliderUrls.length);
-                      setFieldValue(`contentBlocks.${sliderIndex}.data`, urls);
-                    }}
-                    previewSize={200}
-                  />
-                  {sliderPhotosChanged && (
-                    <div className="mt-2 flex gap-x-1">
-                      <WarningIcon />
-                      <em className="text-red-600">Warning: Click "Save" to permanently delete the photo.</em>
+              <div className="w-full h-[442px] my-2">
+                <ImageLoading
+                  label="Photo List"
+                  note="You can upload 1 or 2 photos here."
+                  contentType={articleType}
+                  articleId={articleId!}
+                  maxFiles={2}
+                  uploadedUrls={photosListUrls}
+                  onFilesChange={urls => setFieldValue(`contentBlocks.${photosListIndex}.data`, urls)}
+                  previewSize={200}
+                />
+                
+              </div>
+
+              <div className="w-full h-[442px]">
+                <ImageLoading
+                  label="Photo Slider"
+                  note="Minimum 3 and maximum 5 photos."
+                  contentType={articleType}
+                  articleId={articleId!}
+                  maxFiles={5}
+                  uploadedUrls={sliderUrls}
+                  onFilesChange={urls => {
+                    setSliderPhotosChanged(urls.length < sliderUrls.length);
+                    setFieldValue(`contentBlocks.${sliderIndex}.data`, urls);
+                  }}
+                  previewSize={200}
+                />
+                {sliderPhotosChanged && (
+                  <div className="mt-2 flex gap-x-1">
+                    <WarningIcon />
+                    <em className="text-red-600">Warning: Click "Save" to permanently delete the photo.</em>
+                  </div>
+                )}
+              </div>
+
+              {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
+
+              <div className="mt-10">
+                <sup className="font-bold text-red-600 text-small2">*</sup>
+                <em>You must save the page before you can preview or publish it</em>
+              </div>
+
+              <div className="flex gap-x-6 mt-6">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || submitStatus !== 'idle'}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+                >
+                  {submitStatus === 'saving' && (
+                    <div className='flex items-center'>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span className='ml-2'>Saving...</span>
                     </div>
                   )}
-                </div>
+                  {submitStatus === 'translating' && (
+                    <div className='flex items-center'>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span className='ml-2'>Translating...</span>
+                    </div>
+                  )}
+                  {submitStatus === 'idle' && 'Save'}
+                </Button>
 
-                {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
+                <Button
+                  type="button"
+                  disabled={dirty || isSubmitting}
+                  title={dirty ? 'Please save the changes' : ''}
+                  onClick={() => router.push(`/admin/${getTypePath(articleType)}/preview?id=${articleId}`)}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
+                  Preview
+                </Button>
 
-                <div className="mt-10">
-                  <sup className="font-bold text-red-600 text-small2">*</sup>
-                  <em>You must save the page before you can preview or publish it</em>
-                </div>
-
-                <div className="flex gap-x-6 mt-6">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Save'}
-                  </Button>
-
+                {article?.articleStatus !== 'PUBLISHED' && (
                   <Button
                     type="button"
                     disabled={dirty || isSubmitting}
                     title={dirty ? 'Please save the changes' : ''}
-                    onClick={() => router.push(`/admin/${getTypePath(articleType)}/preview?id=${articleId}`)}
+                    onClick={() => handlePublish(values)}
                     className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                   >
-                    Preview
+                    Publish
                   </Button>
-
-                  {article?.articleStatus !== 'PUBLISHED' && (
-                    <Button
-                      type="button"
-                      disabled={dirty || isSubmitting}
-                      title={dirty ? 'Please save the changes' : ''}
-                      onClick={() => handlePublish(values)}
-                      className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
-                    >
-                      Publish
-                    </Button>
-                  )}
-                </div>
-              </Form>
-            );
-          }}
-        </Formik>
-      )}
+                )}
+              </div>
+            </Form>
+          );
+        }}
+      </Formik>
     </div>
   );
 };

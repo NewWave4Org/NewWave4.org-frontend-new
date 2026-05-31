@@ -153,7 +153,7 @@ function ProgramsTable({
                 </td>
 
                 <td className="pr-3 py-6">
-                  <div className="flex gap-x-3 justify-end">
+                  <div className="flex gap-x-3">
                     <Link href={`/admin/programs/${id}/edit`}>
                       <Button
                         variant="tertiary"
