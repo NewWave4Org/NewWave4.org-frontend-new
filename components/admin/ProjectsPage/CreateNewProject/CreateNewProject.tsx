@@ -11,10 +11,13 @@ import useHandleThunk from '@/utils/useHandleThunk';
 import { createNewArticle } from '@/store/article-content/action';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import AuthorField from '../../helperComponents/AuthorField/AuthorField';
+import { useUsers } from '@/utils/hooks/useUsers';
 
 interface ICreateNewArticle {
   articleType: ArticleType;
   title: string;
+  authorName: string | undefined;
 }
 
 function CreateNewProject() {
@@ -25,7 +28,10 @@ function CreateNewProject() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
+    authorName: Yup.string().required('Author field cannot be empty'),
   });
+
+  const { usersList, currentAuthor } = useUsers(true);
 
   async function handleSubmit(values: ICreateNewArticle, { setSubmitting }: FormikHelpers<ICreateNewArticle>) {
     try {
@@ -56,6 +62,7 @@ function CreateNewProject() {
         initialValues={{
           articleType: ArticleTypeEnum.PROJECT,
           title: '',
+          authorName: currentAuthor?.name,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -69,14 +76,19 @@ function CreateNewProject() {
                 id="title"
                 name="title"
                 type="text"
-                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                 value={values.title}
                 label="Project title"
                 labelClass="!text-admin-700"
                 validationText={touched.title && errors.title ? errors.title : ''}
               />
             </div>
+            <div className="mb-5">
+              <AuthorField usersList={usersList} defaultValue={currentAuthor?.name} />
+            </div>
+
             {submitError && <div className="mb-5 text-red-700">{submitError}</div>}
+
             <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
               {isSubmitting ? 'Loading...' : 'Create new project'}
             </Button>

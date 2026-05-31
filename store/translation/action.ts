@@ -14,9 +14,9 @@ export const createTranslation = createAsyncThunk('translation', async({id, tran
     }
 });
 
-export const createTranslationPage = createAsyncThunk('translation/page', async({id, translateFrom}: {id: number, translateFrom: string}, {rejectWithValue}) => {
+export const createTranslationPage = createAsyncThunk('translation/page', async(id: number, {rejectWithValue}) => {
     try {
-        const response = await translateService.translatePage({id, translateFrom});
+        const response = await translateService.translatePage(id);
 
         return response;
     } catch (error) {

@@ -1,3 +1,4 @@
+import { TranslateDirection } from '@/components/admin/Pages/enum/types';
 import { ArticleStatus, ArticleType } from '@/utils/ArticleType';
 
 export interface IArticleBody {
@@ -5,8 +6,9 @@ export interface IArticleBody {
   title: string;
   articleType: ArticleType;
   articleStatus: string;
-  authorName: string;
-  authorId: string;
+  // authorName: string;
+  // authorId: string;
+  authorName?: string | undefined;
   views: number;
   publishedAt: string;
   contentBlocks: any[] | null;
@@ -19,8 +21,9 @@ export interface GetArticleByIdResponseDTO {
   articleStatus: string;
   articleType: ArticleType;
   translateDirection: string;
-  authorId: number;
-  authorName: string;
+  // authorId: number;
+  authorName?: string | undefined;
+  // authorName: string;
   contentBlocks: any[] | null;
   contentBlocksEng?: any[] | null;
   id: number;
@@ -39,19 +42,21 @@ export interface CreateNewArticleRequestDTO {
   title: string;
   contentBlocks: any[] | null;
   relevantProjectId?: number;
-  authorId?: number;
+  authorName?: string | undefined;
+  translateDirection: string;
 }
 export interface CreateNewArticleResponseDTO {
   id: number;
   title: string;
   articleType: ArticleType;
   articleStatus: string;
-  authorName: string;
-  authorId: string;
+  authorName: string | undefined;
+  // authorId: string;
   views: number;
   publishedAt: string;
   contentBlocks: any[] | null;
   relevant_project_id: number;
+  translateDirection: string;
 }
 
 export interface IGetAllArticleRequestDTO {
@@ -100,7 +105,8 @@ export interface UpdateArticleRequestDTO {
   data: {
     title: string;
     articleType: ArticleType;
-    authorId?: number;
+    // authorId?: number;
+    authorName?: string;
     contentBlocks: any[] | null;
     relevantProjectId?: number;
     dateOfWriting?: any;

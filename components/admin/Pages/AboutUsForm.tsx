@@ -1,5 +1,5 @@
 import { useAppDispatch } from '@/store/hook';
-import { PagesType, TranslateDirection, TranslateDirectionEnum } from './enum/types';
+import { PagesType } from './enum/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
@@ -21,7 +21,6 @@ import TranslateSection from '../helperComponents/TranslateSection/TranslateSect
 
 interface IAboutUsPageValues {
   pageType: PagesType;
-  translateDirection: TranslateDirection;
   contentBlocks: any[];
 }
 
@@ -49,7 +48,6 @@ function AboutUsForm() {
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.ABOUT_US,
-      translateDirection: 'uk_to_en' as TranslateDirection,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
         { id: uuid(), contentBlockType: 'MISSION_BLOCK', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
@@ -67,7 +65,6 @@ function AboutUsForm() {
 
   const initialValues = {
     pageType: PagesType.ABOUT_US,
-    translateDirection: aboutUsPage?.translateDirection ?? defaultFormValues.translateDirection,
     contentBlocks: aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length 
       ? aboutUsPage?.contentBlocks 
       : defaultFormValues.contentBlocks,
@@ -93,71 +90,14 @@ function AboutUsForm() {
   };
 
   useEffect(() => {
-    // async function getPageByKey() {
-    //   try {
-    //     const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
-
-    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
-    //       ...block,
-    //       id: block.id ?? uuid(),
-    //       ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
-    //     }));
-
-    //     // Add default blocks
-    //     const mergedBlocks = [
-    //       ...serverBlocks,
-    //       ...defaultFormValues.contentBlocks.filter(
-    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-    //       )
-    //     ];
-
-    //     const editors: Record<string, EditorState> = {};
-    //     const keys: Record<string, string> = {};
-
-    //     mergedBlocks.forEach(block => {
-    //       let editor: EditorState;
-    //       try {
-    //         if (block.translatable_text_editorState) {
-    //           editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
-    //         } else {
-    //           editor = EditorState.createEmpty(decorator);
-    //         }
-    //       } catch (err) {
-    //         editor = EditorState.createEmpty(decorator);
-    //       }
-
-    //       editors[block.id] = editor;
-    //       keys[block.id] = `${block.id}-init`;
-    //     });
-
-    //     setEditorStates(editors);
-    //     setEditorKey(keys);
-
-    //     setAboutUsPage({
-    //       ...result,
-    //       contentBlocks: mergedBlocks,
-    //     });
-
-    //   } catch (error: any) {
-    //     console.log('error', error);
-    //     setAboutUsPage(null);
-    //     toast.error('Failed to fetch About us page');
-    //   }
-    // }
-
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
 
-        const isEngDirection = result?.translateDirection === 'en_to_uk';
-        const sourceBlocks = isEngDirection
-          ? (result?.contentBlocksEng ?? [])
-          : (result?.contentBlocks ?? []);
-
-        const serverBlocks = sourceBlocks.map(block => ({
+        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? { isNew: false } : {}),
+          ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
         }));
 
         // Add default blocks
@@ -165,7 +105,7 @@ function AboutUsForm() {
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          ),
+          )
         ];
 
         const editors: Record<string, EditorState> = {};
@@ -174,10 +114,12 @@ function AboutUsForm() {
         mergedBlocks.forEach(block => {
           let editor: EditorState;
           try {
-            editor = block.translatable_text_editorState
-              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
-              : EditorState.createEmpty(decorator);
-          } catch {
+            if (block.translatable_text_editorState) {
+              editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
+            } else {
+              editor = EditorState.createEmpty(decorator);
+            }
+          } catch (err) {
             editor = EditorState.createEmpty(decorator);
           }
 
@@ -206,11 +148,7 @@ function AboutUsForm() {
 
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
-    const { translateDirection, contentBlocks, ...rest } = values;
-    const preparedData = translateDirection === `${TranslateDirectionEnum.UK_TO_EN}`
-    ? { ...rest, translateDirection, contentBlocks, contentBlocksEng: [] }
-    : { ...rest, translateDirection, contentBlocksEng: contentBlocks, contentBlocks: [] };
-    
+
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -224,7 +162,7 @@ function AboutUsForm() {
     let updateSuccess = false;
 
     try {
-      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: preparedData }, setSubmitError);
+      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
 
       if (result) {
         setAboutUsPage(result);
@@ -245,11 +183,10 @@ function AboutUsForm() {
     if (!updateSuccess) return;
 
     const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-    const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
 
     if(translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, {id: aboutUsPage?.id, translateFrom: translateFrom}, setSubmitErrorTranslate);
+        await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
 
         toast.success(`The translation was successfully created`);
       } catch (error) {

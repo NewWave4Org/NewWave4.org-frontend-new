@@ -3,7 +3,6 @@
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import LinkBtn from '@/components/shared/LinkBtn';
-import Select from '@/components/shared/Select';
 import {
   getArticleById,
   publishArticle,
@@ -15,7 +14,7 @@ import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import DatePicker from '../../helperComponents/DatePicker/DatePicker';
@@ -34,21 +33,36 @@ import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 import { TranslateDirection } from '../../Pages/enum/types';
+import TranslateSection from '../../helperComponents/TranslateSection/TranslateSection';
+import AuthorField from '../../helperComponents/AuthorField/AuthorField';
 
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
-  authorId?: number;
+  authorName?: string | undefined;
   articleStatus: string;
   contentBlocks: any[];
   dateOfWriting: any;
-  translateDirection: string;
+  translateDirection: TranslateDirection;
 }
 
 const validationSchema = Yup.object({
   title: Yup.string().required('Title field cannot be empty'),
-  authorId: Yup.number().required('Author field cannot be empty'),
-
+  authorName: Yup.string().required('Author field cannot be empty'),
+  translateDirection: Yup.string().test(
+    'required-if-translate',
+    'Translation direction is required',
+    function(value) {
+      const contentBlocks = this.parent.contentBlocks;
+      const translateBlock = contentBlocks?.find(
+        (b: any) => b.contentBlockType === 'TRANSLATE'
+      );
+      if (translateBlock?.translateStatus === 'yes') {
+        return !!value;
+      }
+      return true;
+    }
+  ),
   contentBlocks: Yup.array().of(
     Yup.object({
       contentBlockType: Yup.string().required(),
@@ -112,24 +126,21 @@ function ProgramContent({ programId }: { programId: number }) {
   const [submitError, setSubmitError] = useState('');
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [programStatus, setProgramStatus] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'saving' | 'translating'>('idle');
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const { usersList, currentAuthor } = useUsers(true);
-  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
+  const { usersList } = useUsers(true);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
-    {},
-  );
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
-  const defaultFormValues: UpdateArticleFormValues = useMemo(
-    () => ({
+  const defaultFormValues: UpdateArticleFormValues = {
       title: '',
       articleType: ArticleTypeEnum.PROGRAM,
       dateOfWriting: convertFromISO(new Date()),
-      authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
-      translateDirection: 'uk_to_en' as TranslateDirection,
+      authorName: program?.authorName || undefined,
+      translateDirection: (program?.translateDirection as TranslateDirection) || undefined,
       articleStatus: '',
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
@@ -143,9 +154,7 @@ function ProgramContent({ programId }: { programId: number }) {
         { id: uuid(), contentBlockType: 'SCHEDULE_POSTER', files: [] },
         { id: uuid(), contentBlockType: 'SCHEDULE_INFO', date: '', startTime: { hour: '', minute: '', period: 'AM' }, endTime: { hour: '', minute: '', period: 'AM' }, translatable_text_title: '', location: '' },
       ]
-    }),
-    [defaultAuthorId],
-  );
+    };
 
   const Spinner = () => (
     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -172,107 +181,9 @@ function ProgramContent({ programId }: { programId: number }) {
     );
   };
 
-  useEffect(() => {
-    if (program?.authorId) {
-      setDefaultAuthorId(program.authorId);
-    } else if (currentAuthor?.id) {
-      setDefaultAuthorId(currentAuthor.id);
-    }
-  }, [program?.authorId, currentAuthor]);
-
   //GET program by id
   useEffect(() => {
     if (!programId) return;
-
-    // async function fetchFullProgramById() {
-    //   try {
-    //     setLoadingProgram(true);
-
-    //     const result = await dispatch(getArticleById(programId)).unwrap();
-
-    //     const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
-    //       ...block,
-    //       id: block.id ?? uuid(),
-    //       ...(block.contentBlockType === 'SECTION_WITH_PHOTO' ? {isNew: false} : {}),
-    //       ...(block.contentBlockType === 'SECTION_WITH_TEXT' ? {isNew: false} : {}),
-    //       ...(block.contentBlockType === 'SCHEDULE_INFO' ? {isNew: false} : {}),
-    //     }));
-
-    //     // Add default blocks
-    //     const mergedBlocks = [
-    //       ...serverBlocks,
-    //       ...defaultFormValues.contentBlocks.filter(
-    //         defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-    //       )
-    //     ];
-
-    //     const editors: Record<string, EditorState> = {};
-    //     const keys: Record<string, string> = {};
-
-    //     mergedBlocks.forEach(block => {
-    //       if (block.contentBlockType === 'DESCRIPTION_PROGRAM' || block.contentBlockType === 'SECTION_WITH_PHOTO') {
-    //         let editor;
-
-    //         try {
-    //           const rawContent = block.translatable_text_editorState;
-    //           if (rawContent) {
-    //             const content = convertFromRaw(rawContent);
-    //             editor = EditorState.createWithContent(content, decorator);
-    //           } else {
-    //             editor = EditorState.createEmpty(decorator);
-    //           }
-    //         } catch (err: any) {
-    //           console.error('Error loading single editor state:', err);
-    //           editor = EditorState.createEmpty(decorator);
-    //         }
-    //         editors[`${block.id}_translatable_text_text`] = editor;
-    //         keys[`${block.id}_translatable_text_text`] = `${block.id}_text-init`;
-    //       }
-
-    //       if (block.contentBlockType === 'SECTION_WITH_TEXT') {
-    //         // --- 1. init Text 1 ---
-    //         let editor1 = EditorState.createEmpty(decorator);
-    //         try {
-    //           const rawContent1 = block.translatable_text_editorState1;
-    //           if (rawContent1) {
-    //             const content = convertFromRaw(rawContent1);
-    //             editor1 = EditorState.createWithContent(content, decorator);
-    //           }
-    //         } catch (err) {
-    //           console.error('Error loading text1 editor state:', err);
-    //         }
-    //         editors[`${block.id}_translatable_text_text1`] = editor1;
-    //         keys[`${block.id}_translatable_text_text1`] = `${block.id}_text1-init`;
-
-    //         // --- 2. init Text 2 ---
-    //         let editor2 = EditorState.createEmpty(decorator);
-    //         try {
-    //           const rawContent2 = block.translatable_text_editorState2;
-    //           if (rawContent2) {
-    //             const content = convertFromRaw(rawContent2);
-    //             editor2 = EditorState.createWithContent(content, decorator);
-    //           }
-    //         } catch (err) {
-    //           console.error('Error loading text2 editor state:', err);
-    //         }
-    //         editors[`${block.id}_translatable_text_text2`] = editor2;
-    //         keys[`${block.id}_translatable_text_text2`] = `${block.id}_text2-init`;
-    //       }
-    //     });
-
-    //     setEditorStates(editors);
-
-    //     setEditorKey(keys);
-
-    //     setProgram({ ...result, contentBlocks: mergedBlocks });
-    //   } catch (error) {
-    //     console.log('error', error);
-    //     router.push(`/admin/projects`);
-    //     toast.error('Failed to fetch program');
-    //   } finally {
-    //     setLoadingProgram(false);
-    //   }
-    // }
 
     async function fetchFullProgramById() {
       try {
@@ -364,76 +275,6 @@ function ProgramContent({ programId }: { programId: number }) {
 
 
   //SAVE
-  // async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
-  //   const normalized = {
-  //     ...values,
-  //     dateOfWriting: convertToISO(values.dateOfWriting),
-  //     contentBlocks: values.contentBlocks.map(block => {
-  //       if (block.contentBlockType === 'SCHEDULE_INFO') {
-  //         const fixTime = (t: any) => ({
-  //           hour: t?.hour || '',
-  //           minute: t?.minute || '00',
-  //           period: t?.period || 'AM',
-  //         });
-
-  //         return {
-  //           ...block,
-  //           startTime: fixTime(block.startTime),
-  //           endTime: fixTime(block.endTime),
-  //         };
-  //       }
-  //       return block;
-  //     }),
-  //   };
-
-  //   for (const url of deletedFiles) {
-  //     try {
-  //       console.log('deleted url', url);
-  //       await deleteFile(url);
-  //     } catch (error: any) {
-  //       console.log('Failed to delete file', url, error);
-  //     }
-  //   }
-
-  //   try {
-  //     const result = await handleThunk(
-  //       updateArticle,
-  //       { id: programId, data: normalized },
-  //       setSubmitError,
-  //     );
-      
-  //     if (result) {
-  //       setProgram(result);
-  //       const translateStatusVal = result.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-  //       if(translateStatusVal == 'yes') {
-  //         try {
-  //           await handleThunk(createTranslation, programId, setSubmitErrorTranslate);
-
-  //           toast.success(`The translation was successfully created`);
-
-  //         } catch (error) {
-  //           console.log('error translate', error);
-  //           toast.error(`Something go wrong with translation! ${error}`);
-  //         }
-  //       }
-
-
-  //       setSubmitError('');
-  //       const message = pathname.includes('/edit')
-  //         ? 'Your program was updated successfully!'
-  //         : 'Your program was created successfully!';
-  //       toast.success(message);
-  //     }
-
-  //     setDeletedFiles([]);
-  //   } catch (error) {
-  //     toast.error(`Something go wrong! ${error}`);
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // }
-
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     for (const url of deletedFiles) {
       try {
@@ -466,27 +307,31 @@ function ProgramContent({ programId }: { programId: number }) {
       return block;
     });
 
-    const { translateDirection, contentBlocks, ...rest } = values;
+    const { translateDirection, ...rest } = values;
 
     const preparedData = isEngDirection
       ? {
           ...rest,
-          translateDirection,
           titleEng: values.title,
           title: '',
+          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+          englishPublished: translateStatus === 'yes',
+          dateOfWriting: convertToISO(values.dateOfWriting),
           contentBlocksEng: normalizedBlocks,
           contentBlocks: [],
-          dateOfWriting: convertToISO(values.dateOfWriting),
         }
       : {
           ...rest,
-          translateDirection,
+          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+          englishPublished: translateStatus === 'yes',
           title: values.title,
           titleEng: '',
           contentBlocks: normalizedBlocks,
           contentBlocksEng: [],
           dateOfWriting: convertToISO(values.dateOfWriting),
         };
+
+    setSubmitStatus('saving');
 
     try {
       const result = await handleThunk(
@@ -495,19 +340,23 @@ function ProgramContent({ programId }: { programId: number }) {
         setSubmitError,
       );
 
-      const translateFrom = values.translateDirection === 'uk_to_en' ? 'EN' : 'UK';
-
       if (result) {
         setProgram(result);
 
         // ---- TRANSLATION ----
         if (translateStatus === 'yes') {
+          setSubmitStatus('translating');
+
+          const translateFrom = values.translateDirection;
           try {
-            await handleThunk(createTranslation, {id: programId, translateFrom: translateFrom}, setSubmitErrorTranslate);
+            await handleThunk(createTranslation, {id: programId, translateFrom: translateFrom?.toUpperCase()}, setSubmitErrorTranslate);
             toast.success(`The translation was successfully created`);
           } catch (error) {
+            setSubmitStatus('idle');
             console.log('error translate', error);
             toast.error(`Something go wrong with translation! ${error}`);
+          } finally {
+            setSubmitStatus('idle');
           }
         }
 
@@ -519,8 +368,10 @@ function ProgramContent({ programId }: { programId: number }) {
         toast.success(message);
       }
     } catch (error) {
+      setSubmitStatus('idle');
       toast.error(`Something go wrong! ${error}`);
     } finally {
+      setSubmitStatus('idle');
       setSubmitting(false);
     }
   }
@@ -548,17 +399,16 @@ function ProgramContent({ programId }: { programId: number }) {
         enableReinitialize
         initialValues={{
           title: program?.title || defaultFormValues.title,
-          translateDirection: 'uk_to_en' as TranslateDirection,
+          translateDirection: (program?.translateDirection as TranslateDirection) || undefined,
           dateOfWriting:
             convertFromISO(program?.dateOfWriting) ||
             defaultFormValues.dateOfWriting,
-          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+          authorName: program?.authorName || defaultFormValues.authorName,
           articleType: program?.articleType || defaultFormValues.articleType,
           articleStatus:
             program?.articleStatus || defaultFormValues.articleStatus,
           contentBlocks:
-            Array.isArray(program?.contentBlocks) &&
-            program.contentBlocks.length
+            program?.contentBlocks?.length
               ? program.contentBlocks
               : defaultFormValues.contentBlocks
         }}
@@ -571,13 +421,11 @@ function ProgramContent({ programId }: { programId: number }) {
           return (
             <Form>
               <div className='mb-5'>
-                <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                  name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                  labelClass="!text-admin-700" 
-                  onChange={handleChange} options={[
-                  { value: 'yes', label: 'Yes' },
-                  { value: 'no', label: 'No' },
-                ]} />
+                <TranslateSection
+                  translateBlockIndex={translateBlockIndex}
+                  translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                  handleChange={handleChange}
+                />
               </div>
               <div className="mb-5">
                 <Input
@@ -587,7 +435,7 @@ function ProgramContent({ programId }: { programId: number }) {
                   name="title"
                   type="text"
                   maxLength={undefined}
-                  className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                   value={values?.title || ''}
                   label="Program title"
                   labelClass="!text-admin-700"
@@ -601,7 +449,7 @@ function ProgramContent({ programId }: { programId: number }) {
               </div>
 
               <div className="mb-5">
-                <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+                <AuthorField usersList={usersList} defaultValue={program?.authorName}  />
               </div>
 
               <FieldArray name="contentBlocks">
@@ -1038,15 +886,20 @@ function ProgramContent({ programId }: { programId: number }) {
               {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
 
               <div className="flex gap-x-6 mt-2">
-                <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-                  {isSubmitting ? (
+                <Button type="submit" disabled={isSubmitting || submitStatus !== 'idle'} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+                  {submitStatus === 'saving' && (
                     <div className='flex items-center'>
                       <Spinner />
                       <span className='ml-2'>Saving...</span>
                     </div>
-                  ) : (
-                    'Save'
                   )}
+                  {submitStatus === 'translating' && (
+                    <div className='flex items-center'>
+                      <Spinner />
+                      <span className='ml-2'>Translating...</span>
+                    </div>
+                  )}
+                  {submitStatus === 'idle' && 'Save'}
                 </Button>
 
                 <LinkBtn href={`/admin/programs/preview?id=${programId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">

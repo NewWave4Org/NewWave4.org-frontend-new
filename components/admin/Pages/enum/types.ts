@@ -4,7 +4,7 @@ export const enum PagesType {
 }
 
 
-export type TranslateDirection = 'uk_to_en' | 'en_to_uk'
+export type TranslateDirection = 'uk_to_en' | 'en_to_uk' | undefined
 
 export const enum TranslateDirectionEnum {
   UK_TO_EN = 'uk_to_en',

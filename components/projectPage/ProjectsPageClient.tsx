@@ -50,13 +50,19 @@ function ProjectsPageClient() {
   const projectData = useMemo(() => {
     if (!projects?.length) return [];
 
-    return projects.map(project => ({
-      ...project,
-      titleToShow: locale === EN_LOCALE ? project.titleEng : project.title,
-      contentBlockToShow: locale === EN_LOCALE ? project.contentBlocksEng : project.contentBlocks
-    }));
+    return projects
+      .filter(project => {
+        if (locale === EN_LOCALE) {
+          return !!project.titleEng;
+        }
+        return true;
+      })
+      .map(project => ({
+        ...project,
+        titleToShow: locale === EN_LOCALE ? project.titleEng : project.title,
+        contentBlockToShow: locale === EN_LOCALE ? project.contentBlocksEng : project.contentBlocks
+      }));
   }, [projects, locale]);
-
 
   return (
     <div className="ProjectsPage">

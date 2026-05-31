@@ -12,8 +12,8 @@ class TranslationServices implements ITranslateService {
         return this.translateVal.translate({id, translateFrom});
     }
 
-    async translatePage({id, translateFrom }: {id: number, translateFrom: string}) {
-        return this.translateVal.translatePage({id, translateFrom});
+    async translatePage(id: number) {
+        return this.translateVal.translatePage(id);
     }
 }
 

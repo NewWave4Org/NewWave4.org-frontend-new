@@ -7,14 +7,15 @@ class TranslationApi implements ITranslationApi {
     async translate({id, translateFrom }: {id: number, translateFrom: string}) {
         return request({
             method: HttpMethod.PUT,
-            url: ApiEndpoint.TRANSLATION(id)
+            url: ApiEndpoint.TRANSLATION(id),
+            params: {translateDirection: translateFrom}
         });
     }
 
-    async translatePage({id, translateFrom }: {id: number, translateFrom: string}) {
+    async translatePage(id: number) {
         return request({
             method: HttpMethod.PUT,
-            url: ApiEndpoint.TRANSLATION_PAGE(id)
+            url: ApiEndpoint.TRANSLATION_PAGE(id),
         });
     }
 }
