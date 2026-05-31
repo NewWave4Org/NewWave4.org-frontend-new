@@ -5,15 +5,15 @@ class TranslationServices implements ITranslateService {
     private translateVal: ITranslationApi;
 
     constructor(translateVal: ITranslationApi) {
-        this.translateVal = translateVal
+        this.translateVal = translateVal;
     }
 
-    async translate(id: number) {
-        return this.translateVal.translate(id)
+    async translate({id, translateFrom }: {id: number, translateFrom: string}) {
+        return this.translateVal.translate({id, translateFrom});
     }
 
     async translatePage(id: number) {
-        return this.translateVal.translatePage(id)
+        return this.translateVal.translatePage(id);
     }
 }
 

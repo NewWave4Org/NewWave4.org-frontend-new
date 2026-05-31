@@ -1,6 +1,6 @@
 interface ITranslationApi {
-    translate: (id: number) => void;
+    translate: ({id, translateFrom }: {id: number, translateFrom: string}) => void;
     translatePage: (id: number) => void;
 }
 
-export {type ITranslationApi}
+export {type ITranslationApi};

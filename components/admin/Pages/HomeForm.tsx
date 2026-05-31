@@ -15,9 +15,9 @@ import { v4 as uuid } from 'uuid';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
-import Select from '@/components/shared/Select';
 import { createTranslationPage } from '@/store/translation/action';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import TranslateSection from '../helperComponents/TranslateSection/TranslateSection';
 
 interface IHomePageValues {
   pageType: PagesType;
@@ -153,6 +153,7 @@ function HomeForm() {
 
   //SAVE
   async function handleSubmit(values: IHomePageValues) {
+
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -220,14 +221,13 @@ function HomeForm() {
               return (
                 <div>
                   <div className='mb-7'>
-                    <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                      name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                      labelClass="!text-admin-700" 
-                      onChange={handleChange} options={[
-                      { value: 'yes', label: 'Yes' },
-                      { value: 'no', label: 'No' },
-                    ]} />
+                    <TranslateSection
+                      translateBlockIndex={translateBlockIndex}
+                      translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                      handleChange={handleChange}
+                    />
                   </div>
+
                   {/* SLIDERS FIRST */}
                   {/* FIRST SLIDER BLOCK — non removable */}
                   {sliderBlocks.length > 0 &&

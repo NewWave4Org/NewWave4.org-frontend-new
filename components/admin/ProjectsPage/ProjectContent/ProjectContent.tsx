@@ -35,25 +35,45 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
+import AuthorField from '../../helperComponents/AuthorField/AuthorField';
+import TranslateSection from '../../helperComponents/TranslateSection/TranslateSection';
+import { TranslateDirection } from '../../Pages/enum/types';
 
 export interface UpdateArticleFormValues {
   title: string;
   articleType: ArticleType;
-  authorId?: number;
+  authorName?: string | undefined;
   articleStatus: string;
   contentBlocks: any[];
   dateOfWriting: any;
+  translateDirection: TranslateDirection;
 }
 
 const validationSchema = Yup.object({
   title: Yup.string().required('Title field cannot be empty'),
-  authorId: Yup.number().required('Author field cannot be empty'),
+  authorName: Yup.string().required('Author field cannot be empty'),
+  translateDirection: Yup.string().test(
+    'required-if-translate',
+    'Translation direction is required',
+    function(value) {
+      const contentBlocks = this.parent.contentBlocks;
+      const translateBlock = contentBlocks?.find(
+        (b: any) => b.contentBlockType === 'TRANSLATE'
+      );
+      if (translateBlock?.translateStatus === 'yes') {
+        return !!value;
+      }
+      return true;
+    }
+  ),
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
   const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
   const [loadingProject, setLoadingProgect] = useState(false);
   const [projectStatus, setProjectsStatus] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'saving' | 'translating'>('idle');
+
   const router = useRouter();
 
   const dispatch = useAppDispatch();
@@ -75,20 +95,16 @@ function ProjectContent({ projectId }: { projectId: number }) {
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
-  const [defaultAuthorId, setDefaultAuthorId] = useState<number>();
 
   const Spinner = () => (
     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
   );
 
-  useEffect(() => {
-    setDefaultAuthorId(project?.authorId ?? currentAuthor?.id);
-  }, [project?.authorId, currentAuthor]);
-
   const defaultFormValues: UpdateArticleFormValues = {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
-    authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+    authorName: currentAuthor?.name || undefined,
+    translateDirection: (project?.translateDirection as TranslateDirection) || undefined,
     dateOfWriting: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
@@ -111,33 +127,33 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         const result = await dispatch(getArticleById(projectId)).unwrap();
 
+        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const sourceBlocks = isEngDirection
+          ? (result?.contentBlocksEng ?? [])
+          : (result?.contentBlocks ?? []);
+
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const serverBlocks = sourceBlocks.map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'SECTION' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'SECTION' ? { isNew: false } : {}),
         }));
 
-        // Add default blocks
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
             defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+          ),
         ];
 
         mergedBlocks.forEach(block => {
           let editor;
-
           try {
-            if (block.translatable_text_editorState) {
-              const content = convertFromRaw(block.translatable_text_editorState);
-              editor = EditorState.createWithContent(content, decorator);
-            } else {
-              editor = EditorState.createEmpty(decorator);
-            }
+            editor = block.translatable_text_editorState
+              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              : EditorState.createEmpty(decorator);
           } catch (err: any) {
             console.log('err', err);
             editor = EditorState.createEmpty(decorator);
@@ -148,7 +164,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
         });
 
         setEditorStates(editors);
-
         setEditorKey(keys);
 
         setProject({
@@ -159,7 +174,6 @@ function ProjectContent({ projectId }: { projectId: number }) {
         console.log('error', error);
         router.push(`/admin/projects`);
         toast.error('Failed to fetch project');
-
       } finally {
         setLoadingProgect(false);
       }
@@ -169,62 +183,90 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   //Action for Save the project
   async function handleSubmit(
-    values: UpdateArticleFormValues,
-    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
-  ) {
-    let payload = { ...values };
-
-    for (const url of deletedFiles) {
-      try {
-        await deleteFile(url);
-      } catch (error: any) {
-        console.log('Failed to delete file', url, error);
-      }
-    }
-
-    payload = {
-      ...values,
-      dateOfWriting: convertToISO(values.dateOfWriting),
-    };
-
-    try {
-      const result = await handleThunk(
-        updateArticle,
-        { id: projectId, data: payload },
-        setSubmitError,
-      );
-      setProject(result);
-
-      if (result) {
-        const translateStatusVal = result.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-
-        if(translateStatusVal == 'yes') {
-          try {
-            await handleThunk(createTranslation, projectId, setSubmitErrorTranslate);
-
-            toast.success(`The translation was successfully created`);
-
-          } catch (error) {
-            console.log('error translate', error);
-            toast.error(`Something go wrong with translation! ${error}`);
-          }
+      values: UpdateArticleFormValues,
+      { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+    ) {
+      for (const url of deletedFiles) {
+        try {
+          await deleteFile(url);
+        } catch (error: any) {
+          console.log('Failed to delete file', url, error);
         }
-
-        setSubmitError('');
-        const message = pathname.includes('/edit')
-          ? 'Your project was updated successfully!'
-          : 'Your project was created successfully!';
-        toast.success(message);
       }
 
-      setDeletedFiles([]);
-    } catch (error) {
-      toast.error(`Something go wrong! ${error}`);
-    } finally {
-      setSubmitting(false);
+      const translateStatus = values.contentBlocks?.find(
+        block => block.contentBlockType === 'TRANSLATE'
+      )?.translateStatus ?? 'no';
+
+      const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+
+      const { translateDirection, contentBlocks, ...rest } = values;
+
+      const preparedData = isEngDirection
+        ? {
+            ...rest,
+            titleEng: values.title,
+            title: '',
+            translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+            englishPublished: translateStatus === 'yes',
+            contentBlocksEng: contentBlocks,
+            contentBlocks: [],
+            dateOfWriting: convertToISO(values.dateOfWriting),
+          }
+        : {
+            ...rest,
+            title: values.title,
+            titleEng: '',
+            translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+            englishPublished: translateStatus === 'yes',
+            contentBlocks,
+            contentBlocksEng: [],
+            dateOfWriting: convertToISO(values.dateOfWriting),
+          };
+
+      setSubmitStatus('saving');
+
+      try {
+        const result = await handleThunk(
+          updateArticle,
+          { id: projectId, data: preparedData },
+          setSubmitError,
+        );
+        setProject(result);
+
+        const translateFrom = values.translateDirection;
+
+        if (result) {
+          // ---- TRANSLATION ----
+          if (translateStatus === 'yes') {
+            setSubmitStatus('translating');
+            try {
+              await handleThunk(createTranslation, {id: projectId, translateFrom: translateFrom?.toUpperCase()}, setSubmitErrorTranslate);
+              toast.success(`The translation was successfully created`);
+            } catch (error) {
+              setSubmitStatus('idle');
+              console.log('error translate', error);
+              toast.error(`Something go wrong with translation! ${error}`);
+            } finally {
+              setSubmitStatus('idle');
+            }
+          }
+
+          setSubmitError('');
+          setDeletedFiles([]);
+          const message = pathname.includes('/edit')
+            ? 'Your project was updated successfully!'
+            : 'Your project was created successfully!';
+          toast.success(message);
+        }
+      } catch (error) {
+        setSubmitStatus('idle');
+        toast.error(`Something go wrong! ${error}`);
+      } finally {
+        setSubmitStatus('idle');
+        setSubmitting(false);
+      }
     }
-  }
 
   //Action for publish the project
   async function handlePublish(projectId: number) {
@@ -273,7 +315,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          authorId: defaultAuthorId ? Number(defaultAuthorId) : undefined,
+          translateDirection: (project?.translateDirection as TranslateDirection) || undefined,
+          authorName: project?.authorName || defaultFormValues.authorName,
           dateOfWriting:
             convertFromISO(project?.dateOfWriting) ||
             defaultFormValues.dateOfWriting,
@@ -295,13 +338,11 @@ function ProjectContent({ projectId }: { projectId: number }) {
           return(
             <Form>
               <div className='mb-5'>
-                <Select label="Do you want translate this program info English language?" adminSelectClass={true} 
-                  name={`contentBlocks.${translateBlockIndex}.translateStatus`}
-                  labelClass="!text-admin-700" 
-                  onChange={handleChange} options={[
-                  { value: 'yes', label: 'Yes' },
-                  { value: 'no', label: 'No' },
-                ]} />
+                <TranslateSection
+                  translateBlockIndex={translateBlockIndex}
+                  translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                  handleChange={handleChange}
+                />
               </div>
 
               <div className="mb-5">
@@ -326,7 +367,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
               </div>
 
               <div className="mb-5">
-                <Select label="Change Author (if needed)" adminSelectClass={true} name="authorId" required labelClass="!text-admin-700" onChange={handleChange} options={usersList} />
+                <AuthorField usersList={usersList} defaultValue={project?.authorName}  />
               </div>
 
               <FieldArray name="contentBlocks">
@@ -588,15 +629,21 @@ function ProjectContent({ projectId }: { projectId: number }) {
               </div>
 
               <div className="flex gap-x-6 mt-2">
-                <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
-                  {isSubmitting ? (
+                <Button type="submit" disabled={isSubmitting || submitStatus !== 'idle'} 
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+                  {submitStatus === 'saving' && (
                     <div className='flex items-center'>
                       <Spinner />
                       <span className='ml-2'>Saving...</span>
                     </div>
-                  ) : (
-                    'Save'
                   )}
+                  {submitStatus === 'translating' && (
+                    <div className='flex items-center'>
+                      <Spinner />
+                      <span className='ml-2'>Translating...</span>
+                    </div>
+                  )}
+                  {submitStatus === 'idle' && 'Save'}
                 </Button>
 
                 <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">

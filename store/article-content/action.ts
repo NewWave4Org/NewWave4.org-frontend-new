@@ -71,7 +71,6 @@ export const publishArticle = createAsyncThunk('article-content/publishArticle',
 });
 
 export const updateArticle = createAsyncThunk('article-content/updateArticle', async ({ id, data }: UpdateArticleRequestDTO, { rejectWithValue }) => {
-  console.log('id', id);
   try {
     const response = await articleContentService.updateArticle({ id, data });
 

@@ -60,10 +60,12 @@ class ArticleApi implements IArticleApi {
   }
 
   async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {
+    const { translateDirection, ...body } = data;
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.CREATE_ARTICLE_CONTENT,
-      body: data,
+      body,
+      params: { translateDirection },
     });
   }
 
@@ -78,7 +80,7 @@ class ArticleApi implements IArticleApi {
     return request({
       method: HttpMethod.PUT,
       url: ApiEndpoint.UPDATE_ARTICLE_CONTENT(id),
-      body: data,
+      body: data
     });
   }
 

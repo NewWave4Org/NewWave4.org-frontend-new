@@ -4,16 +4,19 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import { createNewArticle } from '@/store/article-content/action';
 import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import { useUsers } from '@/utils/hooks/useUsers';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
+import AuthorField from '../../helperComponents/AuthorField/AuthorField';
 
 interface ICreateNewArticle {
   articleType: ArticleType;
   title: string;
+  authorName: string | undefined;
 }
 
 function CreateNewProgram() {
@@ -24,7 +27,10 @@ function CreateNewProgram() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
+    authorName: Yup.string().required('Author field cannot be empty'),
   });
+
+  const { usersList, currentAuthor } = useUsers(true);
 
   async function handleSubmit(values: ICreateNewArticle, { setSubmitting }: FormikHelpers<ICreateNewArticle>) {
     try {
@@ -55,6 +61,7 @@ function CreateNewProgram() {
         initialValues={{
           articleType: ArticleTypeEnum.PROGRAM,
           title: '',
+          authorName: currentAuthor?.name,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -68,14 +75,19 @@ function CreateNewProgram() {
                 id="title"
                 name="title"
                 type="text"
-                className="!bg-background-light w-full h-[70px] px-5 rounded-lg !ring-0"
+                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                 value={values.title}
                 label="Program title"
                 labelClass="!text-admin-700"
                 validationText={touched.title && errors.title ? errors.title : ''}
               />
             </div>
+            <div className="mb-5">
+              <AuthorField usersList={usersList} defaultValue={currentAuthor?.name} />
+            </div>
+
             {submitError && <div className="mb-5 text-red-700">{submitError}</div>}
+
             <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
               {isSubmitting ? 'Loading...' : 'Create new program'}
             </Button>
