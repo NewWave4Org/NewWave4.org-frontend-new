@@ -37,7 +37,7 @@ import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 import AuthorField from '../../helperComponents/AuthorField/AuthorField';
 import TranslateSection from '../../helperComponents/TranslateSection/TranslateSection';
-import { TranslateDirection } from '../../Pages/enum/types';
+import { TranslateDirection, TranslateDirectionEnum } from '../../Pages/enum/types';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -127,7 +127,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         const result = await dispatch(getArticleById(projectId)).unwrap();
 
-        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const isEngDirection = result?.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
         const sourceBlocks = isEngDirection
           ? (result?.contentBlocksEng ?? [])
           : (result?.contentBlocks ?? []);
@@ -168,6 +168,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         setProject({
           ...result,
+          title: isEngDirection ? result.titleEng : result.title,
           contentBlocks: mergedBlocks,
         });
       } catch (error) {
@@ -198,7 +199,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         block => block.contentBlockType === 'TRANSLATE'
       )?.translateStatus ?? 'no';
 
-      const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+      const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
       const { translateDirection, contentBlocks, ...rest } = values;
 
@@ -232,7 +233,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
           { id: projectId, data: preparedData },
           setSubmitError,
         );
-        setProject(result);
+        // setProject(result);
 
         const translateFrom = values.translateDirection;
 
@@ -453,7 +454,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                               <div className="mb-5">
                                 <Accordion title={`Section #1 - ${block.translatable_text_sectionTitle}`} classNameTop="min-h-14">
                                   <div className="flex gap-4">
-                                    <div className="w-1/2 h-[442px] flex flex-col flex-1">
+                                    <div className="w-1/2 h-[442px] flex flex-col flex-1 block-with-photo">
                                       <div className="mb-4">
                                         <Input
                                           onChange={handleChange}
@@ -466,7 +467,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                           labelClass="!text-admin-700"
                                         />
                                       </div>
-                                      <div className="flex-1 flex flex-col">
+                                      <div className="flex-1 flex flex-col block-with-editor">
                                         <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
                                         <TextEditor
                                           key={editorKey[block.id]}
