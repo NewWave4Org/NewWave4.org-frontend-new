@@ -131,7 +131,7 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
                     : article.mainPhoto
                 }
                 fill
-                className="object-cover object-top"
+                className="object-contain object-top"
                 alt={article.title}
                 priority
               />
@@ -151,7 +151,7 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
                   </div>
                 )} */}
 
-                <div className="flex items-center mb-1">
+                {article.authorName && (<><div className="flex items-center mb-1">
                   <div className="mr-2">
                     <UserIcon size="16" color="#7A7A7A" />
                   </div>
@@ -161,7 +161,7 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
                 </div>
                 <div className="text-font-primary text-small">
                   {article.authorName}
-                </div>
+                </div></>)}
 
                 <div className="flex items-center mb-1 mt-4">
                   <div className="mr-2">
@@ -201,10 +201,9 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
               <div className="lg:max-w-[718px] lg:flex-1 lg:mb-0 mb-6">
                 <Image
                   src={article.photoList[0]}
-                  className="w-full h-full"
+                  className="w-full h-full object-contain"
                   width={100}
                   height={100}
-                  style={{ objectFit: 'cover' }}
                   alt=""
                 />
               </div>
@@ -213,10 +212,9 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
               <div className="lg:max-w-[506px]">
                 <Image
                   src={article.photoList[1]}
-                  className="w-full h-full"
+                  className="w-full h-full object-contain"
                   width={100}
                   height={100}
-                  style={{ objectFit: 'cover' }}
                   alt=""
                 />
               </div>
@@ -242,6 +240,8 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
               dots={true} 
               showArrows={true} 
               centerMode={true} 
+              variableWidth={true}
+              parentClass="article-slider"
               slideStyles="mx-2 relative" centerPadding='220px' customStyle="h-[370px]" 
               responsive={[
                 {

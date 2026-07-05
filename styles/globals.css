@@ -361,6 +361,9 @@ p:not(:last-child) {
   margin-bottom:  0 !important;
 }
 
+.article-slider .slick-slide {
+  width: 300px;
+}
 
 @media (min-width: 1280px) {
   .home-general-section {
