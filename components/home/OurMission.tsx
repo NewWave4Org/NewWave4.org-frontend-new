@@ -35,7 +35,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
   return (
     <section className="our-mission lg:py-14 py-7 lg:mb-20 mb-10 bg-skyBlue-300">
       <div className="container mx-auto px-4">
-        <h3 className="section-title text-h3 text-center text-font-accent mb-10 font-ebGaramond">{t('sections_title.our_mission')}</h3>
+        <h3 className="section-title text-h3 text-center text-font-accent mb-10 uppercase font-bold">{t('sections_title.our_mission')}</h3>
         <div className="flex flex-col items-baseline gap-6 md:flex-row md:justify-between">
           {ourMission?.map((item, index) => {
             const ourMissionDescriptionText = convertDraftToHTML(item?.translatable_text_editorState, locale);
@@ -47,7 +47,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
                 <span className="relative h-[124px] block">
                   <Image src={icon} alt={item.translatable_text_title ?? 'our-mission'} width={iconWidth} height={124} className="mb-4" />
                 </span>
-                <h4 className="mb-3 text-h4 text-2xl font-ebGaramond">{item.translatable_text_title}</h4>
+                <h4 className="mb-3 text-h5">{item.translatable_text_title}</h4>
                 <p className="text-base" dangerouslySetInnerHTML={{ __html: ourMissionDescriptionText }} />
               </div>
             );

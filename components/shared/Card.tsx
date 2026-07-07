@@ -19,7 +19,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
     >
       <div className="relative lg:h-[208px] sm:h-[300px] h-[200px]">
         <Image
-          src={imageSrc ? imageSrc : '/logo.svg'}
+          src={imageSrc ? imageSrc : '/logo.png'}
           alt={title}
           fill
           style={{ objectFit: 'cover' }}

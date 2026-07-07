@@ -16,7 +16,7 @@ const Subscribe: React.FC = () => {
       >
         <div className='container mx-auto px-4'>
           <div className="flex flex-col gap-y-6 lg:pl-[105px]">
-            <h2 className="text-h2 text-font-primary font-ebGaramond">
+            <h2 className="text-h2 text-font-primary !font-medium uppercase">
               {t('sections_title.subscription')}
             </h2>
             <SubscribeForm />

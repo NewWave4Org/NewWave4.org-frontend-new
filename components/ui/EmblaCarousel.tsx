@@ -26,10 +26,12 @@ interface IEmblaCarouselProps extends Settings {
   slideStyles?: string;
   centerPadding?: string;
   customStyle?: string;
-  responsive?: any[]
+  responsive?: any[],
+  variableWidth?: boolean,
+  parentClass?: string
 }
 
-const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding, customStyle = 'h-[200px] md:h-[524px]', responsive = [] }: IEmblaCarouselProps) => {
+const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding, customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: IEmblaCarouselProps) => {
 
   const settings = {
     className: 'h-full',
@@ -42,6 +44,7 @@ const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true
     autoplaySpeed: 3000,
     pauseOnHover: slideHover,
     slidesToShow: slidesToShow,
+    variableWidth: variableWidth,
     arrows: showArrows,
     centerMode: centerMode,
     cssEase: 'linear', 
@@ -53,12 +56,12 @@ const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true
 
   return (
     <section className="relative group/arrows">
-      <div className={`overflow-hidden ${customStyles}`}>
+      <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
         <Slider {...settings}>
           {slides?.files.map((slide, index) => (
             <div className={`${customStyle} relative group/slide group`} key={index}>
               <div className={`h-full ${slideStyles}`}>
-                <Image key={index} src={slide} alt={`slider-${index}`} fill className={`rounded-xl object-cover ${customStyle}`} />
+                <Image key={index} src={slide} alt={`slider-${index}`} fill className={`rounded-xl object-contain ${customStyle}`} />
               </div>
             </div>
           ))}

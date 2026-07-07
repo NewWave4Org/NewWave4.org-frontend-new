@@ -32,7 +32,7 @@ import BasketIcon from '@/components/icons/symbolic/BasketIcon';
 import { createTranslation } from '@/store/translation/action';
 import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
-import { TranslateDirection } from '../../Pages/enum/types';
+import { TranslateDirection, TranslateDirectionEnum } from '../../Pages/enum/types';
 import TranslateSection from '../../helperComponents/TranslateSection/TranslateSection';
 import AuthorField from '../../helperComponents/AuthorField/AuthorField';
 
@@ -191,7 +191,7 @@ function ProgramContent({ programId }: { programId: number }) {
 
         const result = await dispatch(getArticleById(programId)).unwrap();
 
-        const isEngDirection = result?.translateDirection === 'en_to_uk';
+        const isEngDirection = result?.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
         const sourceBlocks = isEngDirection
           ? (result?.contentBlocksEng ?? [])
           : (result?.contentBlocks ?? []);
@@ -260,7 +260,11 @@ function ProgramContent({ programId }: { programId: number }) {
         setEditorStates(editors);
         setEditorKey(keys);
 
-        setProgram({ ...result, contentBlocks: mergedBlocks });
+        setProgram({ 
+          ...result, 
+          title: isEngDirection ? result.titleEng : result.title,
+          contentBlocks: mergedBlocks 
+        });
       } catch (error) {
         console.log('error', error);
         router.push(`/admin/projects`);
@@ -289,7 +293,7 @@ function ProgramContent({ programId }: { programId: number }) {
       block => block.contentBlockType === 'TRANSLATE'
     )?.translateStatus ?? 'no';
 
-    const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+    const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
     const normalizedBlocks = values.contentBlocks.map(block => {
       if (block.contentBlockType === 'SCHEDULE_INFO') {

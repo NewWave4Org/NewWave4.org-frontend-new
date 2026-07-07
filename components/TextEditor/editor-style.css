@@ -82,3 +82,14 @@ ol {
   padding-inline-start: 40px;
   unicode-bidi: isolate;
 }
+
+.block-with-editor {
+  height: calc(100% - 130px);
+  overflow: hidden;
+}
+.block-with-editor .editor-wrapper{
+  height: calc(100% - 50px);
+}
+.block-with-editor .editor-container {
+  height: 100%;
+}

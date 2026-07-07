@@ -14,7 +14,7 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
-        <h4 className="preheader !text-font-primary lg:mb-10 mb-6">{t(title)}</h4>
+        <h4 className="font-medium text-h5 uppercase !text-font-primary lg:mb-10 mb-6">{t(title)}</h4>
 
         <div className="flex flex-col lg:flex-row -ml-3 -mr-3">
           {dopBlocks?.map(item => {
@@ -25,7 +25,7 @@ function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | 
             
 
             const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'PHOTO')?.data[0];
-            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.svg`;
+            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.png`;
 
             const title = locale === EN_LOCALE 
               ? item?.titleEng ?? item.title ?? ''

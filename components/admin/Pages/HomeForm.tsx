@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/store/hook';
 import { FieldArray, Form, Formik } from 'formik';
-import { PagesType } from './enum/types';
+import { PagesType, TranslateDirectionEnum } from './enum/types';
 import Input from '@/components/shared/Input';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import { useEffect, useMemo, useState } from 'react';
@@ -12,6 +12,7 @@ import { getPages, updatePages } from '@/store/pages/action';
 import { toast } from 'react-toastify';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { v4 as uuid } from 'uuid';
+import * as Yup from 'yup';
 import useImageLoading from '../helperComponents/ImageLoading/hook/useImageLoading';
 import Accordion from '@/components/ui/Accordion/Accordion';
 import BasketIcon from '@/components/icons/symbolic/BasketIcon';
@@ -44,13 +45,31 @@ function HomeForm() {
 
   const isUpdate = Boolean(homePage?.id);
 
+  const validationSchema = Yup.object({
+    translateDirection: Yup.string().test(
+      'required-if-translate',
+      'Translation direction is required',
+      function(value) {
+        const contentBlocks = this.parent.contentBlocks;
+        const translateBlock = contentBlocks?.find(
+          (b: any) => b.contentBlockType === 'TRANSLATE'
+        );
+        if (translateBlock?.translateStatus === 'yes') {
+          return !!value;
+        }
+        return true;
+      }
+    ),
+    });
+
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.HOME,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
         { id: uuid(), contentBlockType: 'SLIDER', translatable_text_title: '', translatable_text_description: '', link: '', files: [], translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'HOME_TITLE', translatable_text_title: '' },
+        { id: uuid(), contentBlockType: 'HOME_TITLE_UA', text_title_ua: '' },
+        { id: uuid(), contentBlockType: 'HOME_TITLE_ENG', text_title_eng: '' },
         { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', translatable_text_description: '', translatable_text_editorState: null },
         { id: uuid(), contentBlockType: 'HOME_PHOTO', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
@@ -66,6 +85,7 @@ function HomeForm() {
   const initialValues = {
     pageType: PagesType.HOME,
     contentBlocks: homePage?.contentBlocks?.length ? homePage.contentBlocks : defaultFormValues.contentBlocks,
+    translateDirection: homePage?.translateDirection ?? '',
   };
 
   const formatType = (str: string) =>
@@ -91,11 +111,16 @@ function HomeForm() {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
+        const isEngDirection = result.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+        
+        const activeBlocks = isEngDirection
+            ? result.contentBlocksEng
+            : result.contentBlocks;
 
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const serverBlocks = (activeBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
           ...(block.contentBlockType === 'SLIDER' ? {isNew: false} : {})
@@ -207,7 +232,11 @@ function HomeForm() {
   }
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
+    <Formik initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
+    >
       {({ handleChange, isSubmitting, values, setFieldValue }) => (
         <Form>
           <FieldArray name="contentBlocks">
@@ -217,6 +246,8 @@ function HomeForm() {
               const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
               const photoBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_PHOTO');
               const photoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'HOME_PHOTO');
+              const homeTitleUaBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_TITLE_UA');
+              const homeTitleEngBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_TITLE_ENG');
 
               return (
                 <div>
@@ -337,7 +368,7 @@ function HomeForm() {
                               id={`contentBlocks[${realIndex}].translatable_text_title`}
                               name={`contentBlocks[${realIndex}].translatable_text_title`}
                               type="text"
-                              value={block.translatable_text_title}
+                              value={block.text_title}
                               onChange={handleChange}
                               label="Slider title"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
@@ -414,7 +445,10 @@ function HomeForm() {
                     Add new slider
                   </button>
 
-                  {fixedBlocks.map(block => {
+                  {fixedBlocks.filter(block =>
+                      block.contentBlockType !== 'HOME_TITLE_UA' &&
+                      block.contentBlockType !== 'HOME_TITLE_ENG'
+                    ).map(block => {
                     const realIndex = values.contentBlocks.indexOf(block);
 
                     if (block.contentBlockType === 'VIDEO') {
@@ -478,6 +512,40 @@ function HomeForm() {
                     // HOME_TITLE, HOME_DESCRIPTION, PARTNERS
                     return (
                       <div key={realIndex} className="mb-8">
+                        {block.contentBlockType === 'HOME_DESCRIPTION' && (
+                          <>
+                            {homeTitleUaBlock && (
+                              <div className="mb-4">
+                                <Input
+                                  id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
+                                  name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
+                                  type="text"
+                                  value={homeTitleUaBlock.text_title_ua || ''}
+                                  onChange={handleChange}
+                                  label="Home title UA"
+                                  labelClass="mb-2 !text-admin-700"
+                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                />
+                              </div>
+                            )}
+
+                            {homeTitleEngBlock && (
+                              <div className="mb-4">
+                                <Input
+                                  id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
+                                  name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
+                                  type="text"
+                                  value={homeTitleEngBlock.text_title_eng || ''}
+                                  onChange={handleChange}
+                                  label="Home title ENG"
+                                  labelClass="mb-2 !text-admin-700"
+                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                        
                         {block.translatable_text_title !== undefined && (
                           <div className="mb-4">
                             <Input
@@ -486,7 +554,7 @@ function HomeForm() {
                               type="text"
                               value={block.translatable_text_title}
                               onChange={handleChange}
-                              label={block.contentBlockType === 'HOME_TITLE' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} title`}
+                              label={`${formatType(block.contentBlockType)} title`}
                               labelClass="mb-2 !text-admin-700"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                             />

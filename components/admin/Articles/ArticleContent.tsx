@@ -31,6 +31,7 @@ import TranslateSection from '../helperComponents/TranslateSection/TranslateSect
 import { convertFromISO } from '../helperComponents/DatePicker/utils/convertFromISO';
 import AuthorField from '../helperComponents/AuthorField/AuthorField';
 import { convertToISO } from '../helperComponents/DatePicker/utils/convertToISO';
+import { TranslateDirectionEnum } from '../Pages/enum/types';
 
 const getTypeName = (type: ArticleTypeEnum) =>
   type === ArticleTypeEnum.EVENT ? 'Event' : 'Article';
@@ -168,9 +169,14 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const fetchArticle = async () => {
       try {
         const data = await dispatch(getArticleById(articleId)).unwrap();
-        setArticle(data);
+        const isEngDirection = data.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
-        const isEngDirection = data.translateDirection === 'en_to_uk';
+        const formData = {
+          ...data,
+          title: isEngDirection ? data.titleEng : data.title,
+        };
+
+        setArticle(formData);
 
         const activeBlocks = isEngDirection
           ? data.contentBlocksEng
@@ -237,7 +243,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       (b: any) => b.contentBlockType === 'TRANSLATE'
     )?.translateStatus ?? 'no';
 
-    const isEngDirection = translateStatus === 'yes' && values.translateDirection === 'en_to_uk';
+    const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
     // ---- PREPARE DATA ----
     const { translateDirection, ...rest } = values;
@@ -302,7 +308,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
         await dispatch(updateArticle({ id: articleId, data: preparedData })).unwrap();
 
         updateSuccess = true;
-        setArticle(prev => ({ ...prev!, contentBlocks: values.contentBlocks }));
+        // setArticle(prev => ({ ...prev!, contentBlocks: values.contentBlocks }));
         toast.success(`${getTypeName(articleType)} content saved successfully!`);
       }
     } catch (error) {

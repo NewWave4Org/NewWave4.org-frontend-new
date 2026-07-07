@@ -28,13 +28,16 @@ function HomePageClientSide() {
   const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
 
   const slides = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SLIDER') || [];
-  const homeTitle = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_TITLE');
+  const homeTitleUA = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE_UA')?.text_title_ua;
+  const homeTitleENG = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE_ENG')?.text_title_eng;
+  const homeTitle = locale === EN_LOCALE ? homeTitleENG : homeTitleUA;
   const homeDescription = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
   const homePhoto = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_PHOTO');
   const joinUs = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'JOIN_US') || [];
   const ourPartnersContent = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'PARTNERS');
   const videoUrl = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
 
+  console.log('homePage', homePage);
   useEffect(() => {
     async function getPageByKey() {
       try {

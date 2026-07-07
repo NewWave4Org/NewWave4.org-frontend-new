@@ -23,10 +23,10 @@ const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) =>
     <section className={`${className} sponsors py-14`}>
       <div className="container mx-auto px-4">
         <div className="sponsors__inner">
-          <h4 className="preheader !text-font-primary">{t('sections_title.become_partner')}</h4>
+          <h4 className="lg:mb-0 mb-4 !text-font-primary font-medium text-h3 uppercase">{t('sections_title.become_partner')}</h4>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">
             <div className="partners-text lg:max-w-[524px] lg:w-[525px] w-full max-w-full">
-              <h4 className="text-h4 text-font-accent font-ebGaramond">{ourPartnersContent?.translatable_text_title}</h4>
+              <h4 className="text-h5 text-font-accent font-medium">{ourPartnersContent?.translatable_text_title}</h4>
               <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: partnerDescriptionText }} />
             </div>
             <div className="partners-form lg:max-w-[480px]">

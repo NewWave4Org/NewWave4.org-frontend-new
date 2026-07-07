@@ -1,11 +1,12 @@
 import { useAppDispatch } from '@/store/hook';
-import { PagesType } from './enum/types';
+import { PagesType, TranslateDirectionEnum } from './enum/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { IPagesResponseDTO } from '@/utils/pages/types/interfaces';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { FieldArray, Form, Formik } from 'formik';
 import TextEditor from '@/components/TextEditor/TextEditor';
+import * as Yup from 'yup';
 import Input from '@/components/shared/Input';
 import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import Button from '@/components/shared/Button';
@@ -23,6 +24,7 @@ interface IAboutUsPageValues {
   pageType: PagesType;
   contentBlocks: any[];
 }
+
 
 function AboutUsForm() {
   const dispatch = useAppDispatch();
@@ -45,6 +47,23 @@ function AboutUsForm() {
 
   const isUpdate = Boolean(aboutUsPage?.id);
 
+  const validationSchema = Yup.object({
+    translateDirection: Yup.string().test(
+      'required-if-translate',
+      'Translation direction is required',
+      function(value) {
+        const contentBlocks = this.parent.contentBlocks;
+        const translateBlock = contentBlocks?.find(
+          (b: any) => b.contentBlockType === 'TRANSLATE'
+        );
+        if (translateBlock?.translateStatus === 'yes') {
+          return !!value;
+        }
+        return true;
+      }
+    ),
+  });
+
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.ABOUT_US,
@@ -65,6 +84,7 @@ function AboutUsForm() {
 
   const initialValues = {
     pageType: PagesType.ABOUT_US,
+    translateDirection: aboutUsPage?.translateDirection ?? '',
     contentBlocks: aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length 
       ? aboutUsPage?.contentBlocks 
       : defaultFormValues.contentBlocks,
@@ -93,8 +113,13 @@ function AboutUsForm() {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
+        const isEngDirection = result.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
-        const serverBlocks = (result?.contentBlocks ?? []).map(block => ({
+        const activeBlocks = isEngDirection
+            ? result.contentBlocksEng
+            : result.contentBlocks;
+
+        const serverBlocks = (activeBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
           ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
@@ -198,7 +223,7 @@ function AboutUsForm() {
   
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize validationSchema={validationSchema}>
       {({ handleChange, isSubmitting, values, setFieldValue }) => {
         const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
         const photosBlock = values.contentBlocks.find(b => b.contentBlockType === 'PHOTOS');
@@ -206,11 +231,13 @@ function AboutUsForm() {
 
         return(
           <Form>
-            <TranslateSection
-              translateBlockIndex={translateBlockIndex}
-              translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
-              handleChange={handleChange}
-            />
+            <div className='mb-4'>
+              <TranslateSection
+                translateBlockIndex={translateBlockIndex}
+                translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                handleChange={handleChange}
+              />
+            </div>
 
             <FieldArray name="contentBlocks">
               {({ push, remove }) => {
