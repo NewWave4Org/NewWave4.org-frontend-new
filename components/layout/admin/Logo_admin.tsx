@@ -15,7 +15,7 @@ const LogoAdmin = ({
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">
         <Image
-          src={`${prefix}/logo.svg`}
+          src={`${prefix}/logo.png`}
           alt="logo"
           width={64}
           height={64}

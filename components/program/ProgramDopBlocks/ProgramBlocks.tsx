@@ -20,7 +20,7 @@ function ProgramBlocks({ dopPrograms }: { dopPrograms: IArticleBody[] | null }) 
               : item?.contentBlocks?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text;
 
             const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'SECTION_WITH_PHOTO')?.files[0];
-            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.svg`;
+            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.png`;
 
             const title = locale === EN_LOCALE 
               ? item?.titleEng ?? item.title ?? ''
