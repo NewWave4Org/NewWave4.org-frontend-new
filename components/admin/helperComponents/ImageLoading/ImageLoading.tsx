@@ -46,7 +46,7 @@ function ImageLoading({
   isObjectCover = true,
   isAttach,
 }: IImageLoading) {
-  const { uploadFiles } = useImageLoading({
+  const { uploadFiles, deleteFile } = useImageLoading({
     contentType,
     articleId,
     isAttach,
@@ -82,9 +82,11 @@ function ImageLoading({
   const handleDelete = (url: string) => {
     const updatedUrls = urls.filter(u => u !== url);
     setUrls(updatedUrls);
+    deleteFile(url);
 
     setTimeout(() => {
       onFilesChange?.(updatedUrls, [url]);
+      
     }, 0);
   };
 
