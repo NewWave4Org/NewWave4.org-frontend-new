@@ -17,7 +17,7 @@ function Accordion({ title, children, actions, classNameTop, initState = false }
   return (
     <div className="border rounded-lg">
       <div className={`${classNameTop} flex items-center justify-between shadow-custom`}>
-        <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex mr-0 w-full">
+        <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex mr-0 w-full p-3">
           <ArrowUp4Icon className={`${!isOpen ? 'rotate-90' : ''} mr-3 duration-500`} />
           {title}
         </button>

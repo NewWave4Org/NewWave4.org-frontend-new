@@ -26,6 +26,7 @@ function AboutPageClientSide() {
   const dispatch = useAppDispatch();
   const [aboutPage, setAboutPage] = useState<ChangedPagesBody | null>(null);
   const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
+  const [ourTeam, setOurTeam] = useState<IGlobalSectionsResponseDTO | null>(null);
 
   const ourMission = aboutPage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'MISSION_BLOCK') || [];
   const quote = aboutPage?.contentBlocksToShow?.find(item => item.contentBlockType === 'QUOTE');
@@ -73,6 +74,24 @@ function AboutPageClientSide() {
       }
     }
 
+    async function getOurTeam() {
+      try {
+        const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_TEAM)).unwrap();
+
+        setOurTeam(result);
+      } catch (error: any) {
+        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+          console.log('Section does not exist yet → creating new one');
+          setOurTeam(null);
+          return;
+        }
+
+        console.log('error', error);
+        toast.error('Failed to fetch Our Team');
+      }
+    }
+
+    getOurTeam();
     getPageByKey();
     getBlockByKey();
   }, [dispatch]);
@@ -82,7 +101,7 @@ function AboutPageClientSide() {
       <Hero title={t('menu.about_us')} pageBanner="/about/about-us_banner.png" />
       <OurMission ourMission={ourMission} />
       {quote && quote?.translatable_text_text !== '' && <DetailedTextInformation quote={quote} />}
-      <Team />
+      {ourTeam?.contentBlocks.length && <Team ourTeam={ourTeam?.contentBlocks} />}
       <HistoryCard ourHistoryTitle={ourHistoryTitle} ourHistoryDescription={ourHistoryDescription} ourHistoryPhotos={ourHistoryPhotos} />
       <HistoryFormation ourTimeLine={ourTimeLine} />
       {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}

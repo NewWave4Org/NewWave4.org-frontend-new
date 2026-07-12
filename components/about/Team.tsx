@@ -1,11 +1,24 @@
 'use client';
 
-import { teamData } from '@/data/about/team';
 import MemberTeaser from '@/components/shared/MemberTeaser';
 import { useTranslations } from 'next-intl';
 
-const Team = () => {
-  const data = teamData.uk;
+export interface ourTeamProps {
+  contentBlockType: string;
+  files: string[];
+  id: string;
+  sectionLocationENG: string;
+  sectionLocationUA: string;
+  sectionPositionENG: string;
+  sectionPositionUA: string;
+  sectionTitleENG: string;
+  sectionTitleUA: string;
+  socialMediaUrl: string;
+  typeSocialMedia: string;
+}
+
+const Team = ({ourTeam}: {ourTeam: ourTeamProps[]}) => {
+
   const t = useTranslations();
 
   return (
@@ -13,9 +26,9 @@ const Team = () => {
       <div className="container px-4 mx-auto">
         <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto !text-font-primary">{t('sections_title.our_team')}</h4>
         <div className="">
-          <div className="grid grid-cols-1 lg:gap-12 gap-6 md:grid-cols-3 sm:grid-cols-2 md:grid-cols-4">
-            {data.team.map(member => (
-              <MemberTeaser key={member.name} member={member} />
+          <div className="grid grid-cols-1 lg:gap-12 gap-6 sm:grid-cols-2 md:grid-cols-4">
+            {ourTeam.map(member => (
+              <MemberTeaser key={member.id} member={member} />
             ))}
           </div>
         </div>

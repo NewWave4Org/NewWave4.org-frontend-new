@@ -13,6 +13,7 @@ function GlobalSectionsPage() {
   const TableSections = [
     { id: GlobalSectionsType.OUR_SOCIAL_LINKS, title: 'Social links' },
     { id: GlobalSectionsType.OUR_PARTNERS, title: 'Our partners' },
+    { id: GlobalSectionsType.OUR_TEAM, title: 'Our team' },
   ];
 
   return (
