@@ -8,6 +8,7 @@ import { typeSocialMediaEnum, typeSocialMediaList } from '@/data/projects/typeSo
 import YoutubeIcon from '../icons/social/YoutubeIcon';
 import InstagramIcon from '../icons/social/InstagramIcon';
 import TelegramIcon from '../icons/social/TelegramIcon';
+import LinkedinIcon from '../icons/social/LinkedinIcon';
 
 const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
   const locale = useLocale();
@@ -17,6 +18,9 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
   const location = member[`sectionLocation${lang}`];
   const position = member[`sectionPosition${lang}`];
   const nameSocialMedia = typeSocialMediaList.find(item => item.value === member.typeSocialMedia)?.label;
+
+  console.log('member.typeSocialMedia', member.typeSocialMedia);
+  console.log('nameSocialMedia', nameSocialMedia);
 
   return (
     <div className="member-teaser text-center rounded-lg font-helv shadow-[0_4px_12px_0_rgba(180,140,100,0.15)]">
@@ -35,6 +39,7 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
                 {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
                 {nameSocialMedia === typeSocialMediaEnum.YouTube && <YoutubeIcon size="24" />}
                 {nameSocialMedia === typeSocialMediaEnum.Telegram && <TelegramIcon size="24" />}
+                {nameSocialMedia === typeSocialMediaEnum.Linkedin && <LinkedinIcon size="24" />}
               </Link>
             </div>
           </div>

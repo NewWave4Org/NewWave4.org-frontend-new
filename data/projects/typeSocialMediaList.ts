@@ -3,11 +3,13 @@ export const typeSocialMediaList = [
   {value: '2', label: 'Facebook'},
   {value: '3', label: 'Telegram'},
   {value: '4', label: 'YouTube'},
-]
+  {value: '5', label: 'Linkedin'},
+];
 
 export const enum typeSocialMediaEnum {
   Instagram = 'Instagram',
   Facebook = 'Facebook',
   Telegram = 'Telegram',
-  YouTube = 'YouTube'
+  YouTube = 'YouTube',
+  Linkedin = 'Linkedin'
 }
