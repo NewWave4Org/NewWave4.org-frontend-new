@@ -9,6 +9,7 @@ import YoutubeIcon from '../icons/social/YoutubeIcon';
 import TelegramIcon from '../icons/social/TelegramIcon';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import LinkedinIcon from '../icons/social/LinkedinIcon';
 
 interface IProjectContentLinks {
   index: number;
@@ -42,6 +43,7 @@ function ProjectContentLinks({ index, siteLink, linkSocialMedia, nameSocialMedia
               {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
               {nameSocialMedia === typeSocialMediaEnum.YouTube && <YoutubeIcon size="24" />}
               {nameSocialMedia === typeSocialMediaEnum.Telegram && <TelegramIcon size="24" />}
+              {nameSocialMedia === typeSocialMediaEnum.Linkedin && <LinkedinIcon size="24" />}
             </LinkBtn>
           )}
         </div>
