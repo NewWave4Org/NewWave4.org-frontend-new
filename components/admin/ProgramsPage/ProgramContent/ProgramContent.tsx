@@ -313,12 +313,14 @@ function ProgramContent({ programId }: { programId: number }) {
 
     const { translateDirection, ...rest } = values;
 
+    console.log('translateStatus', translateStatus);
+
     const preparedData = isEngDirection
       ? {
           ...rest,
           titleEng: values.title,
           title: '',
-          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+          translateDirection,
           englishPublished: translateStatus === 'yes',
           dateOfWriting: convertToISO(values.dateOfWriting),
           contentBlocksEng: normalizedBlocks,
@@ -326,8 +328,8 @@ function ProgramContent({ programId }: { programId: number }) {
         }
       : {
           ...rest,
-          translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
-          englishPublished: translateStatus === 'yes',
+          translateDirection,
+          englishPublished: translateStatus === 'no',
           title: values.title,
           titleEng: '',
           contentBlocks: normalizedBlocks,
@@ -336,6 +338,7 @@ function ProgramContent({ programId }: { programId: number }) {
         };
 
     setSubmitStatus('saving');
+
 
     try {
       const result = await handleThunk(

@@ -128,6 +128,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const result = await dispatch(getArticleById(projectId)).unwrap();
 
         const isEngDirection = result?.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+        
         const sourceBlocks = isEngDirection
           ? (result?.contentBlocksEng ?? [])
           : (result?.contentBlocks ?? []);
@@ -195,9 +196,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         }
       }
 
-      const translateStatus = values.contentBlocks?.find(
-        block => block.contentBlockType === 'TRANSLATE'
-      )?.translateStatus ?? 'no';
+      const translateStatus = values.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
 
       const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
@@ -208,7 +207,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
             ...rest,
             titleEng: values.title,
             title: '',
-            translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
+            translateDirection,
             englishPublished: translateStatus === 'yes',
             contentBlocksEng: contentBlocks,
             contentBlocks: [],
@@ -218,14 +217,15 @@ function ProjectContent({ projectId }: { projectId: number }) {
             ...rest,
             title: values.title,
             titleEng: '',
-            translateDirection: translateStatus === 'yes' ? translateDirection?.toUpperCase() : undefined,
-            englishPublished: translateStatus === 'yes',
+            translateDirection,
+            englishPublished: translateStatus === 'no',
             contentBlocks,
             contentBlocksEng: [],
             dateOfWriting: convertToISO(values.dateOfWriting),
           };
 
       setSubmitStatus('saving');
+
 
       try {
         const result = await handleThunk(
