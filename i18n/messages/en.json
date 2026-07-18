@@ -110,6 +110,37 @@
   },
   "articles": {
     "articles_empty": "Unfortunately, there are no articles available yet. Stay tuned for updates!"
+  },
+  "seo": {
+    "site_name": "Ukrainian New Wave",
+    "default_title": "Ukrainian New Wave — Ukrainian-American Nonprofit Organization",
+    "default_description": "Ukrainian New Wave is a Ukrainian-American nonprofit uniting Ukrainians in the US since 2006 — preserving Ukrainian culture, running the “Nova Khvylka” school, and supporting Ukraine with humanitarian aid.",
+    "home": {
+      "title": "Ukrainian New Wave — Ukrainian-American Nonprofit Organization",
+      "description": "A public organization uniting Ukrainians in the US since 2006. We preserve Ukrainian culture and traditions, run educational programs, and support Ukraine with humanitarian aid."
+    },
+    "about": {
+      "title": "About Us",
+      "description": "Learn about Ukrainian New Wave's history since 2006, our mission, our team, and how we support the Ukrainian-American community and Ukraine."
+    },
+    "news": {
+      "title": "News",
+      "description": "Read the latest news from Ukrainian New Wave: community events, festivals, humanitarian aid initiatives, and updates from the Ukrainian-American community."
+    },
+    "events": {
+      "title": "Events",
+      "description": "Discover upcoming and past events hosted by Ukrainian New Wave, including festivals, fundraisers, and community gatherings."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Explore Ukrainian New Wave's projects supporting Ukrainian culture, education, and humanitarian relief for Ukraine."
+    },
+    "program": {
+      "title": "Program"
+    },
+    "contacts": {
+      "title": "Contact Us",
+      "description": "Get in touch with Ukrainian New Wave. Reach out with questions, partnership inquiries, or ways to get involved."
+    }
   }
-  
 }

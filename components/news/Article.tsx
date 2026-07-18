@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import SocialButtons from '@/components/socialButtons/SocialButtons';
@@ -18,12 +18,12 @@ import { useAppDispatch } from '@/store/hook';
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import EmblaCarousel, { SliderCarousel } from '../ui/EmblaCarousel';
 import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
-import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { toast } from 'react-toastify';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 
 
-export default function Article({articleType} : {articleType?: ArticleType}) {
+export default function Article({ articleType, initialArticleData }: { articleType?: ArticleType; initialArticleData?: GetArticleByIdResponseDTO | null }) {
   const dispatch = useAppDispatch();
 
   const params = useParams();
@@ -31,13 +31,26 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
   const t = useTranslations();
   const articleId = Number(params.id);
 
-  const [article, setArticle] = useState<(ArticleFull & { contentBlocksEng?: any }) | null>(null);
+  // Seeds first paint from the server-fetched article (see app/[locale]/(main)/news/[id]/page.tsx)
+  // so crawlers get real content instead of "Loading...". Client-side navigation between
+  // articles still goes through the fetch below as before.
+  const usedInitialData = useRef(false);
+
+  const [article, setArticle] = useState<(ArticleFull & { contentBlocksEng?: any }) | null>(() => (initialArticleData ? mapGetArticleByIdResponseToFull(initialArticleData, locale) : null));
   // const [projectTitle, setProjectTitle] = useState('');
-  const [slides, setSlides] = useState<SliderCarousel>({ files: [] });
+  const [slides, setSlides] = useState<SliderCarousel>(() => {
+    if (!initialArticleData) return { files: [] };
+    const mapped = mapGetArticleByIdResponseToFull(initialArticleData, locale);
+    return { files: mapped.photoSlider?.filter(Boolean) ?? [] };
+  });
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialArticleData);
   const [error, setError] = useState(false);
-  const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
+  const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>(() => {
+    if (!initialArticleData) return '';
+    const mapped = mapGetArticleByIdResponseToFull(initialArticleData, locale);
+    return mapped.video ? convertYoutubeUrlToEmbed(mapped.video) : '';
+  });
 
 
   useEffect(() => {
@@ -96,7 +109,12 @@ export default function Article({articleType} : {articleType?: ArticleType}) {
       }
     };
 
-    loadArticle();
+    if (initialArticleData && !usedInitialData.current) {
+      usedInitialData.current = true;
+    } else {
+      loadArticle();
+    }
+
     fetchDopPrograms();
   }, [articleId]);
 
