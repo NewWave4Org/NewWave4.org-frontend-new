@@ -2,11 +2,11 @@
 
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
-import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useParams } from 'next/navigation';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import ProgramPreview from '../admin/ProgramsPage/ProgramPreview/ProgramPreview';
 import ProgramBlocks from './ProgramDopBlocks/ProgramBlocks';
@@ -15,7 +15,7 @@ import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n';
 
-function ProgramPageClient() {
+function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArticleByIdResponseDTO | null }) {
   const t = useTranslations();
   const locale = useLocale();
 
@@ -26,9 +26,13 @@ function ProgramPageClient() {
   const id = params.id;
   const programId = Number(id);
 
-  const [program, setProgram] = useState<any | undefined>(undefined);
+  // Seeds first paint from the server-fetched program (see app/[locale]/(main)/program/[id]/page.tsx)
+  // so crawlers get real content instead of "Loading...".
+  const usedInitialData = useRef(false);
+
+  const [program, setProgram] = useState<any | undefined>(initialProgramData ?? undefined);
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProgramData);
 
   useEffect(() => {
     async function fetchFullProgramById() {
@@ -48,7 +52,11 @@ function ProgramPageClient() {
       }
     }
 
-    fetchFullProgramById();
+    if (initialProgramData && !usedInitialData.current) {
+      usedInitialData.current = true;
+    } else {
+      fetchFullProgramById();
+    }
   }, [programId, dispatch, locale]);
 
   useEffect(() => {

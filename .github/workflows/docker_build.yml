@@ -76,7 +76,10 @@ jobs:
           echo $IP
 
           echo Testing Image URL using wget
-          wget -q -O - 127.0.0.1:3000 | grep "New Wave"
+          # Checks for a valid HTML response rather than specific brand text, since the
+          # homepage's default locale (UA) legitimately renders its title/branding in
+          # Ukrainian, not the English "New Wave" string.
+          wget -q -O - 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
 
       - name: Docker push
 

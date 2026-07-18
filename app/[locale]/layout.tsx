@@ -6,11 +6,13 @@ import { EB_Garamond } from "next/font/google";
 import type { Metadata } from 'next';
 import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 import ReduxProvider from "@/store/ReduxProvider";
 import Header from "@/components/layout/Header";
 import Subscribe from "@/components/layout/Subscribe";
 import Footer from "@/components/layout/Footer";
+import { buildAlternates, SITE_URL } from '@/utils/seo';
+import { prefix } from '@/utils/prefix';
 
 
 interface ILocaleLayout {
@@ -18,9 +20,37 @@ interface ILocaleLayout {
 	params: Promise<{locale: Locale}>
 }
 
-export const metadata: Metadata = {
-  title: 'New Wave',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'seo' });
+
+  const ogImage = `${prefix}/logo.png`;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: t('default_title'),
+      template: `%s | ${t('site_name')}`,
+    },
+    description: t('default_description'),
+    alternates: buildAlternates(locale, ''),
+    openGraph: {
+      type: 'website',
+      siteName: t('site_name'),
+      locale,
+      title: t('default_title'),
+      description: t('default_description'),
+      url: `${SITE_URL}/${locale}`,
+      images: [{ url: ogImage, width: 1125, height: 1122 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('default_title'),
+      description: t('default_description'),
+      images: [ogImage],
+    },
+  };
+}
 
 const helveticaFont = localFont({
   src: [
