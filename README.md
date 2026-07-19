@@ -1,71 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NewWave4.org — Frontend
 
-## Build Status
+[![CI](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/ci.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/ci.yml)
+[![Release](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/release.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/NewWave4Org/NewWave4.org-frontend-new)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/releases)
 
-[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/develop_deployment.yml)
-[![CI Build](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/docker_build.yml)
+Next.js 15 (App Router, React 19, TypeScript) frontend for [NewWave4.org](https://newwave4.org) — a public marketing/content site (news, events, programs, projects, donations) plus an internal admin panel for managing that content. Talks to a separate Java Spring Boot backend.
 
-## Getting Started
-
-First, run the development server:
+## Quick start
 
 ```bash
+git clone https://github.com/NewWave4Org/NewWave4.org-frontend-new.git
+cd NewWave4.org-frontend-new
+npm install
+cp .env.example .env.local   # fill in real values, see .env.example
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). For the full stack, including the Java backend and PostgreSQL, see [`setup.md`](./setup.md). For frontend-only local development details, see [`docs/local-development.md`](./docs/local-development.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the dev server (Turbopack) at `http://localhost:3000` |
+| `npm run build` | Production build |
+| `npm run start` | Run a production build |
+| `npm run lint` | ESLint (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
+| `npm run typecheck` | `tsc --noEmit` (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
+| `npm run test` | Vitest unit/component suite |
+| `npm run test:watch` | Vitest in watch mode |
+| `npm run test:coverage` | Vitest with coverage |
+| `npm run test:e2e` | Playwright end-to-end suite |
+| `npm run format` / `format:check` | Prettier |
 
-# Running with Docker
-
-## Build the Docker Image
-
-Run the following command from the project root:
+## Running with Docker
 
 ```bash
 docker build -t newwave4-app .
+docker run -d -p 3000:3000 --name newwave4-app newwave4-app
 ```
 
-## Run the Docker Container
+Then open [http://localhost:3000](http://localhost:3000).
 
-Start the container by mapping port 80 on the host to port 80 in the container:
+## Architecture
 
-```bash
-docker run -d -p 80:80 --name newwave4-app newwave4-app
-```
+Two independent, largely separate app trees under `app/`: the internationalized public site (`app/[locale]/(main)/...`, routed through `next-intl`) and the admin panel (`app/admin/` for pre-login flows, `app/(admin)/admin/` for the authenticated dashboard — two separate root layouts). Domain logic under `utils/<domain>/` follows a fixed api → service → Redux thunk/slice pattern. See [`CLAUDE.md`](./CLAUDE.md) for the full architecture reference, and [`docs/`](./docs/) for CI/CD, release, versioning, and testing documentation.
 
-## Verify the Application
+## CI/CD & release process
 
-Open your browser and navigate to:
+Every PR runs a quality-gate pipeline (casing guard, typecheck, lint, unit tests, build, Docker smoke test — see [`docs/ci-cd.md`](./docs/ci-cd.md)). Merging into `main` or `development` triggers fully automated versioning: [semantic-release](https://semantic-release.gitbook.io/) computes the next version from Conventional Commits, generates a changelog, tags the release, publishes a matching Docker image and Helm chart, and auto-deploys to staging. Production stays a manual, explicitly-versioned promotion. See [`docs/release-process.md`](./docs/release-process.md) and [`docs/versioning.md`](./docs/versioning.md) for the full walkthrough.
 
-```text
-http://localhost
-```
+## Contributing
 
+- Branch from `development`, name branches `feature/<description>` or `fix/<description>`.
+- Open PRs into `development`; PRs into `main` are only accepted from a branch literally named `development`.
+- PRs are **squash-merged**. Give your PR a [Conventional Commits](https://www.conventionalcommits.org/) title (`feat: ...`, `fix: ...`, `chore: ...`, etc.) — it's enforced by CI, and it becomes the commit that drives the next version bump and changelog entry. See [`docs/release-process.md`](./docs/release-process.md#writing-good-commitpr-title-messages).
+- Run `npm run typecheck`, `npm run test`, and `npm run lint` before opening a PR (CI runs all three, though `typecheck`/`lint` are non-blocking for now).
 
+## Learn more
 
-
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js](https://nextjs.org/learn)
