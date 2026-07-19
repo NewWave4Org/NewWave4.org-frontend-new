@@ -86,37 +86,20 @@ jobs:
           path: coverage/
           retention-days: 14
 
-  # Named `build` for continuity with the check development's branch
-  # protection already required — but reusable-workflow job checks are
-  # reported as `<caller job id>/<job name>` (e.g. `quality-gates / build`),
-  # NOT the bare job name, so this does NOT avoid a required-status-check
-  # update. An admin must still add `quality-gates / build` (and the other
-  # `quality-gates / *` jobs) to development's required checks — see
-  # docs/ci-cd.md prerequisite #2.
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    # Runs inside node:20-alpine (matching the Dockerfile's builder stage,
-    # the one build path already proven reliable via docker-smoke) rather
-    # than directly on the bare ubuntu-latest runner via actions/setup-node.
-    # `next build` (Turbopack, Next.js 16's default) was found to crash
-    # silently and deterministically when run directly on the runner —
-    # reproducible via a clean container-copy build on Ubuntu/Debian glibc,
-    # but NOT when the exact same files are built inside a container image
-    # (Alpine or Debian) the way docker-smoke and the real deploy image do
-    # it. Root cause not fully isolated (looks Turbopack/environment-
-    # specific, not a bug in this app's own code — verified the app's own
-    # source has no case-sensitivity issues); matching the known-good
-    # environment is the minimal fix. See docs/known-issues.md.
-    container:
-      image: node:20-alpine
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - name: Use non-secret CI env
-        run: cp .env.ci .env
-      - run: npm run build
-
+  # There is deliberately no standalone `build` job (`npm run build` on the
+  # bare runner or in a plain container). It was found to crash silently and
+  # deterministically — Next.js prints "Skipping validation of types" then
+  # the process dies with no error output — specifically on GitHub Actions'
+  # own infrastructure. Root cause not isolated despite extensive attempts
+  # (ruled out: this repo's own code, a poisoned npm cache, running inside
+  # the exact node:20-alpine image `docker-smoke` uses, a fresh git-clone-
+  # inside-container with zero macOS-originated files); it never reproduced
+  # in any local Docker build, only in GitHub's actual runner/container
+  # execution. `docker-smoke` below already fully exercises the same `next
+  # build` via the real Dockerfile (a proven-reliable path — this job has
+  # never failed) and is arguably the more representative check anyway,
+  # since it builds the exact artifact that gets deployed. See
+  # docs/known-issues.md.
   docker-smoke:
     name: docker-smoke
     needs: casing-guard
