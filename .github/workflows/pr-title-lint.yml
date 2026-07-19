@@ -1,0 +1,30 @@
+name: PR Title Lint
+
+# Enforces Conventional Commits on PR titles. Since PRs are squash-merged,
+# the PR title becomes the commit message on the target branch, which
+# semantic-release then reads to compute version bumps (see release.yml).
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  lint-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            perf
+            build
+            ci
+            style
+            revert
+          requireScope: false
