@@ -21,4 +21,18 @@ sed -i.bak "s/^version:.*/version: ${VERSION}/" "$CHART_FILE"
 sed -i.bak "s/^appVersion:.*/appVersion: \"${VERSION}\"/" "$CHART_FILE"
 rm -f "${CHART_FILE}.bak"
 
+# `sed -i` exits 0 even when its pattern matched zero lines (e.g. if
+# Chart.yaml's `version:`/`appVersion:` keys ever get renamed, reordered, or
+# reformatted) — silently leaving the chart on its old version while
+# semantic-release still tags/publishes the new one everywhere else. Verify
+# the substitution actually landed before declaring success.
+if ! grep -qE "^version: ${VERSION}$" "$CHART_FILE"; then
+  echo "ERROR: ${CHART_FILE} 'version' was not updated to ${VERSION} — check the sed pattern still matches the file." >&2
+  exit 1
+fi
+if ! grep -qE "^appVersion: \"${VERSION}\"$" "$CHART_FILE"; then
+  echo "ERROR: ${CHART_FILE} 'appVersion' was not updated to ${VERSION} — check the sed pattern still matches the file." >&2
+  exit 1
+fi
+
 echo "Bumped ${CHART_FILE} to version/appVersion ${VERSION}"

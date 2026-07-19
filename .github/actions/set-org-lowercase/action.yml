@@ -1,0 +1,19 @@
+name: Set org lowercase
+description: >
+  Sets $GITHUB_ENV's ORG to the lowercased repository owner — GHCR requires
+  lowercase image/chart paths. Previously copy-pasted into 5 separate steps
+  across 4 workflow files; consolidated here so a future change only needs
+  one edit.
+outputs:
+  org:
+    description: The lowercased repository owner
+    value: ${{ steps.set.outputs.org }}
+runs:
+  using: composite
+  steps:
+    - id: set
+      shell: bash
+      run: |
+        ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+        echo "ORG=$ORG" >> "$GITHUB_ENV"
+        echo "org=$ORG" >> "$GITHUB_OUTPUT"

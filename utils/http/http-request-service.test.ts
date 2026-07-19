@@ -2,13 +2,12 @@ import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import HttpMethod from './enums/http-method';
 
-const { axiosInstanceMock, dispatchMock, unwrapMock, toastErrorMock } = vi.hoisted(() => {
+const { axiosInstanceMock, dispatchMock, toastErrorMock } = vi.hoisted(() => {
   const instance = vi.fn() as any;
   instance.post = vi.fn();
   return {
     axiosInstanceMock: instance,
     dispatchMock: vi.fn(),
-    unwrapMock: vi.fn(),
     toastErrorMock: vi.fn(),
   };
 });
@@ -49,8 +48,10 @@ describe('http-request-service request()', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    dispatchMock.mockReturnValue({ unwrap: unwrapMock });
-    unwrapMock.mockResolvedValue(undefined);
+    // `refreshAccessToken()` calls `.unwrap()` as a bare, un-awaited
+    // expression — nothing in the source ever inspects its return value, so
+    // this only needs to exist and be callable, not be independently mocked.
+    dispatchMock.mockReturnValue({ unwrap: vi.fn() });
 
     originalLocation = window.location;
     // @ts-expect-error - jsdom's real navigation isn't needed, just an observable stub

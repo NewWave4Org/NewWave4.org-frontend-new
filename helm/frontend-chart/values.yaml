@@ -17,12 +17,21 @@
 replicaCount: 2
 
 image:
+  # Also always overridden at deploy time via --set image.repository=... ,
+  # computed dynamically from the lowercased repo owner (see
+  # .github/actions/set-org-lowercase and deploy-to-kubernetes.yml) — this
+  # static default only matters for `helm template`/`helm lint` run locally
+  # against this file alone, and will silently disagree with a real deploy
+  # if the repo is ever forked/renamed to a different GitHub org.
   repository: ghcr.io/newwave4org/newwave4-frontend
   pullPolicy: IfNotPresent
   # Overridden at deploy time via --set image.tag=<version> (see
   # deploy-to-kubernetes.yml / release.yml) — never rely on this default.
   tag: ''
 
+# Also always overridden at deploy time via --set imagePullSecrets[0].name=...
+# (see deploy-to-kubernetes.yml) — kept here only so `helm template` succeeds
+# against this file alone; the --set flag is the actual source of truth.
 imagePullSecrets:
   - name: ghcr-regcred
 

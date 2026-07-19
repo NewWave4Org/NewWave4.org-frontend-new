@@ -25,6 +25,10 @@ export default defineConfig({
         command: 'npm run build && npm run start',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
-        timeout: 180_000,
+        // A full `next build` for this app (i18n + admin panel) can run
+        // close to the previous 180s budget on a 2-core CI runner — give it
+        // real headroom so a slow-but-healthy build doesn't fail the whole
+        // E2E job on a webServer-readiness timeout unrelated to the tests.
+        timeout: 300_000,
       },
 });

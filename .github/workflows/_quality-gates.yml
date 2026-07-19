@@ -86,8 +86,13 @@ jobs:
           path: coverage/
           retention-days: 14
 
-  # Kept literally named `build` so it satisfies development's existing
-  # required status check without an immediate branch-protection change.
+  # Named `build` for continuity with the check development's branch
+  # protection already required — but reusable-workflow job checks are
+  # reported as `<caller job id>/<job name>` (e.g. `quality-gates / build`),
+  # NOT the bare job name, so this does NOT avoid a required-status-check
+  # update. An admin must still add `quality-gates / build` (and the other
+  # `quality-gates / *` jobs) to development's required checks — see
+  # docs/ci-cd.md prerequisite #2.
   build:
     name: build
     runs-on: ubuntu-latest
@@ -111,15 +116,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set Org Lowercase
-        run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        uses: ./.github/actions/set-org-lowercase
 
       - name: Generate .env file
-        run: |
-          echo "NEXT_PUBLIC_BASE_PATH=" > .env
-          echo "NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}" >> .env
-          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}" >> .env
-          echo "NEXT_PUBLIC_STRIPE_WEBHOOK_URL=${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}" >> .env
-          echo "NEXT_PUBLIC_NEWWAVE_API_URL=${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}" >> .env
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
