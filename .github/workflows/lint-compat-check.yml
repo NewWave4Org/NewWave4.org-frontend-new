@@ -1,0 +1,68 @@
+name: Lint Compatibility Watch
+
+# Monthly check for whether typescript-eslint has published a release
+# supporting TypeScript 7 yet. If so, opens an issue prompting the team to
+# flip the `lint` job in _quality-gates.yml back to blocking and delete the
+# dead .eslintrc.json. See docs/decisions/0003-lint-non-blocking-pending-ts7-support.md.
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check typescript-eslint's TypeScript peer range
+        id: check
+        run: |
+          RANGE=$(npm view typescript-eslint@latest peerDependencies.typescript 2>/dev/null || echo "")
+          echo "range=$RANGE" >> "$GITHUB_OUTPUT"
+          echo "typescript-eslint@latest currently supports TypeScript: $RANGE"
+
+          # This repo is pinned to typescript@7.0.2 (see CLAUDE.md). Treat any
+          # range that isn't explicitly capped below 7.x as a potential fix.
+          if echo "$RANGE" | grep -qE '<7|<6\.[0-9]+\.[0-9]+ *$'; then
+            echo "supported=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "supported=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open an issue if TS7 support looks available
+        if: steps.check.outputs.supported == 'true'
+        uses: actions/github-script@v7
+        env:
+          PEER_RANGE: ${{ steps.check.outputs.range }}
+        with:
+          script: |
+            const peerRange = process.env.PEER_RANGE;
+            const label = 'lint-ts7-watch';
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+
+            if (existing.data.length > 0) {
+              console.log('An open lint-ts7-watch issue already exists, skipping.');
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'typescript-eslint may now support TypeScript 7 — re-enable blocking lint',
+              labels: [label],
+              body: [
+                `typescript-eslint@latest now reports a TypeScript peer range of \`${peerRange}\`, which may include TypeScript 7.`,
+                '',
+                'Checklist:',
+                '- [ ] Bump `eslint-config-next` and `typescript-eslint` (transitive) to versions supporting TS7',
+                '- [ ] Confirm `npm run lint` runs clean against this repo',
+                '- [ ] Remove `continue-on-error: true` from the `lint` step in `.github/workflows/_quality-gates.yml`',
+                '- [ ] Delete the dead `.eslintrc.json`',
+                '- [ ] Update `docs/decisions/0003-lint-non-blocking-pending-ts7-support.md` status to Superseded',
+              ].join('\n'),
+            });

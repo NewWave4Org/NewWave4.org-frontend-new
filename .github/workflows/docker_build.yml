@@ -1,20 +1,17 @@
 name: Docker Build
 
+# STOPGAP: builds+pushes :sha/:latest on push to main/development. PR and
+# feature/fix-branch coverage moved to ci.yml (with real quality gates via
+# _quality-gates.yml). This workflow is superseded entirely by release.yml
+# once the automated release pipeline lands (see docs/decisions), which
+# publishes a proper semver-tagged image/chart instead of a floating
+# :latest — at that point this file is deleted.
 on:
   workflow_dispatch:
   push:
     branches:
       - main
       - development
-      - 'feature-*'
-      - 'feature/*'
-      - 'fix-*'
-  pull_request:
-    branches:
-      - development
-      - 'feature-*'
-      - 'feature/*'
-      - 'fix-*'
 
 jobs:
   build:
