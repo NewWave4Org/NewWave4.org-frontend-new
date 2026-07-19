@@ -3,8 +3,7 @@ import { getArticleByIdCached } from '@/utils/article-content/getArticleCached';
 import { getBlockValue } from '@/utils/articles/type/prepareArticle';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { EN_LOCALE } from '@/i18n';
-import { prefix } from '@/utils/prefix';
-import { buildAlternates, truncate } from '@/utils/seo';
+import { buildAlternates, DEFAULT_OG_IMAGE, truncate } from '@/utils/seo';
 
 /**
  * Reads plain text straight out of a raw Draft.js content state ({blocks, entityMap})
@@ -57,7 +56,7 @@ export async function buildArticleMetadata({
     const description = truncate(rawDraftToPlainText(mainTextRaw));
 
     const photoData = getBlockValue<string | string[]>(blocks, ContentBlockType.PHOTO);
-    const image = (Array.isArray(photoData) ? photoData[0] : photoData) || `${prefix}/logo.png`;
+    const image = (Array.isArray(photoData) ? photoData[0] : photoData) || DEFAULT_OG_IMAGE;
 
     return {
       title,
@@ -68,12 +67,6 @@ export async function buildArticleMetadata({
         title,
         description: description || undefined,
         images: [{ url: image }],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description: description || undefined,
-        images: [image],
       },
     };
   } catch {
