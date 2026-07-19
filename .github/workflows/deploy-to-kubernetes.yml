@@ -7,14 +7,27 @@ on:
         description: 'Kubernetes namespace to deploy into'
         required: true
         default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
       chart_version:
-        description: 'Version of the Helm chart to deploy'
+        description: 'Version of the Helm chart to deploy (e.g. 1.2.3 — must already be published)'
         required: true
-        default: '0.1.2'
       image_tag:
-        description: 'Docker image tag to deploy (default: latest)'
-        required: false
-        default: 'latest'
+        description: 'Docker image tag to deploy (e.g. 1.2.3 — must already be published, "latest" is rejected for production)'
+        required: true
+  workflow_call:
+    inputs:
+      namespace:
+        type: string
+        required: true
+      chart_version:
+        type: string
+        required: true
+      image_tag:
+        type: string
+        required: true
 
 # Ensure the workflow itself can read packages (GHCR) and repo contents
 permissions:
@@ -24,17 +37,33 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ inputs.namespace }}
     env:
-      NAMESPACE: ${{ github.event.inputs.namespace }}
-      CHART_VERSION: ${{ github.event.inputs.chart_version }}
-      IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+      NAMESPACE: ${{ inputs.namespace }}
+      CHART_VERSION: ${{ inputs.chart_version }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
     steps:
+      - name: Guard production versions
+        if: inputs.namespace == 'production'
+        run: |
+          if ! echo "${IMAGE_TAG}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Refusing to deploy image tag '${IMAGE_TAG}' to production — must be an exact published semver (e.g. 1.2.3), not 'latest', 'pr-*', or a '-dev.*' prerelease."
+            exit 1
+          fi
+          if ! echo "${CHART_VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Refusing to deploy chart version '${CHART_VERSION}' to production — must be an exact published semver (e.g. 1.2.3), not 'latest', 'pr-*', or a '-dev.*' prerelease."
+            exit 1
+          fi
+          if [ "${CHART_VERSION}" != "${IMAGE_TAG}" ]; then
+            echo "::error::chart_version (${CHART_VERSION}) and image_tag (${IMAGE_TAG}) must match — this repo's Helm chart version and app version are always released together (see docs/versioning.md), so a mismatch means the wrong pair was typed in."
+            exit 1
+          fi
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set Org Lowercase
-        run: echo "ORG=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        uses: ./.github/actions/set-org-lowercase
 
       # Optional: install kubectl (ubuntu-latest usually has it, but this makes it explicit & pinned)
       - name: Install kubectl
@@ -135,6 +164,7 @@ jobs:
             --version "${{ env.CHART_VERSION }}" \
             --namespace "${{ env.NAMESPACE }}" \
             --create-namespace \
+            -f helm/frontend-chart/values.yaml \
             -f ./values.yaml \
             --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
             --set image.tag="${{ env.IMAGE_TAG }}" \

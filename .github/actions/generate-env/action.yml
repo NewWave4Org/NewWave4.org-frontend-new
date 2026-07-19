@@ -1,0 +1,30 @@
+name: Generate .env file
+description: >
+  Writes the NEXT_PUBLIC_* build-time env vars to a .env file at the repo
+  root from the given values. Previously copy-pasted into 3 separate steps
+  across 3 workflow files (and had already drifted once — one copy was
+  missing NEXT_PUBLIC_STRIPE_WEBHOOK_URL); consolidated here so all four
+  required vars (per CLAUDE.md) can't silently diverge between call sites
+  again.
+inputs:
+  paypal_client_id:
+    required: true
+  stripe_publishable_keys:
+    required: true
+  stripe_webhook_url:
+    required: true
+  newwave_api_url:
+    required: true
+  base_path:
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.base_path }}" > .env
+        echo "NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ inputs.paypal_client_id }}" >> .env
+        echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ inputs.stripe_publishable_keys }}" >> .env
+        echo "NEXT_PUBLIC_STRIPE_WEBHOOK_URL=${{ inputs.stripe_webhook_url }}" >> .env
+        echo "NEXT_PUBLIC_NEWWAVE_API_URL=${{ inputs.newwave_api_url }}" >> .env
