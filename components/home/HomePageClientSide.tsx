@@ -2,8 +2,8 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { getPages } from '@/store/pages/action';
-import { ChangedPagesBody } from '@/utils/pages/types/interfaces';
-import { useEffect, useState } from 'react';
+import { ChangedPagesBody, IPagesResponseDTO } from '@/utils/pages/types/interfaces';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';
 import WhoWeAre from './WhoWeAre';
@@ -20,12 +20,28 @@ import HomeSlider from './HomeSlider/HomeSlider';
 import { EN_LOCALE } from '@/i18n';
 import { useLocale } from 'next-intl';
 
-function HomePageClientSide() {
+function buildHomePage(result: IPagesResponseDTO, locale: string): ChangedPagesBody {
+  return {
+    ...result,
+    contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks,
+  };
+}
+
+interface IHomePageClientSide {
+  initialHomePageData?: IPagesResponseDTO | null;
+  initialPartnersData?: IGlobalSectionsResponseDTO | null;
+}
+
+function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomePageClientSide) {
   const dispatch = useAppDispatch();
   const locale = useLocale();
 
-  const [homePage, setHomePage] = useState<ChangedPagesBody | null>(null);
-  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
+  // Seeds first paint from the server-fetched home page + partners (see
+  // app/[locale]/(main)/page.tsx) so the hero/partners don't flash empty on load.
+  const usedInitialData = useRef(false);
+
+  const [homePage, setHomePage] = useState<ChangedPagesBody | null>(() => (initialHomePageData ? buildHomePage(initialHomePageData, locale) : null));
+  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(initialPartnersData ?? null);
 
   const slides = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SLIDER') || [];
   const homeTitleUA = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE_UA')?.text_title_ua;
@@ -37,16 +53,12 @@ function HomePageClientSide() {
   const ourPartnersContent = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'PARTNERS');
   const videoUrl = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
 
-  console.log('homePage', homePage);
   useEffect(() => {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
 
-        setHomePage({
-          ...result,
-          contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks
-        });
+        setHomePage(buildHomePage(result, locale));
       } catch (error: any) {
         console.log('error', error);
         setHomePage(null);
@@ -66,8 +78,12 @@ function HomePageClientSide() {
       }
     }
 
-    getBlockByKey();
-    getPageByKey();
+    if (initialHomePageData && !usedInitialData.current) {
+      usedInitialData.current = true;
+    } else {
+      getBlockByKey();
+      getPageByKey();
+    }
   }, [dispatch, locale]);
 
   return (

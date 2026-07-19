@@ -11,8 +11,7 @@ import ReduxProvider from "@/store/ReduxProvider";
 import Header from "@/components/layout/Header";
 import Subscribe from "@/components/layout/Subscribe";
 import Footer from "@/components/layout/Footer";
-import { buildAlternates, SITE_URL } from '@/utils/seo';
-import { prefix } from '@/utils/prefix';
+import { buildAlternates, DEFAULT_OG_IMAGE, SITE_URL } from '@/utils/seo';
 
 
 interface ILocaleLayout {
@@ -23,8 +22,6 @@ interface ILocaleLayout {
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'seo' });
-
-  const ogImage = `${prefix}/logo.png`;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -41,13 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
       title: t('default_title'),
       description: t('default_description'),
       url: `${SITE_URL}/${locale}`,
-      images: [{ url: ogImage, width: 1125, height: 1122 }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('default_title'),
-      description: t('default_description'),
-      images: [ogImage],
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1125, height: 1122 }],
     },
   };
 }
