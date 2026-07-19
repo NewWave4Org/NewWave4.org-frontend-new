@@ -49,7 +49,7 @@ jobs:
           # docs/decisions/0002-semantic-release-over-release-please.md.
           token: ${{ secrets.RELEASE_ADMIN_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
