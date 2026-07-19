@@ -3,7 +3,7 @@
 import { FormikContext } from 'formik';
 import { useContext, useMemo, useState } from 'react';
 import { DtPicker } from 'react-calendar-datetime-picker';
-import 'react-calendar-datetime-picker/dist/style.css';
+import 'react-calendar-datetime-picker/style.css';
 
 export interface IPickerValue {
   from?: {
