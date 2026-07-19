@@ -38,6 +38,14 @@ Resolution: removed the standalone `build` job. `docker-smoke` (via `docker/buil
 
 The `build` job now runs inside a `node:20-alpine` container (`container: image: node:20-alpine` at the job level) to match the one build path already proven reliable, rather than the bare runner. The underlying root cause (why Turbopack's production build crashes specifically when invoked directly on GitHub's Ubuntu runner image, outside a container) was not fully isolated — it looks like a Turbopack/Next.js 16.2.10 or runner-environment issue rather than anything in this app, but that's not conclusively proven. If this resurfaces (e.g. after a Next.js upgrade), revisit whether it's still necessary.
 
+## Staging crash-loop incident: liveness/readiness probes hit `/`, timed out under real cluster limits
+
+Shortly after the first `1.0.0` deploy to staging (2026-07-19), pods crash-looped: kubelet's liveness/readiness probes (`httpGet path: /`) alternated between `connection refused` (probe fired before the app finished starting) and `context deadline exceeded` (the request itself was too slow). Root cause: `timeoutSeconds` was never set on either probe, so it defaulted to Kubernetes' implicit **1 second** — nowhere near enough for `path: /`, which hits `next-intl` middleware, gets a 307 redirect to `/ua` (kubelet's `httpGet` probe follows redirects), and then server-renders the full dynamic homepage, all under the staging deployment's constrained `150m` CPU allocation (set via the `VALUES_YAML` secret overlay, not the committed defaults).
+
+Mitigated immediately with a direct `kubectl patch` against the live Deployment (probe path → `/robots.txt`, `timeoutSeconds: 5`), then fixed properly in `helm/frontend-chart/values.yaml` so it's baked into the chart for future releases — see the comment directly above the `livenessProbe`/`readinessProbe` block for the reasoning. `/robots.txt` is a statically prerendered route, outside `middleware.ts`'s matcher entirely, so it's a cheap, backend-independent "is this process alive" check.
+
+Not otherwise addressed here: the `150m` CPU / `156Mi` memory limit for staging (set via the `VALUES_YAML` secret, not this repo) is genuinely tight for a Node.js SSR app and may be worth revisiting separately if slow responses recur even against the lightweight probe path.
+
 ## E2E credential-gated tests not run end-to-end yet
 
 `e2e/admin-login.spec.ts`'s and `e2e/article-crud.spec.ts`'s credential-gated tests (the ones requiring `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) were written against the admin UI's source code and structurally verified with `npx playwright test --list`, but were not run against a live backend while writing them — no staging admin account was available in that session. Run them once with real credentials and adjust selectors (button text, table row structure for the archive/publish actions) if they don't match the actual rendered UI. See [testing.md](./testing.md).
