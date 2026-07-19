@@ -87,19 +87,33 @@ resources:
     cpu: 500m
     memory: 512Mi
 
+# /robots.txt is used instead of / deliberately: / hits next-intl middleware,
+# which 307-redirects to /ua and then server-renders the full dynamic
+# homepage — kubelet's httpGet probes follow that redirect, so a probe
+# against / pays for a full SSR render (plus whatever backend calls that
+# page makes) on every single check. /robots.txt is a statically prerendered
+# route (confirmed in the `next build` output as "○ Static") outside
+# middleware.ts's matcher entirely (its dot-extension excludes it), so it's
+# a cheap, backend-independent "is this process alive" check — the correct
+# scope for a liveness/readiness probe. Caused a real crash-loop incident in
+# staging on 2026-07-19 (timeoutSeconds defaulted to Kubernetes' implicit 1s,
+# nowhere near enough for the / redirect+render chain under real cluster
+# resource limits) — see docs/known-issues.md.
 livenessProbe:
   httpGet:
-    path: /
+    path: /robots.txt
     port: http
   initialDelaySeconds: 10
   periodSeconds: 15
+  timeoutSeconds: 5
 
 readinessProbe:
   httpGet:
-    path: /
+    path: /robots.txt
     port: http
   initialDelaySeconds: 5
   periodSeconds: 10
+  timeoutSeconds: 5
 
 autoscaling:
   enabled: false

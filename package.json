@@ -1,9 +1,9 @@
 {
   "name": "newwave4.org-frontend-new",
-  "version": "1.0.0",
+  "version": "1.0.1-dev.2",
   "private": true,
   "engines": {
-    "node": ">=20 <21"
+    "node": ">=26 <27"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
-    "@paypal/react-paypal-js": "^8.8.3",
+    "@paypal/react-paypal-js": "^10.1.2",
     "@reduxjs/toolkit": "^2.8.1",
     "@stripe/react-stripe-js": "^6.8.0",
     "@stripe/stripe-js": "^9.10.0",
@@ -41,7 +41,7 @@
     "react": "^19.2.0",
     "react-calendar-datetime-picker": "^2.0.0",
     "react-dom": "^19.2.0",
-    "react-dropzone": "^19.0.2",
+    "react-dropzone": "^19.1.1",
     "react-paginate": "^8.3.0",
     "react-redux": "^9.2.0",
     "react-slick": "^0.31.0",
@@ -71,7 +71,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/draft-js": "^0.11.18",
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-slick": "^0.23.13",

@@ -15,22 +15,78 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+
       - run: npm ci
-      - name: Use non-secret CI env
-        run: cp .env.ci .env
+
+      # Playwright's built-in webServer (`npm run build && npm run start` on
+      # the bare runner) hits the same silent, unreproducible-outside-GitHub
+      # `next build` crash documented in docs/known-issues.md. Building and
+      # running the app via Docker instead (the one path proven reliable —
+      # docker-smoke has never failed) sidesteps it entirely. playwright.config.ts
+      # already supports this: setting E2E_BASE_URL skips its own webServer.
+      - name: Generate .env file
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build app image for E2E
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: newwave4-frontend-e2e:${{ github.sha }}
+
+      - name: Start app container
+        run: docker run -d --name e2e-app -p 3000:3000 newwave4-frontend-e2e:${{ github.sha }}
+
+      - name: Wait for app to become ready
+        run: |
+          for i in $(seq 1 30); do
+            if wget -q -O - http://127.0.0.1:3000 | grep -qi "<!DOCTYPE html"; then
+              echo "App is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::App never became ready within 60s"
+          docker logs e2e-app
+          exit 1
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
+
       - name: Run E2E tests
         run: npm run test:e2e
         env:
+          E2E_BASE_URL: http://127.0.0.1:3000
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+
+      - name: Dump app container logs
+        if: always()
+        run: docker logs e2e-app || true
+
+      - name: Stop app container
+        if: always()
+        run: docker rm -f e2e-app || true
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

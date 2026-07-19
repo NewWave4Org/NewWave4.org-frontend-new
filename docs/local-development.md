@@ -4,7 +4,7 @@ For running the full stack — including the Java Spring Boot backend and Postgr
 
 ## Prerequisites
 
-- Node.js 20.x (pinned in `.nvmrc`; `nvm use` if you have nvm installed). CI and the Docker image both target Node 20 — using a different major version locally can hide compatibility issues before they hit CI.
+- Node.js 26.x (pinned in `.nvmrc`; `nvm use` if you have nvm installed). CI and the Docker image both target this same major version — using a different one locally can hide compatibility issues before they hit CI.
 - npm (comes with Node).
 
 ## Setup
