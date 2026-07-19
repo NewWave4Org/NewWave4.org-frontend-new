@@ -289,22 +289,32 @@ html {
 }
 
 
-ul li {
-  position: relative;
-  padding-left: 40px;
-}
-ul li:not(:last-child) {
-  margin-bottom: 15px;
-}
-ul li:before {
-  position: absolute;
-  left: 0;
-  top: 8px;
-  content: '';
-  display: block;
-  width: 32px;
-  height: 32px;
-  background: url('./check-Icon.svg') no-repeat;
+/*
+ * Default checkmark-bullet styling for plain content <ul> lists (e.g. rich-text
+ * body copy). Must stay in @layer base: Tailwind v4 cascade layers give ANY
+ * layered rule priority over unlayered CSS regardless of selector specificity,
+ * so left unlayered this silently wins over every `before:content-none` utility
+ * used elsewhere (nav menus, dropdowns, pagination) to suppress it — which is
+ * exactly what happened across the site until this was scoped back into a layer.
+ */
+@layer base {
+  ul li {
+    position: relative;
+    padding-left: 40px;
+  }
+  ul li:not(:last-child) {
+    margin-bottom: 15px;
+  }
+  ul li:before {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    content: '';
+    display: block;
+    width: 32px;
+    height: 32px;
+    background: url('./check-Icon.svg') no-repeat;
+  }
 }
 ol {
   list-style: auto;
