@@ -5,9 +5,21 @@ name: Release
 # matters because restrict-main-merges.yml only accepts PRs into main from a
 # branch literally named `development`. See
 # docs/decisions/0002-semantic-release-over-release-please.md.
+#
+# workflow_dispatch exists as a manual escape hatch: GitHub's auto-generated
+# squash-merge commit message concatenates every squashed commit's full
+# message verbatim, and development always accumulates
+# `chore(release): ... [skip ci]` bump commits between promotions -- so a
+# development -> main promotion's squash commit will very likely contain
+# `[skip ci]` somewhere in its (huge) body, which makes GitHub Actions skip
+# ALL workflow triggering for that push, silently. Confirmed happening for
+# real on 2026-07-19 (PR #416) -- see docs/known-issues.md. Until the
+# promotion flow itself is fixed to avoid this, use this manual trigger to
+# fire the release that a promotion's push silently skipped.
 on:
   push:
     branches: [main, development]
+  workflow_dispatch:
 
 concurrency:
   group: release-${{ github.ref }}
