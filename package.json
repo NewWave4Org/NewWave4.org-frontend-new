@@ -13,8 +13,8 @@
     "@fortawesome/react-fontawesome": "^3.1.0",
     "@paypal/react-paypal-js": "^8.8.3",
     "@reduxjs/toolkit": "^2.8.1",
-    "@stripe/react-stripe-js": "^3.7.0",
-    "@stripe/stripe-js": "^7.3.1",
+    "@stripe/react-stripe-js": "^6.8.0",
+    "@stripe/stripe-js": "^9.10.0",
     "@tailwindcss/postcss": "^4.3.3",
     "axios": "^1.18.1",
     "date-fns": "^4.1.0",
@@ -39,7 +39,7 @@
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
     "stripe": "^18.2.1",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.1",
     "yup": "^1.6.1"
   },
   "overrides": {
