@@ -1,0 +1,40 @@
+name: E2E
+
+# Deliberately not on every PR/push — a full Next.js build + Playwright
+# browser run is slow, and hitting the real staging API (see
+# utils/http/axiosInstance.ts's hardcoded baseURL) isn't something every
+# feature-branch push should do. Runs on the development->main promotion PR
+# and nightly against development, plus on-demand.
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: Use non-secret CI env
+        run: cp .env.ci .env
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
