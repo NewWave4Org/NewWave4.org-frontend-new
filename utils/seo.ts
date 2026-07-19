@@ -1,4 +1,8 @@
+import type { Metadata } from 'next';
+import { prefix } from '@/utils/prefix';
+
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://new.newwave4.org').replace(/\/$/, '');
+export const DEFAULT_OG_IMAGE = `${prefix}/logo.png`;
 
 export function stripHtml(html: string): string {
   return html
@@ -28,6 +32,38 @@ export function buildAlternates(locale: string, path: string) {
       en: `${SITE_URL}/en${path}`,
       uk: `${SITE_URL}/ua${path}`,
       'x-default': `${SITE_URL}/ua${path}`,
+    },
+  };
+}
+
+/**
+ * Builds a page's metadata as one complete object, always including the OG image.
+ * Next.js metadata resolution replaces (doesn't merge) a parent's `openGraph`/`twitter`
+ * object when a page sets its own, so a page-level override that only sets title/description
+ * silently drops the site-wide default image — this keeps every page's image explicit
+ * instead of relying on inheritance. No `twitter` field: the org has no X/Twitter presence.
+ */
+export function buildPageMetadata({
+  locale,
+  path,
+  title,
+  description,
+  image = DEFAULT_OG_IMAGE,
+}: {
+  locale: string;
+  path: string;
+  title: string;
+  description: string;
+  image?: string;
+}): Metadata {
+  return {
+    title,
+    description,
+    alternates: buildAlternates(locale, path),
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image }],
     },
   };
 }
