@@ -3,7 +3,7 @@
   "version": "1.0.0-dev.2",
   "private": true,
   "engines": {
-    "node": ">=20 <21"
+    "node": ">=26 <27"
   },
   "scripts": {
     "dev": "next dev --turbopack",
