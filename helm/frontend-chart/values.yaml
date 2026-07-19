@@ -1,0 +1,115 @@
+# Default, non-secret values for the newwave4-frontend-chart.
+#
+# Historically this entire file lived only inside the `VALUES_YAML` GitHub
+# secret (see .github/workflows/deploy-to-kubernetes.yml), making infra
+# config undiffable and unreviewable in PRs. This file now provides
+# committed defaults; deploy-to-kubernetes.yml applies it first
+# (`-f helm/frontend-chart/values.yaml`) and then layers the secret file on
+# top (`-f ./values.yaml`), so any key still set in the secret continues to
+# win. Only the three still-secret `NEXT_PUBLIC_*` values below are expected
+# to keep coming from the secret overlay — everything else should move here
+# over time as it's confirmed safe to commit.
+#
+# See docs/known-issues.md: these NEXT_PUBLIC_* values are already inlined
+# into the client bundle at Docker build time, making this Secret injection
+# redundant for the browser bundle (it only affects server-side reads).
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/newwave4org/newwave4-frontend
+  pullPolicy: IfNotPresent
+  # Overridden at deploy time via --set image.tag=<version> (see
+  # deploy-to-kubernetes.yml / release.yml) — never rely on this default.
+  tag: ''
+
+imagePullSecrets:
+  - name: ghcr-regcred
+
+nameOverride: ''
+fullnameOverride: ''
+namespaceOverride: ''
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ''
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    - host: staging.newwave4.org
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: newwave4-frontend-tls
+      hosts:
+        - staging.newwave4.org
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+volumes: []
+volumeMounts: []
+
+# Still secret-delivered via the VALUES_YAML GitHub secret overlay — kept
+# here only as empty placeholders so `helm lint`/`helm template` succeed
+# against this file alone.
+secret:
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID: ''
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS: ''
+  NEXT_PUBLIC_NEWWAVE_API_URL: ''
