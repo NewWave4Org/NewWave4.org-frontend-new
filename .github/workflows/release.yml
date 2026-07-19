@@ -22,6 +22,14 @@ jobs:
     name: release
     needs: quality-gates
     runs-on: ubuntu-latest
+    # semantic-release's success phase comments/labels every PR referenced in
+    # the released commit range. On the very first release (no prior tag),
+    # that can be the entire repo history -- ~400 PRs at roughly 1/sec here,
+    # several minutes of genuine, correct work with no visible progress
+    # between GitHub Actions' step-level status updates. Cap it generously
+    # rather than leaving GitHub's default (up to 6h) in place, so a truly
+    # hung run fails loudly instead of silently burning CI minutes forever.
+    timeout-minutes: 30
     permissions:
       contents: write
       issues: write
@@ -64,6 +72,7 @@ jobs:
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       packages: write
     steps:
@@ -114,6 +123,7 @@ jobs:
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       packages: write
     steps:
