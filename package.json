@@ -37,7 +37,7 @@
     "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
-    "stripe": "^18.2.1",
+    "stripe": "^22.3.2",
     "uuid": "^13.0.0",
     "yup": "^1.6.1"
   },
