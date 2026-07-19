@@ -22,15 +22,16 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# Install ONLY prod deps for a slim runtime
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Bring in build artifacts and .env
-COPY --from=builder /app/.next ./.next
+# `output: 'standalone'` (next.config.ts) traces only the dependencies the
+# server actually needs and copies them into .next/standalone, including a
+# pruned node_modules — no separate `npm ci` required in this stage.
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.env .env
 
 EXPOSE 3000
-CMD ["npx", "next", "start", "-p", "3000"]
+CMD ["node", "server.js"]
