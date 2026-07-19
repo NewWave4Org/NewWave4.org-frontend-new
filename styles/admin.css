@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@config '../tailwind.config.ts';
 
 :root {
   --background: #F7FAFC;
@@ -129,7 +128,7 @@ body {
     opacity-0 group-hover:opacity-100 transition rounded-full z-10;
   }
   .embla-slider-dots {
-    @apply absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-6 bg-white bg-opacity-40 py-1.5 px-[19.5px] rounded-[16px];
+    @apply absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-6 bg-white/40 py-1.5 px-[19.5px] rounded-[16px];
   }
   .embla-slider-dot {
     @apply w-3 h-3 rounded-full transition-all;
