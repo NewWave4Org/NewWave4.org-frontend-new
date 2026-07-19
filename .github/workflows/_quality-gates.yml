@@ -96,12 +96,22 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    # Runs inside node:20-alpine (matching the Dockerfile's builder stage,
+    # the one build path already proven reliable via docker-smoke) rather
+    # than directly on the bare ubuntu-latest runner via actions/setup-node.
+    # `next build` (Turbopack, Next.js 16's default) was found to crash
+    # silently and deterministically when run directly on the runner —
+    # reproducible via a clean container-copy build on Ubuntu/Debian glibc,
+    # but NOT when the exact same files are built inside a container image
+    # (Alpine or Debian) the way docker-smoke and the real deploy image do
+    # it. Root cause not fully isolated (looks Turbopack/environment-
+    # specific, not a bug in this app's own code — verified the app's own
+    # source has no case-sensitivity issues); matching the known-good
+    # environment is the minimal fix. See docs/known-issues.md.
+    container:
+      image: node:20-alpine
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
       - run: npm ci
       - name: Use non-secret CI env
         run: cp .env.ci .env
