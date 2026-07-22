@@ -58,8 +58,14 @@ jobs:
 
       - name: Wait for app to become ready
         run: |
+          # /robots.txt (not /) deliberately: / hits next-intl middleware's
+          # 307 redirect + full dynamic SSR render, the same slow chain that
+          # caused the staging crash-loop documented in docs/known-issues.md.
+          # /robots.txt is a statically prerendered route, so it's a cheap,
+          # fast liveness check here too. --timeout/--tries bound each attempt
+          # so a hung response can't stall a single iteration indefinitely.
           for i in $(seq 1 30); do
-            if wget -q -O - http://127.0.0.1:3000 | grep -qi "<!DOCTYPE html"; then
+            if wget -q -O - --timeout=5 --tries=1 http://127.0.0.1:3000/robots.txt; then
               echo "App is ready."
               exit 0
             fi
