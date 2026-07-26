@@ -469,14 +469,11 @@ p a {
 }
 @media (max-width: 576px) {
   .home-main-title {
-    font-size: 40px;
+    font-size: 55px;
   }
-  .home-subtitle-ua {
-    left: 160px;
-    bottom: 0;
-  }
-  .home-subtitle-eng {
-    left: 130px;
-    bottom: 0;
+  .home-main-subtitle{
+    position: static;
+    margin-top: 15px;
+    display: block;
   }
 }
