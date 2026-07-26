@@ -7,8 +7,19 @@ name: Status Page
 # E2E artifact exists for an arbitrary trigger SHA. Running its own
 # unit-test + E2E pass costs a few extra CI minutes but guarantees the page
 # always reflects one consistent, fresh check. See scripts/status-page/.
+#
+# Triggers off release.yml's completion (workflow_run), not push: main
+# directly -- both used to fire on the same push event with no ordering
+# guarantee, so this page could (and did, on 2026-07-26) query the GitHub
+# Releases API and publish the *previous* stable version because
+# semantic-release hadn't finished publishing the new one yet. workflow_run
+# also means this correctly re-fires after a manual release.yml dispatch (the
+# [skip ci] escape hatch documented in docs/known-issues.md), not just a real
+# push.
 on:
-  push:
+  workflow_run:
+    workflows: ['Release']
+    types: [completed]
     branches: [main]
   schedule:
     - cron: '17 3 * * *' # nightly, offset from e2e.yml's 0 3 * * *
@@ -25,10 +36,19 @@ concurrency:
 
 jobs:
   build:
+    # Only build after a *successful* Release run -- a failed release
+    # shouldn't republish the dashboard against a possibly half-updated
+    # state. schedule/workflow_dispatch have no workflow_run context, so this
+    # only applies when that's actually the trigger.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Pin to the exact commit release.yml just finished with, not
+          # whatever main happens to be at the moment this job starts.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - uses: actions/setup-node@v7
         with:
