@@ -98,7 +98,7 @@ function AboutPageClientSide() {
 
   return (
     <div>
-      <Hero title={t('menu.about_us')} pageBanner="/about/about-us_banner.png" />
+      <Hero title={t('menu.about_us')} pageBanner="/about/about-us__banner.png" />
       <OurMission ourMission={ourMission} />
       {quote && quote?.translatable_text_text !== '' && <DetailedTextInformation quote={quote} />}
       {ourTeam?.contentBlocks.length && <Team ourTeam={ourTeam?.contentBlocks} />}
