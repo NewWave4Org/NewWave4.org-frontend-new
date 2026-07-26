@@ -1,0 +1,148 @@
+name: Status Page
+
+# Builds and publishes the public CI/status dashboard to GitHub Pages
+# (https://newwave4org.github.io/NewWave4.org-frontend-new/). Self-contained
+# rather than stitched together from other workflows' artifacts: e2e.yml only
+# runs on PRs into main + nightly + manual, so there's no guarantee a fresh
+# E2E artifact exists for an arbitrary trigger SHA. Running its own
+# unit-test + E2E pass costs a few extra CI minutes but guarantees the page
+# always reflects one consistent, fresh check. See scripts/status-page/.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3 * * *' # nightly, offset from e2e.yml's 0 3 * * *
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run unit tests with coverage
+        continue-on-error: true
+        run: npm run test:coverage
+
+      # Same Docker build/run/wait pattern as e2e.yml -- see that file for
+      # why Playwright's built-in webServer isn't used directly.
+      - name: Generate .env file
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build app image for E2E
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: newwave4-frontend-status:${{ github.sha }}
+
+      - name: Start app container
+        run: docker run -d --name status-app -p 3000:3000 newwave4-frontend-status:${{ github.sha }}
+
+      - name: Wait for app to become ready
+        run: |
+          for i in $(seq 1 30); do
+            if wget -q -O - --timeout=5 --tries=1 http://127.0.0.1:3000/robots.txt; then
+              echo "App is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::App never became ready within 60s"
+          docker logs status-app
+          exit 1
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        continue-on-error: true
+        run: npm run test:e2e
+        env:
+          E2E_BASE_URL: http://127.0.0.1:3000
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+
+      - name: Dump app container logs
+        if: always()
+        run: docker logs status-app || true
+
+      - name: Stop app container
+        if: always()
+        run: docker rm -f status-app || true
+
+      - name: Fetch release info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p .status-data
+          releases=$(gh api "repos/${{ github.repository }}/releases" --paginate)
+          stable=$(echo "$releases" | jq '[.[] | select(.prerelease == false)][0] // null | if . == null then null else {tag: .tag_name, name: .name, url: .html_url, publishedAt: .published_at} end')
+          prerelease=$(echo "$releases" | jq '[.[] | select(.prerelease == true)][0] // null | if . == null then null else {tag: .tag_name, name: .name, url: .html_url, publishedAt: .published_at} end')
+          jq -n --argjson stable "$stable" --argjson prerelease "$prerelease" '{stable: $stable, prerelease: $prerelease}' > .status-data/releases.json
+
+      - name: Check staging reachability
+        if: always()
+        run: |
+          mkdir -p .status-data
+          set +e
+          # new.newwave4.org, not staging.newwave4.org -- the latter is only
+          # helm/frontend-chart/values.yaml's committed *default* ingress
+          # host; the real staging deployment's actual host comes from the
+          # secret-sourced VALUES_YAML overlay in deploy-to-kubernetes.yml
+          # (confirmed via `kubectl -n staging get ingress`).
+          result=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' --max-time 5 https://new.newwave4.org/robots.txt)
+          code=$(echo "$result" | cut -d' ' -f1)
+          time_s=$(echo "$result" | cut -d' ' -f2)
+          set -e
+          ok=false
+          if [ "$code" = "200" ]; then ok=true; fi
+          latency_ms=$(node -e "console.log(Math.round(parseFloat('${time_s:-0}') * 1000))")
+          checked_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          jq -n --argjson ok $ok --arg httpCode "${code:-0}" --argjson latencyMs "$latency_ms" --arg checkedAt "$checked_at" \
+            '{ok: $ok, httpCode: ($httpCode | tonumber), latencyMs: $latencyMs, checkedAt: $checkedAt}' > .status-data/staging-health.json
+
+      - name: Generate status page
+        run: node scripts/status-page/generate.mjs
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: status-site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

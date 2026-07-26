@@ -33,6 +33,7 @@ PRs into `main` are only accepted from a branch literally named `development` (`
 | `deploy-to-kubernetes.yml` | `workflow_dispatch` (manual) or `workflow_call` (from `release.yml`, staging only) | Helm-installs a specific chart/image version into a given namespace. Production is only ever reached via the manual `workflow_dispatch` path, and only accepts an exact `X.Y.Z` image tag. |
 | `e2e.yml` | PRs into `main`; nightly cron; manual | Playwright E2E against a full build. Not run on every push — slow, and hits the real staging API (`utils/http/axiosInstance.ts`'s hardcoded `baseURL`). |
 | `restrict-main-merges.yml` | PRs into `main` | Fails unless the PR's head branch is literally `development`. |
+| `status-page.yml` | push to `main`; nightly cron; manual | Self-contained (own unit-test + E2E run, not stitched from other workflows' artifacts) build that publishes a public status dashboard to GitHub Pages — release versions, unit/E2E test results, coverage, and staging reachability. See `scripts/status-page/`. |
 | `dependabot.yml` | n/a (config, not a workflow) | Weekly dependency PRs into `development` for `npm`, `docker`, and `github-actions` ecosystems. |
 
 ## Quality gates in detail
