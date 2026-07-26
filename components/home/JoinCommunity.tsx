@@ -15,7 +15,7 @@ const JoinCommunity = ({ joinUs }: { joinUs: IJoinCommunity[] }) => {
   return (
     <section className="our-mission lg:my-10 my-5 py-14 bg-skyBlue-300">
       <div className="container mx-auto px-4">
-        <h4 className="text-h3 mb-10 font-medium text-center md:text-left mx-auto !text-font-primary">{t('sections_title.join_us')}</h4>
+        <h4 className="text-[34px] mb-10 uppercase text-center md:text-left mx-auto !text-font-primary font-ebGaramond font-bold">{t('sections_title.join_us')}</h4>
         <div className="flex flex-col items-top lg:gap-16 gap-5 lg:flex-row lg:justify-between">
           {joinUs?.map((item, i) => {
             const joinDescriptionText = convertDraftToHTML(item?.translatable_text_editorState, locale);
