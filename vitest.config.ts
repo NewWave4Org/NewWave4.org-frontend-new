@@ -16,8 +16,10 @@ export default defineConfig({
     exclude: ['node_modules', '.next', 'e2e'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov', 'html'],
+      reporter: ['text', 'lcov', 'html', 'json-summary'],
       reportsDirectory: './coverage',
     },
+    reporters: ['default', 'json'],
+    outputFile: { json: '.status-data/vitest-results.json' },
   },
 });

@@ -3,8 +3,11 @@
 [![CI](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/ci.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/ci.yml)
 [![Release](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/release.yml/badge.svg)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/NewWave4Org/NewWave4.org-frontend-new)](https://github.com/NewWave4Org/NewWave4.org-frontend-new/releases)
+[![Status page](https://img.shields.io/badge/status_page-live-6ee7c9)](https://newwave4org.github.io/NewWave4.org-frontend-new/)
 
 Next.js 15 (App Router, React 19, TypeScript) frontend for [NewWave4.org](https://newwave4.org) — a public marketing/content site (news, events, programs, projects, donations) plus an internal admin panel for managing that content. Talks to a separate Java Spring Boot backend.
+
+**[View the live status dashboard →](https://newwave4org.github.io/NewWave4.org-frontend-new/)** — current release version, unit/E2E test results, coverage, and staging reachability, regenerated on every push to `main`.
 
 ## Quick start
 
