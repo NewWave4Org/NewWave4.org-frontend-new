@@ -54,7 +54,8 @@
   "overrides": {
     "immutable": "3.8.3",
     "next": {
-      "postcss": "^8.5.19"
+      "postcss": "^8.5.19",
+      "sharp": "^0.35.3"
     }
   },
   "devDependencies": {

@@ -33,5 +33,12 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.env .env
 
+# Next's standalone file tracer doesn't bundle sharp@0.35.x's native libvips
+# binary correctly (confirmed: present after a plain `npm ci` in the deps
+# stage, missing from .next/standalone's copy) -- images.unoptimized: true
+# means sharp is never actually invoked at runtime today, but overlaying the
+# full @img packages here keeps the binary available if that ever changes.
+COPY --from=builder /app/node_modules/@img ./node_modules/@img
+
 EXPOSE 3000
 CMD ["node", "server.js"]
