@@ -141,7 +141,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
       <div className="container px-4 mx-auto">
         <div className="flex lg:items-stretch items-start lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
           {article.mainPhoto?.[0] && (
-            <div className="lg:max-w-[718px] lg:mb-0 mb-6 min-h-[365px] flex-1 w-full relative overflow-hidden">
+            <div className="lg:max-w-[718px] lg:mb-0 mb-6 md:min-h-[365px] flex-1 w-full relative overflow-hidden">
               <Image
                 src={
                   Array.isArray(article.mainPhoto)
@@ -149,7 +149,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
                     : article.mainPhoto
                 }
                 fill
-                className="object-contain object-top"
+                className="object-contain object-top md:absolute !relative"
                 alt={article.title}
                 priority
               />
@@ -260,22 +260,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
               centerMode={true} 
               variableWidth={true}
               parentClass="article-slider"
-              slideStyles="mx-2 relative" centerPadding='220px' customStyle="h-[370px]" 
-              responsive={[
-                {
-                  breakpoint: 767,
-                  settings: {
-                    centerMode: false,
-                    centerPadding: '0'
-                  },
-                },
-                {
-                  breakpoint: 991,
-                  settings: {
-                    centerPadding: '100px'
-                  },
-                },
-              ]}
+              slideStyles="mx-2 relative" customStyle="h-[370px]" 
             />
           </div>
         )}
