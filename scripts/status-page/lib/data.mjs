@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { computeDrift } from './drift.mjs';
 
 function readJsonSafe(path) {
   try {
@@ -18,7 +19,10 @@ function gitFallback(args, fallback = '') {
 }
 
 function repositoryFromRemote() {
-  const remote = gitFallback(['remote', 'get-url', 'origin']).replace(/\.git$/, '');
+  const remote = gitFallback(['remote', 'get-url', 'origin']).replace(
+    /\.git$/,
+    '',
+  );
   // Matches both git@github.com:org/repo and https://github.com/org/repo
   // (repo names may themselves contain dots, e.g. NewWave4.org-frontend-new,
   // so only the trailing .git suffix is stripped above, not dots in general).
@@ -28,12 +32,18 @@ function repositoryFromRemote() {
 
 function buildMeta() {
   const sha = process.env.GITHUB_SHA || gitFallback(['rev-parse', 'HEAD']);
-  const refName = process.env.GITHUB_REF_NAME || gitFallback(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const refName =
+    process.env.GITHUB_REF_NAME ||
+    gitFallback(['rev-parse', '--abbrev-ref', 'HEAD']);
   const runId = process.env.GITHUB_RUN_ID || null;
   const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
   const repository = process.env.GITHUB_REPOSITORY || repositoryFromRemote();
-  const runUrl = runId && repository ? `${serverUrl}/${repository}/actions/runs/${runId}` : null;
-  const commitUrl = repository && sha ? `${serverUrl}/${repository}/commit/${sha}` : null;
+  const runUrl =
+    runId && repository
+      ? `${serverUrl}/${repository}/actions/runs/${runId}`
+      : null;
+  const commitUrl =
+    repository && sha ? `${serverUrl}/${repository}/commit/${sha}` : null;
   const commitMessage = gitFallback(['log', '-1', '--format=%s'], '');
 
   return {
@@ -54,7 +64,9 @@ function buildUnitSummary() {
   if (!raw) return null;
 
   const files = (raw.testResults || []).map(file => ({
-    name: file.name.startsWith(cwd) ? file.name.slice(cwd.length + 1) : file.name,
+    name: file.name.startsWith(cwd)
+      ? file.name.slice(cwd.length + 1)
+      : file.name,
     status: file.status,
     tests: (file.assertionResults || []).map(t => ({
       title: t.title,
@@ -110,7 +122,8 @@ function buildE2ESummary() {
 
   const stats = raw.stats || {};
   return {
-    total: (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.skipped ?? 0),
+    total:
+      (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.skipped ?? 0),
     passed: stats.expected ?? 0,
     failed: stats.unexpected ?? 0,
     skipped: stats.skipped ?? 0,
@@ -126,6 +139,13 @@ function buildReleases() {
 
 function buildStagingHealth() {
   return readJsonSafe('.status-data/staging-health.json');
+}
+
+// What staging says it is actually running, as opposed to what was released.
+// Written by status-page.yml's "Check staging running version" step from
+// GET https://new.newwave4.org/api/version.
+function buildStagingVersion() {
+  return readJsonSafe('.status-data/staging-version.json');
 }
 
 function buildEnv() {
@@ -148,11 +168,17 @@ function buildEnv() {
 }
 
 export function gatherData() {
+  const releases = buildReleases();
+  const staging = buildStagingHealth();
+  const running = buildStagingVersion();
+
   return {
     meta: buildMeta(),
     env: buildEnv(),
-    releases: buildReleases(),
-    staging: buildStagingHealth(),
+    releases,
+    staging,
+    running,
+    deployment: computeDrift({ running, releases, staging }),
     unit: buildUnitSummary(),
     coverage: buildCoverageSummary(),
     e2e: buildE2ESummary(),
