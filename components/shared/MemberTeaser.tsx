@@ -21,17 +21,19 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
 
 
   return (
-    <div className="member-teaser text-center rounded-lg font-helv shadow-[0_4px_12px_0_rgba(180,140,100,0.15)]">
+    <div className="member-teaser text-center rounded-lg font-helv shadow-[0_4px_12px_0_rgba(180,140,100,0.15)] flex flex-col">
       <div className="relative h-[260px] w-full">
         <Image src={member.files[0]} alt={name} fill className="object-cover object-top rounded-tl-lg rounded-tr-lg" />
       </div>
-      <div className="info bg-grey-50 p-3 min-h-[160px] relative rounded-b-lg">
-        <div className="name mb-1 text-primary text-base font-medium">{name}</div>
-        <div className="location text-sm text-grey-500 font-normal">{location}</div>
-        <div className="position mt-2 mb-[21px] text-primary-500 font-medium">{position}</div>
+      <div className="info bg-grey-50 p-3 pb-0 flex-1 relative rounded-b-lg flex justify-between flex-col">
+        <div className='flex-1'>
+          <div className="name mb-1 text-primary text-base font-medium">{name}</div>
+          <div className="location text-sm text-grey-500 font-normal">{location}</div>
+          <div className="position mt-2 text-primary-500 font-medium">{position}</div>
+        </div>
         {member.socialMediaUrl &&   (
-          <div className="social text-left">
-            <div className="p-3 rounded-lg shadow-custom bg-grey-100 inline-block absolute left-0 bottom-0">
+          <div className="social text-left flex -ml-3">
+            <div className="p-3 rounded-lg shadow-custom bg-grey-100 inline-block">
               <Link target="_blank" href={member.socialMediaUrl}>
                 {nameSocialMedia === typeSocialMediaEnum.Facebook && <FacebookIcon size="24" />}
                 {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
