@@ -127,7 +127,12 @@ jobs:
           releases=$(gh api "repos/${{ github.repository }}/releases" --paginate)
           stable=$(echo "$releases" | jq '[.[] | select(.prerelease == false)][0] // null | if . == null then null else {tag: .tag_name, name: .name, url: .html_url, publishedAt: .published_at} end')
           prerelease=$(echo "$releases" | jq '[.[] | select(.prerelease == true)][0] // null | if . == null then null else {tag: .tag_name, name: .name, url: .html_url, publishedAt: .published_at} end')
-          jq -n --argjson stable "$stable" --argjson prerelease "$prerelease" '{stable: $stable, prerelease: $prerelease}' > .status-data/releases.json
+          # Full newest-first stable list, not just the newest one: the drift
+          # check needs it to say *how far* behind a running version is, by
+          # looking up its index in this list.
+          stableList=$(echo "$releases" | jq '[.[] | select(.prerelease == false) | {tag: .tag_name, url: .html_url, publishedAt: .published_at}]')
+          jq -n --argjson stable "$stable" --argjson prerelease "$prerelease" --argjson stableList "$stableList" \
+            '{stable: $stable, prerelease: $prerelease, stableList: $stableList}' > .status-data/releases.json
 
       - name: Check staging reachability
         if: always()
@@ -149,6 +154,34 @@ jobs:
           checked_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           jq -n --argjson ok $ok --arg httpCode "${code:-0}" --argjson latencyMs "$latency_ms" --arg checkedAt "$checked_at" \
             '{ok: $ok, httpCode: ($httpCode | tonumber), latencyMs: $latencyMs, checkedAt: $checkedAt}' > .status-data/staging-health.json
+
+      # Asks the deployed app which build it actually is (app/api/version), so
+      # the page can compare it against the newest published release. The
+      # reachability check above deliberately stays on /robots.txt -- it's the
+      # same cheap, middleware-free path kubelet probes (see the crash-loop
+      # incident in docs/known-issues.md), and "is it up" should not start
+      # depending on "does it have a version endpoint".
+      - name: Check staging running version
+        if: always()
+        run: |
+          mkdir -p .status-data
+          set +e
+          code=$(curl -s -o /tmp/version.json -w '%{http_code}' --max-time 5 https://new.newwave4.org/api/version)
+          set -e
+          payload=null
+          # An HTTP 200 alone is not proof the endpoint exists: any image built
+          # before this route was added answers /api/version with Next's HTML
+          # 404 page. Require parseable JSON carrying a version, so a
+          # pre-endpoint deployment degrades to an honest "unknown" rather than
+          # a silently false "in sync".
+          if [ "$code" = "200" ] && jq -e '.version' /tmp/version.json > /dev/null 2>&1; then
+            payload=$(cat /tmp/version.json)
+          fi
+          jq -n --arg httpCode "${code:-0}" --argjson payload "$payload" \
+                --arg fetchedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{httpCode: ($httpCode | tonumber), payload: $payload, fetchedAt: $fetchedAt}' \
+            > .status-data/staging-version.json
+          cat .status-data/staging-version.json
 
       - name: Generate status page
         run: node scripts/status-page/generate.mjs
