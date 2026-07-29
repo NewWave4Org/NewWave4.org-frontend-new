@@ -18,7 +18,7 @@ const HistoryCard = ({ ourHistoryTitle, ourHistoryDescription, ourHistoryPhotos 
   const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.translatable_text_editorState, locale);
 
   return (
-    <section className="history-card py-14 my-20">
+    <section className="history-card md:py-14 md:my-20 py-7 my-10">
       <div className="history-card__inner container px-4 mx-auto">
         <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">{t('sections_title.our_story')}</h4>
         <div className="flex flex-col lg:flex-row gap-6 items-start">
