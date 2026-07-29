@@ -22,11 +22,11 @@ const Team = ({ourTeam}: {ourTeam: ourTeamProps[]}) => {
   const t = useTranslations();
 
   return (
-    <section className="team py-14 my-20 bg-skyBlue-300">
+    <section className="team md:py-14 md:my-20 py-7 my-10 bg-skyBlue-300">
       <div className="container px-4 mx-auto">
         <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto !text-font-primary">{t('sections_title.our_team')}</h4>
         <div className="">
-          <div className="grid grid-cols-1 lg:gap-12 gap-6 sm:grid-cols-2 md:grid-cols-4">
+          <div className="grid grid-cols-2 lg:gap-12 gap-6 sm:grid-cols-2 md:grid-cols-4">
             {ourTeam.map(member => (
               <MemberTeaser key={member.id} member={member} />
             ))}

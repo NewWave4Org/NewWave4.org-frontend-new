@@ -14,8 +14,12 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
       <section className="container mx-auto px-4">
         <div className="sponsors__inner">
           <h4 className="lg:mb-0 mb-4 !text-font-primary font-bold text-[34px] font-ebGaramond uppercase">{t('sections_title.trust_us')}</h4>
-          <div className="sponsors-logos lg:flex-row md:flex-col sm:flex-col flex-col gap-y-6 lg:gap-y-0 flex-wrap">
-            {ourPartners?.map((item, index) => item.files.map((img, imgIndex) => <Image key={`${item.id}-${imgIndex}`} className="m-4" src={img} alt={`Logo-${index}`} width={250} height={42} />))}
+          <div className="flex items-center flex-wrap">
+            {ourPartners?.map((item, index) => item.files.map((img, imgIndex) => 
+              <div key={item.id} className='relative p-4 w-full sm:w-1/2 md:w-1/4'>
+                <Image key={`${item.id}-${imgIndex}`} className="w-full h-auto object-contain" src={img} alt={`Logo-${index}`} width={200} height={100}/>
+              </div>
+            ))}
           </div>
         </div>
       </section>

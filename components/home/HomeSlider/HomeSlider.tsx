@@ -9,6 +9,7 @@ import Slider from 'react-slick';
 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { useEffect, useState } from 'react';
 
 export interface Slide {
   translatable_text_title: string;
@@ -33,10 +34,17 @@ interface HomeSliderProps {
 }
 
 function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = true, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const sliderLength = slides.length;
-
   const isVariableWidth = sliderLength > 2 && variableWidth;
-
   const resolvedSlidesToShow = isVariableWidth ? undefined : sliderLength <= 2 ? 1 : slidesToShow;
 
   const settings = {
@@ -46,7 +54,7 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
     infinite: infinite,
     speed: speed,
     slidesToScroll: 1,
-    centerMode: sliderLength <= 2 ? false : true,
+    centerMode: !isMobile && sliderLength > 2,
     autoplay: autoplay,
     autoplaySpeed: 3000,
     pauseOnHover: slideHover,
