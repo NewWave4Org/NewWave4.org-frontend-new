@@ -1,7 +1,10 @@
 export function escapeHtml(str) {
   return String(str ?? '').replace(
     /[&<>"']/g,
-    c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
+    c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[
+        c
+      ],
   );
 }
 
@@ -12,11 +15,13 @@ function fmtPct(n) {
 function fmtDate(iso) {
   if (!iso) return '—';
   try {
-    return new Date(iso).toLocaleString('en-US', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      timeZone: 'UTC',
-    }) + ' UTC';
+    return (
+      new Date(iso).toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: 'UTC',
+      }) + ' UTC'
+    );
   } catch {
     return iso;
   }
@@ -26,6 +31,28 @@ function fmtMs(ms) {
   if (typeof ms !== 'number') return '—';
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function fmtDuration(seconds) {
+  if (typeof seconds !== 'number' || seconds < 0) return '—';
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// Relative age, resolved against page-build time. The page is a static
+// snapshot, so this is honest only next to the absolute timestamp it
+// accompanies -- always render both.
+function fmtAgo(iso) {
+  if (!iso) return null;
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return null;
+  const seconds = Math.round((Date.now() - then) / 1000);
+  if (seconds < 60) return 'just now';
+  return `${fmtDuration(seconds)} ago`;
 }
 
 // status: 'pass' | 'fail' | 'warn' | 'neutral'
@@ -44,11 +71,6 @@ function e2eOverallStatus(e2e) {
   if (e2e.failed > 0) return 'fail';
   if (e2e.flaky > 0) return 'warn';
   return 'pass';
-}
-
-function stagingStatus(staging) {
-  if (!staging) return 'neutral';
-  return staging.ok ? 'pass' : 'fail';
 }
 
 export const STYLE = `
@@ -266,6 +288,48 @@ footer.meta {
   font-size: 0.88rem;
   font-style: italic;
 }
+
+/* Severity-tinted cards, used by the Deployment section so drift is readable
+   at a glance rather than only via the pill text. Reuses the existing
+   --pass/--warn/--fail custom properties -- no new colours. */
+.card--pass { border-left: 3px solid var(--pass); background: linear-gradient(90deg, var(--pass-bg), var(--bg-elevated) 260px); }
+.card--warn { border-left: 3px solid var(--warn); background: linear-gradient(90deg, var(--warn-bg), var(--bg-elevated) 260px); }
+.card--fail { border-left: 3px solid var(--fail); background: linear-gradient(90deg, var(--fail-bg), var(--bg-elevated) 260px); }
+.card--neutral { border-left: 3px solid var(--neutral); }
+
+.deploy-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .deploy-grid { grid-template-columns: 1fr; }
+}
+
+.kv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+.kv > span { white-space: nowrap; }
+.kv .k { color: var(--text-dim); opacity: 0.75; margin-right: 4px; }
+.kv .v { color: var(--text); }
+/* .stat-card a is display:block (it exists so the unit/E2E cards can be one
+   big click target). The commit link here is mid-sentence, so undo that or it
+   breaks its own key/value pair onto a second line. */
+.kv a { display: inline; }
+
+.caveat {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 12px;
+  line-height: 1.6;
+}
 `;
 
 export function layout({ title, active, body, meta }) {
@@ -292,7 +356,7 @@ export function layout({ title, active, body, meta }) {
 <div class="wrap">
   <header class="top">
     <h1>NewWave4.org — Frontend Status</h1>
-    <div class="tagline">Live build health, test results, and release info — regenerated on every push to <code>main</code>, nightly, and on demand.</div>
+    <div class="tagline">What is deployed right now, plus build health, test results, and release info — regenerated after every release to <code>main</code>, nightly, and on demand.</div>
     <nav class="tabs">${nav}</nav>
   </header>
   ${body}
@@ -306,12 +370,117 @@ export function layout({ title, active, body, meta }) {
 </html>`;
 }
 
-export function renderIndex(data) {
-  const { meta, env, releases, staging, unit, coverage, e2e } = data;
+// The Deployment section: what staging is *actually* running, next to what was
+// actually released. Before this existed the page could show v1.2.0 as the
+// newest release while staging quietly served v1.1.0, with nothing to reveal
+// the gap -- every version on the page came from the build, none from the
+// running deployment.
+function renderDeployment(data) {
+  const { deployment, staging, releases, meta } = data;
 
-  const overallStatus =
-    unitOverallStatus(unit) === 'fail' || e2eOverallStatus(e2e) === 'fail' ? 'fail' : 'pass';
-  const overallLabel = overallStatus === 'fail' ? 'Checks failing' : 'All checks passing';
+  const kv = [];
+  if (deployment.runningShortCommit) {
+    const sha = escapeHtml(deployment.runningShortCommit);
+    kv.push(
+      `<span><span class="k">commit</span><span class="v"><code>${
+        meta.repository
+          ? `<a class="inline-link" href="https://github.com/${meta.repository}/commit/${escapeHtml(deployment.runningCommit)}">${sha}</a>`
+          : sha
+      }</code></span></span>`,
+    );
+  }
+  if (deployment.imageTag) {
+    kv.push(
+      `<span><span class="k">image tag</span><span class="v"><code>${escapeHtml(deployment.imageTag)}</code></span></span>`,
+    );
+  }
+  if (deployment.builtAt) {
+    kv.push(
+      `<span><span class="k">image built</span><span class="v">${escapeHtml(fmtDate(deployment.builtAt))}</span></span>`,
+    );
+  }
+  if (deployment.startedAt) {
+    const ago = fmtAgo(deployment.startedAt);
+    kv.push(
+      `<span><span class="k">running since</span><span class="v">${escapeHtml(fmtDate(deployment.startedAt))}${ago ? ` (${escapeHtml(ago)})` : ''}</span></span>`,
+    );
+  } else if (typeof deployment.uptimeSeconds === 'number') {
+    kv.push(
+      `<span><span class="k">uptime</span><span class="v">${escapeHtml(fmtDuration(deployment.uptimeSeconds))}</span></span>`,
+    );
+  }
+  if (staging) {
+    kv.push(
+      `<span><span class="k">health</span><span class="v">HTTP ${staging.httpCode ?? '—'} in ${fmtMs(staging.latencyMs)}</span></span>`,
+    );
+  }
+  if (deployment.fetchedAt || staging?.checkedAt) {
+    kv.push(
+      `<span><span class="k">checked</span><span class="v">${escapeHtml(fmtDate(deployment.fetchedAt || staging?.checkedAt))}</span></span>`,
+    );
+  }
+
+  const runningCard = `
+    <div class="card stat-card card--${deployment.severity}">
+      <div class="label">Running now — staging</div>
+      <div class="value">${deployment.runningVersion ? `v${escapeHtml(deployment.runningVersion)}` : '—'}</div>
+      <div class="sub">${pill(deployment.label, deployment.severity)}</div>
+      ${deployment.detail ? `<div class="sub">${escapeHtml(deployment.detail)}</div>` : ''}
+      ${kv.length ? `<div class="kv">${kv.join('')}</div>` : ''}
+    </div>`;
+
+  const stable = releases?.stable ?? null;
+  const publishedAgo = stable ? fmtAgo(stable.publishedAt) : null;
+  const latestCard = `
+    <div class="card stat-card">
+      <div class="label">Latest stable release</div>
+      <div class="value">${
+        stable
+          ? `<a class="inline-link" href="${stable.url}">${escapeHtml(stable.tag)}</a>`
+          : '—'
+      }</div>
+      <div class="sub">${
+        stable
+          ? `${escapeHtml(fmtDate(stable.publishedAt))}${publishedAgo ? ` · ${escapeHtml(publishedAgo)}` : ''}`
+          : 'No stable release published yet.'
+      }</div>
+    </div>`;
+
+  // Both caveats are real and neither is fixable from here, so they are stated
+  // rather than glossed over: the reading comes from whichever of the two
+  // replicas answered, and process uptime is not deploy time.
+  const caveat = `<p class="caveat">Sampled over HTTP from whichever replica answered
+    (<code>replicaCount: 2</code>), so during a rollout the two can legitimately differ.
+    &ldquo;Running since&rdquo; is the answering process&rsquo;s start time — close to the deploy
+    time in practice, but it also resets on any pod restart or eviction.</p>`;
+
+  return `
+  <h2 class="section-title">Deployment</h2>
+  <div class="deploy-grid">
+    ${runningCard}
+    ${latestCard}
+  </div>
+  ${caveat}`;
+}
+
+export function renderIndex(data) {
+  const { meta, env, releases, unit, coverage, e2e, deployment } = data;
+
+  // Ordered precedence, first match wins. Drift is deliberately loud enough to
+  // reach the hero: a deployment stuck on an old release is exactly the kind of
+  // problem that stays invisible when every other check is green.
+  let overallStatus = 'pass';
+  let overallLabel = 'All checks passing';
+  if (unitOverallStatus(unit) === 'fail' || e2eOverallStatus(e2e) === 'fail') {
+    overallStatus = 'fail';
+    overallLabel = 'Checks failing';
+  } else if (deployment?.state === 'unreachable') {
+    overallStatus = 'fail';
+    overallLabel = 'Staging unreachable';
+  } else if (deployment?.severity === 'warn') {
+    overallStatus = 'warn';
+    overallLabel = 'Deployment drift detected';
+  }
 
   const releaseChips = releases
     ? `<div class="releases">
@@ -350,14 +519,14 @@ export function renderIndex(data) {
       </a>`
     : `<div class="label">E2E Tests</div><div class="empty-note">Not available for this build.</div>`;
 
-  const stagingCard = staging
-    ? `<div class="label">Staging Reachability</div>
-       <div class="value">${pill(staging.ok ? 'Reachable' : 'Unreachable', stagingStatus(staging))}</div>
-       <div class="sub">HTTP ${staging.httpCode ?? '—'} in ${fmtMs(staging.latencyMs)} · checked ${fmtDate(staging.checkedAt)}</div>`
-    : `<div class="label">Staging Reachability</div><div class="empty-note">Not checked for this build.</div>`;
-
-  const envCard = `<div class="label">Environment</div>
+  // Deliberately labelled "source tree", not just a bare version: this is
+  // package.json at the commit the *status page* was built from, which is
+  // neither the released version nor the running one. Reading it as "the
+  // deployed version" is precisely the confusion the Deployment section exists
+  // to remove, so it says what it is.
+  const envCard = `<div class="label">Build environment</div>
      <div class="value" style="font-size:1.1rem">v${escapeHtml(env.appVersion)}</div>
+     <div class="sub">Source tree this page was built from — not necessarily what is deployed.</div>
      <div class="sub">Node ${escapeHtml(env.node || '—')} · Next ${escapeHtml((env.next || '').replace('^', '') || '—')} · React ${escapeHtml((env.react || '').replace('^', '') || '—')}</div>`;
 
   const linksRow = meta.repository
@@ -375,6 +544,8 @@ export function renderIndex(data) {
     <div class="headline">${pill(overallLabel, overallStatus)}</div>
   </div>
 
+  ${renderDeployment(data)}
+
   <h2 class="section-title">Releases</h2>
   ${releaseChips}
 
@@ -383,7 +554,6 @@ export function renderIndex(data) {
     <div class="card stat-card linkable">${unitCard}</div>
     <div class="card stat-card">${coverageCard}</div>
     <div class="card stat-card linkable">${e2eCard}</div>
-    <div class="card stat-card">${stagingCard}</div>
     <div class="card stat-card">${envCard}</div>
   </div>
 
@@ -407,10 +577,20 @@ export function renderUnitTests(data) {
 
     const rows = unit.files
       .map(file => {
-        const fileStatus = file.status === 'passed' ? 'pass' : file.status === 'failed' ? 'fail' : 'neutral';
+        const fileStatus =
+          file.status === 'passed'
+            ? 'pass'
+            : file.status === 'failed'
+              ? 'fail'
+              : 'neutral';
         const testRows = file.tests
           .map(t => {
-            const s = t.status === 'passed' ? 'pass' : t.status === 'failed' ? 'fail' : 'neutral';
+            const s =
+              t.status === 'passed'
+                ? 'pass'
+                : t.status === 'failed'
+                  ? 'fail'
+                  : 'neutral';
             return `<tr class="test-row"><td></td><td class="title">${escapeHtml(t.title)}</td><td>${pill(t.status, s)}</td><td class="duration">${fmtMs(t.duration)}</td></tr>`;
           })
           .join('');
@@ -452,8 +632,18 @@ export function renderE2ETests(data) {
         const specRows = specs
           .map(spec => {
             const test = spec.tests[0] || {};
-            const s = test.status === 'expected' ? 'pass' : test.status === 'unexpected' ? 'fail' : 'neutral';
-            const label = test.status === 'expected' ? 'passed' : test.status === 'unexpected' ? 'failed' : 'skipped';
+            const s =
+              test.status === 'expected'
+                ? 'pass'
+                : test.status === 'unexpected'
+                  ? 'fail'
+                  : 'neutral';
+            const label =
+              test.status === 'expected'
+                ? 'passed'
+                : test.status === 'unexpected'
+                  ? 'failed'
+                  : 'skipped';
             return `<tr class="test-row"><td></td><td class="title">${escapeHtml(spec.title)}</td><td>${pill(label, s)}</td></tr>`;
           })
           .join('');

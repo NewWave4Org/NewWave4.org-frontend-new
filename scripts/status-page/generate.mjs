@@ -7,7 +7,12 @@
 // available" section instead of crashing -- see docs comment in lib/data.mjs).
 import { existsSync, mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
 import { gatherData } from './lib/data.mjs';
-import { STYLE, renderIndex, renderUnitTests, renderE2ETests } from './lib/render.mjs';
+import {
+  STYLE,
+  renderIndex,
+  renderUnitTests,
+  renderE2ETests,
+} from './lib/render.mjs';
 
 const OUT_DIR = 'status-site';
 
@@ -32,10 +37,19 @@ function main() {
   }
 
   console.log(`Status page generated at ./${OUT_DIR}/`);
-  console.log(`  Unit tests: ${data.unit ? `${data.unit.passed}/${data.unit.total}` : 'not available'}`);
-  console.log(`  E2E tests:  ${data.e2e ? `${data.e2e.passed}/${data.e2e.total}` : 'not available'}`);
+  console.log(
+    `  Unit tests: ${data.unit ? `${data.unit.passed}/${data.unit.total}` : 'not available'}`,
+  );
+  console.log(
+    `  E2E tests:  ${data.e2e ? `${data.e2e.passed}/${data.e2e.total}` : 'not available'}`,
+  );
   console.log(`  Releases:   ${data.releases ? 'available' : 'not available'}`);
-  console.log(`  Staging:    ${data.staging ? (data.staging.ok ? 'reachable' : 'unreachable') : 'not checked'}`);
+  console.log(
+    `  Staging:    ${data.staging ? (data.staging.ok ? 'reachable' : 'unreachable') : 'not checked'}`,
+  );
+  console.log(
+    `  Deployment: ${data.deployment.state} — ${data.deployment.label}`,
+  );
 }
 
 main();

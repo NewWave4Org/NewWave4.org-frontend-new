@@ -40,5 +40,25 @@ COPY --from=builder /app/.env .env
 # full @img packages here keeps the binary available if that ever changes.
 COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
+# Stamped by release.yml so the running container can self-report which build
+# it is -- see app/api/version/route.ts and the status page's drift check
+# (scripts/status-page/lib/drift.mjs). Declared last on purpose: these change
+# on every build, so every layer above stays cache-valid (docker-smoke and
+# e2e.yml both lean hard on the GHA build cache).
+#
+# The defaults keep plain `docker build` and the un-stamped CI builds working;
+# they just report 0.0.0-dev.
+ARG APP_VERSION=0.0.0-dev
+ARG GIT_COMMIT=unknown
+ARG BUILD_TIME=unknown
+ARG IMAGE_TAG=unknown
+ENV APP_VERSION=$APP_VERSION \
+    GIT_COMMIT=$GIT_COMMIT \
+    BUILD_TIME=$BUILD_TIME \
+    IMAGE_TAG=$IMAGE_TAG
+LABEL org.opencontainers.image.version=$APP_VERSION \
+      org.opencontainers.image.revision=$GIT_COMMIT \
+      org.opencontainers.image.created=$BUILD_TIME
+
 EXPOSE 3000
 CMD ["node", "server.js"]

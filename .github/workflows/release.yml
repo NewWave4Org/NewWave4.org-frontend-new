@@ -114,6 +114,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      # Feeds the Dockerfile's version-stamping ARGs, which the running
+      # container reports back via /api/version and the status page compares
+      # against the newest published release to detect deploy drift.
+      #
+      # `git rev-parse HEAD`, not github.sha: this job checks out
+      # `ref: github.ref_name`, so it builds the branch HEAD *including*
+      # semantic-release's `chore(release): X.Y.Z` bump commit -- github.sha is
+      # the commit that triggered the run, one behind whatever is actually in
+      # the image.
+      - name: Stamp build metadata
+        id: stamp
+        run: |
+          set -euo pipefail
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push versioned image
         uses: docker/build-push-action@v7
         with:
@@ -122,6 +138,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.new_release_version }}
+          build-args: |
+            APP_VERSION=${{ needs.release.outputs.new_release_version }}
+            IMAGE_TAG=${{ needs.release.outputs.new_release_version }}
+            GIT_COMMIT=${{ steps.stamp.outputs.commit }}
+            BUILD_TIME=${{ steps.stamp.outputs.built_at }}
 
       - name: Alias :latest to this release (main only)
         if: github.ref == 'refs/heads/main'

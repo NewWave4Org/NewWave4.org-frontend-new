@@ -131,12 +131,34 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          # Not a real release, so APP_VERSION keeps its 0.0.0-dev default --
+          # but stamping the commit still lets the smoke test below assert the
+          # ARG -> ENV -> /api/version chain actually works, which is the point.
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            IMAGE_TAG=${{ github.sha }}
 
       - name: Docker image smoke test
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
         run: |
+          # -e and -u, but deliberately NOT pipefail: `grep -q` exits as soon as
+          # it matches, which SIGPIPEs the wget feeding it. Under pipefail that
+          # would fail a check that has always passed.
+          set -eu
           docker run --name newwave4-frontend-app -d -p 3000:3000 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
           echo Testing Image URL using wget
           # Checks for a valid HTML response rather than specific brand text, since the
           # homepage's default locale (UA) legitimately renders its title/branding in
           # Ukrainian, not the English "New Wave" string.
           wget -q -O - 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
+
+          # The status page's drift detection is only as good as this endpoint,
+          # and a silent regression here would degrade it to a permanent
+          # "running version unknown" that nobody would notice. Assert the whole
+          # chain: the route responds, and the build args really did reach it.
+          echo Testing /api/version
+          curl -fsS --max-time 10 127.0.0.1:3000/api/version -o /tmp/version.json
+          cat /tmp/version.json
+          jq -e --arg expected "$EXPECTED_COMMIT" \
+            '.version and .startedAt and (.commit == $expected)' /tmp/version.json > /dev/null
