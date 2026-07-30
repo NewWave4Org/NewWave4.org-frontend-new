@@ -158,15 +158,19 @@ test.describe('article content management', () => {
         r.url().includes('/photos/upload-photo') &&
         r.request().method() === 'POST',
     );
-    await page
-      .locator('div.flex.flex-col.h-full')
-      .filter({ hasText: 'Main Photo' })
-      .locator('input[type="file"]')
-      .setInputFiles({
-        name: 'e2e-main.png',
-        mimeType: 'image/png',
-        buffer: readFileSync('public/error.png'),
-      });
+    // Three uploaders exist, in JSX order: Main Photo, Photo List, Photo Slider.
+    // Filtering a container by the "Main Photo" caption does NOT isolate one —
+    // an ancestor carries the same classes and contains all three inputs, so that
+    // approach hits a strict-mode violation. Asserting the count first pins the
+    // assumption: if a fourth uploader is ever added this fails loudly instead of
+    // silently uploading into the wrong block.
+    const fileInputs = page.locator('input[type="file"]');
+    await expect(fileInputs).toHaveCount(3);
+    await fileInputs.first().setInputFiles({
+      name: 'e2e-main.png',
+      mimeType: 'image/png',
+      buffer: readFileSync('public/error.png'),
+    });
     const uploadResponse = await uploaded;
     expect(uploadResponse.ok()).toBeTruthy();
     // Endpoint returns the URL as a bare string body; record it for teardown.
