@@ -6,16 +6,23 @@ name: Release
 # branch literally named `development`. See
 # docs/decisions/0002-semantic-release-over-release-please.md.
 #
-# workflow_dispatch exists as a manual escape hatch: GitHub's auto-generated
-# squash-merge commit message concatenates every squashed commit's full
-# message verbatim, and development always accumulates
-# `chore(release): ... [skip ci]` bump commits between promotions -- so a
-# development -> main promotion's squash commit will very likely contain
-# `[skip ci]` somewhere in its (huge) body, which makes GitHub Actions skip
-# ALL workflow triggering for that push, silently. Confirmed happening for
-# real on 2026-07-19 (PR #416) -- see docs/known-issues.md. Until the
-# promotion flow itself is fixed to avoid this, use this manual trigger to
-# fire the release that a promotion's push silently skipped.
+# workflow_dispatch is a manual escape hatch for firing a release that a push
+# silently skipped. It was originally required because GitHub's auto-generated
+# squash-merge body concatenates every squashed commit verbatim, and
+# `development` accumulates `chore(release): ...` bump commits between
+# promotions -- so a promotion's squash commit inherited a CI-skip marker in its
+# body and GitHub skipped ALL workflows for that push, silently. Confirmed for
+# real on 2026-07-19 (PR #416) and again on 2026-07-29 (PR #441), the latter
+# recovered via this very dispatch.
+#
+# Both sources of that are now fixed: the repo's squash setting is PR_BODY
+# rather than COMMIT_MESSAGES (so bodies are never inherited), and the bump
+# commits no longer carry the marker at all -- the quality-gates job below
+# guards on the commit subject instead. release-guard.yml watches for a main
+# HEAD with no Release run in case something slips through anyway.
+#
+# Keeping the dispatch regardless: it costs nothing and is the recovery path for
+# any future case where a push doesn't produce the release it should.
 on:
   push:
     branches: [main, development]
@@ -26,7 +33,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Don't re-release semantic-release's own version-bump commit. This replaces
+  # the `[skip ci]` marker that used to live in release.config.js's commit
+  # message: that marker worked, but GitHub applies it to every workflow and
+  # every trigger type for the commit, so it also silenced ci.yml,
+  # pr-title-lint, restrict-main-merges and e2e on any PR whose head SHA landed
+  # on a bump commit -- leaving promotion PRs with zero checks and permanently
+  # unmergeable. Guarding here scopes the behaviour to the only workflow that
+  # ever needed it.
+  #
+  # The event_name clause keeps the workflow_dispatch escape hatch working:
+  # github.event.head_commit exists only for push events, and startsWith(null,
+  # ...) would otherwise make a manual dispatch evaluate to false and skip.
+  #
+  # `release` needs this job, so it skips transitively -- as do docker-publish,
+  # helm-publish and deploy-staging via their own needs chains.
   quality-gates:
+    if: github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'chore(release):')
     uses: ./.github/workflows/_quality-gates.yml
     secrets: inherit
 

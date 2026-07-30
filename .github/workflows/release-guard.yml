@@ -1,0 +1,144 @@
+name: Release Guard
+
+# Catches releases that silently didn't happen.
+#
+# Two failure modes produce the same externally-visible symptom -- main has a new
+# commit but no release was published, and nothing anywhere reports an error:
+#
+#   1. A CI-skip marker reached the merge commit, so GitHub skipped every
+#      workflow for that push. release.yml never ran at all.
+#   2. The promotion PR was titled `chore:` (or another non-releasing type), so
+#      semantic-release ran but published nothing. docker-publish/helm-publish
+#      report `skipped`, not `failed`, so a green run list hides it.
+#
+# Both have happened for real (PRs #416, #429, #441 and the #442 merge) -- see
+# docs/known-issues.md. Root causes are fixed now; this is the backstop that
+# notices if one recurs.
+#
+# Deliberately schedule-triggered, NOT push-triggered: a CI-skip marker on the
+# commit would skip a push-triggered guard too, which is precisely the case we
+# most need to catch. schedule and workflow_dispatch are unaffected by it.
+on:
+  schedule:
+    - cron: '40 * * * *' # hourly, offset from the other scheduled workflows
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look for a Release run covering main's HEAD
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          SHA=$(gh api "repos/${{ github.repository }}/commits/main" --jq '.sha')
+          SUBJECT=$(gh api "repos/${{ github.repository }}/commits/main" --jq '.commit.message' | head -1)
+          echo "main HEAD: $SHA"
+          echo "subject:   $SUBJECT"
+
+          # Only $SHA is exported. A commit subject is attacker-influenceable by
+          # anyone who can land a commit, and writing it to $GITHUB_OUTPUT is an
+          # injection surface; $SHA is a bare hex string from the API and safe.
+          # The reporting step re-fetches the subject through the API itself.
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+          # semantic-release's own bump commits legitimately have no Release run
+          # of their own -- release.yml's quality-gates job skips them by design.
+          # Alerting on those would make this guard cry wolf after every single
+          # successful release, which is worse than not having it.
+          case "$SUBJECT" in
+            'chore(release):'*)
+              echo "HEAD is a release bump commit; nothing to check."
+              echo "missing=false" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+
+          # Any Release run for this SHA is enough. A *failed* run is a different
+          # problem that surfaces loudly on its own; this guard is only about the
+          # silent case where no run exists.
+          COUNT=$(gh api "repos/${{ github.repository }}/actions/workflows/release.yml/runs?head_sha=$SHA&per_page=100" \
+            --jq '.total_count')
+          echo "Release runs for $SHA: $COUNT"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open an issue if no Release run exists
+        if: steps.check.outputs.missing == 'true'
+        uses: actions/github-script@v9
+        env:
+          HEAD_SHA: ${{ steps.check.outputs.sha }}
+        with:
+          script: |
+            const sha = process.env.HEAD_SHA;
+            const label = 'release-guard';
+
+            // Fetched here rather than passed through a step output, so an
+            // attacker-controlled commit subject never touches $GITHUB_OUTPUT.
+            // It is only ever interpolated into markdown below, never executed.
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+            });
+            const subject = commit.commit.message.split('\n')[0];
+
+            // Dedup on the label, matching lint-compat-check.yml. Without this an
+            // hourly cron would file a new issue every hour until someone acted.
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+
+            if (existing.data.length > 0) {
+              core.info(`An open ${label} issue already exists (#${existing.data[0].number}), skipping.`);
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `No Release run for main@${sha.slice(0, 7)} — a release was silently skipped`,
+              labels: [label, 'ci-cd', 'severity: high'],
+              body: [
+                `\`main\` is at \`${sha}\` but no **Release** workflow run exists for that commit,`,
+                'so no version, image, chart or staging deploy was produced for it.',
+                '',
+                `Subject: \`${subject}\``,
+                '',
+                '## Likely cause',
+                '',
+                '- A CI-skip marker reached the commit message, so GitHub skipped every workflow for the push. Check whether the commit body contains one.',
+                '- Or the promotion PR used a non-releasing Conventional Commit type (`chore:`, `docs:`, `refactor:`), so `semantic-release` ran but published nothing.',
+                '',
+                '## Recovery',
+                '',
+                '```bash',
+                'gh workflow run release.yml --ref main',
+                '```',
+                '',
+                'That fires the release the push should have produced. Verify afterwards that `docker-publish`, `helm-publish` and `deploy-staging` all report `success` rather than `skipped`.',
+                '',
+                '## Then work out why it recurred',
+                '',
+                'The known root causes are fixed (`squash_merge_commit_message=PR_BODY`, no marker in `release.config.js`, releasing-type enforcement on promotion PRs). If this fired anyway, something new is going on — please record it in `docs/known-issues.md`.',
+                '',
+                '<sub>Filed automatically by `.github/workflows/release-guard.yml`. Close it once the release is published; it will not re-file while an issue with this label is open.</sub>',
+              ].join('\n'),
+            });
+
+            core.notice(`Filed #${issue.number} for missing Release run on ${sha}`);
