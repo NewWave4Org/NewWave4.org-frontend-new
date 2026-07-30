@@ -31,7 +31,7 @@ interface IEmblaCarouselProps extends Settings {
   parentClass?: string
 }
 
-const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding, customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: IEmblaCarouselProps) => {
+const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding = '0', customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: IEmblaCarouselProps) => {
 
   const settings = {
     className: 'h-full',
