@@ -28,3 +28,26 @@ jobs:
             style
             revert
           requireScope: false
+
+      # Promotions into main must use a type semantic-release actually releases
+      # on. The default rules only bump for feat/fix/perf (or a BREAKING CHANGE
+      # footer); anything else publishes NOTHING, and does so silently --
+      # `release`'s new_release_published is false and docker-publish/
+      # helm-publish/deploy-staging all report `skipped`, not `failed`, so the
+      # run list looks green. That is exactly what happened to PR #429 on
+      # 2026-07-26: a `chore:`-titled promotion carrying real fix: work merged
+      # cleanly, CI was green, and main published nothing at all.
+      #
+      # docs/known-issues.md has stated this as a convention for a while; a
+      # convention in a markdown file does not stop it happening again.
+      - name: Promotions into main must use a releasing type
+        if: github.event.pull_request.base.ref == 'main'
+        uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+          requireScope: false
