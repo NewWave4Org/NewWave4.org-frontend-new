@@ -118,6 +118,7 @@ jobs:
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
