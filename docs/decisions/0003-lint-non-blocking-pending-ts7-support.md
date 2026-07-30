@@ -1,9 +1,11 @@
 # ADR-0003: Keep TypeScript 7, run lint and typecheck as non-blocking for now
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-07-19
 
 ## Context
@@ -22,16 +24,19 @@ Both `lint` and `typecheck` run as **non-blocking** steps in `_quality-gates.yml
 ## Alternatives Considered
 
 ### Downgrade `typescript` to a version `typescript-eslint` supports, to unblock lint immediately
+
 - Pros: restores a real, enforced lint gate right away.
 - Cons: a downgrade is itself a real dependency change with its own risk (re-verifying nothing regressed under an older compiler), and doesn't address the 37 pre-existing type errors, which are a separate problem from the lint tooling being broken.
 - Rejected for this pass (by explicit choice when this was raised) — revisit if the team decides the lint gap outweighs staying current on TypeScript.
 
 ### Fix all ~37 pre-existing type errors before enabling `typecheck` as blocking
+
 - Pros: most thorough; gets to a genuinely enforced gate immediately.
 - Cons: real bug-fixing work across ~20 files of business logic not otherwise touched by this effort — meaningfully expands scope beyond "build the CI/CD pipeline," and each fix deserves its own review rather than being bundled into infra work.
 - Rejected for this pass — tracked instead in [known-issues.md](../known-issues.md) as a baseline to pay down before flipping the gate.
 
 ### A "ratchet" — fail only if the error count increases beyond a checked-in baseline
+
 - Pros: more protective than fully non-blocking; existing debt is grandfathered but no PR can add to it.
 - Cons: more moving parts (a baseline file, a comparison script) for a first pass; worth adding once the team has lived with the non-blocking version for a bit.
 - Deferred, not rejected — a reasonable next step.
@@ -40,4 +45,4 @@ Both `lint` and `typecheck` run as **non-blocking** steps in `_quality-gates.yml
 
 - `lint-compat-check.yml` runs monthly, opens an issue when `typescript-eslint` appears to support TypeScript 7, prompting a re-evaluation.
 - [known-issues.md](../known-issues.md) records the type-error baseline (37 as of 2026-07-19) so "did this PR make it worse" stays checkable without a formal ratchet.
-- The dead `.eslintrc.json` (superseded by `eslint.config.mjs`, but still contains a misleading `no-console` rule that looks active) is left in place for now — recommended cleanup once lint is back to blocking, so the "did this change lint behavior" question stays easy to answer.
+- ~~The dead `.eslintrc.json` is left in place for now~~ — **deleted 2026-07-30.** The reasoning for waiting was to keep the "did this change lint behaviour?" question easy to answer. With `npm run lint` unable to run at all, that question became trivially answerable instead: nothing is linted, so removing a config ESLint 9 never read changes nothing. See [known-issues.md](../known-issues.md).

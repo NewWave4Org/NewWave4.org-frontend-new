@@ -16,7 +16,22 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in `.env.local` with real values for `NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS`, `NEXT_PUBLIC_STRIPE_WEBHOOK_URL`, and `NEXT_PUBLIC_NEWWAVE_API_URL` (see `.env.example` for what each is for). Note: `utils/http/axiosInstance.ts` currently hardcodes its API base URL rather than reading `NEXT_PUBLIC_NEWWAVE_API_URL` — see [known-issues.md](./known-issues.md) — so API calls will hit the staging backend regardless of what you set here, unless that's changed.
+Fill in `.env.local` — see `.env.example` for what each value is for.
+
+| Variable                              | Required?                    | Notes                                                                                                                                                                          |
+| ------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_PAYPAL_CLIENT_ID`        | **yes**                      | Build fails if unset                                                                                                                                                           |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS` | **yes**                      | Build fails if unset                                                                                                                                                           |
+| `NEXT_PUBLIC_NEWWAVE_API_URL`         | **yes**                      | Build fails if unset. No trailing slash — one call site appends `/api/v1/...` and would produce a doubled slash                                                                |
+| `NEXT_PUBLIC_SITE_URL`                | no, but set it in production | Consumed by `utils/seo.ts`. Unset, it falls back to `https://new.newwave4.org`, silently pointing every canonical URL, `hreflang` alternate and `sitemap.xml` entry at staging |
+| `NEXT_PUBLIC_BASE_PATH`               | no                           | Sub-path to serve under; empty for root                                                                                                                                        |
+| `NEXT_PUBLIC_STRIPE_WEBHOOK_URL`      | no                           | **Read by no source file.** Threaded through `.env.example`, `generate-env` and five workflows, but nothing consumes it — currently ceremonial                                 |
+
+`utils/env.ts` validates these from `next.config.ts`, so `next dev`/`next build` **fail fast** on a missing required value and name every problem at once — rather than surfacing later as a request to `undefined/api/v1/...`. Non-fatal problems (unset `SITE_URL`, a trailing slash on the API URL) are warnings. `SKIP_ENV_VALIDATION=1` bypasses the check; it's for tooling that never serves traffic, not for getting a deploy out.
+
+In CI these come from repo secrets via `.github/actions/generate-env`.
+
+Note: `utils/http/axiosInstance.ts` currently hardcodes its API base URL rather than reading `NEXT_PUBLIC_NEWWAVE_API_URL` — see [known-issues.md](./known-issues.md) — so API calls will hit the staging backend regardless of what you set here, unless that's changed.
 
 ## Running
 

@@ -44,7 +44,7 @@ Because the sequence had become deterministic — any promotion PR opened after 
 
 One footgun worth knowing: **do not write the literal marker into a commit message or PR body**, even when describing this problem. Now that squash bodies come from the PR body, a PR explaining the trap can trigger it. This happened while writing the fix — a commit message quoting the token verbatim would have skipped itself.
 
-ESLint 9+ uses only the flat config (`eslint.config.mjs`); `.eslintrc.json` is never read, but still contains a `no-console` rule that looks active and isn't. Recommend deleting it in a follow-up cleanup PR once lint is back to blocking (bundling it with that change makes the "did this actually change lint behavior" question easier to answer).
+ESLint 9+ uses only the flat config (`eslint.config.mjs`). A `.eslintrc.json` also sat in the repo containing a `no-console` rule that looked active and never was — **deleted 2026-07-30**. The original plan was to remove it alongside re-enabling blocking lint, so that "did this change lint behaviour?" stayed easy to answer. Doing it while `npm run lint` cannot run at all turned out to be _strictly_ easier to answer: with zero files being linted, deleting a config ESLint never read is provably zero-behaviour-change. The misleading file is also the direct reason 66 `console` calls accumulated across 32 files.
 
 ## `utils/http/axiosInstance.ts` ignores `NEXT_PUBLIC_NEWWAVE_API_URL`
 

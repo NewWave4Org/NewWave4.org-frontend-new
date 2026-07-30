@@ -18,6 +18,14 @@ inputs:
   base_path:
     required: false
     default: ''
+  site_url:
+    description: >
+      Public origin this deployment serves from, no trailing slash. Consumed by
+      utils/seo.ts for canonical URLs, hreflang alternates and sitemap.xml.
+      Optional: when empty the line is omitted entirely so utils/seo.ts's
+      fallback applies, which is correct for staging but wrong for production.
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -28,3 +36,11 @@ runs:
         echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS=${{ inputs.stripe_publishable_keys }}" >> .env
         echo "NEXT_PUBLIC_STRIPE_WEBHOOK_URL=${{ inputs.stripe_webhook_url }}" >> .env
         echo "NEXT_PUBLIC_NEWWAVE_API_URL=${{ inputs.newwave_api_url }}" >> .env
+
+        # Written only when provided. An empty NEXT_PUBLIC_SITE_URL= line would
+        # be harmless today ('' is falsy, so the fallback still wins) but it
+        # reads as "explicitly configured to nothing", which is worse to debug
+        # than simply being absent.
+        if [ -n "${{ inputs.site_url }}" ]; then
+          echo "NEXT_PUBLIC_SITE_URL=${{ inputs.site_url }}" >> .env
+        fi

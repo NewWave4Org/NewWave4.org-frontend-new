@@ -2,8 +2,8 @@ name: Lint Compatibility Watch
 
 # Monthly check for whether typescript-eslint has published a release
 # supporting TypeScript 7 yet. If so, opens an issue prompting the team to
-# flip the `lint` job in _quality-gates.yml back to blocking and delete the
-# dead .eslintrc.json. See docs/decisions/0003-lint-non-blocking-pending-ts7-support.md.
+# flip the `lint` job in _quality-gates.yml back to blocking.
+# (The dead .eslintrc.json it used to also mention was deleted in 2026-07-30.) See docs/decisions/0003-lint-non-blocking-pending-ts7-support.md.
 on:
   schedule:
     - cron: '0 6 1 * *'
@@ -65,7 +65,6 @@ jobs:
                 '- [ ] Bump `eslint-config-next` and `typescript-eslint` (transitive) to versions supporting TS7',
                 '- [ ] Confirm `npm run lint` runs clean against this repo',
                 '- [ ] Remove `continue-on-error: true` from the `lint` step in `.github/workflows/_quality-gates.yml`',
-                '- [ ] Delete the dead `.eslintrc.json`',
                 '- [ ] Update `docs/decisions/0003-lint-non-blocking-pending-ts7-support.md` status to Superseded',
               ].join('\n'),
             });
