@@ -49,7 +49,8 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
 
                       <div className={`history-formation__timeline-info text-center`}>
                         <h4 className="text-xl font-semibold text-font-primary mb-4">{event.translatable_text_title}</h4>
-                        <p className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv" dangerouslySetInnerHTML={{ __html: ourTimeLineText }} />
+                        {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
+                        <div className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv" dangerouslySetInnerHTML={{ __html: ourTimeLineText }} />
                       </div>
                     </div>
                   </div>

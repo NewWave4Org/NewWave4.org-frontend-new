@@ -27,7 +27,8 @@ const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) =>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">
             <div className="partners-text lg:max-w-[524px] lg:w-[525px] w-full max-w-full">
               <h4 className="text-h5 text-font-accent font-medium font-helv">{ourPartnersContent?.translatable_text_title}</h4>
-              <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: partnerDescriptionText }} />
+              {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
+              <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: partnerDescriptionText }} />
             </div>
             <div className="partners-form lg:max-w-[480px]">
               <p className="text-body text-grey-700 font-medium">{t('forms_label.title')}</p>

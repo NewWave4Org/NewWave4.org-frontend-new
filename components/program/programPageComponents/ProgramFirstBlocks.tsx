@@ -51,7 +51,8 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
 
         <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:pt-[70px] pt-[100px] pb-[30px] px-12 ">
           <div className="container">
-            <p className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: descriptionText }} />
+            {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
+            <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: descriptionText }} />
             <div className="mt-4 flex">
               <Button size="large" className="flex justify-self-center items-center custom-donate-btn" onClick={() => router.push('/donation')}>
                 Donate
