@@ -24,7 +24,11 @@ const JoinCommunity = ({ joinUs }: { joinUs: IJoinCommunity[] }) => {
                 <h4 className="mb-4 text-font-accent text-center text-h4 font-ebGaramond gap-4">
                   <span className="text-2xl">{item.translatable_text_title}</span>
                 </h4>
-                <p className="text-font-primary text-base text-justify" dangerouslySetInnerHTML={{ __html: joinDescriptionText }} />
+                {/* div, not p: convertDraftToHTML emits block-level <p> wrappers,
+                    and <p> inside <p> is invalid HTML. The browser auto-closes the
+                    outer one, leaving DOM React's tree doesn't match — a React 19
+                    hydration error (#418), which throws where React 18 only warned. */}
+                <div className="text-font-primary text-base text-justify" dangerouslySetInnerHTML={{ __html: joinDescriptionText }} />
               </div>
             );
           })}
