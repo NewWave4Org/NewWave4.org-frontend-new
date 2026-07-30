@@ -48,22 +48,49 @@ test.describe('article content management', () => {
     // Teardown goes through the API, not the UI: auth is httpOnly-cookie based
     // and page.request shares the browser context's cookie jar, so this is
     // authenticated without a token and unaffected by CORS. Much less flaky than
-    // driving a modal, and it still runs when the test failed early. Errors are
-    // swallowed so an already-deleted entity doesn't fail the run.
+    // driving a modal, and it still runs when the test failed early.
+    // Failures are reported, not silently swallowed. Throwing here would fail an
+    // otherwise-passing test, but staying quiet would let S3 objects and DRAFT
+    // rows accumulate invisibly on every nightly run -- exactly the outcome this
+    // teardown exists to prevent. A warning in the CI log is the middle ground.
+    const cleanup = async (
+      what: string,
+      run: Promise<{ ok(): boolean; status(): number }>,
+    ) => {
+      try {
+        const res = await run;
+        // 404 is fine: the test may already have deleted it.
+        if (!res.ok() && res.status() !== 404) {
+          console.warn(
+            `[cleanup] ${what} returned HTTP ${res.status()} — may have leaked`,
+          );
+        }
+      } catch (e) {
+        console.warn(
+          `[cleanup] ${what} threw: ${(e as Error).message} — may have leaked`,
+        );
+      }
+    };
+
     if (uploadedPhotoUrl) {
-      await page.request
-        .delete(`${API}/api/photos/delete-photo`, {
+      await cleanup(
+        `photo ${uploadedPhotoUrl}`,
+        page.request.delete(`${API}/api/photos/delete-photo`, {
           params: { url: uploadedPhotoUrl },
-        })
-        .catch(() => {});
+        }),
+      );
       uploadedPhotoUrl = null;
     }
     if (createdArticleId !== null) {
-      await page.request
-        .delete(`${API}/api/v1/article/private/${createdArticleId}`, {
-          params: { articleType: 'NEWS' },
-        })
-        .catch(() => {});
+      await cleanup(
+        `article ${createdArticleId}`,
+        page.request.delete(
+          `${API}/api/v1/article/private/${createdArticleId}`,
+          {
+            params: { articleType: 'NEWS' },
+          },
+        ),
+      );
       createdArticleId = null;
     }
   });
