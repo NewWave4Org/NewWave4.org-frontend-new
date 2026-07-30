@@ -10,13 +10,13 @@ This repo had zero test tooling before this work — no Jest/Vitest/Playwright, 
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `npm run test` | Runs the Vitest suite once (`--passWithNoTests`, so CI never fails just because a phase of work hasn't added tests yet). |
-| `npm run test:watch` | Vitest in watch mode. |
-| `npm run test:coverage` | Runs with v8 coverage, output to `coverage/` (uploaded as a CI artifact). |
-| `npm run test:e2e` | Runs the Playwright suite (`e2e/`) — builds and starts the app first unless `E2E_BASE_URL` is set. |
-| `npm run typecheck` | `tsc --noEmit` (non-blocking in CI for now — see [known-issues.md](./known-issues.md)). |
+| Command                 | What it does                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `npm run test`          | Runs the Vitest suite once (`--passWithNoTests`, so CI never fails just because a phase of work hasn't added tests yet). |
+| `npm run test:watch`    | Vitest in watch mode.                                                                                                    |
+| `npm run test:coverage` | Runs with v8 coverage, output to `coverage/` (uploaded as a CI artifact).                                                |
+| `npm run test:e2e`      | Runs the Playwright suite (`e2e/`) — builds and starts the app first unless `E2E_BASE_URL` is set.                       |
+| `npm run typecheck`     | `tsc --noEmit` (non-blocking in CI for now — see [known-issues.md](./known-issues.md)).                                  |
 
 ## What's covered, and why (priority order)
 
@@ -45,7 +45,7 @@ These are draft-js/dropzone-heavy forms with a lot of orchestration logic packed
 ## E2E specifics
 
 - `e2e/admin-login.spec.ts` and `e2e/article-crud.spec.ts` each have a test that runs without any credentials (form renders; invalid credentials don't authenticate; an unauthenticated visitor is redirected away from `/admin/articles`), plus a credential-gated test that only runs when `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` are set (as CI secrets, or locally in your shell). Without them, `test.skip(...)` skips cleanly rather than failing.
-- **These credential-gated tests were structurally verified (`npx playwright test --list`) but not run end-to-end** while writing them — no staging admin account or local backend was available in that session. Before relying on them, run them once against real staging credentials and adjust selectors if the actual admin UI markup (button text, table structure) doesn't match what the source code suggested at the time.
+- **These credential-gated tests were structurally verified (`npx playwright test --list`) but not run end-to-end** while writing them. When the secrets were finally configured (2026-07-30) they failed at the login step — not because of the credentials, but because `E2E_BASE_URL` pointed at `http://127.0.0.1:3000`, which the backend's CORS allow-list rejects (it permits `http://localhost:3000` only). See [known-issues.md](./known-issues.md). The origin is fixed; the article-CRUD **selectors** are still unverified, since no run has yet got past login.
 - `e2e/donation-flow.spec.ts` checks that the donation page renders its Stripe/PayPal option labels — it doesn't submit a real payment.
 - `npm run test:e2e` (and `e2e.yml` in CI) hit the **real staging API** regardless of which `.env` values are used for the build, because `utils/http/axiosInstance.ts` hardcodes its `baseURL` rather than reading `NEXT_PUBLIC_NEWWAVE_API_URL` (see [known-issues.md](./known-issues.md)). Keep this in mind before running E2E locally against data you care about.
 

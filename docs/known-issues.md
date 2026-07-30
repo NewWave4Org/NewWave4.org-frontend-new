@@ -86,9 +86,23 @@ The status page's Deployment section (see [ci-cd.md](./ci-cd.md)) reads `GET /ap
 
 Neither affects drift detection itself — a version mismatch is still a version mismatch. They only mean the _timestamp_ and the _which-pod_ detail are approximate.
 
-## E2E credential-gated tests not run end-to-end yet
+## E2E credential-gated tests could never pass from CI: 127.0.0.1 is not a CORS-allowed origin
 
-`e2e/admin-login.spec.ts`'s and `e2e/article-crud.spec.ts`'s credential-gated tests (the ones requiring `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) were written against the admin UI's source code and structurally verified with `npx playwright test --list`, but were not run against a live backend while writing them — no staging admin account was available in that session. Run them once with real credentials and adjust selectors (button text, table row structure for the archive/publish actions) if they don't match the actual rendered UI. See [testing.md](./testing.md).
+`e2e/admin-login.spec.ts`'s and `e2e/article-crud.spec.ts`'s credential-gated tests (the ones requiring `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) were written against the admin UI's source code and structurally verified with `npx playwright test --list`, but never run against a live backend — no staging admin account was available in that session.
+
+**On 2026-07-30 the secrets were finally configured, and both tests failed — for a reason unrelated to credentials.** `e2e.yml` and `status-page.yml` set `E2E_BASE_URL: http://127.0.0.1:3000`, but the backend's CORS allow-list (`SecurityConfig.corsConfigurationSource`) contains `http://localhost:3000` and **not** `http://127.0.0.1:3000`. Those are different HTTP origins. Verified directly against the staging API:
+
+| `Origin` header            | Preflight result                                     |
+| -------------------------- | ---------------------------------------------------- |
+| `http://127.0.0.1:3000`    | **403**, no CORS headers                             |
+| `http://localhost:3000`    | 200 + `access-control-allow-origin` / `-credentials` |
+| `https://new.newwave4.org` | 200 + headers                                        |
+
+So the browser blocked the login POST before it was sent. Login never completed, the page stayed on `/admin`, and **the failure was indistinguishable from wrong credentials** — the sibling "invalid credentials stay on /admin" assertion passes for exactly the same observable reason. These specs could not have passed from CI no matter what credentials were supplied.
+
+Fixed by pointing `E2E_BASE_URL` at `http://localhost:3000` in both workflows. The readiness probes were switched to the same origin too, so a `localhost` → `::1` resolution mismatch (while `docker -p` binds IPv4 only) fails loudly at the wait step instead of resurfacing as unexplained test failures. `docker-smoke`'s probes in `_quality-gates.yml` deliberately stay on `127.0.0.1` — they are server-side `curl`/`wget`, not browser origins, so CORS does not apply.
+
+**Still unverified:** whether the article-CRUD _selectors_ match the real admin UI. The run never got past login, so the `title` field and `Save` button locators remain untested guesses. See [testing.md](./testing.md).
 
 ## `immutable@3.8.3` (npm overrides) has known-vulnerable Dependabot alerts (#107, #108) with no available fix
 
