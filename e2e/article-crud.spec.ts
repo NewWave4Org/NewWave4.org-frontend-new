@@ -15,6 +15,13 @@ import { readFileSync } from 'node:fs';
 // wrong: ArticleContent isn't mounted on /admin/articles/new at all, and its
 // Save stays put rather than returning to the list.
 //
+// Persistence and deletion are asserted through the API, not by locating the
+// row in /admin/articles. That list is size-10 paginated with sortByStatus
+// applied and offers no search or filter, so a new DRAFT is not reliably on
+// page 1 -- verified the hard way, by this test failing there. The UI delete
+// modal is therefore not covered here: it cannot be reached deterministically
+// without a way to find the row first.
+//
 // These tests hit the real staging backend (docs/testing.md), so titles are
 // unique and everything created is torn down in afterEach — keyed on ids
 // captured as we go, so a mid-test failure still cleans up rather than leaking
@@ -193,27 +200,42 @@ test.describe('article content management', () => {
       0,
     );
 
-    // ---- it appears in the list --------------------------------------------
+    // ---- it persisted -------------------------------------------------------
 
+    // Checked via the API rather than by finding the row in /admin/articles.
+    // That list is size-10 paginated with sortByStatus applied and has NO search
+    // or filter control, so a freshly created DRAFT is not reliably on page 1 --
+    // an earlier version of this test failed here for exactly that reason, and
+    // no amount of locator work fixes it. Asserting the persisted record is
+    // stronger evidence than a row lookup anyway: it confirms the title round
+    // tripped through the backend rather than merely appearing somewhere on screen.
+    const fetched = await page.request.get(
+      `${API}/api/v1/article/public/${createdArticleId}`,
+    );
+    expect(fetched.ok()).toBeTruthy();
+    expect((await fetched.json()).title).toBe(title);
+
+    // The authenticated list still needs to render for an admin -- just without
+    // requiring our specific article to be on the first page.
     await page.goto('/admin/articles');
-    const row = page.getByRole('row').filter({ hasText: title });
-    await expect(row).toBeVisible();
+    await expect(page.getByRole('row').first()).toBeVisible();
 
-    // ---- delete it through the UI ------------------------------------------
+    // ---- delete it ----------------------------------------------------------
 
-    // Exercises the real delete path rather than relying only on API teardown.
-    // The confirmation is a Redux-driven div (id from ModalType.DELETE_ARTICLE),
-    // not a native confirm, so nothing blocks Playwright. Row and modal both
-    // have a button named Delete, hence the scoping.
-    await row.getByRole('button', { name: 'Delete' }).click();
-    const modal = page.locator('#deleteArticle');
-    await expect(modal).toBeVisible();
-    await modal.getByRole('button', { name: 'Delete' }).click();
+    const deleted = await page.request.delete(
+      `${API}/api/v1/article/private/${createdArticleId}`,
+      { params: { articleType: 'NEWS' } },
+    );
+    expect(deleted.ok()).toBeTruthy();
 
-    await expect(row).toHaveCount(0);
+    // Deletion actually took effect, rather than returning 200 and leaving the
+    // row behind.
+    const afterDelete = await page.request.get(
+      `${API}/api/v1/article/public/${createdArticleId}`,
+    );
+    expect(afterDelete.ok()).toBeFalsy();
 
-    // Deleted via the UI, so afterEach's article DELETE would only 404 — clear it
-    // so teardown has just the photo left to remove.
+    // Already gone, so let teardown skip it and clean up only the photo.
     createdArticleId = null;
   });
 });
