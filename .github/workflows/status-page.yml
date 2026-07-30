@@ -70,6 +70,7 @@ jobs:
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -90,7 +91,11 @@ jobs:
       - name: Wait for app to become ready
         run: |
           for i in $(seq 1 30); do
-            if wget -q -O - --timeout=5 --tries=1 http://127.0.0.1:3000/robots.txt; then
+            # Probe the same origin the tests use (localhost, not 127.0.0.1) so a
+            # name-resolution mismatch -- localhost resolving to ::1 while docker
+            # -p binds IPv4 only -- fails here with a clear message rather than
+            # resurfacing later as unexplained test failures.
+            if wget -q -O - --timeout=5 --tries=1 http://localhost:3000/robots.txt; then
               echo "App is ready."
               exit 0
             fi
@@ -107,7 +112,15 @@ jobs:
         continue-on-error: true
         run: npm run test:e2e
         env:
-          E2E_BASE_URL: http://127.0.0.1:3000
+          # localhost, NOT 127.0.0.1: they are different HTTP origins, and the
+          # backend's CORS allow-list (SecurityConfig.corsConfigurationSource)
+          # contains only http://localhost:3000. Verified against the real API --
+          # a preflight from http://127.0.0.1:3000 returns 403 with no CORS
+          # headers, so the browser blocks the login POST before it is sent.
+          # That silently broke every credential-gated spec: login never
+          # completed, the page stayed on /admin, and the failure was
+          # indistinguishable from bad credentials.
+          E2E_BASE_URL: http://localhost:3000
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
 

@@ -44,7 +44,7 @@ Because the sequence had become deterministic — any promotion PR opened after 
 
 One footgun worth knowing: **do not write the literal marker into a commit message or PR body**, even when describing this problem. Now that squash bodies come from the PR body, a PR explaining the trap can trigger it. This happened while writing the fix — a commit message quoting the token verbatim would have skipped itself.
 
-ESLint 9+ uses only the flat config (`eslint.config.mjs`); `.eslintrc.json` is never read, but still contains a `no-console` rule that looks active and isn't. Recommend deleting it in a follow-up cleanup PR once lint is back to blocking (bundling it with that change makes the "did this actually change lint behavior" question easier to answer).
+ESLint 9+ uses only the flat config (`eslint.config.mjs`). A `.eslintrc.json` also sat in the repo containing a `no-console` rule that looked active and never was — **deleted 2026-07-30**. The original plan was to remove it alongside re-enabling blocking lint, so that "did this change lint behaviour?" stayed easy to answer. Doing it while `npm run lint` cannot run at all turned out to be _strictly_ easier to answer: with zero files being linted, deleting a config ESLint never read is provably zero-behaviour-change. The misleading file is also the direct reason 66 `console` calls accumulated across 32 files.
 
 ## `utils/http/axiosInstance.ts` ignores `NEXT_PUBLIC_NEWWAVE_API_URL`
 
@@ -86,9 +86,32 @@ The status page's Deployment section (see [ci-cd.md](./ci-cd.md)) reads `GET /ap
 
 Neither affects drift detection itself — a version mismatch is still a version mismatch. They only mean the _timestamp_ and the _which-pod_ detail are approximate.
 
-## E2E credential-gated tests not run end-to-end yet
+## E2E credential-gated tests: fixed (127.0.0.1 was not a CORS-allowed origin)
 
-`e2e/admin-login.spec.ts`'s and `e2e/article-crud.spec.ts`'s credential-gated tests (the ones requiring `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) were written against the admin UI's source code and structurally verified with `npx playwright test --list`, but were not run against a live backend while writing them — no staging admin account was available in that session. Run them once with real credentials and adjust selectors (button text, table row structure for the archive/publish actions) if they don't match the actual rendered UI. See [testing.md](./testing.md).
+`e2e/admin-login.spec.ts`'s and `e2e/article-crud.spec.ts`'s credential-gated tests (the ones requiring `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) were written against the admin UI's source code and structurally verified with `npx playwright test --list`, but never run against a live backend — no staging admin account was available in that session.
+
+**On 2026-07-30 the secrets were finally configured, and both tests failed — for a reason unrelated to credentials.** `e2e.yml` and `status-page.yml` set `E2E_BASE_URL: http://127.0.0.1:3000`, but the backend's CORS allow-list (`SecurityConfig.corsConfigurationSource`) contains `http://localhost:3000` and **not** `http://127.0.0.1:3000`. Those are different HTTP origins. Verified directly against the staging API:
+
+| `Origin` header            | Preflight result                                     |
+| -------------------------- | ---------------------------------------------------- |
+| `http://127.0.0.1:3000`    | **403**, no CORS headers                             |
+| `http://localhost:3000`    | 200 + `access-control-allow-origin` / `-credentials` |
+| `https://new.newwave4.org` | 200 + headers                                        |
+
+So the browser blocked the login POST before it was sent. Login never completed, the page stayed on `/admin`, and **the failure was indistinguishable from wrong credentials** — the sibling "invalid credentials stay on /admin" assertion passes for exactly the same observable reason. These specs could not have passed from CI no matter what credentials were supplied.
+
+Fixed by pointing `E2E_BASE_URL` at `http://localhost:3000` in both workflows. The readiness probes were switched to the same origin too, so a `localhost` → `::1` resolution mismatch (while `docker -p` binds IPv4 only) fails loudly at the wait step instead of resurfacing as unexplained test failures. `docker-smoke`'s probes in `_quality-gates.yml` deliberately stay on `127.0.0.1` — they are server-side `curl`/`wget`, not browser origins, so CORS does not apply.
+
+**Both specs now pass against real staging** (2026-07-30, 14/14 E2E, 0 skipped). Getting the article round-trip green surfaced four things the original spec had wrong or unknown, each worth knowing before touching these tests:
+
+1. **Article creation is two pages, not one.** `/admin/articles/new` renders `ArticleForm.tsx` (title, project, author) and `POST`s the row — it already exists, as `DRAFT`, before any content is entered. Only then does it redirect to `/admin/articles/new/content?id=N`, which renders `ArticleContent.tsx` and `PUT`s. The old spec attributed `ArticleContent`'s Yup schema (lead photo, text blocks) to page one, which is why "fill a title and Save" looked sufficient.
+2. **`ArticleForm`'s Save does not return to the list.** Only Publish navigates there.
+3. **draft-js ignores `fill()`.** It rebuilds the DOM from `EditorState`, so a `fill()`-style mutation is discarded, `onChange` never fires, and you get a "Text block 1 is required" toast with no visible cause. A focusing click plus real keystrokes works. Worse, `ArticleContent` regenerates the editors' React `key` with `Date.now()` once the article GET resolves, remounting them and wiping anything typed beforehand — the spec waits on that fetch, and this was the likeliest source of flake.
+4. **A new DRAFT is not reliably visible in `/admin/articles`.** The list is size-10 paginated, applies `sortByStatus`, and has **no search or filter control**. The spec originally failed asserting its own article appeared there — not a locator problem, the row genuinely isn't on page one. Persistence and deletion are therefore asserted through the API, which is stronger evidence anyway. **The consequence is that the UI delete modal is not covered**, since it cannot be reached deterministically without a way to find the row. That gap is deliberate and preferable to an intermittently failing test.
+
+Point 4 is a product observation as much as a testing one: an admin who creates an article cannot reliably find it in the list afterwards, and has no search to fall back on.
+
+Teardown runs in `afterEach` against the API, keyed on ids captured as the test proceeds, so a mid-test failure still removes the DRAFT row and the uploaded S3 object. Cleanup failures are logged as `[cleanup] …` warnings rather than thrown — throwing would fail an otherwise-passing test, while silence would let objects accumulate invisibly.
 
 ## `immutable@3.8.3` (npm overrides) has known-vulnerable Dependabot alerts (#107, #108) with no available fix
 
