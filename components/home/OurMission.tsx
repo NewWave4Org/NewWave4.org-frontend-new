@@ -48,7 +48,8 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
                   <Image src={icon} alt={item.translatable_text_title ?? 'our-mission'} width={iconWidth} height={124} className="mb-4" />
                 </span>
                 <h4 className="mb-3 text-h5 font-ebGaramond">{item.translatable_text_title}</h4>
-                <p className="text-base" dangerouslySetInnerHTML={{ __html: ourMissionDescriptionText }} />
+                {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
+                <div className="text-base" dangerouslySetInnerHTML={{ __html: ourMissionDescriptionText }} />
               </div>
             );
           })}
