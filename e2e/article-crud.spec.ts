@@ -1,39 +1,268 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
-// The create round trip needs a real staging admin account (same as
-// admin-login.spec.ts) — provide E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD as CI
-// secrets to run it. Scoped to create-and-list-appears rather than a full
-// create->publish->archive round trip: the publish/archive controls live in
-// a table row action menu whose exact markup wasn't verified against a
-// running backend while writing this (no local backend/credentials
-// available) — extend this once that's confirmed against staging.
+// Article creation is TWO pages, not one, which the previous version of this
+// spec got wrong:
+//
+//   /admin/articles/new              -> ArticleForm.tsx    (title, project, author)
+//                                       POST article/private — the row EXISTS from here
+//                                       redirects to ?id=N
+//   /admin/articles/new/content?id=N -> ArticleContent.tsx (text blocks, photos)
+//                                       PUT article/private/{id}, does NOT navigate
+//
+// The old spec filled only a title on page one, then asserted a redirect to
+// /admin/articles citing ArticleContent as its authority. Both halves were
+// wrong: ArticleContent isn't mounted on /admin/articles/new at all, and its
+// Save stays put rather than returning to the list.
+//
+// Persistence and deletion are asserted through the API, not by locating the
+// row in /admin/articles. That list is size-10 paginated with sortByStatus
+// applied and offers no search or filter, so a new DRAFT is not reliably on
+// page 1 -- verified the hard way, by this test failing there. The UI delete
+// modal is therefore not covered here: it cannot be reached deterministically
+// without a way to find the row first.
+//
+// These tests hit the real staging backend (docs/testing.md), so titles are
+// unique and everything created is torn down in afterEach — keyed on ids
+// captured as we go, so a mid-test failure still cleans up rather than leaking
+// a DRAFT row or an uploaded S3 object.
+
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
+const API = 'https://api.stage.newwave4.org';
+
+// Populated during a test, consumed by afterEach.
+let createdArticleId: number | null = null;
+let uploadedPhotoUrl: string | null = null;
+
+async function login(page: Page) {
+  await page.goto('/admin');
+  await page.getByLabel(/email address/i).fill(ADMIN_EMAIL!);
+  await page.getByLabel(/^password/i).fill(ADMIN_PASSWORD!);
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/admin\/(users|articles)/);
+}
 
 test.describe('article content management', () => {
-  test('redirects an unauthenticated visitor away from the admin articles list', async ({ page }) => {
+  test.afterEach(async ({ page }) => {
+    // Teardown goes through the API, not the UI: auth is httpOnly-cookie based
+    // and page.request shares the browser context's cookie jar, so this is
+    // authenticated without a token and unaffected by CORS. Much less flaky than
+    // driving a modal, and it still runs when the test failed early.
+    // Failures are reported, not silently swallowed. Throwing here would fail an
+    // otherwise-passing test, but staying quiet would let S3 objects and DRAFT
+    // rows accumulate invisibly on every nightly run -- exactly the outcome this
+    // teardown exists to prevent. A warning in the CI log is the middle ground.
+    const cleanup = async (
+      what: string,
+      run: Promise<{ ok(): boolean; status(): number }>,
+    ) => {
+      try {
+        const res = await run;
+        // 404 is fine: the test may already have deleted it.
+        if (!res.ok() && res.status() !== 404) {
+          console.warn(
+            `[cleanup] ${what} returned HTTP ${res.status()} — may have leaked`,
+          );
+        }
+      } catch (e) {
+        console.warn(
+          `[cleanup] ${what} threw: ${(e as Error).message} — may have leaked`,
+        );
+      }
+    };
+
+    if (uploadedPhotoUrl) {
+      await cleanup(
+        `photo ${uploadedPhotoUrl}`,
+        page.request.delete(`${API}/api/photos/delete-photo`, {
+          params: { url: uploadedPhotoUrl },
+        }),
+      );
+      uploadedPhotoUrl = null;
+    }
+    if (createdArticleId !== null) {
+      await cleanup(
+        `article ${createdArticleId}`,
+        page.request.delete(
+          `${API}/api/v1/article/private/${createdArticleId}`,
+          {
+            params: { articleType: 'NEWS' },
+          },
+        ),
+      );
+      createdArticleId = null;
+    }
+  });
+
+  test('redirects an unauthenticated visitor away from the admin articles list', async ({
+    page,
+  }) => {
     await page.goto('/admin/articles');
 
     await expect(page).toHaveURL(/\/admin\/?$/);
   });
 
-  test('creates a news article and it appears in the articles list', async ({ page }) => {
-    test.skip(!ADMIN_EMAIL || !ADMIN_PASSWORD, 'E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD not provided');
+  test('creates a news article, adds content, and removes it again', async ({
+    page,
+  }) => {
+    test.skip(
+      !ADMIN_EMAIL || !ADMIN_PASSWORD,
+      'E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD not provided',
+    );
 
     const title = `E2E test article ${Date.now()}`;
 
-    await page.goto('/admin');
-    await page.getByLabel(/email address/i).fill(ADMIN_EMAIL!);
-    await page.getByLabel(/^password/i).fill(ADMIN_PASSWORD!);
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/admin\/(users|articles)/);
+    await login(page);
 
+    // ---- step 1: create the article row -------------------------------------
+
+    // The project dropdown is populated from published PROJECT articles. With
+    // none, its only option is a disabled "No published projects available" and
+    // the form is unsatisfiable — skip with a clear reason rather than failing on
+    // a validation toast that would look like a broken selector.
+    const projectsLoaded = page.waitForResponse(
+      r =>
+        r.url().includes('/article/public/search') &&
+        r.url().includes('articleType=PROJECT'),
+    );
     await page.goto('/admin/articles/new');
-    await page.getByLabel(/title/i).first().fill(title);
-    await page.getByRole('button', { name: 'Save' }).click();
+    const projects = await (await projectsLoaded).json().catch(() => null);
+    test.skip(
+      !projects?.content?.length,
+      'staging has no PUBLISHED PROJECT articles, so the required project select cannot be satisfied',
+    );
 
-    // ArticleContent.tsx navigates back to the articles list on successful save.
-    await expect(page).toHaveURL(/\/admin\/articles\/?$/);
-    await expect(page.getByText(title)).toBeVisible();
+    await page.getByLabel(/^Title/).fill(title);
+
+    // components/shared/Select.tsx is a div-based dropdown: no <select>, and its
+    // <label for> points at an id nothing owns, so neither selectOption() nor
+    // getByLabel() reach it. Click the trigger, then the option.
+    await page.getByText('Choose project', { exact: true }).click();
+    const firstProject = page.locator('div.shadow-custom > div').first();
+    await expect(firstProject).toBeVisible();
+    await firstProject.click();
+
+    // AuthorField has a dropdown and a manual input writing the same Formik
+    // field; the manual one is the robust half. Often already prefilled from the
+    // current user, so this is belt-and-braces.
+    await page.getByLabel('Enter manually').fill('E2E Author');
+
+    const created = page.waitForResponse(
+      r =>
+        r.request().method() === 'POST' && r.url().includes('/article/private'),
+    );
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    expect((await created).ok()).toBeTruthy();
+
+    // The row exists from here on, so capture the id before anything else can
+    // fail — afterEach needs it even if the content step below breaks.
+    await expect(page).toHaveURL(/\/admin\/articles\/new\/content\?id=\d+/);
+    createdArticleId = Number(new URL(page.url()).searchParams.get('id'));
+    expect(createdArticleId).toBeGreaterThan(0);
+
+    // ---- step 2: content ----------------------------------------------------
+
+    // ArticleContent regenerates the editors' `key` with Date.now() once the
+    // article GET resolves, remounting them and discarding anything typed
+    // beforehand. Waiting for that fetch is the difference between this test
+    // being reliable and being mysteriously flaky.
+    await page.waitForResponse(
+      r => new RegExp(`/article/public/${createdArticleId}$`).test(r.url()),
+      { timeout: 15_000 },
+    );
+
+    // draft-js owns its DOM and rebuilds from EditorState, so fill() is silently
+    // discarded — onChange never fires and the field stays empty. Real keystrokes
+    // after a focusing click are what it actually consumes.
+    const textBlock1 = page
+      .locator('div.w-full.mb-2')
+      .filter({ hasText: 'Text block 1' })
+      .locator('.public-DraftEditor-content');
+    await expect(textBlock1).toBeVisible();
+    await textBlock1.click();
+    await page.keyboard.type('E2E body text');
+    await expect(textBlock1).toContainText('E2E body text');
+
+    // react-dropzone's input is present but visually collapsed (opacity/width/
+    // height 0, not display:none), so setInputFiles works. It uploads on
+    // selection rather than on save, and accepts only .jpeg/.png/.webp/.jpg.
+    const uploaded = page.waitForResponse(
+      r =>
+        r.url().includes('/photos/upload-photo') &&
+        r.request().method() === 'POST',
+    );
+    // Three uploaders exist, in JSX order: Main Photo, Photo List, Photo Slider.
+    // Filtering a container by the "Main Photo" caption does NOT isolate one —
+    // an ancestor carries the same classes and contains all three inputs, so that
+    // approach hits a strict-mode violation. Asserting the count first pins the
+    // assumption: if a fourth uploader is ever added this fails loudly instead of
+    // silently uploading into the wrong block.
+    const fileInputs = page.locator('input[type="file"]');
+    await expect(fileInputs).toHaveCount(3);
+    await fileInputs.first().setInputFiles({
+      name: 'e2e-main.png',
+      mimeType: 'image/png',
+      buffer: readFileSync('public/error.png'),
+    });
+    const uploadResponse = await uploaded;
+    expect(uploadResponse.ok()).toBeTruthy();
+    // Endpoint returns the URL as a bare string body; record it for teardown.
+    uploadedPhotoUrl = (await uploadResponse.text())
+      .trim()
+      .replace(/^"|"$/g, '');
+    expect(uploadedPhotoUrl).toBeTruthy();
+
+    const saved = page.waitForResponse(
+      r =>
+        r.request().method() === 'PUT' &&
+        r.url().includes(`/article/private/${createdArticleId}`),
+    );
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    expect((await saved).ok()).toBeTruthy();
+
+    // Form.onSubmit validates first and toasts this instead of submitting, so its
+    // absence confirms every required field was genuinely satisfied.
+    await expect(page.getByText(/Please fix validation errors/i)).toHaveCount(
+      0,
+    );
+
+    // ---- it persisted -------------------------------------------------------
+
+    // Checked via the API rather than by finding the row in /admin/articles.
+    // That list is size-10 paginated with sortByStatus applied and has NO search
+    // or filter control, so a freshly created DRAFT is not reliably on page 1 --
+    // an earlier version of this test failed here for exactly that reason, and
+    // no amount of locator work fixes it. Asserting the persisted record is
+    // stronger evidence than a row lookup anyway: it confirms the title round
+    // tripped through the backend rather than merely appearing somewhere on screen.
+    const fetched = await page.request.get(
+      `${API}/api/v1/article/public/${createdArticleId}`,
+    );
+    expect(fetched.ok()).toBeTruthy();
+    expect((await fetched.json()).title).toBe(title);
+
+    // The authenticated list still needs to render for an admin -- just without
+    // requiring our specific article to be on the first page.
+    await page.goto('/admin/articles');
+    await expect(page.getByRole('row').first()).toBeVisible();
+
+    // ---- delete it ----------------------------------------------------------
+
+    const deleted = await page.request.delete(
+      `${API}/api/v1/article/private/${createdArticleId}`,
+      { params: { articleType: 'NEWS' } },
+    );
+    expect(deleted.ok()).toBeTruthy();
+
+    // Deletion actually took effect, rather than returning 200 and leaving the
+    // row behind.
+    const afterDelete = await page.request.get(
+      `${API}/api/v1/article/public/${createdArticleId}`,
+    );
+    expect(afterDelete.ok()).toBeFalsy();
+
+    // Already gone, so let teardown skip it and clean up only the photo.
+    createdArticleId = null;
   });
 });
