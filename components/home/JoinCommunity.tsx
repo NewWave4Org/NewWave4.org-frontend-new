@@ -20,7 +20,7 @@ const JoinCommunity = ({ joinUs }: { joinUs: IJoinCommunity[] }) => {
           {joinUs?.map((item, i) => {
             const joinDescriptionText = convertDraftToHTML(item?.translatable_text_editorState, locale);
             return (
-              <div className="flex w-full flex-col items-center lg:w-1/3 px-2 lg:px-0">
+              <div key={i} className="flex w-full flex-col items-center lg:w-1/3 px-2 lg:px-0">
                 <h4 className="mb-4 text-font-accent text-center text-h4 font-ebGaramond gap-4">
                   <span className="text-2xl">{item.translatable_text_title}</span>
                 </h4>
