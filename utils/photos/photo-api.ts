@@ -3,9 +3,15 @@ import { ArticleType } from '../ArticleType';
 import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
+import { API_BASE_URL } from '../http/api-base-url';
 import { IPhotoApi } from './type/photo-api.interface';
 import { PagesType } from '@/components/admin/Pages/enum/types';
 
+// The photo endpoints sit under `/api/`, not the `/api/v1/` the rest of the
+// REST surface uses, so each call overrides axiosInstance's baseURL. Both are
+// derived from NEXT_PUBLIC_NEWWAVE_API_URL; these three used to hardcode
+// staging, so production uploads would have written to the staging bucket
+// (issue #446).
 class PhotoApi implements IPhotoApi {
   async uploadPhoto(params: { entityReferenceId: number; articleType: ArticleType | GlobalSectionsType | PagesType; file: File }): Promise<string> {
     const formData = new FormData();
@@ -21,7 +27,7 @@ class PhotoApi implements IPhotoApi {
       },
       config: {
         headers: { 'Content-Type': 'multipart/form-data' },
-        baseURL: 'https://api.stage.newwave4.org/api/',
+        baseURL: API_BASE_URL,
       },
     });
   }
@@ -36,7 +42,7 @@ class PhotoApi implements IPhotoApi {
       body: formData,
       config: {
         headers: { 'Content-Type': 'multipart/form-data' },
-        baseURL: 'https://api.stage.newwave4.org/api/',
+        baseURL: API_BASE_URL,
       },
     });
   }
@@ -49,7 +55,7 @@ class PhotoApi implements IPhotoApi {
         url,
       },
       config: {
-        baseURL: 'https://api.stage.newwave4.org/api/',
+        baseURL: API_BASE_URL,
       },
     });
   }

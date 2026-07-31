@@ -29,7 +29,15 @@ import { readFileSync } from 'node:fs';
 
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
-const API = 'https://api.stage.newwave4.org';
+// Must be the backend the app under test was built against, or teardown deletes
+// rows from one API while the browser created them in another. Playwright runs
+// in Node, so this is a plain runtime read — unlike the app's own copy in
+// utils/http/api-base-url.ts, which Next inlines at build time. The staging
+// fallback keeps a bare `npm run test:e2e` working, which is what these specs
+// have always targeted (docs/testing.md).
+const API = (
+  process.env.NEXT_PUBLIC_NEWWAVE_API_URL ?? 'https://api.stage.newwave4.org'
+).replace(/\/+$/, '');
 
 // Populated during a test, consumed by afterEach.
 let createdArticleId: number | null = null;
