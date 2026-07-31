@@ -61,7 +61,7 @@ const DropDown = ({
       {isOpen && (
         <div className={`absolute z-10 mt-2 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn ${classNameMenu}`}>
           {items?.map(item => (
-            <div key={item.label} className={classNameItem}>
+            <div key={item.id} className={classNameItem}>
               {renderItem
                 ? renderItem(item, closeDropDown) 
                 : item.isLink && item.href

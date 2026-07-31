@@ -1,7 +1,8 @@
 import ArrowLeft4Icon from '@/components/icons/navigation/ArrowLeft4Icon';
 import ArrowRight4Icon from '@/components/icons/navigation/ArrowRight4Icon';
+import type { CustomArrowProps } from 'react-slick';
 
-export function SampleNextArrow(props) {
+export function SampleNextArrow(props: CustomArrowProps) {
   const { className, style, onClick } = props;
   return (
     <div
@@ -15,7 +16,7 @@ export function SampleNextArrow(props) {
   );
 }
 
-export function SamplePrevArrow(props) {
+export function SamplePrevArrow(props: CustomArrowProps) {
   const { className, style, onClick } = props;
   return (
     <div

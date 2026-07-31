@@ -16,7 +16,7 @@ This repo had zero test tooling before this work — no Jest/Vitest/Playwright, 
 | `npm run test:watch`    | Vitest in watch mode.                                                                                                    |
 | `npm run test:coverage` | Runs with v8 coverage, output to `coverage/` (uploaded as a CI artifact).                                                |
 | `npm run test:e2e`      | Runs the Playwright suite (`e2e/`) — builds and starts the app first unless `E2E_BASE_URL` is set.                       |
-| `npm run typecheck`     | `tsc --noEmit` (non-blocking in CI for now — see [known-issues.md](./known-issues.md)).                                  |
+| `npm run typecheck`     | `tsc --noEmit` — blocking in CI since the error backlog was cleared (issue #453).                                        |
 
 ## What's covered, and why (priority order)
 

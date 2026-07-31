@@ -135,6 +135,7 @@ function UserRow({
                   )}
                   items={[
                     {
+                      id: 1,
                       label: `${
                         isDisabled
                           ? `You can resend in ${Math.floor(
@@ -153,6 +154,7 @@ function UserRow({
                       },
                     },
                     {
+                      id: 2,
                       label: 'Edit',
                       onClick: () => handleEditUser(user),
                     },

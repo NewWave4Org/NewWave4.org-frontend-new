@@ -100,7 +100,12 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
     );
   };
 
-  function handleSortChange(e: React.ChangeEvent<HTMLSpanElement>) {
+  // onClick, not onChange: a <span> never fires a change event. The click
+  // lands on the outer span while data-value sits on the inner up/down
+  // spans, so this reads e.target (what was actually clicked) rather than
+  // currentTarget. A click on neither arrow has no data-value and returns.
+  function handleSortChange(e: React.MouseEvent<HTMLSpanElement>) {
+    if (!(e.target instanceof HTMLElement)) return;
     const { value } = e.target.dataset;
 
     if (value === undefined) return;
@@ -111,7 +116,8 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
     console.log('Fetching articles, sortByCreatedAtDescending:', chooseSortDateType);
   }
 
-  function handleSortByDate(e: React.ChangeEvent<HTMLSpanElement>) {
+  function handleSortByDate(e: React.MouseEvent<HTMLSpanElement>) {
+    if (!(e.target instanceof HTMLElement)) return;
     const { value } = e.target.dataset;
 
     if (value === undefined) return;

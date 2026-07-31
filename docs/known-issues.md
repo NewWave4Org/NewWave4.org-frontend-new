@@ -2,11 +2,15 @@
 
 Documented, not fixed, as part of the CI/CD/testing/release work — either out of scope for that effort, or a real behavior change that deserves its own reviewed PR rather than riding along here.
 
-## Pre-existing TypeScript errors (typecheck baseline)
+## Pre-existing TypeScript errors — fixed (2026-07-31)
 
-Running `tsc --noEmit` for real in CI (it was never run before — `next.config.ts` has `typescript.ignoreBuildErrors: true`, so `next build` never caught these) surfaced **37 pre-existing type errors** across ~20 files, as of 2026-07-19, unrelated to the CI/CD work itself (confirmed: identical error count with or without this branch's changes). Spread across admin forms (`ArticleContent.tsx`, `AboutUsForm.tsx`, `HomeForm.tsx`, `ProgramContent.tsx`, `ProjectContent.tsx`, `ProjectsTable.tsx`, `ProgramsTable.tsx`, `UserRow.tsx`, `AdminHeader.tsx`), `store/article-content/article-content_slice.ts` (missing `EVENTS` key in `Record<ArticleTypeEnum, IArticleByType>`), `utils/articles/type/mapper.ts`, a missing module (`components/news/icons/symbolic/FilterIcon`), and a few others.
+`tsc --noEmit` reported **36 errors across 21 files** and nothing caught them: `typecheck` was `continue-on-error: true`, and `next.config.ts` set `typescript.ignoreBuildErrors: true` so `next build` never validated types either.
 
-This is why `typecheck` runs **non-blocking** in `_quality-gates.yml` for now (`continue-on-error: true`) rather than as a hard gate — see [ADR 0003](./decisions/0003-lint-non-blocking-pending-ts7-support.md), which covers both `lint` and `typecheck`'s non-blocking status. **New PRs should not add to this count.** Flip the `typecheck` step back to blocking once it's paid down; re-run `npx tsc --noEmit 2>&1 | grep -c 'error TS'` to check the current count against this baseline.
+**Both are gone (issue #453).** The tree is at zero errors, `typecheck` is a blocking gate in `_quality-gates.yml`, and `ignoreBuildErrors` has been removed — verified by planting a deliberate type error and confirming `next build` exits 1 (it exited 0 before). The no-ratchet gap ADR 0003 flagged is closed by reaching zero: blocking `tsc --noEmit` *is* the ratchet, with no baseline file to maintain.
+
+Several of the 36 were real defects rather than type noise, and are worth knowing about since they had shipped: a dead import of a non-existent `FilterIcon` module (elided by SWC only because it was never referenced — the first use would have broken the build); PayPal orders created with `description: undefined`; `DropDown` keyed by a label that is a live countdown, remounting the item every second; and admin content pages blanking an article's title when it had no English translation. See the PR for the full list.
+
+What is *not* fixed: the same backend "article" concept is still described by four overlapping, mutually inconsistent interfaces (`GetArticleByIdResponseDTO`, `Article`, `IArticleBody`, `ArticleFull`). `ArticleFull` was realigned to what its mapper actually returns, but reconciling all four is a data-model refactor with no test coverage to protect it — deliberately left out of the type-error cleanup.
 
 ## `npm run lint` is broken under TypeScript 7
 

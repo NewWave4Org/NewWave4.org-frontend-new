@@ -11,6 +11,15 @@ import { EN_LOCALE, useRouter } from '@/i18n';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter as useRouterNext} from 'next/navigation';
 
+// The store holds articles as `any[]`, and every article DTO types
+// contentBlocks as `any[] | null`, so these callbacks have no contextual
+// type. Naming just the fields this slider reads beats three `any` params.
+interface ProgramContentBlock {
+  contentBlockType?: string;
+  files?: string[];
+  translatable_text_text?: string;
+}
+
 const ProgramsSlider = () => {
   const locale = useLocale();
   const t = useTranslations();
@@ -53,13 +62,13 @@ const ProgramsSlider = () => {
   const slidesData = useMemo(() => {
     return programs.map(program => ({
       id: program.id,
-      imgSrc: program?.contentBlocks?.find(b => b.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
+      imgSrc: program?.contentBlocks?.find((b: ProgramContentBlock) => b.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
       alt: locale === EN_LOCALE ? program.titleEng : program.title,
       link: `/program/${program.id}`,
       title: locale === EN_LOCALE ? program.titleEng : program.title,
       text: locale === EN_LOCALE
-        ? program?.contentBlocksEng?.find(b => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || ''
-        : program?.contentBlocks?.find(b => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || '',
+        ? program?.contentBlocksEng?.find((b: ProgramContentBlock) => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || ''
+        : program?.contentBlocks?.find((b: ProgramContentBlock) => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || '',
     }));
   }, [programs, locale]);
 

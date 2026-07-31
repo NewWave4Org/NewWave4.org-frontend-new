@@ -18,6 +18,9 @@ const initialState: IArticleContentSlice = {
     [ArticleTypeEnum.EVENT]: { items: [], totalPages: 0, status: 'idle' },
     [ArticleTypeEnum.PROGRAM]: { items: [], totalPages: 0, status: 'idle' },
     [ArticleTypeEnum.PROJECT]: { items: [], totalPages: 0, status: 'idle' },
+    // Only ever used as a URL slug (see DopBlockItem), never populated — but the
+    // Record type claims it, and indexing byType['EVENTS'] without it is a crash.
+    [ArticleTypeEnum.EVENTS]: { items: [], totalPages: 0, status: 'idle' },
   },
 };
 

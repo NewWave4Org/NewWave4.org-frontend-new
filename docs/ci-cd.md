@@ -42,7 +42,7 @@ PRs into `main` are only accepted from a branch literally named `development` (`
 All defined in `_quality-gates.yml` as parallel jobs:
 
 - **`casing-guard`** (blocking) — fails if `components/payment/PaypalComponent.tsx` is missing or mis-cased imports (`@/components/Payment/`, `PayPalComponent`) are found. This is a hard CI requirement independent of everything else in this doc — see `CLAUDE.md`.
-- **`typecheck`** (non-blocking for now) — `tsc --noEmit`. See [known-issues.md](./known-issues.md) and [ADR 0003](./decisions/0003-lint-non-blocking-pending-ts7-support.md).
+- **`typecheck`** (blocking) — `tsc --noEmit`. The pre-existing error backlog was cleared in issue #453; see [known-issues.md](./known-issues.md).
 - **`lint`** (non-blocking) — `eslint .`. Blocked upstream by a TypeScript 7 incompatibility.
 - **`unit-test`** (blocking) — `npm run test:coverage` (Vitest), coverage uploaded as a build artifact.
 - **`docker-smoke`** (blocking) — builds the Docker image (GHA-cached, not pushed) via the real Dockerfile — which also fully exercises `next build` — and smoke-tests it by curling the running container for a valid HTML response. There's deliberately no separate standalone `build` job; one was tried and removed after it crashed unreproducibly on GitHub's own infrastructure (never locally) — see `docs/known-issues.md`.

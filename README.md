@@ -29,7 +29,7 @@ Open [http://localhost:3000](http://localhost:3000). For the full stack, includi
 | `npm run build` | Production build |
 | `npm run start` | Run a production build |
 | `npm run lint` | ESLint (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
-| `npm run typecheck` | `tsc --noEmit` (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
+| `npm run typecheck` | `tsc --noEmit` — **blocking** in CI, and `next build` validates types too |
 | `npm run test` | Vitest unit/component suite |
 | `npm run test:watch` | Vitest in watch mode |
 | `npm run test:coverage` | Vitest with coverage |
@@ -58,7 +58,7 @@ Every PR runs a quality-gate pipeline (casing guard, typecheck, lint, unit tests
 - Branch from `development`, name branches `feature/<description>` or `fix/<description>`.
 - Open PRs into `development`; PRs into `main` are only accepted from a branch literally named `development`.
 - PRs are **squash-merged**. Give your PR a [Conventional Commits](https://www.conventionalcommits.org/) title (`feat: ...`, `fix: ...`, `chore: ...`, etc.) — it's enforced by CI, and it becomes the commit that drives the next version bump and changelog entry. See [`docs/release-process.md`](./docs/release-process.md#writing-good-commitpr-title-messages).
-- Run `npm run typecheck`, `npm run test`, and `npm run lint` before opening a PR (CI runs all three, though `typecheck`/`lint` are non-blocking for now).
+- Run `npm run typecheck`, `npm run test`, and `npm run lint` before opening a PR. CI runs all three; `typecheck` and `test` are blocking, `lint` is not (TS7 incompatibility).
 
 ## Learn more
 
