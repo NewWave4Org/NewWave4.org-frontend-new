@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 import { getUserInfo, logOutAuth } from '@/store/auth/action';
 
 export const refreshAccessToken = async () => {
-  console.log('refreshAccessToken');
   try {
     await axiosInstance.post(ApiEndpoint.REFRESHTOKEN, {}, { withCredentials: true, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 
@@ -62,7 +61,6 @@ export async function request<T>(options: RequestOptions) {
       } as any;
     }
 
-    // console.log('response', response);
     return response.data;
   } catch (error: unknown) {
     const err = error as AxiosError;

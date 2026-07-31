@@ -33,6 +33,35 @@ jobs:
           fi
           exit $bad
 
+  no-console-log:
+    name: no-console-log
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      # eslint.config.mjs carries a matching no-console rule, but `npm run lint`
+      # cannot run at all under TypeScript 7 (issue #454), so that rule enforces
+      # nothing today. This grep does, and it is why 66 console.log calls could
+      # accumulate across 32 files unnoticed (issue #457) -- among them a
+      # plaintext password and donor PII written to the browser console.
+      #
+      # console.error/console.warn are deliberately allowed: they are real
+      # diagnostics. Only log/info are debug leftovers.
+      #
+      # scripts/ and e2e/ are excluded -- Node CLI tools and test harnesses
+      # where writing to stdout is the entire point.
+      - name: Guard against console.log/console.info in shipped code
+        run: |
+          set -e
+          if grep -RInE "console\.(log|info)\s*\(" \
+               --include=\*.{ts,tsx,js,jsx} \
+               app components utils store stores i18n middleware.ts; then
+            echo "::error::Found console.log/console.info in shipped code. Use console.error or console.warn for real diagnostics, or remove the call."
+            exit 1
+          fi
+          echo "No console.log/console.info found in shipped code."
+
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest

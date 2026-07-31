@@ -56,7 +56,7 @@ export const useArticles = ({
 				setTotalPages(result?.totalPages);
       } catch (error) {
         setArticles([]);
-        console.log(error);
+        console.error(error);
       } finally {
         setLoading(false);
       }

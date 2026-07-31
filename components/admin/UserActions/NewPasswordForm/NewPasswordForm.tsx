@@ -23,7 +23,6 @@ const NewPasswordForm = ({ validationSchema }: IValidationSchema) => {
       }}
       validationSchema={validationSchema}
       onSubmit={(values: SetPasswordDto, { resetForm }) => {
-        console.log(values);
         resetForm();
       }}
     >

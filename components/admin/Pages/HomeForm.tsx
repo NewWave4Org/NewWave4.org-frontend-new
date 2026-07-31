@@ -144,7 +144,7 @@ function HomeForm() {
               editor = EditorState.createEmpty(decorator);
             }
           } catch (err: any) {
-            console.log('err', err);
+            console.error('err', err);
             editor = EditorState.createEmpty(decorator);
           }
 
@@ -162,12 +162,11 @@ function HomeForm() {
         });
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
           setHomePage(null);
           return;
         }
 
-        console.log('error', error);
+        console.error('error', error);
         setHomePage(null);
         toast.error('Failed to fetch Home page');
       }
@@ -184,7 +183,7 @@ function HomeForm() {
       try {
         await deleteFile(url);
       } catch (error: any) {
-        console.log('Failed to delete file', url, error);
+        console.error('Failed to delete file', url, error);
       }
     }
 
@@ -224,7 +223,7 @@ function HomeForm() {
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
-        console.log('error translate', error);
+        console.error('error translate', error);
         toast.error(`Something go wrong with translation! ${error}`);
       }
     }
@@ -336,7 +335,6 @@ function HomeForm() {
                               onClick={() => {
                                 const blockId = block.id;
                                 if (block.files) {
-                                  console.log('block.files', block.files);
                                   setDeletedFiles(prev => [...prev, ...block.files]);
                                 }
 

@@ -47,7 +47,7 @@ function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArt
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch project');
       }
     }
@@ -74,7 +74,7 @@ function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArt
 
         setDopPrograms(result?.content);
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch project');
       }
     }

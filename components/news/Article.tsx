@@ -68,7 +68,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
         setDopPrograms(result?.content);
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch project');
       }
     }

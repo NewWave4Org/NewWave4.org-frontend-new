@@ -52,12 +52,11 @@ function SocialLinksForm() {
         setSocialLinks(result);
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
           setSocialLinks(null);
           return;
         }
 
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch partners');
       }
     }
@@ -66,7 +65,6 @@ function SocialLinksForm() {
   }, [dispatch]);
 
   async function handleSubmit(values: ISocialLinksValues) {
-    console.log('Submitted:', values);
 
     try {
       let result;

@@ -77,11 +77,10 @@ const SubscribeForm = () => {
         const result = await dispatch(createSubscribe(values.email)).unwrap();
         props.onOpenModal();
 
-        console.log('result', result);
 
         resetForm();
       } catch (error: any) {
-        console.log('createSubscribe', error );
+        console.error('createSubscribe', error );
         setStatus(error?.original?.errors?.[0] ?? t('modals.modal_subscribe.error_message'));
 
         

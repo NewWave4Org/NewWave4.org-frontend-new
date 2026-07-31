@@ -78,12 +78,11 @@ function OurTeam() {
           setOurTeam(result);
         } catch (error: any) {
           if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-            console.log('Section does not exist yet → creating new one');
             setOurTeam(null);
             return;
           }
   
-          console.log('error', error);
+          console.error('error', error);
           toast.error('Failed to fetch partners');
         }
       }

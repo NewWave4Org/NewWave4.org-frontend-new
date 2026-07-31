@@ -22,7 +22,7 @@ function SubscribeResult({token}: {token: string | null}) {
         } catch (error: any) {
           setStatus('error');
           setErrorMessage(error?.original?.errors[0]);
-          console.log('fetchSubscribeResult', error);
+          console.error('fetchSubscribeResult', error);
         }
       }
     }
