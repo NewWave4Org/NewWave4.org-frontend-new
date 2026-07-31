@@ -63,15 +63,49 @@ export function collectEnvProblems(env: EnvLike = process.env): {
     }
   }
 
-  // A trailing slash here silently produces `//api/v1/...` at the one call site
-  // that appends a path (app/(payment)/donation/finish/page.tsx).
-  const apiUrl = env.NEXT_PUBLIC_NEWWAVE_API_URL;
-  if (apiUrl && apiUrl.trim().endsWith('/')) {
-    warnings.push({
-      name: 'NEXT_PUBLIC_NEWWAVE_API_URL',
-      reason:
-        'has a trailing slash; callers append "/api/v1/..." and will produce a doubled slash',
-    });
+  // The variable is the API *origin*; every caller appends its own path, since
+  // the REST surface is under /api/v1/ while photo upload/delete is under /api/
+  // (see utils/http/api-base-url.ts). Checked here as well as there so the
+  // failure lands at config time with this message, rather than as a throw from
+  // whichever module happened to be imported first.
+  const apiUrl = env.NEXT_PUBLIC_NEWWAVE_API_URL?.trim();
+  if (apiUrl) {
+    // Tolerated rather than fatal — api-base-url.ts strips it — but it is not
+    // the documented shape, and it is one edit away from becoming a path.
+    if (apiUrl.endsWith('/')) {
+      warnings.push({
+        name: 'NEXT_PUBLIC_NEWWAVE_API_URL',
+        reason:
+          'has a trailing slash; the documented shape is the bare origin, e.g. "https://api.stage.newwave4.org"',
+      });
+    }
+
+    const withoutTrailingSlash = apiUrl.replace(/\/+$/, '');
+    let parsed: URL | undefined;
+    try {
+      parsed = new URL(withoutTrailingSlash);
+    } catch {
+      parsed = undefined;
+    }
+
+    if (
+      !parsed ||
+      (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')
+    ) {
+      errors.push({
+        name: 'NEXT_PUBLIC_NEWWAVE_API_URL',
+        reason: `must be an absolute http(s) URL (got "${apiUrl}")`,
+      });
+    } else if (
+      parsed.pathname !== '/' ||
+      parsed.search !== '' ||
+      parsed.hash !== ''
+    ) {
+      errors.push({
+        name: 'NEXT_PUBLIC_NEWWAVE_API_URL',
+        reason: `must be the origin only — no path, query or fragment (got "${apiUrl}"); callers append "/api/v1/..." or "/api/..." themselves`,
+      });
+    }
   }
 
   // basePath must be absolute-with-no-trailing-slash or empty, per Next's rules.
