@@ -1,5 +1,7 @@
 ## [1.4.0-dev.8](https://github.com/NewWave4Org/NewWave4.org-frontend-new/compare/v1.4.0-dev.7...v1.4.0-dev.8) (2026-07-31)
 
+## [1.3.3](https://github.com/NewWave4Org/NewWave4.org-frontend-new/compare/v1.3.2...v1.3.3) (2026-07-30)
+
 ## [1.4.0-dev.7](https://github.com/NewWave4Org/NewWave4.org-frontend-new/compare/v1.4.0-dev.6...v1.4.0-dev.7) (2026-07-30)
 
 ## [1.3.2](https://github.com/NewWave4Org/NewWave4.org-frontend-new/compare/v1.3.1...v1.3.2) (2026-07-30)
