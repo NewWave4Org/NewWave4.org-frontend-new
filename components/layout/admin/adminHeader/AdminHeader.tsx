@@ -50,7 +50,7 @@ const AdminHeader = () => {
                 items={[
                   // { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
                   // { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
-                  { label: 'Log out', href: '#', isLink: false, onClick: handleLogOut },
+                  { id: 1, label: 'Log out', href: '#', isLink: false, onClick: handleLogOut },
                 ]}
               />
             </div>

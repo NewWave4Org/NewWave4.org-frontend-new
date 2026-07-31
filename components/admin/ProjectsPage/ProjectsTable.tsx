@@ -36,9 +36,9 @@ interface IProjectsTableProps {
   handleDeleteProject: (project: GetArticleByIdResponseDTO) => void;
   handleArchivedProject: (project: GetArticleByIdResponseDTO) => void;
   sortStatusVal: boolean;
-  handleStatusSort: (e: React.ChangeEvent<HTMLSpanElement>) => void;
+  handleStatusSort: (e: React.MouseEvent<HTMLSpanElement>) => void;
   chooseSortDateType: boolean;
-  handleSortByDate: (e: React.ChangeEvent<HTMLSpanElement>) => void;
+  handleSortByDate: (e: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
 function ProjectsTable({

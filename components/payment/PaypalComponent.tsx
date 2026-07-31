@@ -14,7 +14,11 @@ function PaypalComponent() {
           amount: {
             value: amount,
           },
-          description: paymentDetails.description
+          // `description` was never a field on IPaymentDetails and nothing ever
+          // set it, so every PayPal order was created with description:
+          // undefined. PaymentForm sets `purpose` (the human-readable label),
+          // which is what the Stripe path and donation/finish both send.
+          description: paymentDetails.purpose
         },
       ],
     });

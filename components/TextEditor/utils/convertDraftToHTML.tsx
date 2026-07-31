@@ -1,4 +1,5 @@
 import { convertFromRaw, EditorState, ContentState } from 'draft-js';
+import type { ContentBlock, EntityInstance } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
 // Absolute destinations we are willing to emit into an href.
@@ -78,7 +79,7 @@ export function convertDraftToHTML(rawState: any, locale?: string): string {
       },
     },
 
-    blockStyleFn: block => {
+    blockStyleFn: (block: ContentBlock) => {
       const type = block.getType();
       switch (type) {
         case 'centerAlign':
@@ -94,7 +95,7 @@ export function convertDraftToHTML(rawState: any, locale?: string): string {
       }
     },
 
-    entityStyleFn: entity => {
+    entityStyleFn: (entity: EntityInstance) => {
       if (entity.getType() === 'LINK') {
         const href = resolveSafeHref(entity.getData()?.url, locale);
 

@@ -44,7 +44,7 @@ npm run start           # run a production build
 ## Before you commit
 
 ```bash
-npm run typecheck       # tsc --noEmit — non-blocking in CI for now, but worth checking
+npm run typecheck       # tsc --noEmit — blocking in CI, and next build checks types too
 npm run lint             # currently non-blocking in CI (TS7/typescript-eslint incompatibility)
 npm run test              # Vitest unit/component suite
 npm run format:check     # Prettier

@@ -3,6 +3,7 @@ import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextEditor from '@/components/TextEditor/TextEditor';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import type { RawDraftContentState } from 'draft-js';
 import {
   getAllArticle,
   getArticleById,
@@ -112,7 +113,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                 .test('not-empty', 'Text block 1 is required', value => {
                   if (!value) return false;
                   try {
-                    return convertFromRaw(value).hasText();
+                    return convertFromRaw(value as RawDraftContentState).hasText();
                   } catch {
                     return false;
                   }
@@ -173,7 +174,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
 
         const formData = {
           ...data,
-          title: isEngDirection ? data.titleEng : data.title,
+          title: isEngDirection ? (data.titleEng ?? data.title) : data.title,
         };
 
         setArticle(formData);

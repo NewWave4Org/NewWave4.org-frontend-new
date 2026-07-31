@@ -43,11 +43,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
-      # Non-blocking for now: running this for real (previously never run in CI)
-      # surfaced ~37 pre-existing type errors already on development, unrelated
-      # to any single PR. See docs/known-issues.md. Flip to blocking once clean.
-      - name: Type check (non-blocking, see docs/known-issues.md)
-        continue-on-error: true
+      # Blocking since 2026-07-31: the 36-error backlog that forced
+      # continue-on-error is paid off (issue #453) and the tree is clean, so
+      # this is now the ratchet — any new type error fails the build.
+      - name: Type check
         run: npx tsc --noEmit
 
   lint:

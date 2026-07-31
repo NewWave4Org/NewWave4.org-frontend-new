@@ -8,7 +8,6 @@ import { ArticleTypeEnum } from '@/utils/ArticleType';
 import { useAppSelector } from '@/store/hook';
 import { EN_LOCALE } from '@/i18n';
 import DropDown from '../shared/DropDown';
-import FilterIcon from '../icons/symbolic/FilterIcon';
 import ArrowDown4Icon from '../icons/navigation/ArrowDown4Icon';
 
 interface Item {
