@@ -2,11 +2,17 @@
 
 ## Status
 
-Accepted
+Partially superseded (2026-07-31) — the `typecheck` half no longer applies.
+
+**`typecheck` is now blocking.** The ~37 (later 36) pre-existing errors this ADR was built around were all fixed in issue #453, so the premise below — "a blocking gate would fail on every PR regardless of content" — no longer holds for `typecheck`. `continue-on-error` is gone from that step, and `typescript.ignoreBuildErrors` is gone from `next.config.ts`, so `next build` validates types too (verified with a deliberate error: the build now exits 1).
+
+This also resolves the "Add a ratchet" alternative below, though not the way it was framed. At zero errors a blocking `tsc --noEmit` *is* the ratchet, so no baseline file or comparison script was needed — the "more moving parts" cost that alternative was rejected for never had to be paid.
+
+**The `lint` half stands unchanged.** `npm run lint` still cannot run under TypeScript 7; that is an upstream blocker, and `lint-compat-check.yml` still polls monthly for a fix.
 
 ## Date
 
-2026-07-19
+2026-07-19 (typecheck decision revised 2026-07-31)
 
 ## Context
 
@@ -30,6 +36,9 @@ Both `lint` and `typecheck` run as **non-blocking** steps in `_quality-gates.yml
 - Rejected for this pass (by explicit choice when this was raised) — revisit if the team decides the lint gap outweighs staying current on TypeScript.
 
 ### Fix all ~37 pre-existing type errors before enabling `typecheck` as blocking
+
+> **Chosen in the end, on 2026-07-31 (issue #453).** Deferred here rather than rejected; the reasoning below still describes why it was not done in the same pass as building the gates. Several of the errors turned out to be masking real defects (a dead import of a module that does not exist, PayPal orders sent with `description: undefined`, a dropdown remounting every second because it was keyed by a live countdown label, articles blanking their title when they had no English translation), which argues the deferral cost something.
+
 
 - Pros: most thorough; gets to a genuinely enforced gate immediately.
 - Cons: real bug-fixing work across ~20 files of business logic not otherwise touched by this effort — meaningfully expands scope beyond "build the CI/CD pipeline," and each fix deserves its own review rather than being bundled into infra work.

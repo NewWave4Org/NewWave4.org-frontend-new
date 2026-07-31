@@ -49,13 +49,65 @@ describe('collectEnvProblems', () => {
     expect(warnings.map(w => w.name)).toEqual(['NEXT_PUBLIC_SITE_URL']);
   });
 
-  it('warns about a trailing slash on the API URL', () => {
-    // One call site appends "/api/v1/..." directly, producing a doubled slash.
-    const { warnings } = collectEnvProblems({
-      ...VALID,
-      NEXT_PUBLIC_NEWWAVE_API_URL: 'https://api.stage.newwave4.org/',
+  describe('NEXT_PUBLIC_NEWWAVE_API_URL', () => {
+    it('warns about a trailing slash, but does not fail the build for it', () => {
+      // utils/http/api-base-url.ts strips it, so this is a nudge toward the
+      // documented shape rather than a real breakage.
+      const { errors, warnings } = collectEnvProblems({
+        ...VALID,
+        NEXT_PUBLIC_NEWWAVE_API_URL: 'https://api.stage.newwave4.org/',
+      });
+      expect(errors).toEqual([]);
+      expect(warnings.map(w => w.name)).toContain(
+        'NEXT_PUBLIC_NEWWAVE_API_URL',
+      );
     });
-    expect(warnings.map(w => w.name)).toContain('NEXT_PUBLIC_NEWWAVE_API_URL');
+
+    it('rejects a value carrying a path', () => {
+      // The real pre-fix value in .env/.env.ci was "https://ci.invalid/api/v1/".
+      // Callers append their own path, and not all of them append the same one.
+      for (const value of [
+        'https://api.stage.newwave4.org/api/v1',
+        'https://api.stage.newwave4.org/api/v1/',
+        'https://ci.invalid/api/',
+      ]) {
+        const { errors } = collectEnvProblems({
+          ...VALID,
+          NEXT_PUBLIC_NEWWAVE_API_URL: value,
+        });
+        expect(errors.map(e => e.name)).toContain(
+          'NEXT_PUBLIC_NEWWAVE_API_URL',
+        );
+      }
+    });
+
+    it('rejects a value that is not an absolute http(s) URL', () => {
+      for (const value of [
+        'api.stage.newwave4.org',
+        'ftp://api.stage.newwave4.org',
+      ]) {
+        const { errors } = collectEnvProblems({
+          ...VALID,
+          NEXT_PUBLIC_NEWWAVE_API_URL: value,
+        });
+        expect(errors.map(e => e.name)).toContain(
+          'NEXT_PUBLIC_NEWWAVE_API_URL',
+        );
+      }
+    });
+
+    it('accepts a bare origin, with or without a port', () => {
+      for (const value of [
+        'https://api.stage.newwave4.org',
+        'http://localhost:8080',
+      ]) {
+        const { errors } = collectEnvProblems({
+          ...VALID,
+          NEXT_PUBLIC_NEWWAVE_API_URL: value,
+        });
+        expect(errors).toEqual([]);
+      }
+    });
   });
 
   describe('NEXT_PUBLIC_BASE_PATH', () => {

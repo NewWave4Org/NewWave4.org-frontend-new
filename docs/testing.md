@@ -16,7 +16,7 @@ This repo had zero test tooling before this work — no Jest/Vitest/Playwright, 
 | `npm run test:watch`    | Vitest in watch mode.                                                                                                    |
 | `npm run test:coverage` | Runs with v8 coverage, output to `coverage/` (uploaded as a CI artifact).                                                |
 | `npm run test:e2e`      | Runs the Playwright suite (`e2e/`) — builds and starts the app first unless `E2E_BASE_URL` is set.                       |
-| `npm run typecheck`     | `tsc --noEmit` (non-blocking in CI for now — see [known-issues.md](./known-issues.md)).                                  |
+| `npm run typecheck`     | `tsc --noEmit` — blocking in CI since the error backlog was cleared (issue #453).                                        |
 
 ## What's covered, and why (priority order)
 
@@ -47,7 +47,7 @@ These are draft-js/dropzone-heavy forms with a lot of orchestration logic packed
 - `e2e/admin-login.spec.ts` and `e2e/article-crud.spec.ts` each have a test that runs without any credentials (form renders; invalid credentials don't authenticate; an unauthenticated visitor is redirected away from `/admin/articles`), plus a credential-gated test that only runs when `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` are set (as CI secrets, or locally in your shell). Without them, `test.skip(...)` skips cleanly rather than failing.
 - **The credential-gated tests now pass against real staging** (2026-07-30, 14/14, 0 skipped). They sat unverified for a long time for a non-obvious reason: `E2E_BASE_URL` pointed at `http://127.0.0.1:3000`, which the backend's CORS allow-list rejects (it permits `http://localhost:3000` only), so login was blocked at preflight and failed identically to bad credentials. The article round-trip now creates an article, types into the draft-js editor, uploads a lead photo, asserts persistence via the API, then deletes it — with `afterEach` teardown so nothing accumulates in staging. It **skips with an explicit reason** if staging has no published PROJECT articles, since the required project select is then unsatisfiable. See [known-issues.md](./known-issues.md) for the four traps involved, including why draft-js ignores `fill()`.
 - `e2e/donation-flow.spec.ts` checks that the donation page renders its Stripe/PayPal option labels — it doesn't submit a real payment.
-- `npm run test:e2e` (and `e2e.yml` in CI) hit the **real staging API** regardless of which `.env` values are used for the build, because `utils/http/axiosInstance.ts` hardcodes its `baseURL` rather than reading `NEXT_PUBLIC_NEWWAVE_API_URL` (see [known-issues.md](./known-issues.md)). Keep this in mind before running E2E locally against data you care about.
+- `npm run test:e2e` (and `e2e.yml` in CI) hit whatever backend `NEXT_PUBLIC_NEWWAVE_API_URL` names in the build under test — in practice the **real staging API**, since that is what the CI secret and a typical `.env.local` point at. `article-crud.spec.ts` reads the same variable for its teardown calls (falling back to staging when it is unset), so the browser and the teardown always agree. Keep this in mind before running E2E locally against data you care about: point both at a local Spring Boot instance if you'd rather not touch staging.
 
 ## Coverage philosophy
 

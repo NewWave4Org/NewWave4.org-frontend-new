@@ -169,7 +169,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         setProject({
           ...result,
-          title: isEngDirection ? result.titleEng : result.title,
+          title: isEngDirection ? (result.titleEng ?? result.title) : result.title,
           contentBlocks: mergedBlocks,
         });
       } catch (error) {
@@ -294,7 +294,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
     const content = newState.getCurrentContent();
     const raw = convertToRaw(content);
 
-    const index = values.contentBlocks.findIndex(block => block.id === id);
+    const index = values.contentBlocks.findIndex((block: { id?: string | number }) => block.id === id);
 
     if (index === -1) return;
 

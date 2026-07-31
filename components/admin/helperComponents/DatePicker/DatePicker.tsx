@@ -5,17 +5,22 @@ import { useContext, useMemo, useState } from 'react';
 import { DtPicker } from 'react-calendar-datetime-picker';
 import 'react-calendar-datetime-picker/style.css';
 
-export interface IPickerValue {
-  from?: {
-    year: number;
-    month: number;
-    day: number;
-  } | null;
-  to?: {
-    year: number;
-    month: number;
-    day: number;
-  } | null;
+interface IPickerDay {
+  year: number;
+  month: number;
+  day: number;
+}
+
+/**
+ * DtPicker carries two shapes through one value prop: pickerType="single" uses a
+ * bare {year, month, day} (what convertFromISO returns), pickerType="range" uses
+ * {from, to}. This only modelled the range half, so every single-type call site
+ * was a type error. Modelled as one all-optional shape rather than a union so
+ * the range consumers can still read .from/.to without narrowing first.
+ */
+export interface IPickerValue extends Partial<IPickerDay> {
+  from?: IPickerDay | null;
+  to?: IPickerDay | null;
 }
 
 interface IDatePicker {

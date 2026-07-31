@@ -97,7 +97,7 @@ function HomeForm() {
   const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
-    const index = values.contentBlocks.findIndex(block => block.id === id);
+    const index = values.contentBlocks.findIndex((block: { id?: string | number }) => block.id === id);
 
     if (index === -1) return;
 
@@ -306,7 +306,7 @@ function HomeForm() {
                               <ImageLoading
                                 classBlock="min-h-[300px]"
                                 isAttach={true}
-                                uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
+                                uploadedUrls={block.files?.filter((f: string) => !deletedFiles.includes(f)) || []}
                                 onFilesChange={(files, deleted) => {
                                   setFieldValue(`contentBlocks.${realIndex}.files`, files);
                                   setDeletedFiles(prev => [...prev, ...(deleted || [])]);
@@ -401,7 +401,7 @@ function HomeForm() {
                             <ImageLoading
                               classBlock="min-h-[300px]"
                               isAttach={true}
-                              uploadedUrls={block.files?.filter(f => !deletedFiles.includes(f)) || []}
+                              uploadedUrls={block.files?.filter((f: string) => !deletedFiles.includes(f)) || []}
                               onFilesChange={(files, deleted) => {
                                 setFieldValue(`contentBlocks.${realIndex}.files`, files);
                                 setDeletedFiles(prev => [...prev, ...(deleted || [])]);

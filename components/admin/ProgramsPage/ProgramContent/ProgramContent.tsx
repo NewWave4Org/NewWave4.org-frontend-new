@@ -262,7 +262,7 @@ function ProgramContent({ programId }: { programId: number }) {
 
         setProgram({ 
           ...result, 
-          title: isEngDirection ? result.titleEng : result.title,
+          title: isEngDirection ? (result.titleEng ?? result.title) : result.title,
           contentBlocks: mergedBlocks 
         });
       } catch (error) {

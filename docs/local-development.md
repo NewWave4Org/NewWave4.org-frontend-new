@@ -22,7 +22,7 @@ Fill in `.env.local` — see `.env.example` for what each value is for.
 | ------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_PAYPAL_CLIENT_ID`        | **yes**                      | Build fails if unset                                                                                                                                                           |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS` | **yes**                      | Build fails if unset                                                                                                                                                           |
-| `NEXT_PUBLIC_NEWWAVE_API_URL`         | **yes**                      | Build fails if unset. No trailing slash — one call site appends `/api/v1/...` and would produce a doubled slash                                                                |
+| `NEXT_PUBLIC_NEWWAVE_API_URL`         | **yes**                      | Build fails if unset. The API **origin only** — `https://api.stage.newwave4.org`, `http://localhost:8080`. No path, no trailing slash; callers append their own (see [ADR 0006](./decisions/0006-api-url-env-var-is-origin-only.md))                     |
 | `NEXT_PUBLIC_SITE_URL`                | no, but set it in production | Consumed by `utils/seo.ts`. Unset, it falls back to `https://new.newwave4.org`, silently pointing every canonical URL, `hreflang` alternate and `sitemap.xml` entry at staging |
 | `NEXT_PUBLIC_BASE_PATH`               | no                           | Sub-path to serve under; empty for root                                                                                                                                        |
 | `NEXT_PUBLIC_STRIPE_WEBHOOK_URL`      | no                           | **Read by no source file.** Threaded through `.env.example`, `generate-env` and five workflows, but nothing consumes it — currently ceremonial                                 |
@@ -31,7 +31,7 @@ Fill in `.env.local` — see `.env.example` for what each value is for.
 
 In CI these come from repo secrets via `.github/actions/generate-env`.
 
-Note: `utils/http/axiosInstance.ts` currently hardcodes its API base URL rather than reading `NEXT_PUBLIC_NEWWAVE_API_URL` — see [known-issues.md](./known-issues.md) — so API calls will hit the staging backend regardless of what you set here, unless that's changed.
+`NEXT_PUBLIC_NEWWAVE_API_URL` is what every API call resolves against: `utils/http/api-base-url.ts` derives `API_V1_BASE_URL` and `API_BASE_URL` from it, and `axiosInstance`/`axiosOpenInstance`/`photo-api.ts` all use those. So pointing the frontend at a local Spring Boot instance is just `NEXT_PUBLIC_NEWWAVE_API_URL=http://localhost:8080` in `.env.local` plus a rebuild — these are `NEXT_PUBLIC_*`, inlined at build time, so `next dev` needs a restart and a production build needs rebuilding.
 
 ## Running
 
@@ -44,7 +44,7 @@ npm run start           # run a production build
 ## Before you commit
 
 ```bash
-npm run typecheck       # tsc --noEmit — non-blocking in CI for now, but worth checking
+npm run typecheck       # tsc --noEmit — blocking in CI, and next build checks types too
 npm run lint             # currently non-blocking in CI (TS7/typescript-eslint incompatibility)
 npm run test              # Vitest unit/component suite
 npm run format:check     # Prettier

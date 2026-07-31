@@ -1,8 +1,8 @@
 name: E2E
 
 # Deliberately not on every PR/push — a full Next.js build + Playwright
-# browser run is slow, and hitting the real staging API (see
-# utils/http/axiosInstance.ts's hardcoded baseURL) isn't something every
+# browser run is slow, and hitting the real staging API (which is what
+# NEXT_PUBLIC_NEWWAVE_API_URL resolves to here) isn't something every
 # feature-branch push should do. Runs on the development->main promotion PR
 # and nightly against development, plus on-demand.
 on:
@@ -97,6 +97,11 @@ jobs:
           E2E_BASE_URL: http://localhost:3000
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          # article-crud.spec.ts tears down through the API directly. generate-env
+          # only writes a .env file for the image build, so the secret has to be
+          # passed to the test process too — otherwise teardown falls back to
+          # staging while the app under test talks to whatever this was built with.
+          NEXT_PUBLIC_NEWWAVE_API_URL: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
 
       - name: Dump app container logs
         if: always()

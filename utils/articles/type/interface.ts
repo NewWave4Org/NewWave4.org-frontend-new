@@ -1,3 +1,5 @@
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+
 export interface Article {
   id: number;
   articleType: string;
@@ -58,12 +60,18 @@ export interface ArticleResponseDTO extends Article {
   contentBlocks: ContentBlock[];
 }
 
-export interface ArticleFull extends Article {
-  mainPhoto: string,
-  photoList: string[],
-  photoSlider: string[],
-  quote: string,
-  mainText: string,
-  textblock2: string,
-  video: string,
-}
+// What mapGetArticleByIdResponseToFull actually returns: the response DTO
+// spread whole, plus the blocks it flattens out of contentBlocks. It used to
+// extend `Article`, which claimed a required `authorId` the DTO does not carry
+// (commented out there) and omitted `contentBlocks`, which the spread does
+// carry — so the producer and both consumers each disagreed with the type.
+// news/Article.tsx was already patching around it with an intersection.
+export type ArticleFull = GetArticleByIdResponseDTO & {
+  mainPhoto: string;
+  photoList: string[];
+  photoSlider: string[];
+  quote: string;
+  mainText: string;
+  textblock2: string;
+  video: string;
+};

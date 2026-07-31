@@ -24,8 +24,8 @@ const Contacts: React.FC = () => {
           <div className="flex flex-col gap-y-4 lg:mb-0 mb-4">
             <div className="inline-flex gap-x-2">
               <MessageIcon color="#006ABB" />
-              <Link href={'mailto:newwaveorg4@yahoo.com'} className="text-body text-status-link">
-                newwaveorg4@yahoo.com
+              <Link href={'mailto:info@newwave4.org'} className="text-body text-status-link">
+                info@newwave4.org
               </Link>
             </div>
             <div className="inline-flex gap-x-2">
