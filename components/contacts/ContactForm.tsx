@@ -139,7 +139,6 @@ const ContactForm = () => {
       try {
         const res = await handleSubmitContactForm(values);
 
-        console.log('res', res);
 
         setModalType('success');
         setModalTitle(t('modals.modal_contacts.succeed_title'));

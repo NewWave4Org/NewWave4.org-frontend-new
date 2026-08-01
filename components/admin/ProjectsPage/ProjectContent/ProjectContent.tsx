@@ -156,7 +156,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
               ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
               : EditorState.createEmpty(decorator);
           } catch (err: any) {
-            console.log('err', err);
+            console.error('err', err);
             editor = EditorState.createEmpty(decorator);
           }
 
@@ -173,7 +173,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
           contentBlocks: mergedBlocks,
         });
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         router.push(`/admin/projects`);
         toast.error('Failed to fetch project');
       } finally {
@@ -192,7 +192,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
         try {
           await deleteFile(url);
         } catch (error: any) {
-          console.log('Failed to delete file', url, error);
+          console.error('Failed to delete file', url, error);
         }
       }
 
@@ -246,7 +246,7 @@ function ProjectContent({ projectId }: { projectId: number }) {
               toast.success(`The translation was successfully created`);
             } catch (error) {
               setSubmitStatus('idle');
-              console.log('error translate', error);
+              console.error('error translate', error);
               toast.error(`Something go wrong with translation! ${error}`);
             } finally {
               setSubmitStatus('idle');

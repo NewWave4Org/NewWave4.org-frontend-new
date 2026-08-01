@@ -113,7 +113,6 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
     setChooseSortStatusType(value === 'true');
     setCurrentPage(0);
 
-    console.log('Fetching articles, sortByCreatedAtDescending:', chooseSortDateType);
   }
 
   function handleSortByDate(e: React.MouseEvent<HTMLSpanElement>) {

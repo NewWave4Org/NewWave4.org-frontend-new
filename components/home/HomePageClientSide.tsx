@@ -60,7 +60,7 @@ function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomeP
 
         setHomePage(buildHomePage(result, locale));
       } catch (error: any) {
-        console.log('error', error);
+        console.error('error', error);
         setHomePage(null);
         toast.error('Failed to fetch Home page');
       }
@@ -72,7 +72,7 @@ function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomeP
 
         setOurPartners(result);
       } catch (error: any) {
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch partners');
         setOurPartners(null);
       }

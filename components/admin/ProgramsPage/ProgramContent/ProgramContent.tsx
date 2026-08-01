@@ -266,7 +266,7 @@ function ProgramContent({ programId }: { programId: number }) {
           contentBlocks: mergedBlocks 
         });
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         router.push(`/admin/projects`);
         toast.error('Failed to fetch program');
       } finally {
@@ -282,10 +282,9 @@ function ProgramContent({ programId }: { programId: number }) {
   async function handleSubmit(values: UpdateArticleFormValues, { setSubmitting }: FormikHelpers<UpdateArticleFormValues>) {
     for (const url of deletedFiles) {
       try {
-        console.log('deleted url', url);
         await deleteFile(url);
       } catch (error: any) {
-        console.log('Failed to delete file', url, error);
+        console.error('Failed to delete file', url, error);
       }
     }
 
@@ -313,7 +312,6 @@ function ProgramContent({ programId }: { programId: number }) {
 
     const { translateDirection, ...rest } = values;
 
-    console.log('translateStatus', translateStatus);
 
     const preparedData = isEngDirection
       ? {
@@ -360,7 +358,7 @@ function ProgramContent({ programId }: { programId: number }) {
             toast.success(`The translation was successfully created`);
           } catch (error) {
             setSubmitStatus('idle');
-            console.log('error translate', error);
+            console.error('error translate', error);
             toast.error(`Something go wrong with translation! ${error}`);
           } finally {
             setSubmitStatus('idle');
@@ -541,7 +539,6 @@ function ProgramContent({ programId }: { programId: number }) {
                                         const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
 
                                         if (block.files) {
-                                          console.log('block.files', block.files);
                                           setDeletedFiles(prev => [...prev, ...block.files]);
                                         }
 

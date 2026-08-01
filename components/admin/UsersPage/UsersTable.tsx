@@ -65,7 +65,7 @@ function UsersTable({ users }: UsersProps) {
           });
       })
       .catch(err => {
-        console.log('errors', err.original.errors.toString());
+        console.error('errors', err.original.errors.toString());
         toast.error(
           err.original.errors.toString() || 'Failed to resend invitation',
         );

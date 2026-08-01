@@ -58,7 +58,6 @@ function ArchivePage() {
 
       try {
         const result = await dispatch(getAllArticle(params)).unwrap();
-        console.log('result', result);
         //setAllArchiveArticles(result?.content);
         setTotalPages(result.totalPages);
       } catch (err) {

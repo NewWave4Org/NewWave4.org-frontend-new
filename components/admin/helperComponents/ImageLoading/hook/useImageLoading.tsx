@@ -42,7 +42,7 @@ function useImageLoading({ articleId, contentType, isAttach = false }: IImageLoa
 
           urls.push(response);
         } catch (error) {
-          console.log('error', error);
+          console.error('error', error);
           toast.error('Failed to upload files');
         }
       }

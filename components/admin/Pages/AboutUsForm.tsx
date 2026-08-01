@@ -161,7 +161,7 @@ function AboutUsForm() {
         });
 
       } catch (error: any) {
-        console.log('error', error);
+        console.error('error', error);
         setAboutUsPage(null);
         toast.error('Failed to fetch About us page');
       }
@@ -179,7 +179,7 @@ function AboutUsForm() {
       try {
         await deleteFile(url);
       } catch (error: any) {
-        console.log('Failed to delete file', url, error);
+        console.error('Failed to delete file', url, error);
       }
     }
 
@@ -215,7 +215,7 @@ function AboutUsForm() {
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
-        console.log('error translate', error);
+        console.error('error translate', error);
         toast.error(`Something go wrong with translation! ${error}`);
       }
     }
