@@ -5,6 +5,7 @@
 - [Versioning](./versioning.md) — the semver scheme, prerelease/PR image tags, and why the Helm chart shares the app's version number.
 - [Testing](./testing.md) — the Vitest/React Testing Library/Playwright setup, what's covered, and what's deliberately not (yet).
 - [Local development](./local-development.md) — running the frontend locally; see [`setup.md`](../setup.md) for the full stack including the backend.
+- [Performance measurement](./performance-measurement.md) — how the CPU/memory limits were load-tested and how the numbers were read, written to be followed without prior Kubernetes background.
 - [Known issues](./known-issues.md) — pre-existing gaps and inconsistencies that are documented but intentionally not fixed as part of the CI/CD work.
 - [Architecture decision records](./decisions/) — the reasoning behind the non-obvious choices in this setup (tooling picks, why lint is still non-blocking, etc).
 

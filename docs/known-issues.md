@@ -77,6 +77,8 @@ Mitigated immediately with a direct `kubectl patch` against the live Deployment 
 
 ### The resource limits behind it — measured 2026-07-31 (issue #449)
 
+Full method, tooling and reasoning: [performance-measurement.md](./performance-measurement.md).
+
 The `150m` CPU / `156Mi` memory limit was left unexamined at the time. It has now been measured rather than guessed: the production image was run under each limit pair and load-tested at 10 concurrent requests against `/ua`, the full dynamic SSR homepage.
 
 | limits          | throughput   | p50   | p99    | peak memory        |
