@@ -12,7 +12,7 @@ export interface SliderCarousel {
   files: string[]
 }
 
-interface IEmblaCarouselProps extends Settings {
+interface ISlickCarouselProps extends Settings {
   slides: {files: string[]};
   speed?: number;
   infinite?: boolean;
@@ -31,7 +31,7 @@ interface IEmblaCarouselProps extends Settings {
   parentClass?: string
 }
 
-const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding = '0', customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: IEmblaCarouselProps) => {
+const SlickCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding = '0', customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: ISlickCarouselProps) => {
 
   const settings = {
     className: 'h-full',
@@ -71,4 +71,4 @@ const EmblaCarousel = ({ slides, speed = 400, infinite = true, slideHover = true
   );
 };
 
-export default EmblaCarousel;
+export default SlickCarousel;
