@@ -10,6 +10,18 @@ updates:
     target-branch: 'development'
     schedule:
       interval: 'weekly'
+    groups:
+      # react and react-dom must move together — they are a matched pair, and
+      # React throws on a version mismatch. Dependabot bumped react to 19.2.8
+      # while react-dom stayed on 19.2.0 (PR #492), which failed three React
+      # Testing Library suites at load time. Grouping them means one PR that
+      # updates both, instead of one that cannot pass.
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
   - package-ecosystem: 'docker'
     directory: '/'
     target-branch: 'development'

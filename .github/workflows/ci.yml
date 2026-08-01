@@ -27,7 +27,17 @@ jobs:
   docker-pr-publish:
     name: docker-pr-publish
     needs: quality-gates
-    if: github.event_name == 'pull_request' && github.base_ref == 'development'
+    # Skipped for Dependabot, which GitHub runs without repo secrets. This job
+    # exists to give a reviewer a pullable image; built from placeholder env it
+    # would point at https://ci.invalid and be actively misleading to anyone who
+    # ran it. docker-smoke already proves a dependency bump still builds and
+    # boots (it falls back to .env.ci deliberately — see _quality-gates.yml),
+    # and that is the check that matters here. Dependabot's token is also
+    # read-only for packages, so the push would fail even if the build did not.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.base_ref == 'development'
+      && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       packages: write

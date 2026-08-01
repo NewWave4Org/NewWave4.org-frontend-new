@@ -153,6 +153,13 @@ jobs:
     name: docker-smoke
     needs: casing-guard
     runs-on: ubuntu-latest
+    env:
+      # Dependabot and fork PRs run without access to repo secrets. generate-env
+      # then writes empty values, utils/env.ts fails the build on three missing
+      # required vars, and docker-smoke fails — a *required* status check, so
+      # every dependency update including security ones was permanently
+      # unmergeable. This flag lets the job fall back to committed placeholders.
+      HAS_SECRETS: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL != '' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -161,6 +168,7 @@ jobs:
         uses: ./.github/actions/set-org-lowercase
 
       - name: Generate .env file
+        if: env.HAS_SECRETS == 'true'
         uses: ./.github/actions/generate-env
         with:
           paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
@@ -168,6 +176,18 @@ jobs:
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
           site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      # `.env.ci` is committed, non-secret, and points at https://ci.invalid.
+      # Verified locally that a real image built from it starts and serves the
+      # homepage, so both smoke assertions still mean something: this checks the
+      # app compiles and boots, which is exactly what a dependency bump needs.
+      # It cannot mask a missing production secret, because this job only builds
+      # (`push: false`) — nothing published or deployed comes from here.
+      - name: Use committed CI placeholders (no secrets on Dependabot/fork PRs)
+        if: env.HAS_SECRETS != 'true'
+        run: |
+          echo "::notice::No repo secrets available (Dependabot or fork PR) — building with .env.ci placeholders."
+          cp .env.ci .env
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
