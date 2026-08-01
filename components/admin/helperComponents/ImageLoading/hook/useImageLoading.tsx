@@ -1,7 +1,11 @@
 import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
 import { PagesType } from '@/components/admin/Pages/enum/types';
 import { useAppDispatch } from '@/store/hook';
-import { deletePhoto, uploadPhoto, uploadPhotoWithOutAttach } from '@/store/photos/action';
+import {
+  deletePhoto,
+  uploadPhoto,
+  uploadPhotoWithOutAttach,
+} from '@/store/photos/action';
 import { ArticleType } from '@/utils/ArticleType';
 import { useCallback } from 'react';
 import { toast } from 'react-toastify';
@@ -12,7 +16,11 @@ interface IImageLoadingProps {
   isAttach?: boolean;
 }
 
-function useImageLoading({ articleId, contentType, isAttach = false }: IImageLoadingProps) {
+function useImageLoading({
+  articleId,
+  contentType,
+  isAttach = false,
+}: IImageLoadingProps) {
   const dispatch = useAppDispatch();
 
   const uploadFiles = useCallback(
@@ -24,10 +32,14 @@ function useImageLoading({ articleId, contentType, isAttach = false }: IImageLoa
           let response: string;
 
           if (isAttach) {
-            response = await dispatch(uploadPhotoWithOutAttach({ file })).unwrap();
+            response = await dispatch(
+              uploadPhotoWithOutAttach({ file }),
+            ).unwrap();
           } else {
             if (!articleId || !contentType) {
-              console.error('articleId и contentType are required, when isAttach = false');
+              console.error(
+                'articleId и contentType are required, when isAttach = false',
+              );
               continue;
             }
 

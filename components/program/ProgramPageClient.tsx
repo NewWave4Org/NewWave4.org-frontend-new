@@ -2,7 +2,10 @@
 
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import { useAppDispatch } from '@/store/hook';
-import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
+import {
+  GetArticleByIdResponseDTO,
+  IArticleBody,
+} from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { useParams } from 'next/navigation';
 
@@ -15,7 +18,11 @@ import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n';
 
-function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArticleByIdResponseDTO | null }) {
+function ProgramPageClient({
+  initialProgramData,
+}: {
+  initialProgramData?: GetArticleByIdResponseDTO | null;
+}) {
   const t = useTranslations();
   const locale = useLocale();
 
@@ -30,7 +37,9 @@ function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArt
   // so crawlers get real content instead of "Loading...".
   const usedInitialData = useRef(false);
 
-  const [program, setProgram] = useState<any | undefined>(initialProgramData ?? undefined);
+  const [program, setProgram] = useState<any | undefined>(
+    initialProgramData ?? undefined,
+  );
   const [dopPrograms, setDopPrograms] = useState<IArticleBody[] | null>(null);
   const [loading, setLoading] = useState(!initialProgramData);
 
@@ -38,9 +47,7 @@ function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArt
     async function fetchFullProgramById() {
       try {
         setLoading(true);
-        const result = await dispatch(
-          getArticleById(programId),
-        ).unwrap();
+        const result = await dispatch(getArticleById(programId)).unwrap();
 
         setProgram(result);
 
@@ -85,16 +92,25 @@ function ProgramPageClient({ initialProgramData }: { initialProgramData?: GetArt
   return (
     <>
       {loading ? (
-        <div className="text-center py-16 text-lg text-font-secondary">{t('loading')}</div>
+        <div className="text-center py-16 text-lg text-font-secondary">
+          {t('loading')}
+        </div>
       ) : programId && !Number.isNaN(programId) && programId > 0 ? (
         <div>
           <ProgramPreview program={program} />
-          {dopPrograms && dopPrograms.length > 0 && <ProgramBlocks dopPrograms={dopPrograms} />}
+          {dopPrograms && dopPrograms.length > 0 && (
+            <ProgramBlocks dopPrograms={dopPrograms} />
+          )}
         </div>
       ) : (
         <div className="container mx-auto px-4 pt-[150px]">
-          <div className="text-h4 mb-5 mt-5 text-red-600">Oops! Something went wrong — please try again.</div>
-          <Button className="!bg-background-darkBlue flex text-white !rounded-[5px] !h-[60px] font-normal text-xl px-4 hover:opacity-80 duration-300" onClick={() => router.back()}>
+          <div className="text-h4 mb-5 mt-5 text-red-600">
+            Oops! Something went wrong — please try again.
+          </div>
+          <Button
+            className="!bg-background-darkBlue flex text-white !rounded-[5px] !h-[60px] font-normal text-xl px-4 hover:opacity-80 duration-300"
+            onClick={() => router.back()}
+          >
             <span className="mr-3">
               <ArrowLeft4Icon color="white" />
             </span>

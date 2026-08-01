@@ -5,7 +5,8 @@ import { PayPalButtons } from '@paypal/react-paypal-js';
 import React from 'react';
 
 function PaypalComponent() {
-  const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } = usePaymentContext();
+  const { setIsPaymentApproved, setIsPaymentError, amount, paymentDetails } =
+    usePaymentContext();
 
   const createpaypalorderwebhook = (data: any, actions: any) => {
     return actions.order.create({
@@ -18,7 +19,7 @@ function PaypalComponent() {
           // set it, so every PayPal order was created with description:
           // undefined. PaymentForm sets `purpose` (the human-readable label),
           // which is what the Stripe path and donation/finish both send.
-          description: paymentDetails.purpose
+          description: paymentDetails.purpose,
         },
       ],
     });

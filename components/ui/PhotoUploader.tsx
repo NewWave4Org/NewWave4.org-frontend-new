@@ -28,8 +28,8 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   const values: string[] = Array.isArray(field.value)
     ? field.value
     : field.value
-    ? [field.value]
-    : [];
+      ? [field.value]
+      : [];
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;

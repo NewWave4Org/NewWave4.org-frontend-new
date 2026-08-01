@@ -32,7 +32,15 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
     <>
       <Form className="lg:grid lg:grid-cols-[1fr_auto] flex flex-col gap-x-6 items-start justify-start">
         <div className="w-[264px] order-0">
-          <Input id="email" label={t('forms_label.email')} maxLength={50} required validationText={touched.email && errors.email ? errors.email : ''} onChange={handleChange} value={values.email} />
+          <Input
+            id="email"
+            label={t('forms_label.email')}
+            maxLength={50}
+            required
+            validationText={touched.email && errors.email ? errors.email : ''}
+            onChange={handleChange}
+            value={values.email}
+          />
         </div>
         <div className="place-self-start mt-[28px] lg:order-none order-3">
           {!showComment && (
@@ -43,22 +51,38 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
         </div>
         <div className="col-span-2 mt-2">
           <div className="flex gap-x-6 lg:flex-row flex-col">
-            {showComment && <TextArea id="description" label={t('forms_label.message_text')} maxLength={200} value={values.description} onChange={handleChange} className="w-[347px] h-[100px]" />}
             {showComment && (
-              <Button className="mt-[72px]" type="submit" disabled={isSubmitting}>
+              <TextArea
+                id="description"
+                label={t('forms_label.message_text')}
+                maxLength={200}
+                value={values.description}
+                onChange={handleChange}
+                className="w-[347px] h-[100px]"
+              />
+            )}
+            {showComment && (
+              <Button
+                className="mt-[72px]"
+                type="submit"
+                disabled={isSubmitting}
+              >
                 {t('buttons.become_partner')}
               </Button>
             )}
           </div>
-          <Button variant="tertiary" size="small" type="button" onClick={() => setShowComment(!showComment)}>
-            {showComment ? `${t('forms_label.hide_comment')}` : `${t('forms_label.leave_comment')}`}
+          <Button
+            variant="tertiary"
+            size="small"
+            type="button"
+            onClick={() => setShowComment(!showComment)}
+          >
+            {showComment
+              ? `${t('forms_label.hide_comment')}`
+              : `${t('forms_label.leave_comment')}`}
           </Button>
         </div>
-        {status && (
-          <div className="mt-2 text-sm text-red-500">
-            {status}
-          </div>
-        )}
+        {status && <div className="mt-2 text-sm text-red-500">{status}</div>}
       </Form>
     </>
   );
@@ -76,7 +100,10 @@ const PartnerForm = () => {
 
   const [isOpenModal, setIsOpenModal] = useState(false);
 
-  const PartnerFormikWrapper = withFormik<PartnerFormProps, InnerPartnerFormValues>({
+  const PartnerFormikWrapper = withFormik<
+    PartnerFormProps,
+    InnerPartnerFormValues
+  >({
     mapPropsToValues: props => {
       return {
         email: props.initialEmail || '',
@@ -86,17 +113,22 @@ const PartnerForm = () => {
 
     validationSchema: validationSchema,
 
-    handleSubmit:  async (values, { setSubmitting, resetForm, setStatus, props }) => {
+    handleSubmit: async (
+      values,
+      { setSubmitting, resetForm, setStatus, props },
+    ) => {
       try {
         await dispatch(becomeParthner(values)).unwrap();
         props.onOpenModal();
 
         resetForm();
       } catch (error: any) {
-        setStatus(error?.original?.errors?.[0] ?? t('modals.modal_parthner.error_message'));
+        setStatus(
+          error?.original?.errors?.[0] ??
+            t('modals.modal_parthner.error_message'),
+        );
         console.error('becomeParthner', error);
-
-      }finally {
+      } finally {
         setSubmitting(false);
       }
     },

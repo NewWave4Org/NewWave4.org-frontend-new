@@ -21,14 +21,16 @@ const ApiEndpoint = {
   GET_ARTICLE_CONTENT_ALL: `article/public/search`,
   GET_ARTICLE_CONTENT_ALL_PUBLISHED: `article/public/get-all-published`,
   CREATE_ARTICLE_CONTENT: `article/private`,
-  PUBLISH_ARTICLE_CONTENT: (id: number) => `article/private/${id}/publish-article`,
+  PUBLISH_ARTICLE_CONTENT: (id: number) =>
+    `article/private/${id}/publish-article`,
   UPDATE_ARTICLE_CONTENT: (id: number) => `article/private/${id}`,
   ARCHIVE_ARTICLE: (id: number) => `article/private/${id}/archive`,
 
   // API GLOBAL BLOCKS
   CREATE_GLOBAL_SECTIONS: 'pages/private/global-section',
   GET_ALL_GLOBAL_SECTIONS: 'pages/public/global-section/get-all',
-  GET_GLOBAL_SECTION_BY_KEY: (key: string) => `pages/public/global-section/${key}`,
+  GET_GLOBAL_SECTION_BY_KEY: (key: string) =>
+    `pages/public/global-section/${key}`,
   UPDATE_GLOBAL_SECTION: (id: number) => `pages/private/global-section/${id}`,
 
   //API PAGES
@@ -50,9 +52,7 @@ const ApiEndpoint = {
   NEWSLETTER: 'mail/newsletter/send',
 
   //Fetches a paginated list of all donation payments, sorted by most recent.
-  GET_ALL_DONATION: 'payments/donations/search'
-  
-
+  GET_ALL_DONATION: 'payments/donations/search',
 } as const;
 
 type ApiEndpoint = (typeof ApiEndpoint)[keyof typeof ApiEndpoint];

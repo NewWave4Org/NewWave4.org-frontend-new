@@ -1,9 +1,11 @@
 # ADR-0005: Commit non-secret Helm values defaults; retire the manual chart-release workflow
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-07-19
 
 ## Context
@@ -21,11 +23,13 @@ Separately, `release-helm-chart.yml` (manual `workflow_dispatch`) `sed`-patched 
 ## Alternatives Considered
 
 ### Keep `release-helm-chart.yml` alongside the new automated pipeline, for manual chart-only releases
+
 - Pros: an escape hatch if the chart's templates need to change independently of an app release.
 - Cons: this is exactly the dual-source-of-truth setup that caused the original drift (`Chart.yaml` in git disagreeing with what's published). Two ways to bump the same version field will diverge again eventually.
 - Rejected — if chart-only changes are ever needed, they should ride along with the next app release (even a `chore:`-typed one) rather than have a separate manual path.
 
 ### Move the three secret `NEXT_PUBLIC_*` values into `values.yaml` too, eliminating the `VALUES_YAML` secret entirely
+
 - Pros: one fewer moving piece.
 - Cons: these are real secrets (a Stripe publishable key isn't sensitive, but the intent behind keeping this file secret-free as a pattern matters more than any one value's actual sensitivity) — and redesigning how they're threaded from CI secrets through to the Helm release is a bigger, separate change. Also note (see [known-issues.md](../known-issues.md)) that these values are already inlined into the client bundle at Docker build time, making their presence in a K8s Secret at all somewhat redundant — untangling that is out of scope here.
 - Deferred, not rejected.

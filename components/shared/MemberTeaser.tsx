@@ -4,7 +4,10 @@ import Link from 'next/link';
 import FacebookIcon from '../icons/social/FacebookIcon';
 import { ourTeamProps } from '../about/Team';
 import { useLocale } from 'next-intl';
-import { typeSocialMediaEnum, typeSocialMediaList } from '@/data/projects/typeSocialMediaList';
+import {
+  typeSocialMediaEnum,
+  typeSocialMediaList,
+} from '@/data/projects/typeSocialMediaList';
 import YoutubeIcon from '../icons/social/YoutubeIcon';
 import InstagramIcon from '../icons/social/InstagramIcon';
 import TelegramIcon from '../icons/social/TelegramIcon';
@@ -17,29 +20,51 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
   const name = member[`sectionTitle${lang}`];
   const location = member[`sectionLocation${lang}`];
   const position = member[`sectionPosition${lang}`];
-  const nameSocialMedia = typeSocialMediaList.find(item => item.value === member.typeSocialMedia)?.label;
-
+  const nameSocialMedia = typeSocialMediaList.find(
+    item => item.value === member.typeSocialMedia,
+  )?.label;
 
   return (
     <div className="member-teaser text-center rounded-lg font-helv shadow-[0_4px_12px_0_rgba(180,140,100,0.15)] flex flex-col">
       <div className="relative h-[260px] w-full">
-        <Image src={member.files[0]} alt={name} fill className="object-cover object-top rounded-tl-lg rounded-tr-lg" />
+        <Image
+          src={member.files[0]}
+          alt={name}
+          fill
+          className="object-cover object-top rounded-tl-lg rounded-tr-lg"
+        />
       </div>
       <div className="info bg-grey-50 p-3 pb-0 flex-1 relative rounded-b-lg flex justify-between flex-col">
-        <div className='flex-1'>
-          <div className="name mb-1 text-primary text-base font-medium">{name}</div>
-          <div className="location text-sm text-grey-500 font-normal">{location}</div>
-          <div className="position mt-2 text-primary-500 font-medium">{position}</div>
+        <div className="flex-1">
+          <div className="name mb-1 text-primary text-base font-medium">
+            {name}
+          </div>
+          <div className="location text-sm text-grey-500 font-normal">
+            {location}
+          </div>
+          <div className="position mt-2 text-primary-500 font-medium">
+            {position}
+          </div>
         </div>
-        {member.socialMediaUrl &&   (
+        {member.socialMediaUrl && (
           <div className="social text-left flex -ml-3">
             <div className="p-3 rounded-lg shadow-custom bg-grey-100 inline-block">
               <Link target="_blank" href={member.socialMediaUrl}>
-                {nameSocialMedia === typeSocialMediaEnum.Facebook && <FacebookIcon size="24" />}
-                {nameSocialMedia === typeSocialMediaEnum.Instagram && <InstagramIcon size="24" />}
-                {nameSocialMedia === typeSocialMediaEnum.YouTube && <YoutubeIcon size="24" />}
-                {nameSocialMedia === typeSocialMediaEnum.Telegram && <TelegramIcon size="24" />}
-                {nameSocialMedia === typeSocialMediaEnum.Linkedin && <LinkedinIcon size="24" />}
+                {nameSocialMedia === typeSocialMediaEnum.Facebook && (
+                  <FacebookIcon size="24" />
+                )}
+                {nameSocialMedia === typeSocialMediaEnum.Instagram && (
+                  <InstagramIcon size="24" />
+                )}
+                {nameSocialMedia === typeSocialMediaEnum.YouTube && (
+                  <YoutubeIcon size="24" />
+                )}
+                {nameSocialMedia === typeSocialMediaEnum.Telegram && (
+                  <TelegramIcon size="24" />
+                )}
+                {nameSocialMedia === typeSocialMediaEnum.Linkedin && (
+                  <LinkedinIcon size="24" />
+                )}
               </Link>
             </div>
           </div>

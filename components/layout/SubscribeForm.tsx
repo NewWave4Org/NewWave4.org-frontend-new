@@ -27,7 +27,7 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
     <>
       <Form>
         <div className="flex gap-x-4 items-start sm:flex-row flex-col">
-          <div className='sm:w-[264px] w-full'>
+          <div className="sm:w-[264px] w-full">
             <Input
               id="email"
               label={t('forms_label.enter_email')}
@@ -44,7 +44,11 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
             </Button>
           </div>
         </div>
-        {status && <div className='text-small2 mt-[4px] text-status-danger-500'>{status}</div>}
+        {status && (
+          <div className="text-small2 mt-[4px] text-status-danger-500">
+            {status}
+          </div>
+        )}
       </Form>
     </>
   );
@@ -72,19 +76,22 @@ const SubscribeForm = () => {
 
     validationSchema: validationSchema,
 
-    handleSubmit: async (values, { setSubmitting, resetForm, setStatus, props }) => {
+    handleSubmit: async (
+      values,
+      { setSubmitting, resetForm, setStatus, props },
+    ) => {
       try {
         const result = await dispatch(createSubscribe(values.email)).unwrap();
         props.onOpenModal();
 
-
         resetForm();
       } catch (error: any) {
-        console.error('createSubscribe', error );
-        setStatus(error?.original?.errors?.[0] ?? t('modals.modal_subscribe.error_message'));
-
-        
-      }finally {
+        console.error('createSubscribe', error);
+        setStatus(
+          error?.original?.errors?.[0] ??
+            t('modals.modal_subscribe.error_message'),
+        );
+      } finally {
         setSubmitting(false);
       }
     },

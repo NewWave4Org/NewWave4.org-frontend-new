@@ -5,8 +5,14 @@ import Loading from '@/components/admin/helperComponents/Loading/Loading';
 import AdminLayoutAuthorized from '../AdminLayoutAuthorized';
 import AdminLayoutGuest from '../AdminLayoutGuest';
 
-export const AdminLayoutClient = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAppSelector(state => state.authUser.isAuthenticated);
+export const AdminLayoutClient = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const isAuthenticated = useAppSelector(
+    state => state.authUser.isAuthenticated,
+  );
   const isUserChecked = useAppSelector(state => state.authUser.isUserChecked);
 
   if (!isUserChecked) {

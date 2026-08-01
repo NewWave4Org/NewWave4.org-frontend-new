@@ -25,29 +25,35 @@ describe('middleware', () => {
     vi.clearAllMocks();
   });
 
-  it.each(['/admin', '/admin/articles', '/donation', '/donation/checkout', '/subscribe', '/unsubscribe'])(
-    'bypasses next-intl for %s',
-    async (pathname) => {
-      const { middleware } = await import('./middleware');
-      const request = new NextRequest(new URL(pathname, 'http://localhost:3000'));
+  it.each([
+    '/admin',
+    '/admin/articles',
+    '/donation',
+    '/donation/checkout',
+    '/subscribe',
+    '/unsubscribe',
+  ])('bypasses next-intl for %s', async pathname => {
+    const { middleware } = await import('./middleware');
+    const request = new NextRequest(new URL(pathname, 'http://localhost:3000'));
 
-      const result = middleware(request);
+    const result = middleware(request);
 
-      expect(result).toBeUndefined();
-      expect(intlMiddleware).not.toHaveBeenCalled();
-    }
-  );
+    expect(result).toBeUndefined();
+    expect(intlMiddleware).not.toHaveBeenCalled();
+  });
 
   it.each(['/', '/news', '/ua/news', '/en/about'])(
     'delegates to next-intl middleware for %s',
-    async (pathname) => {
+    async pathname => {
       const { middleware } = await import('./middleware');
-      const request = new NextRequest(new URL(pathname, 'http://localhost:3000'));
+      const request = new NextRequest(
+        new URL(pathname, 'http://localhost:3000'),
+      );
 
       const result = middleware(request);
 
       expect(intlMiddleware).toHaveBeenCalledWith(request);
       expect(result).toBe('intl-response');
-    }
+    },
   );
 });

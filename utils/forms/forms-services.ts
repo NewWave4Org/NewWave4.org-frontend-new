@@ -1,5 +1,5 @@
-import IFormsServices from "./type/forms-services.interface";
-import { BecomeParthnerRequestDTO } from "./type/interfaces";
+import IFormsServices from './type/forms-services.interface';
+import { BecomeParthnerRequestDTO } from './type/interfaces';
 
 class FormsServices implements IFormsServices {
   private formServices: IFormsServices;
@@ -12,11 +12,11 @@ class FormsServices implements IFormsServices {
     return this.formServices.becomeParthner(data);
   }
 
-  async createSubscribe(email:  string) {
+  async createSubscribe(email: string) {
     return this.formServices.createSubscribe(email);
   }
 
-  async confirmSubscribe(token:  string) {
+  async confirmSubscribe(token: string) {
     return this.formServices.confirmSubscribe(token);
   }
 
@@ -24,6 +24,5 @@ class FormsServices implements IFormsServices {
     return this.formServices.confirmUnsubscribe(id);
   }
 }
-
 
 export default FormsServices;

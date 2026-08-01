@@ -7,7 +7,10 @@ import Pagination from '@/components/ui/Pagination/Pagination';
 import { getAllArticle } from '@/store/article-content/action';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { openModal } from '@/store/modal/ModalSlice';
-import { GetArticleByIdResponseDTO, IGetAllArticleRequestDTO } from '@/utils/article-content/type/interfaces';
+import {
+  GetArticleByIdResponseDTO,
+  IGetAllArticleRequestDTO,
+} from '@/utils/article-content/type/interfaces';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -34,16 +37,18 @@ function ArchivePage() {
   const [totalPages, setTotalPages] = useState(0);
 
   const allArchiveArticles = useAppSelector(state => {
-  if (chooseSortType === 'all') {
-    const allItems = Object.values(state.articleContent.byType).flatMap(t => t.items);
-    const uniqueItemsMap: Record<number, typeof allItems[0]> = {};
-    allItems.forEach(item => {
-      uniqueItemsMap[item.id] = item;
-    });
-    return Object.values(uniqueItemsMap);
-  }
-  return state.articleContent.byType[chooseSortType as ArticleTypeEnum].items;
-});
+    if (chooseSortType === 'all') {
+      const allItems = Object.values(state.articleContent.byType).flatMap(
+        t => t.items,
+      );
+      const uniqueItemsMap: Record<number, (typeof allItems)[0]> = {};
+      allItems.forEach(item => {
+        uniqueItemsMap[item.id] = item;
+      });
+      return Object.values(uniqueItemsMap);
+    }
+    return state.articleContent.byType[chooseSortType as ArticleTypeEnum].items;
+  });
 
   useEffect(() => {
     async function fetchArticles() {
@@ -108,13 +113,30 @@ function ArchivePage() {
     );
   };
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+      />
+    ),
+    [],
+  );
 
   return (
     <>
       <div className="mb-5 flex items-center">
         <span className="font-semibold mr-2">Show:</span>
-        <Select options={sortTypes} name="sortTypes" defaultValue={sortTypes[0].value} useFormik={false} onChange={handleSortChange} dropDownClass="absolute" parentClassname="!h-10 py-3" />
+        <Select
+          options={sortTypes}
+          name="sortTypes"
+          defaultValue={sortTypes[0].value}
+          useFormik={false}
+          onChange={handleSortChange}
+          dropDownClass="absolute"
+          parentClassname="!h-10 py-3"
+        />
       </div>
 
       <ArchivedPageTable

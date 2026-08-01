@@ -13,25 +13,40 @@ interface PartnersProps {
   className?: string;
 }
 
-const Partners: React.FC<PartnersProps> = ({ ourPartnersContent, className }) => {
+const Partners: React.FC<PartnersProps> = ({
+  ourPartnersContent,
+  className,
+}) => {
   const t = useTranslations();
   const locale = useLocale();
 
-  const partnerDescriptionText = convertDraftToHTML(ourPartnersContent?.translatable_text_editorState, locale);
+  const partnerDescriptionText = convertDraftToHTML(
+    ourPartnersContent?.translatable_text_editorState,
+    locale,
+  );
 
   return (
     <section className={`${className} sponsors py-14`}>
       <div className="container mx-auto px-4">
         <div className="sponsors__inner">
-          <h4 className="lg:mb-0 mb-4 !text-font-primary font-ebGaramond font-bold text-[34px] uppercase">{t('sections_title.become_partner')}</h4>
+          <h4 className="lg:mb-0 mb-4 !text-font-primary font-ebGaramond font-bold text-[34px] uppercase">
+            {t('sections_title.become_partner')}
+          </h4>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">
             <div className="partners-text lg:max-w-[524px] lg:w-[525px] w-full max-w-full">
-              <h4 className="text-h5 text-font-accent font-medium font-helv">{ourPartnersContent?.translatable_text_title}</h4>
+              <h4 className="text-h5 text-font-accent font-medium font-helv">
+                {ourPartnersContent?.translatable_text_title}
+              </h4>
               {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
-              <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: partnerDescriptionText }} />
+              <div
+                className="text-body text-font-primary"
+                dangerouslySetInnerHTML={{ __html: partnerDescriptionText }}
+              />
             </div>
             <div className="partners-form lg:max-w-[480px]">
-              <p className="text-body text-grey-700 font-medium">{t('forms_label.title')}</p>
+              <p className="text-body text-grey-700 font-medium">
+                {t('forms_label.title')}
+              </p>
               <PartnerForm />
             </div>
           </div>

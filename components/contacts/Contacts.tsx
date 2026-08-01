@@ -18,23 +18,31 @@ const Contacts: React.FC = () => {
               {t('form_contact_us.title')}
             </h3>
             <p className="text-body text-font-primary">
-               {t('form_contact_us.subtitle')}
+              {t('form_contact_us.subtitle')}
             </p>
           </div>
           <div className="flex flex-col gap-y-4 lg:mb-0 mb-4">
             <div className="inline-flex gap-x-2">
               <MessageIcon color="#006ABB" />
-              <Link href={'mailto:info@newwave4.org'} className="text-body text-status-link">
+              <Link
+                href={'mailto:info@newwave4.org'}
+                className="text-body text-status-link"
+              >
                 info@newwave4.org
               </Link>
             </div>
             <div className="inline-flex gap-x-2">
               <LocationIcon color="#5A5A5A" />
-              <p className="text-body text-grey-700"> {t('form_contact_us.location')}</p>
+              <p className="text-body text-grey-700">
+                {' '}
+                {t('form_contact_us.location')}
+              </p>
             </div>
           </div>
           <div className="flex flex-col gap-y-2 lg:mb-0 mb-4">
-            <p className="text-small text-grey-700">{t('form_contact_us.our_social_media')}</p>
+            <p className="text-small text-grey-700">
+              {t('form_contact_us.our_social_media')}
+            </p>
             <div className="flex gap-x-2">
               <SocialButtons />
             </div>

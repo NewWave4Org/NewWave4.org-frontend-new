@@ -1,18 +1,26 @@
-"use client";
+'use client';
 
-import DonationPaymentsTable from "@/components/admin/DonationPaymentsPage/DonationPaymentsTable";
-import DatePicker, { IPickerValue } from "@/components/admin/helperComponents/DatePicker/DatePicker";
-import { convertToISO } from "@/components/admin/helperComponents/DatePicker/utils/convertToISO";
-import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import ModalType from "@/components/ui/Modal/enums/modals-type";
-import { getAllDonations } from "@/store/donations/action";
-import { useAppDispatch } from "@/store/hook";
-import { openModal } from "@/store/modal/ModalSlice";
-import { DonationProvider, DonationProviderType, DonationStatus, DonationStatusType, IDonationRequestDTO } from "@/utils/donation/type/interface";
-import React, { useCallback, useEffect, useState } from "react";
-import SelectLocal from "../../../../components/shared/SelectLocale";
-import Pagination from "@/components/ui/Pagination/Pagination";
+import DonationPaymentsTable from '@/components/admin/DonationPaymentsPage/DonationPaymentsTable';
+import DatePicker, {
+  IPickerValue,
+} from '@/components/admin/helperComponents/DatePicker/DatePicker';
+import { convertToISO } from '@/components/admin/helperComponents/DatePicker/utils/convertToISO';
+import Button from '@/components/shared/Button';
+import Input from '@/components/shared/Input';
+import ModalType from '@/components/ui/Modal/enums/modals-type';
+import { getAllDonations } from '@/store/donations/action';
+import { useAppDispatch } from '@/store/hook';
+import { openModal } from '@/store/modal/ModalSlice';
+import {
+  DonationProvider,
+  DonationProviderType,
+  DonationStatus,
+  DonationStatusType,
+  IDonationRequestDTO,
+} from '@/utils/donation/type/interface';
+import React, { useCallback, useEffect, useState } from 'react';
+import SelectLocal from '../../../../components/shared/SelectLocale';
+import Pagination from '@/components/ui/Pagination/Pagination';
 
 interface RenderPaginationProps {
   currentPage: number;
@@ -42,14 +50,21 @@ function DonationPayments() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [chooseStatusType, setChooseStatusType] = useState<string | number>(statusTypes[0].value);
-  const [chooseProviderType, setChooseProviderType] = useState<string | number>(providerTypes[0].value);
+  const [chooseStatusType, setChooseStatusType] = useState<string | number>(
+    statusTypes[0].value,
+  );
+  const [chooseProviderType, setChooseProviderType] = useState<string | number>(
+    providerTypes[0].value,
+  );
   const [dateFilter, setDateFilter] = useState<IPickerValue | null>({});
   const [emailSearch, setEmailSearch] = useState('');
   const [transactionIdSearch, setTransactionIdSearch] = useState('');
   const [resetDatePicker, setResetDatePicker] = useState(false);
 
-  async function fetchDonations(page = currentPage, overrideParams?: Partial<IDonationRequestDTO>) {
+  async function fetchDonations(
+    page = currentPage,
+    overrideParams?: Partial<IDonationRequestDTO>,
+  ) {
     try {
       let params = buildParams(page);
 
@@ -67,7 +82,6 @@ function DonationPayments() {
     }
   }
 
-
   useEffect(() => {
     fetchDonations(currentPage);
   }, [currentPage]);
@@ -76,14 +90,24 @@ function DonationPayments() {
     setCurrentPage(page);
   }, []);
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => 
-  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+      />
+    ),
+    [],
+  );
 
   function handleShowDetails(donatInfo: any) {
-    dispatch(openModal({
-      modalType: ModalType.DONATION_DEATILS,
-      payload: donatInfo
-    }));
+    dispatch(
+      openModal({
+        modalType: ModalType.DONATION_DEATILS,
+        payload: donatInfo,
+      }),
+    );
   }
 
   function handleEmailSearch(e: React.ChangeEvent<HTMLInputElement>) {
@@ -128,9 +152,7 @@ function DonationPayments() {
     }
 
     return params;
-  };
-
-
+  }
 
   function handleCleanAllFields() {
     setChooseStatusType(statusTypes[0].value);
@@ -147,7 +169,7 @@ function DonationPayments() {
       dateFrom: undefined,
       dateTo: undefined,
       userEmail: null,
-      transactionId: null
+      transactionId: null,
     });
   }
 
@@ -157,15 +179,27 @@ function DonationPayments() {
         <div className="flex flex-wrap gap-4">
           <div className="mb-5">
             <span className="font-semibold mr-2">Show by status:</span>
-            <SelectLocal options={statusTypes} name="statusTypes" value={chooseStatusType}  
-            onChange={(val) => {
-              setChooseStatusType(val);
-            }} dropDownClass="absolute" parentClassname="!h-[50px] py-3" />
+            <SelectLocal
+              options={statusTypes}
+              name="statusTypes"
+              value={chooseStatusType}
+              onChange={val => {
+                setChooseStatusType(val);
+              }}
+              dropDownClass="absolute"
+              parentClassname="!h-[50px] py-3"
+            />
           </div>
           <div className="mb-5">
             <span className="font-semibold mr-2">Show by provider:</span>
-            <SelectLocal options={providerTypes} name="providerTypes" value={chooseProviderType} 
-            onChange={(val) => setChooseProviderType(val)} dropDownClass="absolute" parentClassname="py-3 !h-[50px]" />
+            <SelectLocal
+              options={providerTypes}
+              name="providerTypes"
+              value={chooseProviderType}
+              onChange={val => setChooseProviderType(val)}
+              dropDownClass="absolute"
+              parentClassname="py-3 !h-[50px]"
+            />
           </div>
 
           <div className="mb-5 min-w-lg min-w-xs max-w-xs flex-1">
@@ -178,7 +212,7 @@ function DonationPayments() {
                 pickerType="range"
                 pickerPlaceholder="Choose date"
                 pickerValue={dateFilter}
-                onChange={(val) => {
+                onChange={val => {
                   setDateFilter(val);
                   setCurrentPage(0);
                 }}
@@ -192,7 +226,7 @@ function DonationPayments() {
                 pickerType="range"
                 pickerPlaceholder="Choose date"
                 pickerValue={dateFilter}
-                onChange={(val) => {
+                onChange={val => {
                   setDateFilter(val);
                   setCurrentPage(0);
                   setResetDatePicker(false);
@@ -204,7 +238,7 @@ function DonationPayments() {
 
         <div className="flex flex-wrap -mx-2">
           <div className="mb-5 w-1/2 px-2">
-            <Input 
+            <Input
               onChange={handleEmailSearch}
               id="title"
               name="title"
@@ -216,7 +250,7 @@ function DonationPayments() {
             />
           </div>
           <div className="mb-5 w-1/2 px-2">
-            <Input 
+            <Input
               onChange={handleTransactionIdSearch}
               id="title"
               name="title"
@@ -233,16 +267,17 @@ function DonationPayments() {
           <Button type="button" onClick={() => handleDonationSearch()}>
             Search
           </Button>
-          <Button type="button" className="bg-status-danger-500" onClick={() => handleCleanAllFields()}>
+          <Button
+            type="button"
+            className="bg-status-danger-500"
+            onClick={() => handleCleanAllFields()}
+          >
             Clean all fields
           </Button>
         </div>
-
       </div>
 
-
-      
-      <DonationPaymentsTable 
+      <DonationPaymentsTable
         allDonations={allDonations}
         currentPage={currentPage}
         totalPages={totalPages}

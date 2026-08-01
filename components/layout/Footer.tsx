@@ -7,7 +7,7 @@ import { Link } from '@/i18n';
 const Footer = () => {
   const t = useTranslations();
   const locale = useLocale();
-  
+
   return (
     <footer className="footer">
       <div className="footer__inner md:flex-row flex-col md:gap-y-0 sm:gap-y-4">
@@ -18,7 +18,11 @@ const Footer = () => {
           <Link className="menu-link py-1 mb-3" href="/about">
             <span>{t('menu.about_us')}</span>
           </Link>
-          <Link className="menu-link py-1 mb-3" href="https://newwaveschool.org/" target="_blank">
+          <Link
+            className="menu-link py-1 mb-3"
+            href="https://newwaveschool.org/"
+            target="_blank"
+          >
             <span>{t('links.nova_khvilka_school')}</span>
           </Link>
         </div>

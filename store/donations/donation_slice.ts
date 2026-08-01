@@ -1,12 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getAllDonations } from "./action";
+import { createSlice } from '@reduxjs/toolkit';
+import { getAllDonations } from './action';
 
 interface IDonations {
-  donations: any[]
+  donations: any[];
 }
 
-const initialState:IDonations = {
-  donations: []
+const initialState: IDonations = {
+  donations: [],
 };
 
 const donationSlice = createSlice({
@@ -17,8 +17,7 @@ const donationSlice = createSlice({
     builder.addCase(getAllDonations.fulfilled, (state, action) => {
       state.donations = action.payload.content;
     });
-  }
+  },
 });
-
 
 export default donationSlice.reducer;

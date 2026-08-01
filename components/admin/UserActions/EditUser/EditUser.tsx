@@ -70,7 +70,9 @@ const EditUser = ({ validationSchema }: IValidationSchema) => {
           initialValues={{
             name: userById.name,
             email: userById.email,
-            roles: Array.isArray(userById.roles) ? (userById.roles[0] || '') : (userById.roles || ''),
+            roles: Array.isArray(userById.roles)
+              ? userById.roles[0] || ''
+              : userById.roles || '',
           }}
           enableReinitialize={true}
           validationSchema={validationSchema}

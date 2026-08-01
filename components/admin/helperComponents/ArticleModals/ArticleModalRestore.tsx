@@ -1,49 +1,55 @@
-import Button from "@/components/shared/Button";
-import { getAllArticle, publishArticle } from "@/store/article-content/action";
-import { removeArticleFromArchive } from "@/store/article-content/article-content_slice";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { closeModal } from "@/store/modal/ModalSlice";
-import { IArticleBody } from "@/utils/article-content/type/interfaces";
-import useHandleThunk from "@/utils/useHandleThunk";
-import { useState } from "react";
-import { toast } from "react-toastify";
+import Button from '@/components/shared/Button';
+import { getAllArticle, publishArticle } from '@/store/article-content/action';
+import { removeArticleFromArchive } from '@/store/article-content/article-content_slice';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { closeModal } from '@/store/modal/ModalSlice';
+import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import useHandleThunk from '@/utils/useHandleThunk';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
-
-function ArticleModalRestore({title}: {title?: string}) {
+function ArticleModalRestore({ title }: { title?: string }) {
   const [submitError, setSubmitError] = useState('');
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
-  const currentProject = useAppSelector(state => state.modal.payload) as IArticleBody & {id: number};
+  const currentProject = useAppSelector(
+    state => state.modal.payload,
+  ) as IArticleBody & { id: number };
   const currentPage = useAppSelector(state => state.modal.currentPage);
   const articleStatus = useAppSelector(state => state.modal.articleStatus);
   const chooseSortType = useAppSelector(state => state.modal.chooseSortType);
   const articlesOnPage = useAppSelector(state => state.modal.articlesOnPage);
 
   async function handleRestoreArticle() {
-    const result = await handleThunk(publishArticle, currentProject.id, setSubmitError);
-    
-    if(result) {
+    const result = await handleThunk(
+      publishArticle,
+      currentProject.id,
+      setSubmitError,
+    );
+
+    if (result) {
       setSubmitError('');
-      toast.success(`Congratulations! Your ${currentProject.articleType.toLowerCase()} has been restored successfully.`);
+      toast.success(
+        `Congratulations! Your ${currentProject.articleType.toLowerCase()} has been restored successfully.`,
+      );
       dispatch(closeModal());
       dispatch(removeArticleFromArchive({ id: currentProject.id }));
 
-      if(articlesOnPage === 1) {
+      if (articlesOnPage === 1) {
         const params: any = {
           page: currentPage,
-          articleStatus: articleStatus
+          articleStatus: articleStatus,
         };
 
         if (chooseSortType !== 'all') {
           params.articleType = chooseSortType;
         }
-      
+
         dispatch(getAllArticle(params));
       }
     }
   }
-
 
   return (
     <>

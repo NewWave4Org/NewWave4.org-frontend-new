@@ -67,7 +67,10 @@ describe('http-request-service request()', () => {
   });
 
   it('returns response data directly on a successful call', async () => {
-    axiosInstanceMock.mockResolvedValueOnce({ data: { ok: true }, status: 200 });
+    axiosInstanceMock.mockResolvedValueOnce({
+      data: { ok: true },
+      status: 200,
+    });
 
     const result = await request({ method: HttpMethod.GET, url: '/ping' });
 
@@ -78,7 +81,10 @@ describe('http-request-service request()', () => {
   it('normalizes an empty response body into a synthetic success payload', async () => {
     axiosInstanceMock.mockResolvedValueOnce({ data: '', status: 204 });
 
-    const result = await request({ method: HttpMethod.DELETE, url: '/users/1' });
+    const result = await request({
+      method: HttpMethod.DELETE,
+      url: '/users/1',
+    });
 
     expect(result).toEqual({
       success: true,
@@ -90,9 +96,15 @@ describe('http-request-service request()', () => {
   it('refreshes the token once on a 401 and retries the original request', async () => {
     axiosInstanceMock.mockRejectedValueOnce(unauthorizedError(401));
     axiosInstanceMock.post.mockResolvedValueOnce({ status: 200 });
-    axiosInstanceMock.mockResolvedValueOnce({ data: { retried: true }, status: 200 });
+    axiosInstanceMock.mockResolvedValueOnce({
+      data: { retried: true },
+      status: 200,
+    });
 
-    const resultPromise = request({ method: HttpMethod.GET, url: '/protected' });
+    const resultPromise = request({
+      method: HttpMethod.GET,
+      url: '/protected',
+    });
     await vi.advanceTimersByTimeAsync(200);
     const result = await resultPromise;
 
@@ -105,13 +117,19 @@ describe('http-request-service request()', () => {
   it('logs out and redirects to /admin when the refresh call itself fails, then throws the normalized original error', async () => {
     const original401 = unauthorizedError(401);
     axiosInstanceMock.mockRejectedValueOnce(original401);
-    axiosInstanceMock.post.mockRejectedValueOnce(new Error('refresh endpoint down'));
+    axiosInstanceMock.post.mockRejectedValueOnce(
+      new Error('refresh endpoint down'),
+    );
 
-    await expect(request({ method: HttpMethod.GET, url: '/protected' })).rejects.toMatchObject({
+    await expect(
+      request({ method: HttpMethod.GET, url: '/protected' }),
+    ).rejects.toMatchObject({
       status: undefined,
     });
 
-    expect(toastErrorMock).toHaveBeenCalledWith('Session expired. Please log in again.');
+    expect(toastErrorMock).toHaveBeenCalledWith(
+      'Session expired. Please log in again.',
+    );
     expect(dispatchMock).toHaveBeenCalled();
     expect(window.location.href).toBe('/admin');
     // only the original call — a failed refresh must not retry the request
@@ -122,7 +140,11 @@ describe('http-request-service request()', () => {
     axiosInstanceMock.mockRejectedValueOnce(unauthorizedError(403));
 
     await expect(
-      request({ method: HttpMethod.GET, url: '/protected', _retry: true } as never)
+      request({
+        method: HttpMethod.GET,
+        url: '/protected',
+        _retry: true,
+      } as never),
     ).rejects.toBeDefined();
 
     // never even attempted, because `_retry` was already true before this call

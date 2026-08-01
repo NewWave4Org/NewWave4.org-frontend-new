@@ -2,9 +2,20 @@ import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/utils/seo';
 import { locales } from '@/i18n';
 import { articleContentService } from '@/utils/article-content';
-import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
+import {
+  ArticleStatusEnum,
+  ArticleType,
+  ArticleTypeEnum,
+} from '@/utils/ArticleType';
 
-const STATIC_PATHS = ['', '/about', '/news', '/events', '/projects', '/contacts'];
+const STATIC_PATHS = [
+  '',
+  '/about',
+  '/news',
+  '/events',
+  '/projects',
+  '/contacts',
+];
 
 const ARTICLE_ROUTES: { type: ArticleType; routeBase: string }[] = [
   { type: ArticleTypeEnum.NEWS, routeBase: '/news' },
@@ -25,7 +36,8 @@ async function getArticleEntries(): Promise<MetadataRoute.Sitemap> {
       });
 
       for (const article of result?.content ?? []) {
-        const lastModified = article.publishedAt || article.dateOfWriting || article.createdAt;
+        const lastModified =
+          article.publishedAt || article.dateOfWriting || article.createdAt;
 
         for (const locale of locales) {
           entries.push({

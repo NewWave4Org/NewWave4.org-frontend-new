@@ -103,7 +103,9 @@ interface ContactFormProps {
 
 const ContactForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [modalType, setModalType] = useState<'success' | 'info' | 'error' | 'warning'>('success');
+  const [modalType, setModalType] = useState<
+    'success' | 'info' | 'error' | 'warning'
+  >('success');
   const [modalTitle, setModalTitle] = useState('');
   const [modalDescription, setModalDescription] = useState('');
 
@@ -138,7 +140,6 @@ const ContactForm = () => {
     handleSubmit: async (values, { setSubmitting, resetForm, props }) => {
       try {
         const res = await handleSubmitContactForm(values);
-
 
         setModalType('success');
         setModalTitle(t('modals.modal_contacts.succeed_title'));

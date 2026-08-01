@@ -16,9 +16,15 @@ import ArchiveIcon from '@/components/icons/symbolic/ArchiveIcon';
 import { numericDate } from '@/utils/date';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 
-const getAdminPath = (articleType: ArticleTypeEnum, action: 'new' | 'edit', id?: number) => {
+const getAdminPath = (
+  articleType: ArticleTypeEnum,
+  action: 'new' | 'edit',
+  id?: number,
+) => {
   const base = articleType === ArticleTypeEnum.EVENT ? 'events' : 'articles';
-  return action === 'new' ? `/admin/${base}/new` : `/admin/${base}/edit?id=${id}`;
+  return action === 'new'
+    ? `/admin/${base}/new`
+    : `/admin/${base}/edit?id=${id}`;
 };
 
 const articlesHeader = [
@@ -41,11 +47,16 @@ type Props = {
 const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [refresh, setRefresh] = useState(false);
-  const articles = useAppSelector(state => state.articleContent.byType[articleType].items);
-  const totalPages = useAppSelector(state => state.articleContent.byType[articleType].totalPages);
+  const articles = useAppSelector(
+    state => state.articleContent.byType[articleType].items,
+  );
+  const totalPages = useAppSelector(
+    state => state.articleContent.byType[articleType].totalPages,
+  );
   const dispatch = useAppDispatch();
 
-  const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
+  const [chooseSortStatusType, setChooseSortStatusType] =
+    useState<boolean>(true);
   const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
 
   const fetchArticles = useCallback(() => {
@@ -59,7 +70,13 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
         articleStatus: `${ArticleStatusEnum.DRAFT},${ArticleStatusEnum.PUBLISHED}`,
       }),
     );
-  }, [dispatch, currentPage, chooseSortDateType, chooseSortStatusType, articleType]);
+  }, [
+    dispatch,
+    currentPage,
+    chooseSortDateType,
+    chooseSortStatusType,
+    articleType,
+  ]);
 
   useEffect(() => {
     fetchArticles();
@@ -112,7 +129,6 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
 
     setChooseSortStatusType(value === 'true');
     setCurrentPage(0);
-
   }
 
   function handleSortByDate(e: React.MouseEvent<HTMLSpanElement>) {
@@ -140,7 +156,10 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
             ))}
 
             <th className="pb-4 px-2 border-b  border-admin-300">
-              <span onClick={e => handleSortByDate(e)} className="cursor-pointer">
+              <span
+                onClick={e => handleSortByDate(e)}
+                className="cursor-pointer"
+              >
                 Created
                 <span
                   data-value="true"
@@ -160,7 +179,10 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
             </th>
 
             <th className="pb-4 px-2 border-b  border-admin-300">
-              <span onClick={e => handleSortChange(e)} className="cursor-pointer">
+              <span
+                onClick={e => handleSortChange(e)}
+                className="cursor-pointer"
+              >
                 Status
                 <span
                   data-value="true"
@@ -181,7 +203,10 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
 
             <th className="pb-4 border-b  border-admin-300 flex justify-end">
               <Link href={getAdminPath(articleType, 'new')}>
-                <Button variant="primary" className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]">
+                <Button
+                  variant="primary"
+                  className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
+                >
                   <div className="flex items-center mr-[12px]">
                     <PenIcon color="#fff" />
                   </div>
@@ -192,8 +217,11 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
           </>
         )}
         renderRow={(article: Article) => {
-          const { id, articleStatus, title, views, authorName, createdAt } = article;
-          const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
+          const { id, articleStatus, title, views, authorName, createdAt } =
+            article;
+          const status =
+            articleStatus.slice(0, 1).toUpperCase() +
+            articleStatus.toLowerCase().slice(1);
 
           return (
             <>
@@ -205,20 +233,29 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
 
               <td className="px-3 py-6">
                 <div className="flex items-center gap-[10px]">
-                  <p className="font-bold text-[20px] text-admin-700 line-clamp-1">{views}</p>
+                  <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
+                    {views}
+                  </p>
 
                   <span className="text-sm text-grey-400">views</span>
                 </div>
               </td>
 
-              <td className="px-3 py-6 text-center">{numericDate(createdAt)}</td>
+              <td className="px-3 py-6 text-center">
+                {numericDate(createdAt)}
+              </td>
 
               <td className="px-3 py-6">
                 <span
-                  className={clsx('flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2', {
-                    'border-status-success-500 text-status-success-500': status === 'Published',
-                    'border-status-danger-500 text-status-danger-500': status === 'Draft',
-                  })}
+                  className={clsx(
+                    'flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2',
+                    {
+                      'border-status-success-500 text-status-success-500':
+                        status === 'Published',
+                      'border-status-danger-500 text-status-danger-500':
+                        status === 'Draft',
+                    },
+                  )}
                 >
                   {status}
                 </span>
@@ -271,7 +308,8 @@ const ArticlesTable: FC<Props> = ({ renderPagination, articleType }) => {
         }}
       />
 
-      {renderPagination && renderPagination({ currentPage, totalPages, changePage })}
+      {renderPagination &&
+        renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );
 };

@@ -31,7 +31,7 @@ function renderLogIn() {
   return render(
     <Provider store={store}>
       <LogIn validationSchema={validationSchema} />
-    </Provider>
+    </Provider>,
   );
 }
 
@@ -42,15 +42,24 @@ describe('LogIn', () => {
 
   it('logs in and redirects to the role-based path on success', async () => {
     loginAuthMock.mockResolvedValueOnce({ accessToken: 'token' });
-    getUserInfoMock.mockResolvedValueOnce({ id: 1, email: 'admin@newwave4.org', roles: ['ROLE_ADMIN'] });
+    getUserInfoMock.mockResolvedValueOnce({
+      id: 1,
+      email: 'admin@newwave4.org',
+      roles: ['ROLE_ADMIN'],
+    });
 
     renderLogIn();
 
-    await userEvent.type(screen.getByLabelText(/email address/i), 'admin@newwave4.org');
+    await userEvent.type(
+      screen.getByLabelText(/email address/i),
+      'admin@newwave4.org',
+    );
     await userEvent.type(screen.getByLabelText(/^password/i), 'super-secret');
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/admin/users'));
+    await waitFor(() =>
+      expect(replaceMock).toHaveBeenCalledWith('/admin/users'),
+    );
 
     expect(loginAuthMock).toHaveBeenCalledWith({
       email: 'admin@newwave4.org',

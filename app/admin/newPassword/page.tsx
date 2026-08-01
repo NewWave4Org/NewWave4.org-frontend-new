@@ -7,7 +7,10 @@ import * as Yup from 'yup';
 
 const validationSchema = Yup.object({
   password: adminPassValidation,
-  confirmPassword: adminPassValidation.oneOf([Yup.ref('password')], 'Passwords do not match'),
+  confirmPassword: adminPassValidation.oneOf(
+    [Yup.ref('password')],
+    'Passwords do not match',
+  ),
 });
 
 const newPassword = () => {

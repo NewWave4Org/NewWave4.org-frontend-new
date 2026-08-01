@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   title: 'Login | Admin panel',
 };
 
-export default function AdminPublicLayout({ children }: { children: ReactNode }) {
+export default function AdminPublicLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
@@ -25,7 +29,19 @@ export default function AdminPublicLayout({ children }: { children: ReactNode })
           <AdminLayoutGuest>{children}</AdminLayoutGuest>
         </ReduxProvider>
 
-        <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" transition={Bounce} />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Bounce}
+        />
       </body>
     </html>
   );

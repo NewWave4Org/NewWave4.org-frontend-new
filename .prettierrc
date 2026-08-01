@@ -1,12 +1,11 @@
 {
-    "semi": true,
-    "singleQuote": true,
-    "jsxSingleQuote": false,
-    "bracketSpacing": true,
-    "trailingComma": "all",
-    "printWidth": 80,
-    "tabWidth": 2,
-    "arrowParens": "avoid",
-    "endOfLine": "lf",
-    "prettier.enable": false
+  "semi": true,
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "bracketSpacing": true,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
 }

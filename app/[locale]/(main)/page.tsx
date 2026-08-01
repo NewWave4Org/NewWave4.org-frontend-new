@@ -8,12 +8,21 @@ import { globalSectionService } from '@/utils/global-sections';
 import { PagesType } from '@/components/admin/Pages/enum/types';
 import { GlobalSectionsType } from '@/components/admin/GlobalSections/enum/types';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'seo.home' });
 
   return {
-    ...buildPageMetadata({ locale, path: '', title: t('title'), description: t('description') }),
+    ...buildPageMetadata({
+      locale,
+      path: '',
+      title: t('title'),
+      description: t('description'),
+    }),
     // The home title already carries the full site name, so it shouldn't get the
     // "%s | Ukrainian New Wave" template from the root layout appended on top.
     title: { absolute: t('title') },
@@ -25,12 +34,17 @@ const HomePage = async () => {
   // flashing empty while HomePageClientSide's own client-side fetch is in flight.
   const [initialHomePageData, initialPartnersData] = await Promise.all([
     pagesServices.getPages(PagesType.HOME).catch(() => null),
-    globalSectionService.getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS).catch(() => null),
+    globalSectionService
+      .getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS)
+      .catch(() => null),
   ]);
 
   return (
     <div>
-      <HomePageClientSide initialHomePageData={initialHomePageData} initialPartnersData={initialPartnersData} />
+      <HomePageClientSide
+        initialHomePageData={initialHomePageData}
+        initialPartnersData={initialPartnersData}
+      />
     </div>
   );
 };

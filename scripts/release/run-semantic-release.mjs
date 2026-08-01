@@ -16,18 +16,25 @@ import { appendFileSync } from 'node:fs';
 async function main() {
   const outputPath = process.env.GITHUB_OUTPUT;
   if (!outputPath) {
-    throw new Error('GITHUB_OUTPUT is not set — this script must run inside a GitHub Actions step.');
+    throw new Error(
+      'GITHUB_OUTPUT is not set — this script must run inside a GitHub Actions step.',
+    );
   }
 
   const result = await semanticRelease();
 
   if (result) {
     appendFileSync(outputPath, `new_release_published=true\n`);
-    appendFileSync(outputPath, `new_release_version=${result.nextRelease.version}\n`);
+    appendFileSync(
+      outputPath,
+      `new_release_version=${result.nextRelease.version}\n`,
+    );
     console.log(`Published release ${result.nextRelease.version}`);
   } else {
     appendFileSync(outputPath, `new_release_published=false\n`);
-    console.log('No release published — no commits since the last release warranted a version bump.');
+    console.log(
+      'No release published — no commits since the last release warranted a version bump.',
+    );
   }
 }
 

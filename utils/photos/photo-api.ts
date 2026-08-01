@@ -13,7 +13,11 @@ import { PagesType } from '@/components/admin/Pages/enum/types';
 // staging, so production uploads would have written to the staging bucket
 // (issue #446).
 class PhotoApi implements IPhotoApi {
-  async uploadPhoto(params: { entityReferenceId: number; articleType: ArticleType | GlobalSectionsType | PagesType; file: File }): Promise<string> {
+  async uploadPhoto(params: {
+    entityReferenceId: number;
+    articleType: ArticleType | GlobalSectionsType | PagesType;
+    file: File;
+  }): Promise<string> {
     const formData = new FormData();
     formData.append('file', params.file);
 

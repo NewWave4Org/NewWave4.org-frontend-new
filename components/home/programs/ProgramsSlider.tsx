@@ -9,7 +9,7 @@ import { getAllArticle } from '@/store/article-content/action';
 import { ArticleStatusEnum, ArticleTypeEnum } from '@/utils/ArticleType';
 import { EN_LOCALE, useRouter } from '@/i18n';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter as useRouterNext} from 'next/navigation';
+import { useRouter as useRouterNext } from 'next/navigation';
 
 // The store holds articles as `any[]`, and every article DTO types
 // contentBlocks as `any[] | null`, so these callbacks have no contextual
@@ -25,8 +25,12 @@ const ProgramsSlider = () => {
   const t = useTranslations();
 
   const dispatch = useAppDispatch();
-  const programs = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items);
-  const programsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].status);
+  const programs = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items,
+  );
+  const programsStatus = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].status,
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -56,22 +60,31 @@ const ProgramsSlider = () => {
         sortByDateOfWriting: false,
       }),
     );
-  
   }, [dispatch]);
 
   const slidesData = useMemo(() => {
     return programs.map(program => ({
       id: program.id,
-      imgSrc: program?.contentBlocks?.find((b: ProgramContentBlock) => b.contentBlockType === 'SECTION_WITH_PHOTO')?.files?.[0] || '',
+      imgSrc:
+        program?.contentBlocks?.find(
+          (b: ProgramContentBlock) =>
+            b.contentBlockType === 'SECTION_WITH_PHOTO',
+        )?.files?.[0] || '',
       alt: locale === EN_LOCALE ? program.titleEng : program.title,
       link: `/program/${program.id}`,
       title: locale === EN_LOCALE ? program.titleEng : program.title,
-      text: locale === EN_LOCALE
-        ? program?.contentBlocksEng?.find((b: ProgramContentBlock) => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || ''
-        : program?.contentBlocks?.find((b: ProgramContentBlock) => b.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_text || '',
+      text:
+        locale === EN_LOCALE
+          ? program?.contentBlocksEng?.find(
+              (b: ProgramContentBlock) =>
+                b.contentBlockType === 'DESCRIPTION_PROGRAM',
+            )?.translatable_text_text || ''
+          : program?.contentBlocks?.find(
+              (b: ProgramContentBlock) =>
+                b.contentBlockType === 'DESCRIPTION_PROGRAM',
+            )?.translatable_text_text || '',
     }));
   }, [programs, locale]);
-
 
   const scrollNext = () => {
     setCurrentIndex(prev => (prev + 1) % slidesData.length);
@@ -88,14 +101,18 @@ const ProgramsSlider = () => {
       return diff === 0 ? 'z-10 opacity-100 translate-x-0' : 'hidden';
     }
 
-    if (diff === 0) return 'z-10 opacity-100 translate-x-0 translate-y-[25px] transition-all duration-700';
+    if (diff === 0)
+      return 'z-10 opacity-100 translate-x-0 translate-y-[25px] transition-all duration-700';
     if (diff === 1) return 'z-0 translate-x-[85%]  transition-all duration-700';
-    if (diff === slidesData.length - 1) return 'z-0 -translate-x-[85%] transition-all duration-700';
+    if (diff === slidesData.length - 1)
+      return 'z-0 -translate-x-[85%] transition-all duration-700';
     return 'hidden';
   };
 
   if (isLoading) {
-    return <div className="text-center py-10 text-gray-500">{t('loading')}</div>;
+    return (
+      <div className="text-center py-10 text-gray-500">{t('loading')}</div>
+    );
   }
 
   return (
@@ -108,17 +125,25 @@ const ProgramsSlider = () => {
         )}
         <div className="relative flex justify-center items-center w-full h-full rounded-lg">
           {slidesData.map((slide, index) => (
-            <div key={slide.id} className={`absolute w-[360px] rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`} onClick={() => setCurrentIndex(index)}>
-              <ProgramCard 
-                key={index} 
-                slide={slide} 
+            <div
+              key={slide.id}
+              className={`absolute w-[360px] rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`}
+              onClick={() => setCurrentIndex(index)}
+            >
+              <ProgramCard
+                key={index}
+                slide={slide}
                 onDetailsClick={() => router.push(`/program/${slide.id}`)}
-                onDonateClick={() => routerNext.push('/donation')} />
+                onDonateClick={() => routerNext.push('/donation')}
+              />
             </div>
           ))}
         </div>
         {isMobile && (
-          <button className="slide-btn right-0 flex justify-center items-center" onClick={scrollNext}>
+          <button
+            className="slide-btn right-0 flex justify-center items-center"
+            onClick={scrollNext}
+          >
             <ArrowRight4Icon size="32" color="#fafafa" />
           </button>
         )}
@@ -127,7 +152,10 @@ const ProgramsSlider = () => {
       <div className="mt-10 flex  justify-center">
         <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6 min-w-[195px]">
           {slidesData?.map((_, index) => (
-            <div key={index} className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-200'}`} />
+            <div
+              key={index}
+              className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-200'}`}
+            />
           ))}
         </div>
       </div>

@@ -29,8 +29,12 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
     { href: `/contacts`, label: t('menu.contacts') },
   ];
 
-  const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
-  const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
+  const projects = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items,
+  );
+  const projectsStatus = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status,
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -50,7 +54,10 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
         setOpenSubMenu(null);
       }
     };
@@ -67,14 +74,31 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
       <ul className="flex gap-x-8 text-large font-helv menu__items list-none">
         {menuLinks.map(({ href, label, subMenu }) => {
           const isProjectsActive = pathname.startsWith('/projects');
-          const activeStyle = subMenu ? (isProjectsActive ? 'active-link' : '') : pathname === href ? 'active-link' : '';
+          const activeStyle = subMenu
+            ? isProjectsActive
+              ? 'active-link'
+              : ''
+            : pathname === href
+              ? 'active-link'
+              : '';
 
           if (subMenu) {
             return (
-              <li ref={wrapperRef} key={label} className=" py-1 before:content-none pl-0 !mb-0">
-                <button className={`menu-link flex items-center gap-1 !p-0 ${activeStyle}`} onClick={() => setOpenSubMenu(prev => (prev === label ? null : label))}>
+              <li
+                ref={wrapperRef}
+                key={label}
+                className=" py-1 before:content-none pl-0 !mb-0"
+              >
+                <button
+                  className={`menu-link flex items-center gap-1 !p-0 ${activeStyle}`}
+                  onClick={() =>
+                    setOpenSubMenu(prev => (prev === label ? null : label))
+                  }
+                >
                   {label}
-                  <ArrowDown4Icon className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500 mt-1.5`} />
+                  <ArrowDown4Icon
+                    className={`${openSubMenu === label ? 'rotate-180' : ''} duration-500 mt-1.5`}
+                  />
                 </button>
 
                 {openSubMenu === label && (
@@ -86,11 +110,18 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                         </li>
                       ) : projects.length > 0 ? (
                         projects.map(project => {
-                          const currentHash = window.location.hash.replace('#project-', '');
-                          const isActive = currentHash === project.id.toString();
+                          const currentHash = window.location.hash.replace(
+                            '#project-',
+                            '',
+                          );
+                          const isActive =
+                            currentHash === project.id.toString();
 
                           return (
-                            <li key={project.id} className="before:content-none pl-0 !mb-0">
+                            <li
+                              key={project.id}
+                              className="before:content-none pl-0 !mb-0"
+                            >
                               <Link
                                 scroll={false}
                                 href={{
@@ -111,7 +142,9 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
                                 }}
                                 className={`block pb-2.5 p-2 lg:px-4 text-base font-medium text-font-accent hover:text-font-secondary duration-500 ${isActive ? 'text-font-accent underline' : ''}`}
                               >
-                                {locale === EN_LOCALE ? project.titleEng : project.title}
+                                {locale === EN_LOCALE
+                                  ? project.titleEng
+                                  : project.title}
                               </Link>
                             </li>
                           );
@@ -130,7 +163,14 @@ const Menu = ({ handleToggleMenu }: { handleToggleMenu?: () => void }) => {
 
           return (
             <li key={href} className="py-1 before:content-none pl-0 !mb-0">
-              <Link className={`menu-link ${activeStyle}`} href={href} onClick={() => {setOpenSubMenu(null); handleToggleMenu?.();}}>
+              <Link
+                className={`menu-link ${activeStyle}`}
+                href={href}
+                onClick={() => {
+                  setOpenSubMenu(null);
+                  handleToggleMenu?.();
+                }}
+              >
                 <span>{label}</span>
               </Link>
             </li>

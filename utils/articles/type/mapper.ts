@@ -1,42 +1,51 @@
-import { ArticleFull } from "@/utils/articles/type/interface";
-import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
-import { GetArticleByIdResponseDTO } from "@/utils/article-content/type/interfaces";
-import { getBlockValue } from "./prepareArticle";
-import { EN_LOCALE } from "@/i18n";
-import { convertDraftToHTML } from "@/components/TextEditor/utils/convertDraftToHTML";
-
+import { ArticleFull } from '@/utils/articles/type/interface';
+import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
+import { GetArticleByIdResponseDTO } from '@/utils/article-content/type/interfaces';
+import { getBlockValue } from './prepareArticle';
+import { EN_LOCALE } from '@/i18n';
+import { convertDraftToHTML } from '@/components/TextEditor/utils/convertDraftToHTML';
 
 export function mapGetArticleByIdResponseToFull(
-    dto: GetArticleByIdResponseDTO,
-    locale: string = 'ua'
+  dto: GetArticleByIdResponseDTO,
+  locale: string = 'ua',
 ): ArticleFull {
-    const isEng = EN_LOCALE;
-    const blocks = isEng === locale && dto.contentBlocksEng ? dto.contentBlocksEng : (dto.contentBlocks ?? []);
-    const title = isEng === locale && dto.titleEng ? dto.titleEng : dto.title;
+  const isEng = EN_LOCALE;
+  const blocks =
+    isEng === locale && dto.contentBlocksEng
+      ? dto.contentBlocksEng
+      : (dto.contentBlocks ?? []);
+  const title = isEng === locale && dto.titleEng ? dto.titleEng : dto.title;
 
-    return {
-        ...dto,
-        title,
-        mainPhoto: (() => {
-            const data = getBlockValue<string | string[]>(
-                blocks,
-                ContentBlockType.PHOTO
-            );
-            
-            return Array.isArray(data) ? data[0] :  "";
-        })(),
-        photoList:
-            getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_LIST) ?? [],
-        photoSlider:
-            getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_SLIDER) ?? [],
-        quote:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.QUOTE), locale) ?? "",
-        mainText:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK), locale) ?? "",
-        textblock2:
-            convertDraftToHTML(getBlockValue<string>(blocks, ContentBlockType.TEXT), locale) ?? "",
-        video:
-            getBlockValue<string>(blocks, ContentBlockType.VIDEO) ?? "",
-    };
+  return {
+    ...dto,
+    title,
+    mainPhoto: (() => {
+      const data = getBlockValue<string | string[]>(
+        blocks,
+        ContentBlockType.PHOTO,
+      );
+
+      return Array.isArray(data) ? data[0] : '';
+    })(),
+    photoList:
+      getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_LIST) ?? [],
+    photoSlider:
+      getBlockValue<string[]>(blocks, ContentBlockType.PHOTOS_SLIDER) ?? [],
+    quote:
+      convertDraftToHTML(
+        getBlockValue<string>(blocks, ContentBlockType.QUOTE),
+        locale,
+      ) ?? '',
+    mainText:
+      convertDraftToHTML(
+        getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK),
+        locale,
+      ) ?? '',
+    textblock2:
+      convertDraftToHTML(
+        getBlockValue<string>(blocks, ContentBlockType.TEXT),
+        locale,
+      ) ?? '',
+    video: getBlockValue<string>(blocks, ContentBlockType.VIDEO) ?? '',
+  };
 }
-

@@ -15,7 +15,14 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   required?: boolean;
   validationText?: string;
   classname?: string;
-  state?: 'default' | 'hover' | 'filled' | 'active' | 'success' | 'error' | 'disabled';
+  state?:
+    | 'default'
+    | 'hover'
+    | 'filled'
+    | 'active'
+    | 'success'
+    | 'error'
+    | 'disabled';
   labelIcon?: React.ReactNode;
   labelClass?: string;
   passwordIcon?: boolean;
@@ -43,7 +50,8 @@ const Input: React.FC<InputProps> = ({
   const { type, ...rest } = props;
 
   const getStateClasses = () => {
-    if (state === 'error' || validationText) return 'ring-1 ring-status-danger-500';
+    if (state === 'error' || validationText)
+      return 'ring-1 ring-status-danger-500';
     switch (state) {
       case 'hover':
         return 'ring-grey-600';
@@ -85,7 +93,9 @@ const Input: React.FC<InputProps> = ({
         >
           {labelIcon && <span className="mr-[10px]">{labelIcon}</span>}
           {label}
-          {required && <span className="text-status-danger-500 text-body"> *</span>}
+          {required && (
+            <span className="text-status-danger-500 text-body"> *</span>
+          )}
         </label>
       )}
       <div className="relative">
@@ -105,18 +115,28 @@ const Input: React.FC<InputProps> = ({
           {...rest}
         />
         {icon && (
-          <span onClick={handleIconClick} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+          <span
+            onClick={handleIconClick}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+          >
             <CrossIcon color="#7A7A7A" />
           </span>
         )}
 
         {passwordIcon && props.type === 'password' && (
-          <span onClick={handlePassword} className="cursor-pointer absolute right-[25px] top-1/2 transform -translate-y-1/2">
+          <span
+            onClick={handlePassword}
+            className="cursor-pointer absolute right-[25px] top-1/2 transform -translate-y-1/2"
+          >
             {showPassword ? <OpenEyeIcon /> : <CloseEyeIcon />}
           </span>
         )}
       </div>
-      {validationText && <p className={`text-small2 mt-[4px] text-status-danger-500`}>{validationText}</p>}
+      {validationText && (
+        <p className={`text-small2 mt-[4px] text-status-danger-500`}>
+          {validationText}
+        </p>
+      )}
     </>
   );
 };

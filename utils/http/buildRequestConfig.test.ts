@@ -28,7 +28,7 @@ describe('buildRequestConfig', () => {
       buildRequestConfig({
         method: HttpMethod.GET,
         url: (id: string | number) => `/users/${id}`,
-      })
+      }),
     ).toThrow('`id` is required when `url` is a function.');
   });
 
@@ -38,7 +38,7 @@ describe('buildRequestConfig', () => {
         method: HttpMethod.GET,
         url: (id: string | number) => `/users/${id}`,
         id: null as unknown as number,
-      })
+      }),
     ).toThrow('`id` is required when `url` is a function.');
   });
 

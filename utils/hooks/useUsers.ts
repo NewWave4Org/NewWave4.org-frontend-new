@@ -3,25 +3,24 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { searchUsers } from '@/store/users/actions';
 
 export function useUsers(isUserVerificated?: boolean) {
-    const dispatch = useAppDispatch();
-    const users = useAppSelector(state => state.users.users);
+  const dispatch = useAppDispatch();
+  const users = useAppSelector(state => state.users.users);
 
-    useEffect(() => {
-        dispatch(searchUsers(isUserVerificated));
-    }, [dispatch, isUserVerificated]);
+  useEffect(() => {
+    dispatch(searchUsers(isUserVerificated));
+  }, [dispatch, isUserVerificated]);
 
-    const usersList = useMemo(
-        () =>
-            users.map(user => ({
-                value: user.id,
-                label: user.name,
-            })),
-        [users],
-    );
+  const usersList = useMemo(
+    () =>
+      users.map(user => ({
+        value: user.id,
+        label: user.name,
+      })),
+    [users],
+  );
 
+  const currentUser = useAppSelector(state => state.authUser.user);
+  const currentAuthor = users.find(user => user.name === currentUser?.name);
 
-    const currentUser = useAppSelector(state => state.authUser.user);
-    const currentAuthor = users.find(user => user.name === currentUser?.name);
-
-    return { users, usersList, currentUser, currentAuthor };
+  return { users, usersList, currentUser, currentAuthor };
 }

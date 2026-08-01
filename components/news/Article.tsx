@@ -17,13 +17,25 @@ import { EN_LOCALE } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import SlickCarousel, { SliderCarousel } from '../ui/SlickCarousel';
-import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
-import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
+import {
+  ArticleStatusEnum,
+  ArticleType,
+  ArticleTypeEnum,
+} from '@/utils/ArticleType';
+import {
+  GetArticleByIdResponseDTO,
+  IArticleBody,
+} from '@/utils/article-content/type/interfaces';
 import { toast } from 'react-toastify';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 
-
-export default function Article({ articleType, initialArticleData }: { articleType?: ArticleType; initialArticleData?: GetArticleByIdResponseDTO | null }) {
+export default function Article({
+  articleType,
+  initialArticleData,
+}: {
+  articleType?: ArticleType;
+  initialArticleData?: GetArticleByIdResponseDTO | null;
+}) {
   const dispatch = useAppDispatch();
 
   const params = useParams();
@@ -36,7 +48,13 @@ export default function Article({ articleType, initialArticleData }: { articleTy
   // articles still goes through the fetch below as before.
   const usedInitialData = useRef(false);
 
-  const [article, setArticle] = useState<(ArticleFull & { contentBlocksEng?: any }) | null>(() => (initialArticleData ? mapGetArticleByIdResponseToFull(initialArticleData, locale) : null));
+  const [article, setArticle] = useState<
+    (ArticleFull & { contentBlocksEng?: any }) | null
+  >(() =>
+    initialArticleData
+      ? mapGetArticleByIdResponseToFull(initialArticleData, locale)
+      : null,
+  );
   // const [projectTitle, setProjectTitle] = useState('');
   const [slides, setSlides] = useState<SliderCarousel>(() => {
     if (!initialArticleData) return { files: [] };
@@ -51,7 +69,6 @@ export default function Article({ articleType, initialArticleData }: { articleTy
     const mapped = mapGetArticleByIdResponseToFull(initialArticleData, locale);
     return mapped.video ? convertYoutubeUrlToEmbed(mapped.video) : '';
   });
-
 
   useEffect(() => {
     async function fetchDopPrograms() {
@@ -84,7 +101,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
         setArticle(mapped);
 
         // if (mapped?.relevantProjectId) {
-        //   const projectData = await dispatch(getArticleById(mapped.relevantProjectId)).unwrap(); 
+        //   const projectData = await dispatch(getArticleById(mapped.relevantProjectId)).unwrap();
 
         //   setProjectTitle(locale === EN_LOCALE ? projectData?.titleEng ?? '' : projectData?.title);
         // }
@@ -100,7 +117,6 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
           setSlides(slidesData);
         }
-
       } catch (err) {
         console.error('Error fetching article:', err);
         setError(true);
@@ -120,21 +136,29 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error || !article) return <div className="container px-4 mx-auto pt-16 text-center text-h4">Article not found</div>;
-
-  if(locale === EN_LOCALE && article?.contentBlocksEng.length == 0) {
+  if (error || !article)
     return (
-      <div className='pt-16'>
-        <div className='text-h4 text-center mb-4'>Oops! This page hasn’t been translated into English yet</div>
-        <p className='text-center'>We’re working on it and hope to have it ready soon.</p>
-        <p className='text-center'>Thanks for your patience!</p>
+      <div className="container px-4 mx-auto pt-16 text-center text-h4">
+        Article not found
+      </div>
+    );
+
+  if (locale === EN_LOCALE && article?.contentBlocksEng.length == 0) {
+    return (
+      <div className="pt-16">
+        <div className="text-h4 text-center mb-4">
+          Oops! This page hasn’t been translated into English yet
+        </div>
+        <p className="text-center">
+          We’re working on it and hope to have it ready soon.
+        </p>
+        <p className="text-center">Thanks for your patience!</p>
       </div>
     );
   }
 
   const articleQuote = article.quote;
   const hasContent = articleQuote?.replace(/<[^>]+>/g, '').trim();
-
 
   return (
     <div className="article_page pt-12">
@@ -169,17 +193,21 @@ export default function Article({ articleType, initialArticleData }: { articleTy
                   </div>
                 )} */}
 
-                {article.authorName && (<><div className="flex items-center mb-1">
-                  <div className="mr-2">
-                    <UserIcon size="16" color="#7A7A7A" />
-                  </div>
-                  <span className="text-grey-600 text-small2 inline-block leading-none">
-                    {t('news_events.author')}
-                  </span>
-                </div>
-                <div className="text-font-primary text-small">
-                  {article.authorName}
-                </div></>)}
+                {article.authorName && (
+                  <>
+                    <div className="flex items-center mb-1">
+                      <div className="mr-2">
+                        <UserIcon size="16" color="#7A7A7A" />
+                      </div>
+                      <span className="text-grey-600 text-small2 inline-block leading-none">
+                        {t('news_events.author')}
+                      </span>
+                    </div>
+                    <div className="text-font-primary text-small">
+                      {article.authorName}
+                    </div>
+                  </>
+                )}
 
                 <div className="flex items-center mb-1 mt-4">
                   <div className="mr-2">
@@ -253,14 +281,15 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
         {slides.files?.length > 2 && (
           <div className="mb-[55px]">
-            <SlickCarousel 
-              slides={slides}  
-              dots={true} 
-              showArrows={true} 
-              centerMode={true} 
+            <SlickCarousel
+              slides={slides}
+              dots={true}
+              showArrows={true}
+              centerMode={true}
               variableWidth={true}
               parentClass="article-slider"
-              slideStyles="mx-2 relative" customStyle="h-[370px]" 
+              slideStyles="mx-2 relative"
+              customStyle="h-[370px]"
             />
           </div>
         )}
@@ -276,8 +305,17 @@ export default function Article({ articleType, initialArticleData }: { articleTy
           </div>
         )}
 
-        {dopPrograms && dopPrograms.length > 0 && <OtherDopBlocks dopBlocks={dopPrograms} link={articleType?.toLowerCase() as ArticleTypeEnum} 
-        title={articleType === ArticleTypeEnum.NEWS ? 'news_page.other_news' : 'events_page.other_events'} />}
+        {dopPrograms && dopPrograms.length > 0 && (
+          <OtherDopBlocks
+            dopBlocks={dopPrograms}
+            link={articleType?.toLowerCase() as ArticleTypeEnum}
+            title={
+              articleType === ArticleTypeEnum.NEWS
+                ? 'news_page.other_news'
+                : 'events_page.other_events'
+            }
+          />
+        )}
       </div>
     </div>
   );

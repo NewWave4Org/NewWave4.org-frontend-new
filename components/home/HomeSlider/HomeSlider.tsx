@@ -33,7 +33,18 @@ interface HomeSliderProps {
   slidesToShow?: number;
 }
 
-function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, slideHover = true, className = '', dots = true, autoplay = true, variableWidth = true, slidesToShow = 3 }: HomeSliderProps) {
+function HomeSlider({
+  slides,
+  speed = 400,
+  infinite = true,
+  showArrows = true,
+  slideHover = true,
+  className = '',
+  dots = true,
+  autoplay = true,
+  variableWidth = true,
+  slidesToShow = 3,
+}: HomeSliderProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -45,12 +56,18 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
 
   const sliderLength = slides.length;
   const isVariableWidth = sliderLength > 2 && variableWidth;
-  const resolvedSlidesToShow = isVariableWidth ? undefined : sliderLength <= 2 ? 1 : slidesToShow;
+  const resolvedSlidesToShow = isVariableWidth
+    ? undefined
+    : sliderLength <= 2
+      ? 1
+      : slidesToShow;
 
   const settings = {
     className: 'h-full',
     dots: dots,
-    appendDots: dots ? (dotsElements: React.ReactNode) => <SliderDots dots={dotsElements} /> : undefined,
+    appendDots: dots
+      ? (dotsElements: React.ReactNode) => <SliderDots dots={dotsElements} />
+      : undefined,
     infinite: infinite,
     speed: speed,
     slidesToScroll: 1,
@@ -82,13 +99,21 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
       <div className="h-full w-full">
         <Slider {...settings}>
           {slides?.map((slide, index) => {
-            const slideDescriptionText = convertDraftToHTML(slide?.translatable_text_editorState);
+            const slideDescriptionText = convertDraftToHTML(
+              slide?.translatable_text_editorState,
+            );
 
             const slideContent = (
               <div className="w-full h-full slide-group px-2">
                 <div className="relative w-full h-full ">
                   {slide.files.map((file: string, idx: number) => (
-                    <Image key={idx} src={file} alt={slide.translatable_text_title ?? 'photo'} fill className="embla-slide-img transition-all duration-300 object-cover rounded-xl" />
+                    <Image
+                      key={idx}
+                      src={file}
+                      alt={slide.translatable_text_title ?? 'photo'}
+                      fill
+                      className="embla-slide-img transition-all duration-300 object-cover rounded-xl"
+                    />
                   ))}
 
                   <div
@@ -106,8 +131,15 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
                     "
                   >
                     <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end">
-                      <div className="text-white text-base font-medium mb-1">{slide.translatable_text_title}</div>
-                      <div className="text-grey-200 line-clamp-2 text-xs" dangerouslySetInnerHTML={{ __html: slideDescriptionText }} />
+                      <div className="text-white text-base font-medium mb-1">
+                        {slide.translatable_text_title}
+                      </div>
+                      <div
+                        className="text-grey-200 line-clamp-2 text-xs"
+                        dangerouslySetInnerHTML={{
+                          __html: slideDescriptionText,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -115,7 +147,11 @@ function HomeSlider({ slides, speed = 400, infinite = true, showArrows = true, s
             );
 
             return (
-              <div key={index} className={`relative group flex-shrink-0 h-full group/slide`} style={{ width: sliderLength > 2 ? '556px' : '100%' }}>
+              <div
+                key={index}
+                className={`relative group flex-shrink-0 h-full group/slide`}
+                style={{ width: sliderLength > 2 ? '556px' : '100%' }}
+              >
                 {typeof slide.link === 'string' && slide.link.trim() !== '' ? (
                   <Link href={slide.link} className="block h-full">
                     {slideContent}
