@@ -23,13 +23,35 @@ TTFB is a component of LCP. "Takes 4–6 seconds to load" is an LCP problem; TTF
 | -------------------- | ---------------------------------------------------- | ------------------------------------------------------- |
 | DNS + TCP + TLS      | ~130 ms                                              | Fine. Not worth touching.                               |
 | Redirect `/` → `/ua` | **164 ms**                                           | A full extra round trip before any content is requested |
-| TTFB on `/ua`        | **751 ms**                                           | Server-side render, CPU-throttled (see §3.2)            |
+| TTFB (SSR)           | **p50 513 ms, p90 1109 ms, max 1684 ms**             | n=33. Highly variable — see below                       |
 | HTML                 | 17 KB compressed (74.7 KB raw)                       | Reasonable                                              |
 | JavaScript           | **391 KB compressed / 1282 KB raw** across 20 chunks | The dominant cost                                       |
 
 Compression _is_ working (the earlier raw figures were measured without `Accept-Encoding`; both are listed because they matter for different reasons — the compressed number is transfer time, the raw number is parse/execute time).
 
-**Why this adds up to 4–6s on a real device:** ~0.9s server, ~1s transfer on mid-tier mobile, then **1282 KB of JavaScript to parse, execute and hydrate**, which on a mid-range phone is comfortably 2–3s. Desktop on fast broadband will not reproduce the complaint; a phone on 4G will.
+### TTFB is not a number, it is a distribution
+
+An earlier revision of this document reported TTFB as **751 ms**, from a single request. That was wrong to state as a point value. Across 33 samples of the same two URLs:
+
+|     | TTFB    |
+| --- | ------- |
+| min | 0.244 s |
+| p50 | 0.513 s |
+| p90 | 1.109 s |
+| max | 1.684 s |
+
+**A 6.9× spread on identical requests, with 18% of them over one second.** The same URL, requested sequentially with nothing else driving load, returned 0.986 s, then 1.624 s, then 0.630 s.
+
+Two things this rules out:
+
+- **It is not locale-dependent.** `/en` looked twice as slow as `/ua` at n=1 (1.09 s vs 0.751 s). At n=12 each, both sit at p50 ≈ 0.445 s with the same tail. There is no English-specific penalty; the first samples just landed in different parts of one distribution.
+- **It is not caused by the client's own concurrency.** Issuing two requests at once produced the same spread as issuing them one at a time.
+
+What it is consistent with is **§3.2 — the `150m` CPU cap**. At 0.15 of a core there is no headroom to absorb a second concurrent render, so anything else happening on the pod (another visitor, a health probe, garbage collection) pushes a render from ~0.4 s into the 1–1.7 s range. That matches the #449 load test exactly, where p50 went from 194 ms at `500m` to 905 ms at `150m`.
+
+The practical consequence: **the user-visible worst case is much worse than the median**, which is why the complaint is "4–6 seconds _or longer_" rather than a consistent number. Any measurement of this should be reported as a distribution over at least 20 samples, never a single figure.
+
+**Why this adds up to 4–6s on a real device:** 0.5–1.7s server (see above), ~1s transfer on mid-tier mobile, then **1282 KB of JavaScript to parse, execute and hydrate**, which on a mid-range phone is comfortably 2–3s. Desktop on fast broadband will not reproduce the complaint; a phone on 4G will.
 
 ---
 
@@ -140,9 +162,13 @@ Items 1, 3, 4 and 6 need no access outside this repo. Items 2 and 5 are gated on
 Numbers, not impressions — the same commands used above:
 
 ```bash
-# TTFB and the redirect hop
-curl -sS -o /dev/null -w "TTFB=%{time_starttransfer}s total=%{time_total}s code=%{http_code}\n" \
-  https://new.newwave4.org/ua
+# TTFB — sample at least 20 times. A single request tells you nothing here:
+# the observed spread is 6.9x, so one sample can land anywhere in 0.24-1.68s.
+for i in $(seq 1 20); do
+  curl -sS -o /dev/null -w "%{time_starttransfer}\n" https://new.newwave4.org/ua
+done | sort -n | awk '{a[NR]=$1} END {printf "min=%.3f p50=%.3f p90=%.3f max=%.3f\n", a[1], a[int(NR*0.5)], a[int(NR*0.9)], a[NR]}'
+
+# The redirect hop, paid before the real request starts
 curl -sS -o /dev/null -w "redirect TTFB=%{time_starttransfer}s code=%{http_code}\n" \
   https://new.newwave4.org/
 
