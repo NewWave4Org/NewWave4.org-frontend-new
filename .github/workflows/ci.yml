@@ -18,15 +18,71 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Decides whether this change can affect the build at all. Deliberately NOT
+  # done with `paths-ignore` on the trigger above: three of this workflow's
+  # checks are *required* by branch protection, and a workflow skipped by path
+  # filtering never reports them at all — the PR then waits on a check that can
+  # never arrive and is unmergeable forever. Skipping the job instead still
+  # produces a check run (conclusion: skipped), which satisfies the requirement.
+  #
+  # Fails safe: anything that is not clearly documentation counts as code, and
+  # non-pull_request events always run the full gates.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect whether anything outside docs changed
+        id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "pull_request" ]; then
+            echo "Not a pull_request event — running full gates."
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "Changed files:"
+          echo "$CHANGED" | sed 's/^/  /'
+
+          # Documentation-only means: docs/, or a top-level *.md. Everything
+          # else — including .github/, package.json and any source file — is
+          # code. Workflow changes must always be exercised by the real gates.
+          if printf '%s\n' "$CHANGED" | grep -qvE '^(docs/|[^/]+\.md$)'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "Non-documentation changes present — running full gates."
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Documentation-only change — skipping build gates."
+          fi
+
+  # NOT `if: ... == 'true'`. Skipping this call outright means its child jobs
+  # never exist, so the required contexts `quality-gates / casing-guard`,
+  # `/ unit-test` and `/ docker-smoke` never report and the PR is blocked on
+  # checks that can never arrive — verified the hard way on PR #503. Passing a
+  # flag instead keeps every job running and reporting, doing no work.
   quality-gates:
+    needs: changes
     uses: ./.github/workflows/_quality-gates.yml
+    with:
+      run_full: ${{ needs.changes.outputs.code == 'true' }}
     secrets: inherit
 
   # Ephemeral, traceable image for manual reviewer pulls on PRs into development.
   # Never a real semver, never auto-deployed anywhere.
   docker-pr-publish:
     name: docker-pr-publish
-    needs: quality-gates
+    needs: [changes, quality-gates]
     # Skipped for Dependabot, which GitHub runs without repo secrets. This job
     # exists to give a reviewer a pullable image; built from placeholder env it
     # would point at https://ci.invalid and be actively misleading to anyone who
@@ -38,6 +94,7 @@ jobs:
       github.event_name == 'pull_request'
       && github.base_ref == 'development'
       && github.actor != 'dependabot[bot]'
+      && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     permissions:
       packages: write
