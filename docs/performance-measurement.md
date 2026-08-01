@@ -22,11 +22,11 @@ The temptation is to answer from intuition — "156Mi looks small for Node, let'
 
 If these are already familiar, skip to §3.
 
-**Millicores (`150m`).** Kubernetes measures CPU in thousandths of a core. `1000m` = 1 full core. So `150m` = **0.15 of one CPU core** — about a seventh of a core. This is not "slow CPU"; it is a hard ceiling. When the app wants more, the kernel simply stops scheduling it for the rest of each time slice. That is *throttling*, and it shows up as latency, not as an error.
+**Millicores (`150m`).** Kubernetes measures CPU in thousandths of a core. `1000m` = 1 full core. So `150m` = **0.15 of one CPU core** — about a seventh of a core. This is not "slow CPU"; it is a hard ceiling. When the app wants more, the kernel simply stops scheduling it for the rest of each time slice. That is _throttling_, and it shows up as latency, not as an error.
 
 **Memory limits.** Different failure mode entirely. Exceed a memory limit and the kernel **kills the process instantly** (an "OOMKill"). There is no graceful degradation. So CPU pressure looks like slowness; memory pressure looks like a restart.
 
-**Requests vs limits.** A *request* is what the pod reserves — the scheduler uses it to decide which node has room. A *limit* is the hard ceiling. They can differ: reserve a little, burst to more. Staging had them set **equal** (`150m`/`156Mi` for both), which means no burst headroom at all.
+**Requests vs limits.** A _request_ is what the pod reserves — the scheduler uses it to decide which node has room. A _limit_ is the hard ceiling. They can differ: reserve a little, burst to more. Staging had them set **equal** (`150m`/`156Mi` for both), which means no burst headroom at all.
 
 **Why this app is CPU-heavy.** It is server-side rendered. Every request for a page makes the Node process build HTML on the fly — parse, render React components, serialise. That is CPU work, and it happens per request. A static site just hands over a file; this does not.
 
@@ -38,7 +38,7 @@ If these are already familiar, skip to §3.
 
 The obvious move is to load-test the live staging site at `new.newwave4.org`. It was attempted and **blocked as a denial-of-service-shaped action**, which is correct: firing hundreds of concurrent requests at a live host is indistinguishable from an attack, whoever owns it.
 
-Worth noting it was also the *weaker* experiment, for reasons unrelated to safety:
+Worth noting it was also the _weaker_ experiment, for reasons unrelated to safety:
 
 - It measures the whole internet path — DNS, TLS, ingress, the network — not the container. Latency would include things that have nothing to do with the CPU limit.
 - Two replicas sit behind a load balancer, so load is split unpredictably.
@@ -52,7 +52,7 @@ So the constraint pushed toward a better method rather than away from an answer.
 
 **Run the real production Docker image locally, constrained to exactly the same limits, and load it there.**
 
-The key insight is that a Kubernetes CPU/memory limit and a Docker `--cpus`/`--memory` flag are *the same mechanism* — both are Linux cgroups. A container capped at `--cpus=0.15` is throttled identically to a pod limited to `150m`. So the constraint under test is reproduced faithfully, even though the orchestrator is not.
+The key insight is that a Kubernetes CPU/memory limit and a Docker `--cpus`/`--memory` flag are _the same mechanism_ — both are Linux cgroups. A container capped at `--cpus=0.15` is throttled identically to a pod limited to `150m`. So the constraint under test is reproduced faithfully, even though the orchestrator is not.
 
 What this gives up, stated honestly:
 
@@ -81,12 +81,12 @@ kubectl top nodes                                                   # cluster he
 
 Results:
 
-| What | Value |
-|---|---|
-| Configured | 2 replicas, requests **and** limits = `150m` / `156Mi` |
-| Actual usage (idle) | `1m` CPU, **73Mi** and **98Mi** memory |
-| HPA | min 1, max 5, targets 80% — currently `cpu: 24%/80%`, `memory: 59%/80%`, **306 days old** |
-| Nodes | 3 × 4 CPU / ~4009Mi, memory **70–81% used** |
+| What                | Value                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| Configured          | 2 replicas, requests **and** limits = `150m` / `156Mi`                                    |
+| Actual usage (idle) | `1m` CPU, **73Mi** and **98Mi** memory                                                    |
+| HPA                 | min 1, max 5, targets 80% — currently `cpu: 24%/80%`, `memory: 59%/80%`, **306 days old** |
+| Nodes               | 3 × 4 CPU / ~4009Mi, memory **70–81% used**                                               |
 
 Two things already stand out without any load test:
 
@@ -137,7 +137,7 @@ t=16s  mem=88.00MiB (56.41%)  cpu=4.89%     <- load finishing
 t=18s  mem=86.30MiB (55.32%)  cpu=0.05%
 ```
 
-**Reading the CPU column is the crux.** `docker stats` reports CPU as a percentage of *one core*. The container is capped at `--cpus=0.15`, i.e. 15% of a core. It reports **15.22%, 15.36%, 15.04%, 15.21%** — pinned at the ceiling for the entire run. The app is not "using some CPU"; it is being held back by the limit the whole time.
+**Reading the CPU column is the crux.** `docker stats` reports CPU as a percentage of _one core_. The container is capped at `--cpus=0.15`, i.e. 15% of a core. It reports **15.22%, 15.36%, 15.04%, 15.21%** — pinned at the ceiling for the entire run. The app is not "using some CPU"; it is being held back by the limit the whole time.
 
 Latency:
 
@@ -183,43 +183,43 @@ Time per request:     236.480 ms (mean)
 
 ## 6. The comparison
 
-| | `150m`/`156Mi` (live) | `500m`/`512Mi` (chart default) | Change |
-|---|---|---|---|
-| Throughput | 9.19 req/s | **42.29 req/s** | **4.6× more** |
-| Median (p50) | 905 ms | **194 ms** | 4.7× faster |
-| p95 | 1497 ms | 384 ms | 3.9× faster |
-| p99 | 2103 ms | 494 ms | 4.3× faster |
-| Worst request | 2963 ms | 582 ms | 5.1× faster |
-| Failed requests | 0 | 0 | — |
-| Peak memory | 89Mi (**57%** of cap) | 97Mi (**19%** of cap) | ~unchanged |
-| CPU during load | pinned at cap | pinned at cap | — |
+|                 | `150m`/`156Mi` (live) | `500m`/`512Mi` (chart default) | Change        |
+| --------------- | --------------------- | ------------------------------ | ------------- |
+| Throughput      | 9.19 req/s            | **42.29 req/s**                | **4.6× more** |
+| Median (p50)    | 905 ms                | **194 ms**                     | 4.7× faster   |
+| p95             | 1497 ms               | 384 ms                         | 3.9× faster   |
+| p99             | 2103 ms               | 494 ms                         | 4.3× faster   |
+| Worst request   | 2963 ms               | 582 ms                         | 5.1× faster   |
+| Failed requests | 0                     | 0                              | —             |
+| Peak memory     | 89Mi (**57%** of cap) | 97Mi (**19%** of cap)          | ~unchanged    |
+| CPU during load | pinned at cap         | pinned at cap                  | —             |
 
 ---
 
 ## 7. How the conclusion was reached
 
-**Memory is not the constraint.** The working set landed at ~89Mi and ~97Mi — *essentially the same* despite one container having 3.3× more memory available. An app starved of memory would have used whatever it was given, or died. It did neither, and nothing was OOMKilled. The live pods agree: 73Mi and 98Mi. So the honest read is **~95–100Mi under load**, and `156Mi` is not immediately fatal — it just leaves only ~36% headroom for garbage collection.
+**Memory is not the constraint.** The working set landed at ~89Mi and ~97Mi — _essentially the same_ despite one container having 3.3× more memory available. An app starved of memory would have used whatever it was given, or died. It did neither, and nothing was OOMKilled. The live pods agree: 73Mi and 98Mi. So the honest read is **~95–100Mi under load**, and `156Mi` is not immediately fatal — it just leaves only ~36% headroom for garbage collection.
 
 This matters because the issue's own framing assumed memory was the risk. The data says otherwise.
 
-**CPU is the constraint.** The CPU column is pinned at the cap in *both* runs, and throughput scales almost linearly with the cap (3.3× more CPU → 4.6× more throughput). When output tracks a resource that closely, and that resource is provably maxed out, it is the bottleneck. Nothing else in the system moved.
+**CPU is the constraint.** The CPU column is pinned at the cap in _both_ runs, and throughput scales almost linearly with the cap (3.3× more CPU → 4.6× more throughput). When output tracks a resource that closely, and that resource is provably maxed out, it is the bottleneck. Nothing else in the system moved.
 
-**One honest caveat, because it changes the recommendation.** At `500m` the container was *also* at its ceiling (52.14%, 50.81% of a core against a 50% cap). So `500m` is not "enough CPU" in an absolute sense — 10 concurrent renders saturate that too. It simply has 3.3× more capacity, so it clears the same queue 4.6× faster. The correct conclusion is *"CPU is what to buy"*, not *"500m is sufficient"*. How much is enough depends on real concurrency, which nobody has measured yet.
+**One honest caveat, because it changes the recommendation.** At `500m` the container was _also_ at its ceiling (52.14%, 50.81% of a core against a 50% cap). So `500m` is not "enough CPU" in an absolute sense — 10 concurrent renders saturate that too. It simply has 3.3× more capacity, so it clears the same queue 4.6× faster. The correct conclusion is _"CPU is what to buy"_, not _"500m is sufficient"_. How much is enough depends on real concurrency, which nobody has measured yet.
 
 **This is the same fault as the July crash-loop.** Probes were hitting an expensive SSR path under this CPU cap, and timing out. The probe path was changed to something cheap, which stopped the bleeding — but the starvation underneath is unchanged and still live.
 
-**The HPA is mis-tuned, discovered along the way.** It scales on utilisation of *requests*, and requests are set equal to limits at `156Mi`. With a ~95–100Mi working set, memory idles near 60% — against an 80% trigger. So it adds replicas for what is just Node's normal heap rather than for load. Restoring a `256Mi` request puts that at ~39% and lets CPU, the real constraint, drive scaling.
+**The HPA is mis-tuned, discovered along the way.** It scales on utilisation of _requests_, and requests are set equal to limits at `156Mi`. With a ~95–100Mi working set, memory idles near 60% — against an 80% trigger. So it adds replicas for what is just Node's normal heap rather than for load. Restoring a `256Mi` request puts that at ~39% and lets CPU, the real constraint, drive scaling.
 
-**Cluster headroom — and a correction worth learning from.** The first pass at this read `kubectl top nodes` (70–81% memory used) and concluded the limits could not be raised much. That was wrong, and the mistake is a common one: **Kubernetes schedules on *requests*, not on actual usage.** On `newwave4org-node01` requests are only **29% memory / 49% CPU**, leaving ~`2839Mi` schedulable — the committed `100m`/`256Mi` requests fit comfortably even at the HPA's 5-replica maximum (`1280Mi`).
+**Cluster headroom — and a correction worth learning from.** The first pass at this read `kubectl top nodes` (70–81% memory used) and concluded the limits could not be raised much. That was wrong, and the mistake is a common one: **Kubernetes schedules on _requests_, not on actual usage.** On `newwave4org-node01` requests are only **29% memory / 49% CPU**, leaving ~`2839Mi` schedulable — the committed `100m`/`256Mi` requests fit comfortably even at the HPA's 5-replica maximum (`1280Mi`).
 
 Both numbers are real, they just answer different questions:
 
-| Question | Which number | node01 |
-|---|---|---|
-| Will the pod be *scheduled*? | requests vs allocatable | 29% used → yes, lots of room |
-| Will the node run out of memory? | actual usage | 81% used → ~800Mi of real headroom |
+| Question                         | Which number            | node01                             |
+| -------------------------------- | ----------------------- | ---------------------------------- |
+| Will the pod be _scheduled_?     | requests vs allocatable | 29% used → yes, lots of room       |
+| Will the node run out of memory? | actual usage            | 81% used → ~800Mi of real headroom |
 
-So the honest constraint is worst-case burst, not schedulability: five pods at the observed ~100Mi working set is ~`500Mi` and fine; five pods each *allowed* the full `512Mi` is `2560Mi` and would exhaust the node.
+So the honest constraint is worst-case burst, not schedulability: five pods at the observed ~100Mi working set is ~`500Mi` and fine; five pods each _allowed_ the full `512Mi` is `2560Mi` and would exhaust the node.
 
 **The bigger finding is not the limits at all.** The overlay sets `nodeSelector: kubernetes.io/hostname: newwave4org-node01`, pinning every replica to that one node — the most loaded of the three. There is no spreading and no high availability: losing that node takes the site down, and the HPA can only add replicas onto the box it is already crowding. For "does staging resemble production", that matters more than any CPU number.
 
@@ -227,7 +227,7 @@ So the honest constraint is worst-case burst, not schedulability: five pods at t
 
 ## 8. What was deliberately not concluded
 
-- **No production number is proposed.** Absolute throughput on a laptop does not transfer to a cluster node, and expected production concurrency is unknown. What transfers is the *ratio* and the *shape* of the bottleneck.
+- **No production number is proposed.** Absolute throughput on a laptop does not transfer to a cluster node, and expected production concurrency is unknown. What transfers is the _ratio_ and the _shape_ of the bottleneck.
 - **The running limits were not changed.** They come from a `VALUES_YAML` repo secret, applied over the committed chart at deploy time. Editing the chart in git changes nothing until that secret changes.
 - **`replicaCount` for production is left open.** The existing `frontend-prod` runs 3 replicas of a much lighter static app (4–5Mi, 0m CPU) — not a precedent for an SSR workload.
 
@@ -235,7 +235,7 @@ So the honest constraint is worst-case burst, not schedulability: five pods at t
 
 ## 9. What to actually change
 
-Editing `helm/frontend-chart/values.yaml` does **not** change what runs. Confirmed with `helm -n staging get values newwave4-frontend`, which lists `resources` under `USER-SUPPLIED VALUES` — it comes from the `VALUES_YAML` repo secret, and the deploy applies that secret *after* the committed chart, so the secret wins.
+Editing `helm/frontend-chart/values.yaml` does **not** change what runs. Confirmed with `helm -n staging get values newwave4-frontend`, which lists `resources` under `USER-SUPPLIED VALUES` — it comes from the `VALUES_YAML` repo secret, and the deploy applies that secret _after_ the committed chart, so the secret wins.
 
 [ADR 0005](./decisions/0005-commit-helm-values-defaults-to-git.md) intended that secret to carry only the three genuinely-secret `NEXT_PUBLIC_*` values, with everything else committed and reviewable. It has drifted well past that: it now also pins resources, autoscaling, replica count and node placement — all non-secret infrastructure config that is invisible in git and cannot be diffed in a PR.
 

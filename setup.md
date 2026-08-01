@@ -12,15 +12,15 @@ This guide will help you run the full application stack locally for testing purp
 
 ### ✅ Backend
 
-* Java 21 or above
-* Maven 3.6+
-* PostgreSQL
-* Docker (optional for PostgreSQL setup)
+- Java 21 or above
+- Maven 3.6+
+- PostgreSQL
+- Docker (optional for PostgreSQL setup)
 
 ### ✅ Frontend
 
-* Node.js v18 or above
-* npm or yarn
+- Node.js v18 or above
+- npm or yarn
 
 ---
 
@@ -37,8 +37,8 @@ cd <your-backend-directory>
 
 If you have PostgreSQL installed locally:
 
-* Create a database named: `new_wave_dev`
-* Set the username and password as configured in `application-dev.yml`
+- Create a database named: `new_wave_dev`
+- Set the username and password as configured in `application-dev.yml`
 
 ```sql
 CREATE DATABASE new_wave_dev;
@@ -128,11 +128,11 @@ Or with Maven installed:
 mvn spring-boot:run
 ```
 
-* The backend runs at: `http://localhost:8080`
-* Sample admin login:
+- The backend runs at: `http://localhost:8080`
+- Sample admin login:
 
-  * **Email**: `admin@gmail.com`
-  * **Password**: `12345678`
+  - **Email**: `admin@gmail.com`
+  - **Password**: `12345678`
 
 ---
 
@@ -174,20 +174,19 @@ npm run dev
 yarn dev
 ```
 
-* The frontend runs at: `http://localhost:3000`
+- The frontend runs at: `http://localhost:3000`
 
 ---
 
 ## ✅ Final Check
 
-* Backend: [http://localhost:8080/](http://localhost:8080/)
-* Frontend: [http://localhost:3000/admin](http://localhost:3000/admin)
+- Backend: [http://localhost:8080/](http://localhost:8080/)
+- Frontend: [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ---
 
 ## 💡 Notes for Testers
 
-* The backend auto-creates and updates tables (`hibernate.ddl-auto=update`).
-* SQL scripts (if any) will auto-run on startup (`spring.sql.init.mode=always`).
-* JWT tokens are managed internally using the `jwt.secret` key.
-
+- The backend auto-creates and updates tables (`hibernate.ddl-auto=update`).
+- SQL scripts (if any) will auto-run on startup (`spring.sql.init.mode=always`).
+- JWT tokens are managed internally using the `jwt.secret` key.

@@ -1,6 +1,6 @@
-import { NewsletterRequestDTO } from "./type/interface";
-import { INewsletterAPI } from "./type/newsletter-api.inteface";
-import { INewsletterService } from "./type/newsletter-service.inteface";
+import { NewsletterRequestDTO } from './type/interface';
+import { INewsletterAPI } from './type/newsletter-api.inteface';
+import { INewsletterService } from './type/newsletter-service.inteface';
 
 class NewsletterService implements INewsletterService {
   private newsletter: INewsletterAPI;

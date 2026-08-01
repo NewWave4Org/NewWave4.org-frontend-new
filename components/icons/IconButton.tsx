@@ -1,7 +1,6 @@
 'use client';
 
-interface IconButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   size?: '32px' | '56px';
   isSocial?: boolean;

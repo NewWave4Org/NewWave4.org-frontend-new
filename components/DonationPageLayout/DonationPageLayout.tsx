@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import PaymentContextAPI from "@/stores/PaymentContextAPI";
-import { Provider } from "react-redux";
-import { store } from "@/store/store";
+import PaymentContextAPI from '@/stores/PaymentContextAPI';
+import { Provider } from 'react-redux';
+import { store } from '@/store/store';
 
 function DonationPageLayout({ children }: any) {
   return (
@@ -10,6 +10,6 @@ function DonationPageLayout({ children }: any) {
       <PaymentContextAPI>{children}</PaymentContextAPI>
     </Provider>
   );
-};
+}
 
 export default DonationPageLayout;

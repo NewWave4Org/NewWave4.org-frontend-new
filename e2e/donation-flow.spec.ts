@@ -5,7 +5,9 @@ import { expect, test } from '@playwright/test';
 // components/payment/PaypalComponent.tsx, whose exact casing/path is only
 // checked at import-time by CI's casing-guard job, not exercised live.
 test.describe('donation flow', () => {
-  test('renders the donation form with Stripe and PayPal options', async ({ page }) => {
+  test('renders the donation form with Stripe and PayPal options', async ({
+    page,
+  }) => {
     await page.goto('/donation');
 
     await expect(page.getByLabel(/donation amount/i)).toBeVisible();

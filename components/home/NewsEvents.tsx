@@ -21,7 +21,9 @@ const NewsEvents = ({
   return (
     <section className={`${className} news-section`}>
       <div className="container mx-auto px-4">
-        <h4 className="uppercase  !text-font-primary font-ebGaramond !text-2xl font-bold">{t(`${titleEvents}`)}</h4>
+        <h4 className="uppercase  !text-font-primary font-ebGaramond !text-2xl font-bold">
+          {t(`${titleEvents}`)}
+        </h4>
       </div>
       <div>
         <Tabs>

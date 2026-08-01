@@ -7,15 +7,14 @@ import UnsubscribeResultChecking from './checking/UnsubscribeResultChecking';
 import UnsubscribeResultSuccess from './success/UnsubscribeResultSuccess';
 import UnsubscribeResultFailed from './failed/UnsubscribeResultFailed';
 
-function UnsubscribeResult({id}: {id: string}) {
-  
+function UnsubscribeResult({ id }: { id: string }) {
   const dispatch = useAppDispatch();
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     async function fetchUnsubscribeResult() {
-      if(id) {
+      if (id) {
         try {
           await dispatch(confirmUnsubscribe(id)).unwrap();
           setStatus('success');
@@ -28,14 +27,15 @@ function UnsubscribeResult({id}: {id: string}) {
     }
 
     fetchUnsubscribeResult();
-    
-    }, [id, dispatch]);
+  }, [id, dispatch]);
 
   return (
     <div className="container mx-auto px-4">
       {status === 'idle' && <UnsubscribeResultChecking />}
       {status === 'success' && <UnsubscribeResultSuccess />}
-      {status === 'error' && <UnsubscribeResultFailed errorMessage={errorMessage} />}
+      {status === 'error' && (
+        <UnsubscribeResultFailed errorMessage={errorMessage} />
+      )}
     </div>
   );
 }

@@ -15,7 +15,6 @@ const NewsContent = ({ activeFilter, articleType }: NewsContentProps) => {
   const [page, setPage] = useState(0);
   const t = useTranslations('articles');
 
-
   const { articles, loading, totalPages } = useArticles({
     articleType,
     page,
@@ -27,29 +26,26 @@ const NewsContent = ({ activeFilter, articleType }: NewsContentProps) => {
     setPage(0);
   }, [activeFilter]);
 
-  if(loading || !articles) {
+  if (loading || !articles) {
     return (
-
-      <div className="w-full text-center py-8 text-gray-500">
-        Loading...
-      </div>
+      <div className="w-full text-center py-8 text-gray-500">Loading...</div>
     );
   }
 
   return (
     <>
-      {articles.length > 0
-        ? <ArticlesGrid
+      {articles.length > 0 ? (
+        <ArticlesGrid
           articles={articles}
           totalPages={totalPages}
           currentPage={page}
           onPageChange={setPage}
           basePath={articleType === 'NEWS' ? '/news' : '/events'}
         />
-        : <div className='text-center pt-16'>{t('articles_empty')}</div>
-      }
+      ) : (
+        <div className="text-center pt-16">{t('articles_empty')}</div>
+      )}
     </>
-    
   );
 };
 

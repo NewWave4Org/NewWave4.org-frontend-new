@@ -41,7 +41,9 @@ function PaymentContextAPI(props: React.PropsWithChildren<{}>) {
   const [isPaymentError, setIsPaymentError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('');
-  const [paymentDetails, setPaymentDetails] = useState<IPaymentDetails>({ purpose: '' });
+  const [paymentDetails, setPaymentDetails] = useState<IPaymentDetails>({
+    purpose: '',
+  });
 
   const values: IPaymentContext = {
     isPaymentApproved,
@@ -55,7 +57,9 @@ function PaymentContextAPI(props: React.PropsWithChildren<{}>) {
     paymentDetails,
     setPaymentDetails,
   };
-  return <PaymentContext.Provider value={values}>{children}</PaymentContext.Provider>;
+  return (
+    <PaymentContext.Provider value={values}>{children}</PaymentContext.Provider>
+  );
 }
 
 export default PaymentContextAPI;

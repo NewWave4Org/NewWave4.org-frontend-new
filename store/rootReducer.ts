@@ -11,7 +11,7 @@ const appReducer = combineReducers({
   authUser: authSlice,
   users: usersSlice,
   articleContent: articleContentSlice,
-  allDonation: donationSlice
+  allDonation: donationSlice,
 });
 
 const rootReducer = (state: any, action: any) => {

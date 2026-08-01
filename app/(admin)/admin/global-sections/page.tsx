@@ -24,7 +24,10 @@ function GlobalSectionsPage() {
       renderHeader={() => (
         <>
           {TableHeader.map(({ id, title }) => (
-            <th key={id} className={`pl-3 pb-4 border-b border-admin-300 ${id === '2' ? 'text-right' : ''}`}>
+            <th
+              key={id}
+              className={`pl-3 pb-4 border-b border-admin-300 ${id === '2' ? 'text-right' : ''}`}
+            >
               {title}
             </th>
           ))}

@@ -2,7 +2,10 @@
 
 import { useAppDispatch } from '@/store/hook';
 import { getPages } from '@/store/pages/action';
-import { ChangedPagesBody, IPagesResponseDTO } from '@/utils/pages/types/interfaces';
+import {
+  ChangedPagesBody,
+  IPagesResponseDTO,
+} from '@/utils/pages/types/interfaces';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PagesType } from '../admin/Pages/enum/types';
@@ -20,10 +23,14 @@ import HomeSlider from './HomeSlider/HomeSlider';
 import { EN_LOCALE } from '@/i18n';
 import { useLocale } from 'next-intl';
 
-function buildHomePage(result: IPagesResponseDTO, locale: string): ChangedPagesBody {
+function buildHomePage(
+  result: IPagesResponseDTO,
+  locale: string,
+): ChangedPagesBody {
   return {
     ...result,
-    contentBlocksToShow: locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks,
+    contentBlocksToShow:
+      locale === EN_LOCALE ? result.contentBlocksEng : result.contentBlocks,
   };
 }
 
@@ -32,7 +39,10 @@ interface IHomePageClientSide {
   initialPartnersData?: IGlobalSectionsResponseDTO | null;
 }
 
-function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomePageClientSide) {
+function HomePageClientSide({
+  initialHomePageData,
+  initialPartnersData,
+}: IHomePageClientSide) {
   const dispatch = useAppDispatch();
   const locale = useLocale();
 
@@ -40,18 +50,39 @@ function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomeP
   // app/[locale]/(main)/page.tsx) so the hero/partners don't flash empty on load.
   const usedInitialData = useRef(false);
 
-  const [homePage, setHomePage] = useState<ChangedPagesBody | null>(() => (initialHomePageData ? buildHomePage(initialHomePageData, locale) : null));
-  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(initialPartnersData ?? null);
+  const [homePage, setHomePage] = useState<ChangedPagesBody | null>(() =>
+    initialHomePageData ? buildHomePage(initialHomePageData, locale) : null,
+  );
+  const [ourPartners, setOurPartners] =
+    useState<IGlobalSectionsResponseDTO | null>(initialPartnersData ?? null);
 
-  const slides = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SLIDER') || [];
-  const homeTitleUA = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE_UA')?.text_title_ua;
-  const homeTitleENG = homePage?.contentBlocks?.find(item => item.contentBlockType === 'HOME_TITLE_ENG')?.text_title_eng;
+  const slides =
+    homePage?.contentBlocksToShow?.filter(
+      item => item.contentBlockType === 'SLIDER',
+    ) || [];
+  const homeTitleUA = homePage?.contentBlocks?.find(
+    item => item.contentBlockType === 'HOME_TITLE_UA',
+  )?.text_title_ua;
+  const homeTitleENG = homePage?.contentBlocks?.find(
+    item => item.contentBlockType === 'HOME_TITLE_ENG',
+  )?.text_title_eng;
   const homeTitle = locale === EN_LOCALE ? homeTitleENG : homeTitleUA;
-  const homeDescription = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_DESCRIPTION');
-  const homePhoto = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'HOME_PHOTO');
-  const joinUs = homePage?.contentBlocksToShow?.filter(item => item.contentBlockType === 'JOIN_US') || [];
-  const ourPartnersContent = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'PARTNERS');
-  const videoUrl = homePage?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.video_url;
+  const homeDescription = homePage?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'HOME_DESCRIPTION',
+  );
+  const homePhoto = homePage?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'HOME_PHOTO',
+  );
+  const joinUs =
+    homePage?.contentBlocksToShow?.filter(
+      item => item.contentBlockType === 'JOIN_US',
+    ) || [];
+  const ourPartnersContent = homePage?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'PARTNERS',
+  );
+  const videoUrl = homePage?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'VIDEO',
+  )?.video_url;
 
   useEffect(() => {
     async function getPageByKey() {
@@ -68,7 +99,9 @@ function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomeP
 
     async function getBlockByKey() {
       try {
-        const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS)).unwrap();
+        const result = await dispatch(
+          getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS),
+        ).unwrap();
 
         setOurPartners(result);
       } catch (error: any) {
@@ -89,13 +122,24 @@ function HomePageClientSide({ initialHomePageData, initialPartnersData }: IHomeP
   return (
     <>
       <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 lg:pb-0 mb-0 pb-5">
-        <HomeSlider slides={slides} className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider" />
-        <WhoWeAre homeTitle={homeTitle} homeDescription={homeDescription} homePhoto={homePhoto} className="lg:h-1/2" />
+        <HomeSlider
+          slides={slides}
+          className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider"
+        />
+        <WhoWeAre
+          homeTitle={homeTitle}
+          homeDescription={homeDescription}
+          homePhoto={homePhoto}
+          className="lg:h-1/2"
+        />
       </section>
       <Programs />
       <NewsEvents link="/news" className="!lg:py-10 !py-5" />
       <JoinCommunity joinUs={joinUs} />
-      <Partners ourPartnersContent={ourPartnersContent} className="lg:py-10 py-5 lg:mb-20 mb-10" />
+      <Partners
+        ourPartnersContent={ourPartnersContent}
+        className="lg:py-10 py-5 lg:mb-20 mb-10"
+      />
       {ourPartners && <Sponsors ourPartners={ourPartners?.contentBlocks} />}
       <HomeVideo videoUrl={videoUrl} />
     </>

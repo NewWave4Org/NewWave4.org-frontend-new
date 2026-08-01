@@ -10,8 +10,11 @@ import { ChangedArticleByIdBody } from '@/utils/article-content/type/interfaces'
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import { useLocale, useTranslations } from 'next-intl';
 
-function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefined }) {
-
+function ProgramPreview({
+  program,
+}: {
+  program: ChangedArticleByIdBody | undefined;
+}) {
   const t = useTranslations();
   const locale = useLocale();
 
@@ -19,49 +22,91 @@ function ProgramPreview({ program }: { program: ChangedArticleByIdBody | undefin
 
   const programData: ChangedArticleByIdBody = {
     ...program,
-    titleToShow: locale === EN_LOCALE ? program?.titleEng ?? "" : program?.title,
-    contentBlocksToShow: locale === EN_LOCALE ? program?.contentBlocksEng ?? null : program?.contentBlocks ?? null
+    titleToShow:
+      locale === EN_LOCALE ? (program?.titleEng ?? '') : program?.title,
+    contentBlocksToShow:
+      locale === EN_LOCALE
+        ? (program?.contentBlocksEng ?? null)
+        : (program?.contentBlocks ?? null),
   };
 
   const titleProgram = programData?.titleToShow;
-  const pageBanner = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'PAGE_BANNER')?.files;
-  const dateProgram = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'DATE_PROGRAM')?.date;
-  const descriptionProgram = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'DESCRIPTION_PROGRAM')?.translatable_text_editorState;
+  const pageBanner = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'PAGE_BANNER',
+  )?.files;
+  const dateProgram = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'DATE_PROGRAM',
+  )?.date;
+  const descriptionProgram = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'DESCRIPTION_PROGRAM',
+  )?.translatable_text_editorState;
 
-  const blocksWithPhoto = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_PHOTO');
+  const blocksWithPhoto = programData?.contentBlocksToShow?.filter(
+    item => item.contentBlockType === 'SECTION_WITH_PHOTO',
+  );
   const filteredBlocksWithPhoto = blocksWithPhoto?.filter(item => {
-    return item.translatable_text_sectionTitle !== '' || item.translatable_text_text !== '' || item.files.length > 0;
+    return (
+      item.translatable_text_sectionTitle !== '' ||
+      item.translatable_text_text !== '' ||
+      item.files.length > 0
+    );
   });
 
-  const blocksWithText = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SECTION_WITH_TEXT');
+  const blocksWithText = programData?.contentBlocksToShow?.filter(
+    item => item.contentBlockType === 'SECTION_WITH_TEXT',
+  );
   const filteredBlocksWithText = blocksWithText?.filter(item => {
-    return item.translatable_text_sectionTitle !== '' || item.translatable_text_text1 !== '' || item.translatable_text_text2 !== '';
+    return (
+      item.translatable_text_sectionTitle !== '' ||
+      item.translatable_text_text1 !== '' ||
+      item.translatable_text_text2 !== ''
+    );
   });
 
-  const videoURL = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'VIDEO')?.videoUrl;
+  const videoURL = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'VIDEO',
+  )?.videoUrl;
   const videoLink = convertYoutubeUrlToEmbed(videoURL!);
 
-  const schedulePoster = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_POSTER')?.files;
-  const scheduleTitle = programData?.contentBlocksToShow?.find(item => item.contentBlockType === 'SCHEDULE_TITLE')?.translatable_text_title;
+  const schedulePoster = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'SCHEDULE_POSTER',
+  )?.files;
+  const scheduleTitle = programData?.contentBlocksToShow?.find(
+    item => item.contentBlockType === 'SCHEDULE_TITLE',
+  )?.translatable_text_title;
 
-  const scheduleInfo = programData?.contentBlocksToShow?.filter(item => item.contentBlockType === 'SCHEDULE_INFO');
+  const scheduleInfo = programData?.contentBlocksToShow?.filter(
+    item => item.contentBlockType === 'SCHEDULE_INFO',
+  );
   const filteredScheduleInfo = scheduleInfo?.filter(item => {
     return item.location !== '' || item.translatable_text_title !== '';
   });
 
-  if(locale === EN_LOCALE && (!programData?.contentBlocksEng || programData?.contentBlocksEng.length == 0)) {
+  if (
+    locale === EN_LOCALE &&
+    (!programData?.contentBlocksEng ||
+      programData?.contentBlocksEng.length == 0)
+  ) {
     return (
-      <div className='pt-16'>
-        <div className='text-h4 text-center mb-4'>Oops! This page hasn’t been translated into English yet</div>
-        <p className='text-center'>We’re working on it and hope to have it ready soon.</p>
-        <p className='text-center'>Thanks for your patience!</p>
+      <div className="pt-16">
+        <div className="text-h4 text-center mb-4">
+          Oops! This page hasn’t been translated into English yet
+        </div>
+        <p className="text-center">
+          We’re working on it and hope to have it ready soon.
+        </p>
+        <p className="text-center">Thanks for your patience!</p>
       </div>
     );
   }
 
   return (
     <>
-      <ProgramHeader title={t('program_page.title')} pageBanner={pageBanner} classNameParent="!mb-0" />
+      <ProgramHeader
+        title={t('program_page.title')}
+        pageBanner={pageBanner}
+        classNameParent="!mb-0"
+      />
       <div className="">
         {titleProgram && (
           <ProgramFirstBlocks

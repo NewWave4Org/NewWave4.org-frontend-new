@@ -6,19 +6,23 @@ import ReactPaginate from 'react-paginate';
 
 interface PaginationProps {
   totalPages: number;
-  onPageChange:(page: number) => void;
-  currentPage: number
+  onPageChange: (page: number) => void;
+  currentPage: number;
 }
 
-function Pagination({totalPages, onPageChange, currentPage}: PaginationProps) {
+function Pagination({
+  totalPages,
+  onPageChange,
+  currentPage,
+}: PaginationProps) {
   return (
-    <div className='container mx-auto px-4'>
+    <div className="container mx-auto px-4">
       <ReactPaginate
         breakLabel="..."
         nextLabel={<ArrowRight4Icon />}
         previousLabel={<ArrowLeft4Icon />}
         forcePage={currentPage}
-        onPageChange={(event) => onPageChange(event.selected)}
+        onPageChange={event => onPageChange(event.selected)}
         pageRangeDisplayed={2}
         marginPagesDisplayed={2}
         pageCount={totalPages}

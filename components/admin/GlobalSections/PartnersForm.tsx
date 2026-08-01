@@ -5,7 +5,11 @@ import ImageLoading from '../helperComponents/ImageLoading/ImageLoading';
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@/store/hook';
 import { IGlobalSectionsResponseDTO } from '@/utils/global-sections/type/interfaces';
-import { createdGlobalSection, getGlobalSectionByKey, updateGlobalSection } from '@/store/global-sections/action';
+import {
+  createdGlobalSection,
+  getGlobalSectionByKey,
+  updateGlobalSection,
+} from '@/store/global-sections/action';
 import { toast } from 'react-toastify';
 import useHandleThunk from '@/utils/useHandleThunk';
 
@@ -28,7 +32,8 @@ function PartnersForm() {
   const dispatch = useAppDispatch();
 
   const [submitError, setSubmitError] = useState('');
-  const [ourPartners, setOurPartners] = useState<IGlobalSectionsResponseDTO | null>(null);
+  const [ourPartners, setOurPartners] =
+    useState<IGlobalSectionsResponseDTO | null>(null);
 
   const handleThunk = useHandleThunk();
 
@@ -37,18 +42,26 @@ function PartnersForm() {
   const initialValues = {
     title: 'Our partners',
     key: `${GlobalSectionsType.OUR_PARTNERS}`,
-    contentBlocks: ourPartners?.contentBlocks && ourPartners?.contentBlocks.length ? ourPartners?.contentBlocks : defaultFormValues.contentBlocks,
+    contentBlocks:
+      ourPartners?.contentBlocks && ourPartners?.contentBlocks.length
+        ? ourPartners?.contentBlocks
+        : defaultFormValues.contentBlocks,
   };
 
   // Get global block by key
   useEffect(() => {
     async function getBlockByKey() {
       try {
-        const result = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS)).unwrap();
+        const result = await dispatch(
+          getGlobalSectionByKey(GlobalSectionsType.OUR_PARTNERS),
+        ).unwrap();
 
         setOurPartners(result);
       } catch (error: any) {
-        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+        if (
+          error.original.errors[0].includes('with key') ||
+          error.original.errors[0].includes('find page')
+        ) {
           setOurPartners(null);
           return;
         }
@@ -67,16 +80,28 @@ function PartnersForm() {
 
       if (isUpdate) {
         // UPDATE
-        result = await handleThunk(updateGlobalSection, { id: ourPartners!.id, data: values }, setSubmitError);
+        result = await handleThunk(
+          updateGlobalSection,
+          { id: ourPartners!.id, data: values },
+          setSubmitError,
+        );
       } else {
         // CREATE
-        result = await handleThunk(createdGlobalSection, values, setSubmitError);
+        result = await handleThunk(
+          createdGlobalSection,
+          values,
+          setSubmitError,
+        );
       }
 
       if (result) {
         setOurPartners(result);
         setSubmitError('');
-        toast.success(isUpdate ? 'Section updated successfully!' : 'Section created successfully!');
+        toast.success(
+          isUpdate
+            ? 'Section updated successfully!'
+            : 'Section created successfully!',
+        );
       }
     } catch (error) {
       toast.error(`Something went wrong! ${error}`);
@@ -85,7 +110,11 @@ function PartnersForm() {
 
   return (
     <>
-      <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
         {({ isSubmitting, values, setFieldValue }) => (
           <Form>
             <div className="mb-5">
@@ -98,13 +127,24 @@ function PartnersForm() {
                 previewSize={300}
                 isObjectCover={false}
                 previewClassName="shadow-xl rounded-xl"
-                onFilesChange={files => setFieldValue('contentBlocks[0].files', files)}
+                onFilesChange={files =>
+                  setFieldValue('contentBlocks[0].files', files)
+                }
               />
             </div>
 
-            {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+            {submitError && (
+              <div className="text-red-700 text-medium1 my-4">
+                {' '}
+                {submitError}
+              </div>
+            )}
 
-            <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+            >
               {isSubmitting ? 'Loading...' : isUpdate ? 'Update' : 'Save'}
             </Button>
           </Form>

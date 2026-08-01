@@ -7,7 +7,7 @@ function buildRequestConfig({
   body,
   params,
   config,
-  id
+  id,
 }: RequestOptions): AxiosRequestConfig {
   let resolvedUrl: string;
 

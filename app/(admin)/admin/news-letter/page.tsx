@@ -1,4 +1,4 @@
-import NewsletterPage from "@/components/admin/NewsletterPage/NewsletterPage";
+import NewsletterPage from '@/components/admin/NewsletterPage/NewsletterPage';
 
 function Newsletter() {
   return <NewsletterPage />;

@@ -5,21 +5,22 @@ import { NextRequest } from 'next/server';
 const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
-    const {pathname} = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
-    if(pathname === '/donation' 
-        || pathname.startsWith('/donation/') 
-        || pathname === '/admin' 
-        || pathname.startsWith('/admin/') 
-        || pathname === '/subscribe'
-        || pathname === '/unsubscribe'
-    ) {
-        return;
-    }
+  if (
+    pathname === '/donation' ||
+    pathname.startsWith('/donation/') ||
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
+    pathname === '/subscribe' ||
+    pathname === '/unsubscribe'
+  ) {
+    return;
+  }
 
-    return intlMiddleware(request);
+  return intlMiddleware(request);
 }
 
 export const config = {
-    matcher: ['/((?!api|_next|.*\\..*).*)']
+  matcher: ['/((?!api|_next|.*\\..*).*)'],
 };

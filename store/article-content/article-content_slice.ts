@@ -28,10 +28,15 @@ const articleContentSlice = createSlice({
   name: 'articleContentSlice',
   initialState,
   reducers: {
-    removeArticle(state, action: PayloadAction<{ id: number; articleType: ArticleType }>) {
+    removeArticle(
+      state,
+      action: PayloadAction<{ id: number; articleType: ArticleType }>,
+    ) {
       const { id, articleType } = action.payload;
 
-      state.byType[articleType].items = state.byType[articleType].items.filter(article => article.id !== id);
+      state.byType[articleType].items = state.byType[articleType].items.filter(
+        article => article.id !== id,
+      );
     },
     removeArticleFromArchive(state, action: PayloadAction<{ id: number }>) {
       const { id } = action.payload;
@@ -72,6 +77,7 @@ const articleContentSlice = createSlice({
   },
 });
 
-export const { removeArticle, removeArticleFromArchive } = articleContentSlice.actions;
+export const { removeArticle, removeArticleFromArchive } =
+  articleContentSlice.actions;
 
 export default articleContentSlice.reducer;

@@ -35,8 +35,8 @@ const Tabs = ({ children }: TabsProps) => {
                 isDisabled
                   ? 'text-grey-700 border-b-4 border-transparent'
                   : activeTab === index
-                  ? 'border-b-4 border-icons-active text-icons-active'
-                  : 'border-b-4 border-transparent text-grey-700 hover:text-icons-hover'
+                    ? 'border-b-4 border-icons-active text-icons-active'
+                    : 'border-b-4 border-transparent text-grey-700 hover:text-icons-hover'
               }`}
             >
               {tab.props.title}
@@ -46,9 +46,7 @@ const Tabs = ({ children }: TabsProps) => {
       </div>
 
       {/* Tab Content */}
-      <div className="py-4">
-        {children[activeTab]?.props.children}
-      </div>
+      <div className="py-4">{children[activeTab]?.props.children}</div>
     </div>
   );
 };

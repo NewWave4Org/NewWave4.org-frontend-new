@@ -18,7 +18,13 @@ class ArticleService implements IArticleService {
     this.articleApi = articleApi;
   }
 
-  async deleteArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
+  async deleteArticle({
+    id,
+    articleType,
+  }: {
+    id: number;
+    articleType: ArticleType;
+  }) {
     return this.articleApi.deleteArticle({ id, articleType });
   }
 
@@ -37,10 +43,22 @@ class ArticleService implements IArticleService {
     excludeArticleId,
     sortByDateOfWriting,
   }: IGetAllArticleRequestDTO): Promise<IGetAllArticleResponseDTO> {
-    return this.articleApi.getAllArticle({ page, size, articleType, articleStatus, relevantProjectId, sortByStatus, sortByCreatedAtDescending, excludeArticleId, sortByDateOfWriting });
+    return this.articleApi.getAllArticle({
+      page,
+      size,
+      articleType,
+      articleStatus,
+      relevantProjectId,
+      sortByStatus,
+      sortByCreatedAtDescending,
+      excludeArticleId,
+      sortByDateOfWriting,
+    });
   }
 
-  async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {
+  async createNewArticle(
+    data: CreateNewArticleRequestDTO,
+  ): Promise<CreateNewArticleResponseDTO> {
     return this.articleApi.createNewArticle(data);
   }
 
@@ -48,11 +66,20 @@ class ArticleService implements IArticleService {
     return this.articleApi.publishArticle(id);
   }
 
-  async updateArticle({ id, data }: UpdateArticleRequestDTO): Promise<UpdateArticleResponseDTO> {
+  async updateArticle({
+    id,
+    data,
+  }: UpdateArticleRequestDTO): Promise<UpdateArticleResponseDTO> {
     return this.articleApi.updateArticle({ id, data });
   }
 
-  async archivedArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
+  async archivedArticle({
+    id,
+    articleType,
+  }: {
+    id: number;
+    articleType: ArticleType;
+  }) {
     return this.articleApi.archivedArticle({ id, articleType });
   }
 }

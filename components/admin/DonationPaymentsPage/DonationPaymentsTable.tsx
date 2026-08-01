@@ -1,12 +1,12 @@
 'use client';
 
-import OpenEyeIcon from "@/components/icons/symbolic/OpenEyeIcon";
-import Button from "@/components/shared/Button";
-import Table from "@/components/ui/Table/Table";
-import { numericDate } from "@/utils/date";
-import { DonationStatus } from "@/utils/donation/type/interface";
-import clsx from "clsx";
-import { ReactNode } from "react";
+import OpenEyeIcon from '@/components/icons/symbolic/OpenEyeIcon';
+import Button from '@/components/shared/Button';
+import Table from '@/components/ui/Table/Table';
+import { numericDate } from '@/utils/date';
+import { DonationStatus } from '@/utils/donation/type/interface';
+import clsx from 'clsx';
+import { ReactNode } from 'react';
 
 interface IRenderPaginationProps {
   currentPage: number;
@@ -33,7 +33,14 @@ const TableHeader = [
   { id: '7', title: 'Details', classBlock: 'text-center' },
 ];
 
-function DonationPaymentsTable({allDonations, currentPage, totalPages, changePage, renderPagination, handleShowDetails}: IDonationPaymentsTable) {
+function DonationPaymentsTable({
+  allDonations,
+  currentPage,
+  totalPages,
+  changePage,
+  renderPagination,
+  handleShowDetails,
+}: IDonationPaymentsTable) {
   return (
     <div className="relative w-full h-full">
       <div className="mb-5">
@@ -44,16 +51,28 @@ function DonationPaymentsTable({allDonations, currentPage, totalPages, changePag
           renderHeader={() => (
             <>
               {TableHeader.map(({ id, title, classBlock }) => (
-                <th key={id} className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}>
+                <th
+                  key={id}
+                  className={`px-3 pb-4 border-b border-admin-300 ${classBlock}`}
+                >
                   {title}
                 </th>
               ))}
             </>
           )}
           renderRow={donation => {
-            const { name, email, amount, createdAt, paymentProvider, paymentStatus } = donation;
+            const {
+              name,
+              email,
+              amount,
+              createdAt,
+              paymentProvider,
+              paymentStatus,
+            } = donation;
 
-            const status = paymentStatus.slice(0, 1).toUpperCase() + paymentStatus.toLowerCase().slice(1);
+            const status =
+              paymentStatus.slice(0, 1).toUpperCase() +
+              paymentStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
@@ -64,20 +83,34 @@ function DonationPaymentsTable({allDonations, currentPage, totalPages, changePag
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
-                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">{amount} $</p>
+                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
+                      {amount} $
+                    </p>
                   </div>
                 </td>
 
-                <td className="px-3 py-6 text-center">{numericDate(createdAt)}</td>
+                <td className="px-3 py-6 text-center">
+                  {numericDate(createdAt)}
+                </td>
 
                 <td className="px-3 py-6 text-center">{paymentProvider}</td>
 
                 <td className="px-3 py-6 text-center">
-                  <span className={clsx('flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2 mx-auto', {
-                    'border-status-success-500 text-status-success-500': paymentStatus === DonationStatus.SUCCESS,
-                    'border-status-danger-500 text-status-danger-500': paymentStatus === DonationStatus.FAILED,
-                    'border-status-grey-500 text-status-gray-500': paymentStatus === DonationStatus.PENDING,
-                  })}>{status}</span>
+                  <span
+                    className={clsx(
+                      'flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2 mx-auto',
+                      {
+                        'border-status-success-500 text-status-success-500':
+                          paymentStatus === DonationStatus.SUCCESS,
+                        'border-status-danger-500 text-status-danger-500':
+                          paymentStatus === DonationStatus.FAILED,
+                        'border-status-grey-500 text-status-gray-500':
+                          paymentStatus === DonationStatus.PENDING,
+                      },
+                    )}
+                  >
+                    {status}
+                  </span>
                 </td>
 
                 <td className="pr-3 py-6">
@@ -98,7 +131,8 @@ function DonationPaymentsTable({allDonations, currentPage, totalPages, changePag
         ></Table>
       </div>
 
-      {renderPagination && renderPagination({ currentPage, totalPages, changePage })}
+      {renderPagination &&
+        renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );
 }

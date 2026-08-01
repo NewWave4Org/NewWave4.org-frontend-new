@@ -25,7 +25,6 @@ interface IAboutUsPageValues {
   contentBlocks: any[];
 }
 
-
 function AboutUsForm() {
   const dispatch = useAppDispatch();
 
@@ -36,9 +35,13 @@ function AboutUsForm() {
   const [submitError, setSubmitError] = useState('');
 
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
-  const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(null);
+  const [aboutUsPage, setAboutUsPage] = useState<IPagesResponseDTO | null>(
+    null,
+  );
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
@@ -51,16 +54,16 @@ function AboutUsForm() {
     translateDirection: Yup.string().test(
       'required-if-translate',
       'Translation direction is required',
-      function(value) {
+      function (value) {
         const contentBlocks = this.parent.contentBlocks;
         const translateBlock = contentBlocks?.find(
-          (b: any) => b.contentBlockType === 'TRANSLATE'
+          (b: any) => b.contentBlockType === 'TRANSLATE',
         );
         if (translateBlock?.translateStatus === 'yes') {
           return !!value;
         }
         return true;
-      }
+      },
     ),
   });
 
@@ -69,15 +72,54 @@ function AboutUsForm() {
       pageType: PagesType.ABOUT_US,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
-        { id: uuid(), contentBlockType: 'MISSION_BLOCK', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'MISSION_BLOCK', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'MISSION_BLOCK', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'QUOTE', translatable_text_text: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'OUR_HISTORY_TITLE', translatable_text_title: '' },
-        { id: uuid(), contentBlockType: 'OUR_HISTORY_DESCRIPTION', translatable_text_text: '', translatable_text_editorState: null },
+        {
+          id: uuid(),
+          contentBlockType: 'MISSION_BLOCK',
+          translatable_text_title: '',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'MISSION_BLOCK',
+          translatable_text_title: '',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'MISSION_BLOCK',
+          translatable_text_title: '',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'QUOTE',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'OUR_HISTORY_TITLE',
+          translatable_text_title: '',
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'OUR_HISTORY_DESCRIPTION',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
         { id: uuid(), contentBlockType: 'PHOTOS', files: [] },
-        { id: uuid(), contentBlockType: 'HISTORY_OF_FORMATION', year: '', translatable_text_title: '', translatable_text_text: '', translatable_text_editorState: null },
-      ]
+        {
+          id: uuid(),
+          contentBlockType: 'HISTORY_OF_FORMATION',
+          year: '',
+          translatable_text_title: '',
+          translatable_text_text: '',
+          translatable_text_editorState: null,
+        },
+      ],
     }),
     [],
   );
@@ -85,9 +127,10 @@ function AboutUsForm() {
   const initialValues = {
     pageType: PagesType.ABOUT_US,
     translateDirection: aboutUsPage?.translateDirection ?? '',
-    contentBlocks: aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length 
-      ? aboutUsPage?.contentBlocks 
-      : defaultFormValues.contentBlocks,
+    contentBlocks:
+      aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length
+        ? aboutUsPage?.contentBlocks
+        : defaultFormValues.contentBlocks,
   };
 
   const handleEditorChange = (
@@ -98,7 +141,9 @@ function AboutUsForm() {
   ) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
-    const index = values.contentBlocks.findIndex((block: { id?: string | number }) => block.id === id);
+    const index = values.contentBlocks.findIndex(
+      (block: { id?: string | number }) => block.id === id,
+    );
 
     if (index === -1) return;
 
@@ -106,31 +151,41 @@ function AboutUsForm() {
     const raw = convertToRaw(content);
 
     setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.translatable_text_text`, content.getPlainText());
+    setFieldValue(
+      `contentBlocks.${index}.translatable_text_text`,
+      content.getPlainText(),
+    );
   };
 
   useEffect(() => {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.ABOUT_US)).unwrap();
-        const isEngDirection = result.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+        const isEngDirection =
+          result.translateDirection ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
         const activeBlocks = isEngDirection
-            ? result.contentBlocksEng
-            : result.contentBlocks;
+          ? result.contentBlocksEng
+          : result.contentBlocks;
 
         const serverBlocks = (activeBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'HISTORY_OF_FORMATION' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'HISTORY_OF_FORMATION'
+            ? { isNew: false }
+            : {}),
         }));
 
         // Add default blocks
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
-            defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+            defBlock =>
+              !serverBlocks.some(
+                b => b.contentBlockType === defBlock.contentBlockType,
+              ),
+          ),
         ];
 
         const editors: Record<string, EditorState> = {};
@@ -140,7 +195,10 @@ function AboutUsForm() {
           let editor: EditorState;
           try {
             if (block.translatable_text_editorState) {
-              editor = EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator);
+              editor = EditorState.createWithContent(
+                convertFromRaw(block.translatable_text_editorState),
+                decorator,
+              );
             } else {
               editor = EditorState.createEmpty(decorator);
             }
@@ -159,7 +217,6 @@ function AboutUsForm() {
           ...result,
           contentBlocks: mergedBlocks,
         });
-
       } catch (error: any) {
         console.error('error', error);
         setAboutUsPage(null);
@@ -170,10 +227,8 @@ function AboutUsForm() {
     getPageByKey();
   }, [dispatch]);
 
-
   //SAVE
   async function handleSubmit(values: IAboutUsPageValues) {
-
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -187,7 +242,11 @@ function AboutUsForm() {
     let updateSuccess = false;
 
     try {
-      const result = await handleThunk(updatePages, { id: aboutUsPage?.id, data: values }, setSubmitError);
+      const result = await handleThunk(
+        updatePages,
+        { id: aboutUsPage?.id, data: values },
+        setSubmitError,
+      );
 
       if (result) {
         setAboutUsPage(result);
@@ -207,11 +266,17 @@ function AboutUsForm() {
     // ---- TRANSLATION ----
     if (!updateSuccess) return;
 
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
+    const translateStatusVal =
+      values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')
+        ?.translateStatus ?? 'no';
 
-    if(translateStatusVal == 'yes') {
+    if (translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, aboutUsPage?.id, setSubmitErrorTranslate);
+        await handleThunk(
+          createTranslationPage,
+          aboutUsPage?.id,
+          setSubmitErrorTranslate,
+        );
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
@@ -220,48 +285,74 @@ function AboutUsForm() {
       }
     }
   }
-  
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize validationSchema={validationSchema}>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      enableReinitialize
+      validationSchema={validationSchema}
+    >
       {({ handleChange, isSubmitting, values, setFieldValue }) => {
-        const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
-        const photosBlock = values.contentBlocks.find(b => b.contentBlockType === 'PHOTOS');
-        const photosIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'PHOTOS');
+        const translateBlockIndex = values.contentBlocks.findIndex(
+          b => b.contentBlockType === 'TRANSLATE',
+        );
+        const photosBlock = values.contentBlocks.find(
+          b => b.contentBlockType === 'PHOTOS',
+        );
+        const photosIndex = values.contentBlocks.findIndex(
+          b => b.contentBlockType === 'PHOTOS',
+        );
 
-        return(
+        return (
           <Form>
-            <div className='mb-4'>
+            <div className="mb-4">
               <TranslateSection
                 translateBlockIndex={translateBlockIndex}
-                translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                translateStatus={
+                  values.contentBlocks[translateBlockIndex]?.translateStatus ??
+                  'no'
+                }
                 handleChange={handleChange}
               />
             </div>
 
             <FieldArray name="contentBlocks">
               {({ push, remove }) => {
-                const historyLine = values.contentBlocks.filter(cb => cb.contentBlockType === 'HISTORY_OF_FORMATION');
+                const historyLine = values.contentBlocks.filter(
+                  cb => cb.contentBlockType === 'HISTORY_OF_FORMATION',
+                );
                 const firstHistoryBlock = historyLine[0];
                 const restHistoryBlocks = historyLine.slice(1);
 
-                const historyTitleBlockIndex = values.contentBlocks.findIndex(block => block.contentBlockType === 'OUR_HISTORY_TITLE');
-                const historyTitleBlock = values.contentBlocks[historyTitleBlockIndex];
+                const historyTitleBlockIndex = values.contentBlocks.findIndex(
+                  block => block.contentBlockType === 'OUR_HISTORY_TITLE',
+                );
+                const historyTitleBlock =
+                  values.contentBlocks[historyTitleBlockIndex];
 
                 return (
                   <>
                     <div className="mb-4">
-                      <div className="mb-2 !text-admin-700 font-black text-2xl">Mission blocks</div>
+                      <div className="mb-2 !text-admin-700 font-black text-2xl">
+                        Mission blocks
+                      </div>
                     </div>
 
                     {/* Mission blocks */}
                     {values.contentBlocks
-                      .filter(block => block.contentBlockType === 'MISSION_BLOCK')
+                      .filter(
+                        block => block.contentBlockType === 'MISSION_BLOCK',
+                      )
                       .map((block, index) => {
-                        const realIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                        const realIndex = values.contentBlocks.findIndex(
+                          b => b.id === block.id,
+                        );
                         return (
                           <div key={block.id} className="mb-6">
-                            <div className="mb-2 !text-admin-700 font-black text-lg">Mission block #{index + 1}</div>
+                            <div className="mb-2 !text-admin-700 font-black text-lg">
+                              Mission block #{index + 1}
+                            </div>
 
                             {/* Title */}
                             <Input
@@ -277,8 +368,24 @@ function AboutUsForm() {
 
                             {/* Text */}
                             <div className="mt-2 mb-4">
-                              <div className="mb-2 !text-admin-700">Mission text</div>
-                              <TextEditor key={block.id} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                              <div className="mb-2 !text-admin-700">
+                                Mission text
+                              </div>
+                              <TextEditor
+                                key={block.id}
+                                value={
+                                  editorStates[block.id] ||
+                                  EditorState.createEmpty(decorator)
+                                }
+                                onChange={newState =>
+                                  handleEditorChange(
+                                    block.id,
+                                    values,
+                                    newState,
+                                    setFieldValue,
+                                  )
+                                }
+                              />
                             </div>
                           </div>
                         );
@@ -289,7 +396,21 @@ function AboutUsForm() {
                       {values.contentBlocks.map(block => (
                         <React.Fragment key={block.id}>
                           {block.contentBlockType === 'QUOTE' && (
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <TextEditor
+                              key={editorKey[block.id]}
+                              value={
+                                editorStates[block.id] ||
+                                EditorState.createEmpty(decorator)
+                              }
+                              onChange={newState =>
+                                handleEditorChange(
+                                  block.id,
+                                  values,
+                                  newState,
+                                  setFieldValue,
+                                )
+                              }
+                            />
                           )}
                         </React.Fragment>
                       ))}
@@ -309,37 +430,67 @@ function AboutUsForm() {
                     </div>
 
                     <div className="mb-4">
-                      <div className="mb-2 !text-admin-700">Our history description</div>
+                      <div className="mb-2 !text-admin-700">
+                        Our history description
+                      </div>
                       {values.contentBlocks.map(block => (
                         <React.Fragment key={block.id}>
-                          {block.contentBlockType === 'OUR_HISTORY_DESCRIPTION' && (
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                          {block.contentBlockType ===
+                            'OUR_HISTORY_DESCRIPTION' && (
+                            <TextEditor
+                              key={editorKey[block.id]}
+                              value={
+                                editorStates[block.id] ||
+                                EditorState.createEmpty(decorator)
+                              }
+                              onChange={newState =>
+                                handleEditorChange(
+                                  block.id,
+                                  values,
+                                  newState,
+                                  setFieldValue,
+                                )
+                              }
+                            />
                           )}
                         </React.Fragment>
                       ))}
                     </div>
 
                     <div className=" mb-4">
-                      <div className="mb-2 !text-admin-700">Our history photos</div>
+                      <div className="mb-2 !text-admin-700">
+                        Our history photos
+                      </div>
                       <ImageLoading
                         classBlock="min-h-[300px]"
                         maxFiles={10}
                         isAttach={true}
                         uploadedUrls={photosBlock.files ?? []}
                         onFilesChange={(files, deleted) => {
-                          setFieldValue(`contentBlocks.${photosIndex}.files`, files);
-                          setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                          setFieldValue(
+                            `contentBlocks.${photosIndex}.files`,
+                            files,
+                          );
+                          setDeletedFiles(prev => [
+                            ...prev,
+                            ...(deleted || []),
+                          ]);
                         }}
                       />
                     </div>
 
                     <div className="mt-9 mb-4">
-                      <div className="mb-2 !text-admin-700mb-3 font-black text-2xl">Our history formation (Maximum 6 blocks)</div>
+                      <div className="mb-2 !text-admin-700mb-3 font-black text-2xl">
+                        Our history formation (Maximum 6 blocks)
+                      </div>
                     </div>
 
                     {firstHistoryBlock && (
                       <div className="mb-4">
-                        <Accordion title={`Block #1 - ${firstHistoryBlock.translatable_text_title}`} classNameTop="min-h-14">
+                        <Accordion
+                          title={`Block #1 - ${firstHistoryBlock.translatable_text_title}`}
+                          classNameTop="min-h-14"
+                        >
                           <div className="mb-4">
                             <Input
                               id={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.year`}
@@ -359,7 +510,9 @@ function AboutUsForm() {
                               name={`contentBlocks.${values.contentBlocks.findIndex(b => b.id === firstHistoryBlock.id)}.translatable_text_title`}
                               type="text"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                              value={firstHistoryBlock.translatable_text_title ?? ''}
+                              value={
+                                firstHistoryBlock.translatable_text_title ?? ''
+                              }
                               onChange={handleChange}
                               label="Our history formation title"
                               labelClass="mb-2 !text-admin-700"
@@ -367,12 +520,24 @@ function AboutUsForm() {
                           </div>
 
                           <div className="mb-4">
-                            <div className="mb-2 !text-admin-700">Our history formation description</div>
+                            <div className="mb-2 !text-admin-700">
+                              Our history formation description
+                            </div>
 
                             <TextEditor
                               key={editorKey[firstHistoryBlock.id]}
-                              value={editorStates[firstHistoryBlock.id] || EditorState.createEmpty(decorator)}
-                              onChange={newState => handleEditorChange(firstHistoryBlock.id, values, newState, setFieldValue)}
+                              value={
+                                editorStates[firstHistoryBlock.id] ||
+                                EditorState.createEmpty(decorator)
+                              }
+                              onChange={newState =>
+                                handleEditorChange(
+                                  firstHistoryBlock.id,
+                                  values,
+                                  newState,
+                                  setFieldValue,
+                                )
+                              }
                             />
                           </div>
                         </Accordion>
@@ -381,7 +546,9 @@ function AboutUsForm() {
 
                     {restHistoryBlocks.map((block, pairIndex) => {
                       const blockNumber = pairIndex + 2;
-                      const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                      const blockIndex = values.contentBlocks.findIndex(
+                        b => b.id === block.id,
+                      );
 
                       if (block.contentBlockType !== 'HISTORY_OF_FORMATION') {
                         return null;
@@ -398,7 +565,10 @@ function AboutUsForm() {
                                 onClick={() => {
                                   const blockId = block.id;
 
-                                  const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                  const blockIndex =
+                                    values.contentBlocks.findIndex(
+                                      b => b.id === block.id,
+                                    );
                                   if (blockIndex !== -1) remove(blockIndex);
                                   // remove(index);
 
@@ -414,7 +584,9 @@ function AboutUsForm() {
                                     return newKey;
                                   });
 
-                                  toast.success(`Block #${blockNumber} was successfully removed.`);
+                                  toast.success(
+                                    `Block #${blockNumber} was successfully removed.`,
+                                  );
                                 }}
                                 className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md self-start hover:bg-red-500 duration-500"
                               >
@@ -429,7 +601,9 @@ function AboutUsForm() {
                                   name={`contentBlocks[${blockIndex}].year`}
                                   type="text"
                                   className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                  value={values.contentBlocks[blockIndex].year ?? ''}
+                                  value={
+                                    values.contentBlocks[blockIndex].year ?? ''
+                                  }
                                   onChange={handleChange}
                                   label="Our history formation year"
                                   labelClass="mb-2 !text-admin-700"
@@ -441,15 +615,34 @@ function AboutUsForm() {
                                   name={`contentBlocks[${blockIndex}].translatable_text_title`}
                                   type="text"
                                   className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                  value={values.contentBlocks[blockIndex].translatable_text_title ?? ''}
+                                  value={
+                                    values.contentBlocks[blockIndex]
+                                      .translatable_text_title ?? ''
+                                  }
                                   onChange={handleChange}
                                   label="Our history formation title"
                                   labelClass="mb-2 !text-admin-700"
                                 />
                               </div>
                               <div className="mb-4">
-                                <div className="mb-2 !text-admin-700">Our history formation description</div>
-                                <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                <div className="mb-2 !text-admin-700">
+                                  Our history formation description
+                                </div>
+                                <TextEditor
+                                  key={editorKey[block.id]}
+                                  value={
+                                    editorStates[block.id] ||
+                                    EditorState.createEmpty(decorator)
+                                  }
+                                  onChange={newState =>
+                                    handleEditorChange(
+                                      block.id,
+                                      values,
+                                      newState,
+                                      setFieldValue,
+                                    )
+                                  }
+                                />
                               </div>
                             </div>
                           </Accordion>
@@ -493,15 +686,27 @@ function AboutUsForm() {
               }}
             </FieldArray>
 
-            {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+            {submitError && (
+              <div className="text-red-700 text-medium1 my-4">
+                {' '}
+                {submitError}
+              </div>
+            )}
 
             <div className="my-4">
               <sup className="font-bold text-red-600 text-small2">*</sup>
-              After any changes, you need to click the <strong>Update</strong> button
+              After any changes, you need to click the <strong>
+                Update
+              </strong>{' '}
+              button
             </div>
 
             <div className="mt-6">
-              <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
                 {isSubmitting ? 'Loading...' : 'Update'}
               </Button>
             </div>

@@ -14,7 +14,7 @@ export interface IArticleBody {
   contentBlocks: any[] | null;
   relevant_project_id?: number;
   contentBlocksEng?: any[] | null;
-  titleEng?: string,
+  titleEng?: string;
 }
 
 export interface GetArticleByIdResponseDTO {
@@ -30,13 +30,16 @@ export interface GetArticleByIdResponseDTO {
   publishedAt: string | null;
   createdAt: string;
   title: string;
-  titleEng?: string,
+  titleEng?: string;
   views: number;
   relevantProjectId?: number;
   dateOfWriting: string;
 }
 
-export type ChangedArticleByIdBody = GetArticleByIdResponseDTO & {titleToShow?: string, contentBlocksToShow?: any[] | null}
+export type ChangedArticleByIdBody = GetArticleByIdResponseDTO & {
+  titleToShow?: string;
+  contentBlocksToShow?: any[] | null;
+};
 export interface CreateNewArticleRequestDTO {
   articleType: ArticleType;
   title: string;

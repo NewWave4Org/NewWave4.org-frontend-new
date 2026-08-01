@@ -1,9 +1,11 @@
 # ADR-0001: Use Vitest (not Jest) for unit/component tests
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-07-19
 
 ## Context
@@ -22,11 +24,13 @@ Use [Vitest](https://vitest.dev/) with `jsdom` for unit and component tests, plu
 ## Alternatives Considered
 
 ### Jest
+
 - Pros: the long-established default; huge ecosystem; most tutorials assume it.
 - Cons: needs `ts-jest` or `babel-jest` configured to handle TS/ESM the way this project's `tsconfig`/Next.js already do natively; needs a `moduleNameMapper` entry to replicate the `@/*` alias Vitest picks up automatically from `vite-tsconfig-paths`-style resolution; slower cold-start and watch mode in practice on ESM-heavy projects.
 - Rejected: more configuration surface for zero benefit, given there's no existing Jest investment to preserve.
 
 ### No unit tests at all, E2E-only
+
 - Pros: fewer tools to maintain.
 - Cons: E2E alone can't cheaply cover the DI-friendly `utils/<domain>/` service layer, the 401-refresh-retry logic in `utils/http/http-request-service.ts`, or RTK reducer edge cases — all of which are cheap and valuable to unit-test in isolation.
 - Rejected: leaves the highest-ROI, lowest-cost coverage on the table.

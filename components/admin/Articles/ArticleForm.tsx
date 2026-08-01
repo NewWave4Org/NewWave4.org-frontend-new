@@ -94,7 +94,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
     try {
       const result = await handleThunk(
         createNewArticle,
-        { ...values, articleType},
+        { ...values, articleType },
         msg => toast.error(msg),
       );
 
@@ -179,7 +179,10 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
                 onChange={handleChange}
                 options={usersList}
               /> */}
-              <AuthorField usersList={usersList} defaultValue={currentAuthor?.name} />
+              <AuthorField
+                usersList={usersList}
+                defaultValue={currentAuthor?.name}
+              />
             </div>
 
             <Button

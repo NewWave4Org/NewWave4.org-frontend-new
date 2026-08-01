@@ -6,23 +6,22 @@ const Subscribe: React.FC = () => {
   const bgUrl = `${prefix}/bg-subscription.png`;
   const t = useTranslations();
   return (
-    
-      <section
-        className="py-[72px]"
-        style={{
-          backgroundImage: `url(${bgUrl})`,
-          backgroundSize: 'cover',
-        }}
-      >
-        <div className='container mx-auto px-4'>
-          <div className="flex flex-col gap-y-6 lg:pl-[105px]">
-            <h2 className="text-[34px] font-ebGaramond text-font-primary !font-bold uppercase">
-              {t('sections_title.subscription')}
-            </h2>
-            <SubscribeForm />
-          </div>
+    <section
+      className="py-[72px]"
+      style={{
+        backgroundImage: `url(${bgUrl})`,
+        backgroundSize: 'cover',
+      }}
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col gap-y-6 lg:pl-[105px]">
+          <h2 className="text-[34px] font-ebGaramond text-font-primary !font-bold uppercase">
+            {t('sections_title.subscription')}
+          </h2>
+          <SubscribeForm />
         </div>
-      </section>
+      </div>
+    </section>
   );
 };
 

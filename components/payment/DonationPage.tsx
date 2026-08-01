@@ -6,9 +6,10 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
 const DonationPage = () => {
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!);
+  const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!,
+  );
   const paypalOptions = { clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! };
-
 
   return (
     <PayPalScriptProvider options={paypalOptions}>

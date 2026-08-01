@@ -52,7 +52,9 @@ export default function AdminLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${RobotoFont.variable} ${helveticaFont.variable} ${ebGaramondFont.variable} antialiased flex flex-col min-h-screen relative`}>
+      <body
+        className={`${RobotoFont.variable} ${helveticaFont.variable} ${ebGaramondFont.variable} antialiased flex flex-col min-h-screen relative`}
+      >
         <NextIntlClientProvider>
           <ReduxProvider>
             <AuthGate>

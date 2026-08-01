@@ -14,7 +14,13 @@ import {
 } from './type/interfaces';
 
 class ArticleApi implements IArticleApi {
-  async deleteArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
+  async deleteArticle({
+    id,
+    articleType,
+  }: {
+    id: number;
+    articleType: ArticleType;
+  }) {
     return request({
       method: HttpMethod.DELETE,
       url: ApiEndpoint.DELETE_ARTICLE_CONTENT(id),
@@ -59,7 +65,9 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async createNewArticle(data: CreateNewArticleRequestDTO): Promise<CreateNewArticleResponseDTO> {
+  async createNewArticle(
+    data: CreateNewArticleRequestDTO,
+  ): Promise<CreateNewArticleResponseDTO> {
     const { translateDirection, ...body } = data;
     return request({
       method: HttpMethod.POST,
@@ -76,15 +84,24 @@ class ArticleApi implements IArticleApi {
     });
   }
 
-  async updateArticle({ id, data }: UpdateArticleRequestDTO): Promise<UpdateArticleResponseDTO> {
+  async updateArticle({
+    id,
+    data,
+  }: UpdateArticleRequestDTO): Promise<UpdateArticleResponseDTO> {
     return request({
       method: HttpMethod.PUT,
       url: ApiEndpoint.UPDATE_ARTICLE_CONTENT(id),
-      body: data
+      body: data,
     });
   }
 
-  async archivedArticle({ id, articleType }: { id: number; articleType: ArticleType }) {
+  async archivedArticle({
+    id,
+    articleType,
+  }: {
+    id: number;
+    articleType: ArticleType;
+  }) {
     return request({
       method: HttpMethod.POST,
       url: ApiEndpoint.ARCHIVE_ARTICLE(id),

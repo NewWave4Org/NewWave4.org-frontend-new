@@ -21,11 +21,16 @@ function ProgramsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [refreshData, setRefreshData] = useState(false);
 
-  const [chooseSortStatusType, setChooseSortStatusType] = useState<boolean>(true);
+  const [chooseSortStatusType, setChooseSortStatusType] =
+    useState<boolean>(true);
   const [chooseSortDateType, setChooseSortDateType] = useState<boolean>(true);
 
-  const programs = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items);
-  const totalPages = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].totalPages);
+  const programs = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].items,
+  );
+  const totalPages = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROGRAM].totalPages,
+  );
 
   const fetchAllPrograms = useCallback(() => {
     dispatch(
@@ -84,7 +89,16 @@ function ProgramsPage() {
     setCurrentPage(0);
   }
 
-  const renderPagination = useCallback(({ currentPage, totalPages, changePage }: RenderPaginationProps) => <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />, []);
+  const renderPagination = useCallback(
+    ({ currentPage, totalPages, changePage }: RenderPaginationProps) => (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+      />
+    ),
+    [],
+  );
 
   //Delete
   const handleDeleteProject = (program: GetArticleByIdResponseDTO) => {

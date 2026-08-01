@@ -1,27 +1,36 @@
-import { normalizeApiError } from "@/utils/http/normalizeApiError";
-import { translateService } from "@/utils/translation";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { normalizeApiError } from '@/utils/http/normalizeApiError';
+import { translateService } from '@/utils/translation';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const createTranslation = createAsyncThunk('translation', async({id, translateFrom}: {id: number, translateFrom: string}, {rejectWithValue}) => {
+export const createTranslation = createAsyncThunk(
+  'translation',
+  async (
+    { id, translateFrom }: { id: number; translateFrom: string },
+    { rejectWithValue },
+  ) => {
     try {
-        const response = await translateService.translate({id, translateFrom});
+      const response = await translateService.translate({ id, translateFrom });
 
-        return response;
+      return response;
     } catch (error) {
-        const normalized = normalizeApiError(error);
-     
-        return rejectWithValue(normalized);   
-    }
-});
+      const normalized = normalizeApiError(error);
 
-export const createTranslationPage = createAsyncThunk('translation/page', async(id: number, {rejectWithValue}) => {
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
+export const createTranslationPage = createAsyncThunk(
+  'translation/page',
+  async (id: number, { rejectWithValue }) => {
     try {
-        const response = await translateService.translatePage(id);
+      const response = await translateService.translatePage(id);
 
-        return response;
+      return response;
     } catch (error) {
-        const normalized = normalizeApiError(error);
-     
-        return rejectWithValue(normalized);   
+      const normalized = normalizeApiError(error);
+
+      return rejectWithValue(normalized);
     }
-});
+  },
+);

@@ -32,8 +32,12 @@ const FilterNews = ({
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const projects = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items);
-  const projectsStatus = useAppSelector(state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status);
+  const projects = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROJECT].items,
+  );
+  const projectsStatus = useAppSelector(
+    state => state.articleContent.byType[ArticleTypeEnum.PROJECT].status,
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +51,6 @@ const FilterNews = ({
     load();
   }, [projectsStatus]);
 
-
   function handleFilterActive(e: React.MouseEvent<HTMLDivElement>) {
     const id = Number(e.currentTarget.dataset.id);
     setActiveFilter(id);
@@ -58,7 +61,10 @@ const FilterNews = ({
     title: locale === EN_LOCALE && proj.titleEng ? proj.titleEng : proj.title,
   }));
 
-  const allTitle = articleType === ArticleTypeEnum.NEWS ? t('links.all_news') : t('links.all_events');
+  const allTitle =
+    articleType === ArticleTypeEnum.NEWS
+      ? t('links.all_news')
+      : t('links.all_events');
   const filterItems: Item[] = [{ id: 0, title: allTitle }, ...projectItem];
 
   return (
@@ -68,11 +74,17 @@ const FilterNews = ({
           <DropDown
             classNameParent="inline-block"
             classNameMenu="min-w-[320px] p-3"
-            items={filterItems.map(item => ({ label: item.title, id: item.id }))}
+            items={filterItems.map(item => ({
+              label: item.title,
+              id: item.id,
+            }))}
             renderBth={(isOpen, toggle) => (
-              <button onClick={toggle} className='shadow-md rounded-3xl bg-white py-2.5 px-5 flex items-center'>
-                {filterItems.find(i => i.id === activeFilter)?.title} 
-                <span className='ml-2'>
+              <button
+                onClick={toggle}
+                className="shadow-md rounded-3xl bg-white py-2.5 px-5 flex items-center"
+              >
+                {filterItems.find(i => i.id === activeFilter)?.title}
+                <span className="ml-2">
                   <ArrowDown4Icon />
                 </span>
               </button>
@@ -82,7 +94,7 @@ const FilterNews = ({
                 key={item.id}
                 item={{ id: item.id, title: item.label }}
                 activeFilter={activeFilter}
-                handleFilterActive={(e) => {
+                handleFilterActive={e => {
                   handleFilterActive(e);
                   close();
                 }}

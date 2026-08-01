@@ -1,37 +1,66 @@
 'use client';
 
-import { useLocale, useTranslations } from "next-intl";
-import DopBlockItem from "./DopBlockItem/DopBlockItem";
-import { prefix } from "@/utils/prefix";
-import { IArticleBody } from "@/utils/article-content/type/interfaces";
-import { EN_LOCALE } from "@/i18n";
-import { ArticleType } from "@/utils/ArticleType";
+import { useLocale, useTranslations } from 'next-intl';
+import DopBlockItem from './DopBlockItem/DopBlockItem';
+import { prefix } from '@/utils/prefix';
+import { IArticleBody } from '@/utils/article-content/type/interfaces';
+import { EN_LOCALE } from '@/i18n';
+import { ArticleType } from '@/utils/ArticleType';
 
-function OtherDopBlocks({dopBlocks, link, title}: { dopBlocks: IArticleBody[] | null, link: ArticleType , title: string}) {
+function OtherDopBlocks({
+  dopBlocks,
+  link,
+  title,
+}: {
+  dopBlocks: IArticleBody[] | null;
+  link: ArticleType;
+  title: string;
+}) {
   const t = useTranslations();
   const locale = useLocale();
 
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
-        <h4 className="font-medium text-h5 uppercase !text-font-primary lg:mb-10 mb-6">{t(title)}</h4>
+        <h4 className="font-medium text-h5 uppercase !text-font-primary lg:mb-10 mb-6">
+          {t(title)}
+        </h4>
 
         <div className="flex flex-col lg:flex-row -ml-3 -mr-3">
           {dopBlocks?.map(item => {
-            const description = locale === EN_LOCALE 
-              ? item?.contentBlocksEng?.find(item => item.contentBlockType === 'MAIN_NEWS_BLOCK')?.translatable_text_editorState 
-              : item?.contentBlocks?.find(item => item.contentBlockType === 'MAIN_NEWS_BLOCK')?.translatable_text_editorState;
+            const description =
+              locale === EN_LOCALE
+                ? item?.contentBlocksEng?.find(
+                    item => item.contentBlockType === 'MAIN_NEWS_BLOCK',
+                  )?.translatable_text_editorState
+                : item?.contentBlocks?.find(
+                    item => item.contentBlockType === 'MAIN_NEWS_BLOCK',
+                  )?.translatable_text_editorState;
 
-            
+            const imageSrc = item?.contentBlocks?.find(
+              item => item.contentBlockType === 'PHOTO',
+            )?.data[0];
+            const imgSrc =
+              imageSrc !== undefined && imageSrc.length > 0
+                ? imageSrc
+                : `${prefix}/logo.png`;
 
-            const imageSrc = item?.contentBlocks?.find(item => item.contentBlockType === 'PHOTO')?.data[0];
-            const imgSrc = imageSrc !== undefined && imageSrc.length > 0 ? imageSrc : `${prefix}/logo.png`;
+            const title =
+              locale === EN_LOCALE
+                ? (item?.titleEng ?? item.title ?? '')
+                : (item?.title ?? item.titleEng ?? '');
 
-            const title = locale === EN_LOCALE 
-              ? item?.titleEng ?? item.title ?? ''
-              : item?.title ?? item.titleEng ?? '';
-
-            return <DopBlockItem key={item.id} title={title} description={description} id={item.id} imageSrc={imgSrc} link={link} locale={locale} />;
+            return (
+              <DopBlockItem
+                key={item.id}
+                title={title}
+                description={description}
+                id={item.id}
+                imageSrc={imgSrc}
+                link={link}
+                locale={locale}
+              />
+            );
           })}
         </div>
       </div>

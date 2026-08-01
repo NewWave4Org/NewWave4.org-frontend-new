@@ -6,10 +6,10 @@ interface ModalProps {
   modalType: string | null;
   payload: unknown;
   title?: string;
-  currentPage?: number,
-  articleStatus?: ArticleStatusEnum | null,
+  currentPage?: number;
+  articleStatus?: ArticleStatusEnum | null;
   chooseSortType?: string;
-  articlesOnPage?: number | null
+  articlesOnPage?: number | null;
 }
 
 const initialState: ModalProps = {

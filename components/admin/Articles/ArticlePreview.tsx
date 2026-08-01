@@ -27,7 +27,9 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [articleVideoUrl, setArticleVideoUrl] = useState<string | null>('');
 
-  const quoteText = article?.contentBlocks?.find((item: { contentBlockType?: string }) => item.contentBlockType === 'QUOTE');
+  const quoteText = article?.contentBlocks?.find(
+    (item: { contentBlockType?: string }) => item.contentBlockType === 'QUOTE',
+  );
 
   useEffect(() => {
     if (!articleId) return;
@@ -185,7 +187,9 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
           </div>
         )}
 
-        {quoteText?.translatable_text_editorState?.blocks[0].text.trim() && <Quote quote={quoteText} />}
+        {quoteText?.translatable_text_editorState?.blocks[0].text.trim() && (
+          <Quote quote={quoteText} />
+        )}
 
         <div className="mb-[56px]">
           <div

@@ -47,9 +47,18 @@ interface IArticleContent {
 
 const getDefaultContentBlocks = () => [
   { contentBlockType: 'TRANSLATE', translateStatus: 'no' },
-  { contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK, translatable_text_editorState: null },
-  { contentBlockType: ContentBlockType.TEXT, translatable_text_editorState: null },
-  { contentBlockType: ContentBlockType.QUOTE, translatable_text_editorState: null },
+  {
+    contentBlockType: ContentBlockType.MAIN_NEWS_BLOCK,
+    translatable_text_editorState: null,
+  },
+  {
+    contentBlockType: ContentBlockType.TEXT,
+    translatable_text_editorState: null,
+  },
+  {
+    contentBlockType: ContentBlockType.QUOTE,
+    translatable_text_editorState: null,
+  },
   { contentBlockType: ContentBlockType.VIDEO, data: '' },
   { contentBlockType: ContentBlockType.PHOTO, data: [] },
   { contentBlockType: ContentBlockType.PHOTOS_LIST, data: [] },
@@ -61,11 +70,17 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const router = useRouter();
   const handleThunk = useHandleThunk();
 
-  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(null);
-  const [projects, setProjects] = useState<{ value: string | number; label: string }[]>([]);
+  const [article, setArticle] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
+  const [projects, setProjects] = useState<
+    { value: string | number; label: string }[]
+  >([]);
   const [submitErrorTranslate, setSubmitErrorTranslate] = useState('');
   const [sliderPhotosChanged, setSliderPhotosChanged] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'saving' | 'translating'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<
+    'idle' | 'saving' | 'translating'
+  >('idle');
 
   const [editorStates, setEditorStates] = useState<{
     textblock1: EditorState;
@@ -92,16 +107,16 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     translateDirection: Yup.string().test(
       'required-if-translate',
       'Translation direction is required',
-      function(value) {
+      function (value) {
         const contentBlocks = this.parent.contentBlocks;
         const translateBlock = contentBlocks?.find(
-          (b: any) => b.contentBlockType === 'TRANSLATE'
+          (b: any) => b.contentBlockType === 'TRANSLATE',
         );
         if (translateBlock?.translateStatus === 'yes') {
           return !!value;
         }
         return true;
-      }
+      },
     ),
     contentBlocks: Yup.array().of(
       Yup.lazy((block: any) => {
@@ -113,7 +128,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                 .test('not-empty', 'Text block 1 is required', value => {
                   if (!value) return false;
                   try {
-                    return convertFromRaw(value as RawDraftContentState).hasText();
+                    return convertFromRaw(
+                      value as RawDraftContentState,
+                    ).hasText();
                   } catch {
                     return false;
                   }
@@ -144,7 +161,6 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     ),
   });
 
-
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -155,7 +171,10 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           }),
         ).unwrap();
         setProjects(
-          (data.content ?? []).map((p: any) => ({ value: p.id, label: p.title })),
+          (data.content ?? []).map((p: any) => ({
+            value: p.id,
+            label: p.title,
+          })),
         );
       } catch {
         toast.error('Failed to fetch projects');
@@ -170,7 +189,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const fetchArticle = async () => {
       try {
         const data = await dispatch(getArticleById(articleId)).unwrap();
-        const isEngDirection = data.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+        const isEngDirection =
+          data.translateDirection ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
         const formData = {
           ...data,
@@ -184,10 +205,15 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           : data.contentBlocks;
 
         const getState = (blockType: ContentBlockType): EditorState => {
-          const block = activeBlocks?.find((b: any) => b.contentBlockType === blockType);
+          const block = activeBlocks?.find(
+            (b: any) => b.contentBlockType === blockType,
+          );
           try {
             return block?.translatable_text_editorState
-              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              ? EditorState.createWithContent(
+                  convertFromRaw(block.translatable_text_editorState),
+                  decorator,
+                )
               : EditorState.createEmpty(decorator);
           } catch {
             return EditorState.createEmpty(decorator);
@@ -220,11 +246,12 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     setFieldValue: (field: string, value: any) => void,
     setFieldTouched: (field: string, touched: boolean) => void,
   ) => {
-    const stateKey = blockType === ContentBlockType.MAIN_NEWS_BLOCK
-      ? 'textblock1'
-      : blockType === ContentBlockType.TEXT
-      ? 'textblock2'
-      : 'quote';
+    const stateKey =
+      blockType === ContentBlockType.MAIN_NEWS_BLOCK
+        ? 'textblock1'
+        : blockType === ContentBlockType.TEXT
+          ? 'textblock2'
+          : 'quote';
 
     setEditorStates(prev => ({ ...prev, [stateKey]: newState }));
 
@@ -236,15 +263,21 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const raw = convertToRaw(newState.getCurrentContent());
 
     setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
-    setFieldTouched(`contentBlocks.${index}.translatable_text_editorState`, true);
+    setFieldTouched(
+      `contentBlocks.${index}.translatable_text_editorState`,
+      true,
+    );
   };
 
   async function handleSubmit(values: any) {
-    const translateStatus = values.contentBlocks.find(
-      (b: any) => b.contentBlockType === 'TRANSLATE'
-    )?.translateStatus ?? 'no';
+    const translateStatus =
+      values.contentBlocks.find((b: any) => b.contentBlockType === 'TRANSLATE')
+        ?.translateStatus ?? 'no';
 
-    const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+    const isEngDirection =
+      translateStatus === 'yes' &&
+      values.translateDirection ===
+        TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
     // ---- PREPARE DATA ----
     const { translateDirection, ...rest } = values;
@@ -253,7 +286,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       ? {
           ...rest,
           title: '',
-          titleEng: values.title,  
+          titleEng: values.title,
           translateDirection,
           englishPublished: translateStatus === 'yes',
           dateOfWriting: convertToISO(values.dateOfWriting),
@@ -274,17 +307,24 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
         };
 
     // ---- VALIDATION ----
-    const textblock1Block = preparedData.contentBlocks?.find(
-      (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-    ) ?? preparedData.contentBlocksEng?.find(
-      (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-    );
+    const textblock1Block =
+      preparedData.contentBlocks?.find(
+        (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+      ) ??
+      preparedData.contentBlocksEng?.find(
+        (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+      );
 
-    const isTextblock1Empty = !textblock1Block?.translatable_text_editorState
-      || (() => {
+    const isTextblock1Empty =
+      !textblock1Block?.translatable_text_editorState ||
+      (() => {
         try {
-          return !convertFromRaw(textblock1Block.translatable_text_editorState).hasText();
-        } catch { return true; }
+          return !convertFromRaw(
+            textblock1Block.translatable_text_editorState,
+          ).hasText();
+        } catch {
+          return true;
+        }
       })();
 
     if (isTextblock1Empty) {
@@ -300,22 +340,25 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
-    
     // ---- UPDATE ----
     let updateSuccess = false;
 
     try {
       if (articleId) {
-        await dispatch(updateArticle({ id: articleId, data: preparedData })).unwrap();
+        await dispatch(
+          updateArticle({ id: articleId, data: preparedData }),
+        ).unwrap();
 
         updateSuccess = true;
         // setArticle(prev => ({ ...prev!, contentBlocks: values.contentBlocks }));
-        toast.success(`${getTypeName(articleType)} content saved successfully!`);
+        toast.success(
+          `${getTypeName(articleType)} content saved successfully!`,
+        );
       }
     } catch (error) {
       setSubmitStatus('idle');
       toast.error(`Something went wrong! ${error}`);
-    }finally {
+    } finally {
       setSubmitStatus('idle');
     }
 
@@ -325,12 +368,16 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const translateFrom = values.translateDirection;
     setSubmitStatus('translating');
     try {
-      await handleThunk(createTranslation, {id: articleId, translateFrom: translateFrom.toUpperCase()}, setSubmitErrorTranslate);
+      await handleThunk(
+        createTranslation,
+        { id: articleId, translateFrom: translateFrom.toUpperCase() },
+        setSubmitErrorTranslate,
+      );
       toast.success(`The translation was successfully created`);
     } catch (error) {
       setSubmitStatus('idle');
       toast.error(`Something went wrong with translation! ${error}`);
-    }finally {
+    } finally {
       setSubmitStatus('idle');
     }
   }
@@ -364,7 +411,10 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       toast.success(`${getTypeName(articleType)} published successfully!`);
       router.push(`/admin/${getTypePath(articleType)}`);
     } catch (err: any) {
-      toast.error(extractErrorMessage(err?.errors ?? err?.message ?? err) || `Failed to publish ${getTypeName(articleType)}`);
+      toast.error(
+        extractErrorMessage(err?.errors ?? err?.message ?? err) ||
+          `Failed to publish ${getTypeName(articleType)}`,
+      );
     }
   }
 
@@ -392,7 +442,18 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           resetForm({ values });
         }}
       >
-        {({ handleChange, isSubmitting, dirty, values, setFieldValue, setFieldTouched, errors, touched, validateForm, handleSubmit }) => {
+        {({
+          handleChange,
+          isSubmitting,
+          dirty,
+          values,
+          setFieldValue,
+          setFieldTouched,
+          errors,
+          touched,
+          validateForm,
+          handleSubmit,
+        }) => {
           const mainNewsIndex = values.contentBlocks.findIndex(
             (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
           );
@@ -409,13 +470,21 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
             (b: any) => b.contentBlockType === ContentBlockType.VIDEO,
           );
 
-          const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
+          const translateBlockIndex = values.contentBlocks.findIndex(
+            b => b.contentBlockType === 'TRANSLATE',
+          );
 
           const mainPhotoData = values.contentBlocks[photoIndex]?.data;
-          const mainPhotoUrls = Array.isArray(mainPhotoData) ? mainPhotoData : mainPhotoData ? [mainPhotoData] : [];
+          const mainPhotoUrls = Array.isArray(mainPhotoData)
+            ? mainPhotoData
+            : mainPhotoData
+              ? [mainPhotoData]
+              : [];
 
           const photosListData = values.contentBlocks[photosListIndex]?.data;
-          const photosListUrls = Array.isArray(photosListData) ? photosListData : [];
+          const photosListUrls = Array.isArray(photosListData)
+            ? photosListData
+            : [];
 
           const sliderData = values.contentBlocks[sliderIndex]?.data;
           const sliderUrls = Array.isArray(sliderData) ? sliderData : [];
@@ -427,24 +496,34 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                 const formErrors = await validateForm();
 
                 if (Object.keys(formErrors).length > 0) {
-                  Object.keys(formErrors).forEach(field => setFieldTouched(field, true));
-                  
+                  Object.keys(formErrors).forEach(field =>
+                    setFieldTouched(field, true),
+                  );
+
                   values.contentBlocks.forEach((_: any, index: number) => {
-                    setFieldTouched(`contentBlocks.${index}.translatable_text_editorState`, true);
+                    setFieldTouched(
+                      `contentBlocks.${index}.translatable_text_editorState`,
+                      true,
+                    );
                     setFieldTouched(`contentBlocks.${index}.data`, true);
                   });
 
-                  toast.error('Please fix validation errors highlighted in the form.');
+                  toast.error(
+                    'Please fix validation errors highlighted in the form.',
+                  );
                   return;
                 }
 
                 handleSubmit();
               }}
             >
-              <div className='mb-5'>
+              <div className="mb-5">
                 <TranslateSection
                   translateBlockIndex={translateBlockIndex}
-                  translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                  translateStatus={
+                    values.contentBlocks[translateBlockIndex]
+                      ?.translateStatus ?? 'no'
+                  }
                   handleChange={handleChange}
                 />
               </div>
@@ -478,13 +557,21 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                   options={
                     projects.length > 0
                       ? projects
-                      : [{ value: '', label: 'No published projects available', disabled: true }]
+                      : [
+                          {
+                            value: '',
+                            label: 'No published projects available',
+                            disabled: true,
+                          },
+                        ]
                   }
                 />
               </div>
 
               <div className="mb-5">
-                <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
+                <div className="block text-medium2 mb-1 !text-admin-700">
+                  Choose the creation date
+                </div>
                 <DatePicker
                   name="dateOfWriting"
                   pickerId="article-creationDate"
@@ -496,46 +583,77 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
               </div>
 
               <div className="mb-5">
-                <AuthorField usersList={usersList} defaultValue={article?.authorName}  />
+                <AuthorField
+                  usersList={usersList}
+                  defaultValue={article?.authorName}
+                />
               </div>
 
               <div className="w-full mb-2">
                 <label className="block mb-2 text-admin-700 font-medium">
-                  Text block 1 <sup className="font-bold text-red-600 text-small2">*</sup>
+                  Text block 1{' '}
+                  <sup className="font-bold text-red-600 text-small2">*</sup>
                 </label>
                 <TextEditor
                   key={editorKey.textblock1}
                   value={editorStates.textblock1}
                   onChange={newState =>
-                    handleEditorChange(ContentBlockType.MAIN_NEWS_BLOCK, newState, values, setFieldValue, setFieldTouched)
+                    handleEditorChange(
+                      ContentBlockType.MAIN_NEWS_BLOCK,
+                      newState,
+                      values,
+                      setFieldValue,
+                      setFieldTouched,
+                    )
                   }
                 />
-                {(touched.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState &&
-                  (errors.contentBlocks as any)?.[mainNewsIndex]?.translatable_text_editorState && (
+                {(touched.contentBlocks as any)?.[mainNewsIndex]
+                  ?.translatable_text_editorState &&
+                  (errors.contentBlocks as any)?.[mainNewsIndex]
+                    ?.translatable_text_editorState && (
                     <div className="text-red-700 text-small2 mt-1">
-                      {(errors.contentBlocks as any)[mainNewsIndex].translatable_text_editorState}
+                      {
+                        (errors.contentBlocks as any)[mainNewsIndex]
+                          .translatable_text_editorState
+                      }
                     </div>
-                )}
+                  )}
               </div>
 
               <div className="w-full mb-2">
-                <label className="block mb-2 text-admin-700 font-medium">Quote</label>
+                <label className="block mb-2 text-admin-700 font-medium">
+                  Quote
+                </label>
                 <TextEditor
                   key={editorKey.quote}
                   value={editorStates.quote}
                   onChange={newState =>
-                    handleEditorChange(ContentBlockType.QUOTE, newState, values, setFieldValue, setFieldTouched)
+                    handleEditorChange(
+                      ContentBlockType.QUOTE,
+                      newState,
+                      values,
+                      setFieldValue,
+                      setFieldTouched,
+                    )
                   }
                 />
               </div>
 
               <div className="w-full mb-2">
-                <label className="block mb-2 text-admin-700 font-medium">Text block 2</label>
+                <label className="block mb-2 text-admin-700 font-medium">
+                  Text block 2
+                </label>
                 <TextEditor
                   key={editorKey.textblock2}
                   value={editorStates.textblock2}
                   onChange={newState =>
-                    handleEditorChange(ContentBlockType.TEXT, newState, values, setFieldValue, setFieldTouched)
+                    handleEditorChange(
+                      ContentBlockType.TEXT,
+                      newState,
+                      values,
+                      setFieldValue,
+                      setFieldTouched,
+                    )
                   }
                 />
               </div>
@@ -564,20 +682,22 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                     uploadedUrls={mainPhotoUrls}
                     onFilesChange={urls => {
                       setFieldValue(`contentBlocks.${photoIndex}.data`, urls);
-                      setFieldTouched(`contentBlocks.${photoIndex}.data`, true, false);
+                      setFieldTouched(
+                        `contentBlocks.${photoIndex}.data`,
+                        true,
+                        false,
+                      );
                     }}
                     previewSize={300}
                   />
-                  
                 </div>
                 {(touched.contentBlocks as any)?.[photoIndex]?.data &&
                   (errors.contentBlocks as any)?.[photoIndex]?.data && (
                     <div className="text-red-700 text-small2 my-1">
                       {(errors.contentBlocks as any)[photoIndex].data}
                     </div>
-                )}
+                  )}
               </div>
-              
 
               <div className="w-full h-[442px] my-2">
                 <ImageLoading
@@ -587,10 +707,11 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                   articleId={articleId!}
                   maxFiles={2}
                   uploadedUrls={photosListUrls}
-                  onFilesChange={urls => setFieldValue(`contentBlocks.${photosListIndex}.data`, urls)}
+                  onFilesChange={urls =>
+                    setFieldValue(`contentBlocks.${photosListIndex}.data`, urls)
+                  }
                   previewSize={200}
                 />
-                
               </div>
 
               <div className="w-full h-[442px]">
@@ -610,16 +731,24 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                 {sliderPhotosChanged && (
                   <div className="mt-2 flex gap-x-1">
                     <WarningIcon />
-                    <em className="text-red-600">Warning: Click "Save" to permanently delete the photo.</em>
+                    <em className="text-red-600">
+                      Warning: Click "Save" to permanently delete the photo.
+                    </em>
                   </div>
                 )}
               </div>
 
-              {submitErrorTranslate && <div className="text-red-700 text-medium1 mt-4">{submitErrorTranslate}</div>}
+              {submitErrorTranslate && (
+                <div className="text-red-700 text-medium1 mt-4">
+                  {submitErrorTranslate}
+                </div>
+              )}
 
               <div className="mt-10">
                 <sup className="font-bold text-red-600 text-small2">*</sup>
-                <em>You must save the page before you can preview or publish it</em>
+                <em>
+                  You must save the page before you can preview or publish it
+                </em>
               </div>
 
               <div className="flex gap-x-6 mt-6">
@@ -629,15 +758,15 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
                 >
                   {submitStatus === 'saving' && (
-                    <div className='flex items-center'>
+                    <div className="flex items-center">
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span className='ml-2'>Saving...</span>
+                      <span className="ml-2">Saving...</span>
                     </div>
                   )}
                   {submitStatus === 'translating' && (
-                    <div className='flex items-center'>
+                    <div className="flex items-center">
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span className='ml-2'>Translating...</span>
+                      <span className="ml-2">Translating...</span>
                     </div>
                   )}
                   {submitStatus === 'idle' && 'Save'}
@@ -647,7 +776,11 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
                   type="button"
                   disabled={dirty || isSubmitting}
                   title={dirty ? 'Please save the changes' : ''}
-                  onClick={() => router.push(`/admin/${getTypePath(articleType)}/preview?id=${articleId}`)}
+                  onClick={() =>
+                    router.push(
+                      `/admin/${getTypePath(articleType)}/preview?id=${articleId}`,
+                    )
+                  }
                   className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
                 >
                   Preview

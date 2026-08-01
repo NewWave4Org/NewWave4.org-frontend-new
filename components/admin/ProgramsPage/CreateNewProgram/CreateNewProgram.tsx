@@ -32,9 +32,16 @@ function CreateNewProgram() {
 
   const { usersList, currentAuthor } = useUsers(true);
 
-  async function handleSubmit(values: ICreateNewArticle, { setSubmitting }: FormikHelpers<ICreateNewArticle>) {
+  async function handleSubmit(
+    values: ICreateNewArticle,
+    { setSubmitting }: FormikHelpers<ICreateNewArticle>,
+  ) {
     try {
-      const result = await handleThunk(createNewArticle, values, setSubmitError);
+      const result = await handleThunk(
+        createNewArticle,
+        values,
+        setSubmitError,
+      );
 
       if (!result || typeof result.id === 'undefined') {
         const msg = 'Unexpected response from createNewArticle';
@@ -44,7 +51,9 @@ function CreateNewProgram() {
       }
 
       setSubmitError('');
-      toast.success('Great! Your title is saved — now you can keep building your program.');
+      toast.success(
+        'Great! Your title is saved — now you can keep building your program.',
+      );
       router.push(`/admin/programs/new/content?id=${result.id}`);
     } catch (err) {
       console.error('handleSubmit error:', err);
@@ -55,7 +64,9 @@ function CreateNewProgram() {
 
   return (
     <>
-      <div className="text-medium1 mb-3">Let’s begin! Enter a title for your program to move on</div>
+      <div className="text-medium1 mb-3">
+        Let’s begin! Enter a title for your program to move on
+      </div>
 
       <Formik<ICreateNewArticle>
         initialValues={{
@@ -79,16 +90,27 @@ function CreateNewProgram() {
                 value={values.title}
                 label="Program title"
                 labelClass="!text-admin-700"
-                validationText={touched.title && errors.title ? errors.title : ''}
+                validationText={
+                  touched.title && errors.title ? errors.title : ''
+                }
               />
             </div>
             <div className="mb-5">
-              <AuthorField usersList={usersList} defaultValue={currentAuthor?.name} />
+              <AuthorField
+                usersList={usersList}
+                defaultValue={currentAuthor?.name}
+              />
             </div>
 
-            {submitError && <div className="mb-5 text-red-700">{submitError}</div>}
+            {submitError && (
+              <div className="mb-5 text-red-700">{submitError}</div>
+            )}
 
-            <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+            >
               {isSubmitting ? 'Loading...' : 'Create new program'}
             </Button>
           </Form>

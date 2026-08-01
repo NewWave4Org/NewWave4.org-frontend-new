@@ -7,7 +7,9 @@ describe('Button', () => {
   it('renders its children', () => {
     render(<Button>Donate now</Button>);
 
-    expect(screen.getByRole('button', { name: 'Donate now' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Donate now' }),
+    ).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', async () => {
@@ -24,7 +26,7 @@ describe('Button', () => {
     render(
       <Button onClick={onClick} disabled>
         Submit
-      </Button>
+      </Button>,
     );
 
     const button = screen.getByRole('button', { name: 'Submit' });
@@ -38,7 +40,7 @@ describe('Button', () => {
     render(
       <Button variant="secondary" size="small" className="custom-class">
         Submit
-      </Button>
+      </Button>,
     );
 
     const button = screen.getByRole('button', { name: 'Submit' });

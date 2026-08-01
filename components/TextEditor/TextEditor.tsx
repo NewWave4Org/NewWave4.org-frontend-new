@@ -17,7 +17,7 @@ function TextEditor({ value, onChange }: TextEditorProps) {
 
   // const [editorState, setEditorState] = useState(() => value || EditorState.createEmpty());
   const [editorState, setEditorState] = useState(
-    () => value || EditorState.createEmpty(decorator)
+    () => value || EditorState.createEmpty(decorator),
   );
   const editor = useRef<Editor | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
@@ -31,7 +31,6 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   };
 
   const handleWrapperClick = (e: React.MouseEvent) => {
-
     if (toolbarRef.current && toolbarRef.current.contains(e.target as Node)) {
       return;
     }
@@ -41,7 +40,7 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   const handleEditorChange = (newEditorState: EditorState) => {
     setEditorState(newEditorState);
 
-    // 
+    //
     if (onChange) {
       onChange(newEditorState);
     }
@@ -100,9 +99,15 @@ function TextEditor({ value, onChange }: TextEditorProps) {
   if (!mounted) return null;
 
   return (
-    <div className="editor-wrapper flex flex-col flex-1" onClick={handleWrapperClick}>
+    <div
+      className="editor-wrapper flex flex-col flex-1"
+      onClick={handleWrapperClick}
+    >
       <div ref={toolbarRef}>
-        <Toolbar editorState={editorState} setEditorState={handleEditorChange} />
+        <Toolbar
+          editorState={editorState}
+          setEditorState={handleEditorChange}
+        />
       </div>
       <div className="editor-container">
         <Editor

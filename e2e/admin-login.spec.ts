@@ -15,18 +15,27 @@ test.describe('admin login', () => {
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
   });
 
-  test('shows a validation error and stays on /admin for invalid credentials', async ({ page }) => {
+  test('shows a validation error and stays on /admin for invalid credentials', async ({
+    page,
+  }) => {
     await page.goto('/admin');
 
-    await page.getByLabel(/email address/i).fill('not-a-real-admin@newwave4.org');
+    await page
+      .getByLabel(/email address/i)
+      .fill('not-a-real-admin@newwave4.org');
     await page.getByLabel(/^password/i).fill('definitely-wrong-password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
     await expect(page).toHaveURL(/\/admin\/?$/);
   });
 
-  test('logs in with valid credentials and reaches the authenticated dashboard', async ({ page }) => {
-    test.skip(!ADMIN_EMAIL || !ADMIN_PASSWORD, 'E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD not provided');
+  test('logs in with valid credentials and reaches the authenticated dashboard', async ({
+    page,
+  }) => {
+    test.skip(
+      !ADMIN_EMAIL || !ADMIN_PASSWORD,
+      'E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD not provided',
+    );
 
     await page.goto('/admin');
 

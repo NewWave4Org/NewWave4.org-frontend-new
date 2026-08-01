@@ -1,6 +1,9 @@
 import IGlobalSectionsAPI from './type/global-sections-api.interface';
 import IGlobalSectionsServices from './type/global-sections-services.interface';
-import { IGlobalSectionRequestPutDTO, IGlobalSectionsRequestDTO } from './type/interfaces';
+import {
+  IGlobalSectionRequestPutDTO,
+  IGlobalSectionsRequestDTO,
+} from './type/interfaces';
 
 class GlobalSectionService implements IGlobalSectionsServices {
   private globalSection: IGlobalSectionsAPI;

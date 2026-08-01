@@ -38,7 +38,9 @@ function HomeForm() {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const handleThunk = useHandleThunk();
@@ -49,34 +51,71 @@ function HomeForm() {
     translateDirection: Yup.string().test(
       'required-if-translate',
       'Translation direction is required',
-      function(value) {
+      function (value) {
         const contentBlocks = this.parent.contentBlocks;
         const translateBlock = contentBlocks?.find(
-          (b: any) => b.contentBlockType === 'TRANSLATE'
+          (b: any) => b.contentBlockType === 'TRANSLATE',
         );
         if (translateBlock?.translateStatus === 'yes') {
           return !!value;
         }
         return true;
-      }
+      },
     ),
-    });
+  });
 
   const defaultFormValues = useMemo(
     () => ({
       pageType: PagesType.HOME,
       contentBlocks: [
         { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
-        { id: uuid(), contentBlockType: 'SLIDER', translatable_text_title: '', translatable_text_description: '', link: '', files: [], translatable_text_editorState: null },
+        {
+          id: uuid(),
+          contentBlockType: 'SLIDER',
+          translatable_text_title: '',
+          translatable_text_description: '',
+          link: '',
+          files: [],
+          translatable_text_editorState: null,
+        },
         { id: uuid(), contentBlockType: 'HOME_TITLE_UA', text_title_ua: '' },
         { id: uuid(), contentBlockType: 'HOME_TITLE_ENG', text_title_eng: '' },
-        { id: uuid(), contentBlockType: 'HOME_DESCRIPTION', translatable_text_description: '', translatable_text_editorState: null },
+        {
+          id: uuid(),
+          contentBlockType: 'HOME_DESCRIPTION',
+          translatable_text_description: '',
+          translatable_text_editorState: null,
+        },
         { id: uuid(), contentBlockType: 'HOME_PHOTO', files: [] },
         { id: uuid(), contentBlockType: 'VIDEO', video_url: '' },
-        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'JOIN_US', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
-        { id: uuid(), contentBlockType: 'PARTNERS', translatable_text_title: '', translatable_text_description: '', translatable_text_editorState: null },
+        {
+          id: uuid(),
+          contentBlockType: 'JOIN_US',
+          translatable_text_title: '',
+          translatable_text_description: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'JOIN_US',
+          translatable_text_title: '',
+          translatable_text_description: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'JOIN_US',
+          translatable_text_title: '',
+          translatable_text_description: '',
+          translatable_text_editorState: null,
+        },
+        {
+          id: uuid(),
+          contentBlockType: 'PARTNERS',
+          translatable_text_title: '',
+          translatable_text_description: '',
+          translatable_text_editorState: null,
+        },
       ],
     }),
     [],
@@ -84,7 +123,9 @@ function HomeForm() {
 
   const initialValues = {
     pageType: PagesType.HOME,
-    contentBlocks: homePage?.contentBlocks?.length ? homePage.contentBlocks : defaultFormValues.contentBlocks,
+    contentBlocks: homePage?.contentBlocks?.length
+      ? homePage.contentBlocks
+      : defaultFormValues.contentBlocks,
     translateDirection: homePage?.translateDirection ?? '',
   };
 
@@ -94,28 +135,40 @@ function HomeForm() {
       .toLowerCase()
       .replace(/^\w/, c => c.toUpperCase());
 
-  const handleEditorChange = (id: string, values: any, newState: EditorState, setFieldValue: any) => {
+  const handleEditorChange = (
+    id: string,
+    values: any,
+    newState: EditorState,
+    setFieldValue: any,
+  ) => {
     setEditorStates(prev => ({ ...prev, [id]: newState }));
 
-    const index = values.contentBlocks.findIndex((block: { id?: string | number }) => block.id === id);
+    const index = values.contentBlocks.findIndex(
+      (block: { id?: string | number }) => block.id === id,
+    );
 
     if (index === -1) return;
 
     const raw = convertToRaw(newState.getCurrentContent());
 
     setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.translatable_text_description`, newState.getCurrentContent().getPlainText());
+    setFieldValue(
+      `contentBlocks.${index}.translatable_text_description`,
+      newState.getCurrentContent().getPlainText(),
+    );
   };
 
   useEffect(() => {
     async function getPageByKey() {
       try {
         const result = await dispatch(getPages(PagesType.HOME)).unwrap();
-        const isEngDirection = result.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
-        
+        const isEngDirection =
+          result.translateDirection ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+
         const activeBlocks = isEngDirection
-            ? result.contentBlocksEng
-            : result.contentBlocks;
+          ? result.contentBlocksEng
+          : result.contentBlocks;
 
         const editors: Record<string, EditorState> = {};
         const keys: Record<string, string> = {};
@@ -123,14 +176,17 @@ function HomeForm() {
         const serverBlocks = (activeBlocks ?? []).map(block => ({
           ...block,
           id: block.id ?? uuid(),
-          ...(block.contentBlockType === 'SLIDER' ? {isNew: false} : {})
+          ...(block.contentBlockType === 'SLIDER' ? { isNew: false } : {}),
         }));
 
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
-            defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
-          )
+            defBlock =>
+              !serverBlocks.some(
+                b => b.contentBlockType === defBlock.contentBlockType,
+              ),
+          ),
         ];
 
         mergedBlocks.forEach(block => {
@@ -138,7 +194,9 @@ function HomeForm() {
 
           try {
             if (block.translatable_text_editorState) {
-              const content = convertFromRaw(block.translatable_text_editorState);
+              const content = convertFromRaw(
+                block.translatable_text_editorState,
+              );
               editor = EditorState.createWithContent(content, decorator);
             } else {
               editor = EditorState.createEmpty(decorator);
@@ -161,7 +219,10 @@ function HomeForm() {
           contentBlocks: mergedBlocks,
         });
       } catch (error: any) {
-        if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
+        if (
+          error.original.errors[0].includes('with key') ||
+          error.original.errors[0].includes('find page')
+        ) {
           setHomePage(null);
           return;
         }
@@ -177,7 +238,6 @@ function HomeForm() {
 
   //SAVE
   async function handleSubmit(values: IHomePageValues) {
-
     // ---- DELETE FILES ----
     for (const url of deletedFiles) {
       try {
@@ -188,10 +248,18 @@ function HomeForm() {
     }
 
     // ---- VALIDATION FOR FIRST SLIDER ----
-    const slidersWithoutImage = values.contentBlocks.filter(block => block.contentBlockType === 'SLIDER' && (!Array.isArray(block.files) || block.files.length === 0));
+    const slidersWithoutImage = values.contentBlocks.filter(
+      block =>
+        block.contentBlockType === 'SLIDER' &&
+        (!Array.isArray(block.files) || block.files.length === 0),
+    );
 
     if (slidersWithoutImage.length > 0) {
-      toast.error(slidersWithoutImage.length === 1 ? 'Slider must contain an image!' : 'All sliders must contain images!');
+      toast.error(
+        slidersWithoutImage.length === 1
+          ? 'Slider must contain an image!'
+          : 'All sliders must contain images!',
+      );
       return;
     }
 
@@ -199,27 +267,40 @@ function HomeForm() {
     let updateSuccess = false;
 
     try {
-      const result = await handleThunk(updatePages, { id: homePage?.id, data: values }, setSubmitError);
+      const result = await handleThunk(
+        updatePages,
+        { id: homePage?.id, data: values },
+        setSubmitError,
+      );
 
       if (result) {
         setHomePage(result);
         setSubmitError('');
         updateSuccess = true;
-        toast.success(isUpdate ? 'Home page updated successfully!' : 'Home page created successfully!');
+        toast.success(
+          isUpdate
+            ? 'Home page updated successfully!'
+            : 'Home page created successfully!',
+        );
         setDeletedFiles([]);
       }
-
     } catch (error) {
       toast.error(`Something went wrong! ${error}`);
     }
 
     // ---- TRANSLATION ----
     if (!updateSuccess) return;
-    const translateStatusVal = values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-    
-    if(translateStatusVal == 'yes') {
+    const translateStatusVal =
+      values.contentBlocks.find(block => block.contentBlockType === 'TRANSLATE')
+        ?.translateStatus ?? 'no';
+
+    if (translateStatusVal == 'yes') {
       try {
-        await handleThunk(createTranslationPage, homePage?.id, setSubmitErrorTranslate);
+        await handleThunk(
+          createTranslationPage,
+          homePage?.id,
+          setSubmitErrorTranslate,
+        );
 
         toast.success(`The translation was successfully created`);
       } catch (error) {
@@ -227,11 +308,11 @@ function HomeForm() {
         toast.error(`Something go wrong with translation! ${error}`);
       }
     }
-
   }
 
   return (
-    <Formik initialValues={initialValues}
+    <Formik
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
       enableReinitialize
@@ -240,20 +321,37 @@ function HomeForm() {
         <Form>
           <FieldArray name="contentBlocks">
             {({ push, remove }) => {
-              const sliderBlocks = values.contentBlocks.filter(b => b.contentBlockType === 'SLIDER');
-              const fixedBlocks = values.contentBlocks.filter(b => b.contentBlockType !== 'SLIDER');
-              const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
-              const photoBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_PHOTO');
-              const photoIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'HOME_PHOTO');
-              const homeTitleUaBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_TITLE_UA');
-              const homeTitleEngBlock = values.contentBlocks.find(b => b.contentBlockType === 'HOME_TITLE_ENG');
+              const sliderBlocks = values.contentBlocks.filter(
+                b => b.contentBlockType === 'SLIDER',
+              );
+              const fixedBlocks = values.contentBlocks.filter(
+                b => b.contentBlockType !== 'SLIDER',
+              );
+              const translateBlockIndex = values.contentBlocks.findIndex(
+                b => b.contentBlockType === 'TRANSLATE',
+              );
+              const photoBlock = values.contentBlocks.find(
+                b => b.contentBlockType === 'HOME_PHOTO',
+              );
+              const photoIndex = values.contentBlocks.findIndex(
+                b => b.contentBlockType === 'HOME_PHOTO',
+              );
+              const homeTitleUaBlock = values.contentBlocks.find(
+                b => b.contentBlockType === 'HOME_TITLE_UA',
+              );
+              const homeTitleEngBlock = values.contentBlocks.find(
+                b => b.contentBlockType === 'HOME_TITLE_ENG',
+              );
 
               return (
                 <div>
-                  <div className='mb-7'>
+                  <div className="mb-7">
                     <TranslateSection
                       translateBlockIndex={translateBlockIndex}
-                      translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                      translateStatus={
+                        values.contentBlocks[translateBlockIndex]
+                          ?.translateStatus ?? 'no'
+                      }
                       handleChange={handleChange}
                     />
                   </div>
@@ -267,7 +365,10 @@ function HomeForm() {
 
                       return (
                         <div className="mb-8" key={realIndex}>
-                          <Accordion title={`Slider #1 - ${block.translatable_text_title}`} classNameTop="min-h-14">
+                          <Accordion
+                            title={`Slider #1 - ${block.translatable_text_title}`}
+                            classNameTop="min-h-14"
+                          >
                             <div className="mb-4">
                               <Input
                                 id={`contentBlocks[${realIndex}].translatable_text_title`}
@@ -293,22 +394,51 @@ function HomeForm() {
                               />
                             </div>
                             <div className="mb-4">
-                              <div className="mb-2 !text-admin-700">Slider description</div>
-                              <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                              <div className="mb-2 !text-admin-700">
+                                Slider description
+                              </div>
+                              <TextEditor
+                                key={editorKey[block.id]}
+                                value={
+                                  editorStates[block.id] ||
+                                  EditorState.createEmpty(decorator)
+                                }
+                                onChange={newState =>
+                                  handleEditorChange(
+                                    block.id,
+                                    values,
+                                    newState,
+                                    setFieldValue,
+                                  )
+                                }
+                              />
                             </div>
 
                             <div>
                               <div className="mb-2 !text-admin-700">
                                 Slider photo
-                                <span className="text-status-danger-500 text-body"> *</span>
+                                <span className="text-status-danger-500 text-body">
+                                  {' '}
+                                  *
+                                </span>
                               </div>
                               <ImageLoading
                                 classBlock="min-h-[300px]"
                                 isAttach={true}
-                                uploadedUrls={block.files?.filter((f: string) => !deletedFiles.includes(f)) || []}
+                                uploadedUrls={
+                                  block.files?.filter(
+                                    (f: string) => !deletedFiles.includes(f),
+                                  ) || []
+                                }
                                 onFilesChange={(files, deleted) => {
-                                  setFieldValue(`contentBlocks.${realIndex}.files`, files);
-                                  setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                  setFieldValue(
+                                    `contentBlocks.${realIndex}.files`,
+                                    files,
+                                  );
+                                  setDeletedFiles(prev => [
+                                    ...prev,
+                                    ...(deleted || []),
+                                  ]);
                                 }}
                                 required={true}
                                 previewSize={300}
@@ -335,10 +465,16 @@ function HomeForm() {
                               onClick={() => {
                                 const blockId = block.id;
                                 if (block.files) {
-                                  setDeletedFiles(prev => [...prev, ...block.files]);
+                                  setDeletedFiles(prev => [
+                                    ...prev,
+                                    ...block.files,
+                                  ]);
                                 }
 
-                                const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                const blockIndex =
+                                  values.contentBlocks.findIndex(
+                                    b => b.id === block.id,
+                                  );
                                 if (blockIndex !== -1) remove(blockIndex);
 
                                 setEditorStates(prev => {
@@ -353,7 +489,9 @@ function HomeForm() {
                                   return newKey;
                                 });
 
-                                toast.success(`Slider №${sliderNumber} was successfully removed.`);
+                                toast.success(
+                                  `Slider №${sliderNumber} was successfully removed.`,
+                                );
                               }}
                               className="my-1 mr-3 p-3 bg-red-700 text-white rounded-md hover:bg-red-500"
                             >
@@ -388,21 +526,51 @@ function HomeForm() {
                           </div>
 
                           <div className="mb-4">
-                            <div className="mb-2 !text-admin-700">Slider description</div>
-                            <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                            <div className="mb-2 !text-admin-700">
+                              Slider description
+                            </div>
+                            <TextEditor
+                              key={editorKey[block.id]}
+                              value={
+                                editorStates[block.id] ||
+                                EditorState.createEmpty(decorator)
+                              }
+                              onChange={newState =>
+                                handleEditorChange(
+                                  block.id,
+                                  values,
+                                  newState,
+                                  setFieldValue,
+                                )
+                              }
+                            />
                           </div>
 
                           <div className="mb-4">
                             <div className="mb-2 !text-admin-700">
-                              Slider photo <span className="text-status-danger-500 text-body"> *</span>
+                              Slider photo{' '}
+                              <span className="text-status-danger-500 text-body">
+                                {' '}
+                                *
+                              </span>
                             </div>
                             <ImageLoading
                               classBlock="min-h-[300px]"
                               isAttach={true}
-                              uploadedUrls={block.files?.filter((f: string) => !deletedFiles.includes(f)) || []}
+                              uploadedUrls={
+                                block.files?.filter(
+                                  (f: string) => !deletedFiles.includes(f),
+                                ) || []
+                              }
                               onFilesChange={(files, deleted) => {
-                                setFieldValue(`contentBlocks.${realIndex}.files`, files);
-                                setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                setFieldValue(
+                                  `contentBlocks.${realIndex}.files`,
+                                  files,
+                                );
+                                setDeletedFiles(prev => [
+                                  ...prev,
+                                  ...(deleted || []),
+                                ]);
                               }}
                               required={true}
                               previewSize={300}
@@ -443,165 +611,217 @@ function HomeForm() {
                     Add new slider
                   </button>
 
-                  {fixedBlocks.filter(block =>
-                      block.contentBlockType !== 'HOME_TITLE_UA' &&
-                      block.contentBlockType !== 'HOME_TITLE_ENG'
-                    ).map(block => {
-                    const realIndex = values.contentBlocks.indexOf(block);
+                  {fixedBlocks
+                    .filter(
+                      block =>
+                        block.contentBlockType !== 'HOME_TITLE_UA' &&
+                        block.contentBlockType !== 'HOME_TITLE_ENG',
+                    )
+                    .map(block => {
+                      const realIndex = values.contentBlocks.indexOf(block);
 
-                    if (block.contentBlockType === 'VIDEO') {
-                      return (
-                        <div key={realIndex} className="mb-8">
-                          <Input
-                            id={`contentBlocks[${realIndex}].video_url`}
-                            name={`contentBlocks[${realIndex}].video_url`}
-                            type="text"
-                            value={block.video_url}
-                            onChange={handleChange}
-                            label="Video URL"
-                            labelClass="mb-2 !text-admin-700"
-                            className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                          />
-                        </div>
-                      );
-                    }
-
-                    if (block.contentBlockType === 'JOIN_US') {
-                      const joinUsBlocks = values.contentBlocks.filter(b => b.contentBlockType === 'JOIN_US');
-                      const joinUsNumber = joinUsBlocks.indexOf(block) + 1;
-
-                      return (
-                        <div key={realIndex} className="mb-8">
-                          <Accordion title={`Join Us #${joinUsNumber} - ${block.translatable_text_title || ''}`} classNameTop="min-h-14">
-                            {block.translatable_text_title !== undefined && (
-                              <div className="mb-4">
-                                <Input
-                                  id={`contentBlocks[${realIndex}].translatable_text_title`}
-                                  name={`contentBlocks[${realIndex}].translatable_text_title`}
-                                  type="text"
-                                  value={block.translatable_text_title}
-                                  onChange={handleChange}
-                                  label="Join Us title"
-                                  labelClass="mb-2 !text-admin-700"
-                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                />
-                              </div>
-                            )}
-                            {block.translatable_text_description !== undefined && (
-                              <>
-                                <div className="mb-2 !text-admin-700">Join Us description</div>
-                                <TextEditor
-                                  key={editorKey[block.id]}
-                                  value={editorStates[block.id] || EditorState.createEmpty(decorator)}
-                                  onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
-                                />
-                              </>
-                            )}
-                          </Accordion>
-                        </div>
-                      );
-                    }
-
-                    // HOME_PHOTO
-                    if (block.contentBlockType === 'HOME_PHOTO') {
-                      return null;
-                    }
-
-                    // HOME_TITLE, HOME_DESCRIPTION, PARTNERS
-                    return (
-                      <div key={realIndex} className="mb-8">
-                        {block.contentBlockType === 'HOME_DESCRIPTION' && (
-                          <>
-                            {homeTitleUaBlock && (
-                              <div className="mb-4">
-                                <Input
-                                  id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
-                                  name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
-                                  type="text"
-                                  value={homeTitleUaBlock.text_title_ua || ''}
-                                  onChange={handleChange}
-                                  label="Home title UA"
-                                  labelClass="mb-2 !text-admin-700"
-                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                />
-                              </div>
-                            )}
-
-                            {homeTitleEngBlock && (
-                              <div className="mb-4">
-                                <Input
-                                  id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
-                                  name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
-                                  type="text"
-                                  value={homeTitleEngBlock.text_title_eng || ''}
-                                  onChange={handleChange}
-                                  label="Home title ENG"
-                                  labelClass="mb-2 !text-admin-700"
-                                  className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                />
-                              </div>
-                            )}
-                          </>
-                        )}
-                        
-                        {block.translatable_text_title !== undefined && (
-                          <div className="mb-4">
+                      if (block.contentBlockType === 'VIDEO') {
+                        return (
+                          <div key={realIndex} className="mb-8">
                             <Input
-                              id={`contentBlocks[${realIndex}].translatable_text_title`}
-                              name={`contentBlocks[${realIndex}].translatable_text_title`}
+                              id={`contentBlocks[${realIndex}].video_url`}
+                              name={`contentBlocks[${realIndex}].video_url`}
                               type="text"
-                              value={block.translatable_text_title}
+                              value={block.video_url}
                               onChange={handleChange}
-                              label={`${formatType(block.contentBlockType)} title`}
+                              label="Video URL"
                               labelClass="mb-2 !text-admin-700"
                               className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
                             />
                           </div>
-                        )}
-                        {block.translatable_text_description !== undefined && (
-                          <>
-                            <div className="mb-2 !text-admin-700">
-                              {block.contentBlockType === 'HOME_DESCRIPTION' ? formatType(block.contentBlockType) : `${formatType(block.contentBlockType)} description`}
+                        );
+                      }
+
+                      if (block.contentBlockType === 'JOIN_US') {
+                        const joinUsBlocks = values.contentBlocks.filter(
+                          b => b.contentBlockType === 'JOIN_US',
+                        );
+                        const joinUsNumber = joinUsBlocks.indexOf(block) + 1;
+
+                        return (
+                          <div key={realIndex} className="mb-8">
+                            <Accordion
+                              title={`Join Us #${joinUsNumber} - ${block.translatable_text_title || ''}`}
+                              classNameTop="min-h-14"
+                            >
+                              {block.translatable_text_title !== undefined && (
+                                <div className="mb-4">
+                                  <Input
+                                    id={`contentBlocks[${realIndex}].translatable_text_title`}
+                                    name={`contentBlocks[${realIndex}].translatable_text_title`}
+                                    type="text"
+                                    value={block.translatable_text_title}
+                                    onChange={handleChange}
+                                    label="Join Us title"
+                                    labelClass="mb-2 !text-admin-700"
+                                    className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                  />
+                                </div>
+                              )}
+                              {block.translatable_text_description !==
+                                undefined && (
+                                <>
+                                  <div className="mb-2 !text-admin-700">
+                                    Join Us description
+                                  </div>
+                                  <TextEditor
+                                    key={editorKey[block.id]}
+                                    value={
+                                      editorStates[block.id] ||
+                                      EditorState.createEmpty(decorator)
+                                    }
+                                    onChange={newState =>
+                                      handleEditorChange(
+                                        block.id,
+                                        values,
+                                        newState,
+                                        setFieldValue,
+                                      )
+                                    }
+                                  />
+                                </>
+                              )}
+                            </Accordion>
+                          </div>
+                        );
+                      }
+
+                      // HOME_PHOTO
+                      if (block.contentBlockType === 'HOME_PHOTO') {
+                        return null;
+                      }
+
+                      // HOME_TITLE, HOME_DESCRIPTION, PARTNERS
+                      return (
+                        <div key={realIndex} className="mb-8">
+                          {block.contentBlockType === 'HOME_DESCRIPTION' && (
+                            <>
+                              {homeTitleUaBlock && (
+                                <div className="mb-4">
+                                  <Input
+                                    id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
+                                    name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleUaBlock)}].text_title_ua`}
+                                    type="text"
+                                    value={homeTitleUaBlock.text_title_ua || ''}
+                                    onChange={handleChange}
+                                    label="Home title UA"
+                                    labelClass="mb-2 !text-admin-700"
+                                    className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                  />
+                                </div>
+                              )}
+
+                              {homeTitleEngBlock && (
+                                <div className="mb-4">
+                                  <Input
+                                    id={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
+                                    name={`contentBlocks[${values.contentBlocks.indexOf(homeTitleEngBlock)}].text_title_eng`}
+                                    type="text"
+                                    value={
+                                      homeTitleEngBlock.text_title_eng || ''
+                                    }
+                                    onChange={handleChange}
+                                    label="Home title ENG"
+                                    labelClass="mb-2 !text-admin-700"
+                                    className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {block.translatable_text_title !== undefined && (
+                            <div className="mb-4">
+                              <Input
+                                id={`contentBlocks[${realIndex}].translatable_text_title`}
+                                name={`contentBlocks[${realIndex}].translatable_text_title`}
+                                type="text"
+                                value={block.translatable_text_title}
+                                onChange={handleChange}
+                                label={`${formatType(block.contentBlockType)} title`}
+                                labelClass="mb-2 !text-admin-700"
+                                className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
+                              />
                             </div>
-                            <TextEditor
-                              key={editorKey[block.id]}
-                              value={editorStates[block.id] || EditorState.createEmpty(decorator)}
-                              onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
-                            />
-                            {/* HOME_PHOTO вставляем сразу после HOME_DESCRIPTION */}
-                            {block.contentBlockType === 'HOME_DESCRIPTION' && photoBlock && (
-                              <div className="mt-4">
-                                <div className="mb-2 !text-admin-700">Home photo</div>
-                                <ImageLoading
-                                  classBlock="min-h-[300px]"
-                                  maxFiles={1}
-                                  isAttach={true}
-                                  uploadedUrls={photoBlock.files ?? []}
-                                  onFilesChange={(files, deleted) => {
-                                    setFieldValue(`contentBlocks.${photoIndex}.files`, files);
-                                    setDeletedFiles(prev => [...prev, ...(deleted || [])]);
-                                  }}
-                                />
+                          )}
+                          {block.translatable_text_description !==
+                            undefined && (
+                            <>
+                              <div className="mb-2 !text-admin-700">
+                                {block.contentBlockType === 'HOME_DESCRIPTION'
+                                  ? formatType(block.contentBlockType)
+                                  : `${formatType(block.contentBlockType)} description`}
                               </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
+                              <TextEditor
+                                key={editorKey[block.id]}
+                                value={
+                                  editorStates[block.id] ||
+                                  EditorState.createEmpty(decorator)
+                                }
+                                onChange={newState =>
+                                  handleEditorChange(
+                                    block.id,
+                                    values,
+                                    newState,
+                                    setFieldValue,
+                                  )
+                                }
+                              />
+                              {/* HOME_PHOTO вставляем сразу после HOME_DESCRIPTION */}
+                              {block.contentBlockType === 'HOME_DESCRIPTION' &&
+                                photoBlock && (
+                                  <div className="mt-4">
+                                    <div className="mb-2 !text-admin-700">
+                                      Home photo
+                                    </div>
+                                    <ImageLoading
+                                      classBlock="min-h-[300px]"
+                                      maxFiles={1}
+                                      isAttach={true}
+                                      uploadedUrls={photoBlock.files ?? []}
+                                      onFilesChange={(files, deleted) => {
+                                        setFieldValue(
+                                          `contentBlocks.${photoIndex}.files`,
+                                          files,
+                                        );
+                                        setDeletedFiles(prev => [
+                                          ...prev,
+                                          ...(deleted || []),
+                                        ]);
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               );
             }}
           </FieldArray>
 
-          {submitError && <div className="text-red-700 text-medium1 my-4"> {submitError}</div>}
+          {submitError && (
+            <div className="text-red-700 text-medium1 my-4"> {submitError}</div>
+          )}
 
           <div className="my-4">
             <sup className="font-bold text-red-600 text-small2">*</sup>
-            After any changes you need to click the <strong>Update</strong> button
+            After any changes you need to click the <strong>Update</strong>{' '}
+            button
           </div>
 
-          <Button type="submit" disabled={isSubmitting} className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+          >
             {isSubmitting ? 'Loading...' : 'Update'}
           </Button>
         </Form>

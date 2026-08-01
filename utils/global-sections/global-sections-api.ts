@@ -2,7 +2,10 @@ import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
 import IGlobalSectionsAPI from './type/global-sections-api.interface';
-import { IGlobalSectionRequestPutDTO, IGlobalSectionsRequestDTO } from './type/interfaces';
+import {
+  IGlobalSectionRequestPutDTO,
+  IGlobalSectionsRequestDTO,
+} from './type/interfaces';
 
 class GlobalSectionAPI implements IGlobalSectionsAPI {
   async createdGlobalSections(data: IGlobalSectionsRequestDTO) {

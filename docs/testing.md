@@ -53,7 +53,7 @@ These are draft-js/dropzone-heavy forms with a lot of orchestration logic packed
 
 **A coverage floor is now enforced** (issue #462), and adding it corrected a much bigger problem than the missing gate.
 
-Coverage previously reported **~55–61%**, including on the public status page. That number was measured only over files a test happened to import — `vitest.config.ts` had no `coverage.include`, so v8 reported on loaded files only. With 371 source files in the repo, most were simply absent from the denominator. It also moved the wrong way: deleting tests *raised* the figure, because the survivors were the well-covered ones, and adding a large untested surface did not move it at all.
+Coverage previously reported **~55–61%**, including on the public status page. That number was measured only over files a test happened to import — `vitest.config.ts` had no `coverage.include`, so v8 reported on loaded files only. With 371 source files in the repo, most were simply absent from the denominator. It also moved the wrong way: deleting tests _raised_ the figure, because the survivors were the well-covered ones, and adding a large untested surface did not move it at all.
 
 Setting `coverage.include` to the source tree gives the honest number: **7.61% statements, 6.4% branches, 4.88% functions, 7.84% lines** (336 of 4414 statements), measured 2026-07-31. Nothing got worse — the denominator got real. Expect the status-page figure to drop accordingly.
 

@@ -17,42 +17,42 @@ const FinishPage = () => {
       const data: any = localStorage.getItem('donationformdata');
       setDatafromlocal(JSON.parse(data));
     }
-  }, [])
+  }, []);
 
   const saveformData = async () => {
     try {
       const data = await fetch(`${API_V1_BASE_URL}payments/save-donation`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           donor: datafromlocal.name,
           email: datafromlocal.email,
           description: datafromlocal.purpose,
           currency: '$',
-          ...datafromlocal
-        })
+          ...datafromlocal,
+        }),
       });
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('donationformdata')
+        localStorage.removeItem('donationformdata');
       }
       return await data.json();
     } catch (error) {
       console.warn(`payment didn't saved to DB`, error);
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('donationformdata')
+        localStorage.removeItem('donationformdata');
       }
       return error;
     }
-  }
+  };
   useEffect(() => {
     if (!!datafromlocal && Object.keys(datafromlocal).length > 0) {
       saveformData()
         .then()
-        .catch((err) => console.warn(err));
+        .catch(err => console.warn(err));
     } else {
-      router.push("/donation")
+      router.push('/donation');
     }
   }, [datafromlocal]);
 

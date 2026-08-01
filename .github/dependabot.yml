@@ -5,18 +5,18 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/" # Location of package manifests
-    target-branch: "development"
+  - package-ecosystem: 'npm'
+    directory: '/' # Location of package manifests
+    target-branch: 'development'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/"
-    target-branch: "development"
+      interval: 'weekly'
+  - package-ecosystem: 'docker'
+    directory: '/'
+    target-branch: 'development'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "development"
+      interval: 'weekly'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    target-branch: 'development'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'

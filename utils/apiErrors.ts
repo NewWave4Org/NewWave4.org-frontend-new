@@ -5,7 +5,12 @@ export function extractErrorMessage(errors: unknown): string {
     return extractErrorMessage((errors as any).payload);
   }
 
-  if (typeof errors === 'object' && errors !== null && 'original' in errors && Array.isArray((errors as any).original?.errors)) {
+  if (
+    typeof errors === 'object' &&
+    errors !== null &&
+    'original' in errors &&
+    Array.isArray((errors as any).original?.errors)
+  ) {
     return (errors as any).original.errors.join('. ');
   }
 
@@ -17,7 +22,9 @@ export function extractErrorMessage(errors: unknown): string {
 
   if (typeof errors === 'object' && errors !== null) {
     const values = Object.values(errors as Record<string, unknown>);
-    return values.map(v => (Array.isArray(v) ? v.join('. ') : String(v))).join('. ');
+    return values
+      .map(v => (Array.isArray(v) ? v.join('. ') : String(v)))
+      .join('. ');
   }
 
   return 'Невідома помилка';

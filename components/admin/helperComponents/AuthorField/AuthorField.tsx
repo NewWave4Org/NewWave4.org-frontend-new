@@ -1,11 +1,11 @@
 'use client';
 
-import Input from "@/components/shared/Input";
-import Select from "@/components/shared/Select";
-import { Option } from "@/components/shared/SelectLocale";
-import { useFormikContext } from "formik";
-import { useEffect, useState } from "react";
-import { newArticleDTO } from "../../Articles/ArticleForm";
+import Input from '@/components/shared/Input';
+import Select from '@/components/shared/Select';
+import { Option } from '@/components/shared/SelectLocale';
+import { useFormikContext } from 'formik';
+import { useEffect, useState } from 'react';
+import { newArticleDTO } from '../../Articles/ArticleForm';
 
 interface AuthorFieldProps {
   usersList: Option[];
@@ -71,7 +71,8 @@ interface AuthorFieldProps {
 // };
 
 function AuthorField({ usersList, defaultValue }: AuthorFieldProps) {
-  const { values, touched, errors, handleChange, setFieldValue } = useFormikContext<newArticleDTO>();
+  const { values, touched, errors, handleChange, setFieldValue } =
+    useFormikContext<newArticleDTO>();
 
   useEffect(() => {
     if (defaultValue === undefined) return;
@@ -106,7 +107,7 @@ function AuthorField({ usersList, defaultValue }: AuthorFieldProps) {
         value={
           usersList.some(u => u.label === values.authorName)
             ? ''
-            : values.authorName ?? ''
+            : (values.authorName ?? '')
         }
         labelClass="!text-admin-700"
         validationText={

@@ -23,18 +23,18 @@ Open [http://localhost:3000](http://localhost:3000). For the full stack, includi
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the dev server (Turbopack) at `http://localhost:3000` |
-| `npm run build` | Production build |
-| `npm run start` | Run a production build |
-| `npm run lint` | ESLint (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
-| `npm run typecheck` | `tsc --noEmit` — **blocking** in CI, and `next build` validates types too |
-| `npm run test` | Vitest unit/component suite |
-| `npm run test:watch` | Vitest in watch mode |
-| `npm run test:coverage` | Vitest with coverage |
-| `npm run test:e2e` | Playwright end-to-end suite |
-| `npm run format` / `format:check` | Prettier |
+| Command                           | Description                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Start the dev server (Turbopack) at `http://localhost:3000`                                  |
+| `npm run build`                   | Production build                                                                             |
+| `npm run start`                   | Run a production build                                                                       |
+| `npm run lint`                    | ESLint (currently non-blocking in CI — see [`docs/known-issues.md`](./docs/known-issues.md)) |
+| `npm run typecheck`               | `tsc --noEmit` — **blocking** in CI, and `next build` validates types too                    |
+| `npm run test`                    | Vitest unit/component suite                                                                  |
+| `npm run test:watch`              | Vitest in watch mode                                                                         |
+| `npm run test:coverage`           | Vitest with coverage                                                                         |
+| `npm run test:e2e`                | Playwright end-to-end suite                                                                  |
+| `npm run format` / `format:check` | Prettier                                                                                     |
 
 ## Running with Docker
 

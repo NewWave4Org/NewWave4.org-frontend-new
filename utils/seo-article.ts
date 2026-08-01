@@ -49,14 +49,24 @@ export async function buildArticleMetadata({
   try {
     const dto = await getArticleByIdCached(id);
     const isEng = locale === EN_LOCALE;
-    const blocks = (isEng && dto.contentBlocksEng?.length ? dto.contentBlocksEng : dto.contentBlocks) ?? [];
-    const title = (isEng && dto.titleEng ? dto.titleEng : dto.title) || fallbackTitle;
+    const blocks =
+      (isEng && dto.contentBlocksEng?.length
+        ? dto.contentBlocksEng
+        : dto.contentBlocks) ?? [];
+    const title =
+      (isEng && dto.titleEng ? dto.titleEng : dto.title) || fallbackTitle;
 
-    const mainTextRaw = getBlockValue<unknown>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ?? getBlockValue<unknown>(blocks, ContentBlockType.TEXT);
+    const mainTextRaw =
+      getBlockValue<unknown>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
+      getBlockValue<unknown>(blocks, ContentBlockType.TEXT);
     const description = truncate(rawDraftToPlainText(mainTextRaw));
 
-    const photoData = getBlockValue<string | string[]>(blocks, ContentBlockType.PHOTO);
-    const image = (Array.isArray(photoData) ? photoData[0] : photoData) || DEFAULT_OG_IMAGE;
+    const photoData = getBlockValue<string | string[]>(
+      blocks,
+      ContentBlockType.PHOTO,
+    );
+    const image =
+      (Array.isArray(photoData) ? photoData[0] : photoData) || DEFAULT_OG_IMAGE;
 
     return {
       title,

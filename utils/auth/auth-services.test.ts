@@ -18,9 +18,14 @@ function createFakeAuthApi(overrides: Partial<IAuthAPI> = {}): IAuthAPI {
 describe('AuthService', () => {
   it('delegates loginAuth to the injected api and returns its result', async () => {
     const loginResponse = { accessToken: 'token', role: 'ADMIN' } as never;
-    const fakeApi = createFakeAuthApi({ loginAuth: vi.fn().mockResolvedValue(loginResponse) });
+    const fakeApi = createFakeAuthApi({
+      loginAuth: vi.fn().mockResolvedValue(loginResponse),
+    });
     const service = new AuthService(fakeApi);
-    const credentials = { email: 'admin@newwave4.org', password: 'secret' } as never;
+    const credentials = {
+      email: 'admin@newwave4.org',
+      password: 'secret',
+    } as never;
 
     const result = await service.loginAuth(credentials);
 
@@ -30,7 +35,9 @@ describe('AuthService', () => {
 
   it('delegates getUserInfo to the injected api', async () => {
     const userInfo = { id: 1, email: 'admin@newwave4.org' } as never;
-    const fakeApi = createFakeAuthApi({ getUserInfo: vi.fn().mockResolvedValue(userInfo) });
+    const fakeApi = createFakeAuthApi({
+      getUserInfo: vi.fn().mockResolvedValue(userInfo),
+    });
     const service = new AuthService(fakeApi);
 
     const result = await service.getUserInfo();
@@ -54,8 +61,8 @@ describe('AuthService', () => {
     });
     const service = new AuthService(fakeApi);
 
-    await expect(service.loginAuth({ email: 'x', password: 'y' } as never)).rejects.toThrow(
-      'invalid credentials'
-    );
+    await expect(
+      service.loginAuth({ email: 'x', password: 'y' } as never),
+    ).rejects.toThrow('invalid credentials');
   });
 });

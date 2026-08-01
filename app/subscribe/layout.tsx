@@ -1,15 +1,15 @@
-import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
-import ReduxProvider from "@/store/ReduxProvider";
-import { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { EB_Garamond } from "next/font/google";
-import localFont from "next/font/local";
-import { ReactNode } from "react";
+import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
+import ReduxProvider from '@/store/ReduxProvider';
+import { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { EB_Garamond } from 'next/font/google';
+import localFont from 'next/font/local';
+import { ReactNode } from 'react';
 import '../../styles/globals.css';
 
 interface ILocaleLayout {
-	children: ReactNode
+  children: ReactNode;
 }
 
 export const metadata: Metadata = {
@@ -43,11 +43,12 @@ const ebGaramondFont = EB_Garamond({
   variable: '--font-ebGaramond',
 });
 
-export default async function  LocaleLayout({children}: ILocaleLayout) {
-
-	return (
-		<html lang="ua">
-			<body className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}>
+export default async function LocaleLayout({ children }: ILocaleLayout) {
+  return (
+    <html lang="ua">
+      <body
+        className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}
+      >
         <NextIntlClientProvider>
           <ReduxProvider>
             <Header currentLocale="ua" />
@@ -55,7 +56,7 @@ export default async function  LocaleLayout({children}: ILocaleLayout) {
             <Footer />
           </ReduxProvider>
         </NextIntlClientProvider>
-			</body>
-		</html>
-	);
+      </body>
+    </html>
+  );
 }

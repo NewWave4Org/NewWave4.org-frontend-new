@@ -114,9 +114,11 @@ const SelectLocal: React.FC<SelectProps> = ({
                 key={option.value}
                 onMouseDown={() => handleOptionClick(option)}
                 className={`px-4 py-2 text-medium2 text-font-primary cursor-pointer 
-                  ${option.disabled
-                    ? 'text-grey-400 cursor-not-allowed'
-                    : 'hover:bg-background-primary active:bg-background-secondary'}
+                  ${
+                    option.disabled
+                      ? 'text-grey-400 cursor-not-allowed'
+                      : 'hover:bg-background-primary active:bg-background-secondary'
+                  }
                 `}
               >
                 {option.label}

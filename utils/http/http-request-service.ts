@@ -10,7 +10,14 @@ import { getUserInfo, logOutAuth } from '@/store/auth/action';
 
 export const refreshAccessToken = async () => {
   try {
-    await axiosInstance.post(ApiEndpoint.REFRESHTOKEN, {}, { withCredentials: true, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    await axiosInstance.post(
+      ApiEndpoint.REFRESHTOKEN,
+      {},
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+    );
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -65,7 +72,10 @@ export async function request<T>(options: RequestOptions) {
   } catch (error: unknown) {
     const err = error as AxiosError;
 
-    if ((err?.response?.status === 401 || err?.response?.status === 403) && !options._retry) {
+    if (
+      (err?.response?.status === 401 || err?.response?.status === 403) &&
+      !options._retry
+    ) {
       options._retry = true;
 
       const refreshed = await refreshAccessToken();
