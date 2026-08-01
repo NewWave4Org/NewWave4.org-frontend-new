@@ -95,7 +95,12 @@ The working set is ~95–100Mi under load, corroborated by the live pods (`kubec
 1. `helm/frontend-chart/values.yaml` already specifies `100m`/`256Mi` requests and `500m`/`512Mi` limits — correctly sized. The `150m`/`156Mi` that actually runs comes from the **`VALUES_YAML` secret overlay**, applied on top at deploy time and invisible here. Editing the committed defaults changes nothing until that secret is updated.
 2. The staging HPA (306 days old: min 1, max 5, both targets 80%) is mis-tuned against those requests. It scales on utilisation of *requests*, and the overlay sets requests == limits == `156Mi`; with a ~95–100Mi working set, memory sits near 60% at idle (observed `cpu: 24%/80%, memory: 59%/80%`). The HPA therefore adds replicas for what is just Node's normal heap. Restoring a `256Mi` request drops that to ~39% and lets CPU — the real constraint — drive scaling.
 
-**Cluster headroom is the limiting factor on how far these can be raised.** All three nodes are 4 CPU / ~4009Mi with memory already at 70–81% used. The `100m`/`256Mi` *requests* are schedulable today; the `500m` limit is burst capacity, not reserved. Anything substantially larger, multiplied by an HPA that can reach 5 replicas, would not fit.
+**Scheduling headroom is fine; actual memory pressure is the real constraint — and everything is pinned to one node.** These are easy to confuse, so both numbers matter:
+
+- Kubernetes schedules on *requests*. On `newwave4org-node01` requests are only **29% memory / 49% CPU** (`1170Mi` and `1980m` of `4009Mi`/`4000m`), leaving ~`2839Mi` schedulable. Restoring `100m`/`256Mi` requests fits comfortably even at the HPA's maximum of 5 replicas (`1280Mi`).
+- *Actual* usage on that node is `3193Mi`/`4009Mi` (**81%**), which `kubectl top` reports and scheduling ignores. Five pods at the observed ~100Mi working set is ~`500Mi` (vs ~`170Mi` today) and lands the node around 88% — workable. Five pods each *allowed* the full `512Mi` would be `2560Mi` and would exhaust it. So the limit is real but is about worst-case burst, not about whether the requests fit.
+
+The sharper problem is that the overlay also sets `nodeSelector: kubernetes.io/hostname: newwave4org-node01`, pinning **every** replica to that single node — the most memory-loaded of the three. There is no spreading and no high availability: losing that one node takes the site down, and the HPA can only add replicas onto the same box it is already crowding.
 
 ## Deploy-drift detection samples one replica, and "running since" is not deploy time
 

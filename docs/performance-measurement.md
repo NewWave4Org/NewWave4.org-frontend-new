@@ -210,7 +210,18 @@ This matters because the issue's own framing assumed memory was the risk. The da
 
 **The HPA is mis-tuned, discovered along the way.** It scales on utilisation of *requests*, and requests are set equal to limits at `156Mi`. With a ~95–100Mi working set, memory idles near 60% — against an 80% trigger. So it adds replicas for what is just Node's normal heap rather than for load. Restoring a `256Mi` request puts that at ~39% and lets CPU, the real constraint, drive scaling.
 
-**Cluster headroom bounds the answer.** All three nodes are at **70–81% memory**. The committed `100m`/`256Mi` *requests* are schedulable; `500m` is burst capacity, not reserved. But an HPA reaching 5 replicas at substantially larger requests would not fit. "Raise the limits until it is fast" was never available — the ceiling is the cluster.
+**Cluster headroom — and a correction worth learning from.** The first pass at this read `kubectl top nodes` (70–81% memory used) and concluded the limits could not be raised much. That was wrong, and the mistake is a common one: **Kubernetes schedules on *requests*, not on actual usage.** On `newwave4org-node01` requests are only **29% memory / 49% CPU**, leaving ~`2839Mi` schedulable — the committed `100m`/`256Mi` requests fit comfortably even at the HPA's 5-replica maximum (`1280Mi`).
+
+Both numbers are real, they just answer different questions:
+
+| Question | Which number | node01 |
+|---|---|---|
+| Will the pod be *scheduled*? | requests vs allocatable | 29% used → yes, lots of room |
+| Will the node run out of memory? | actual usage | 81% used → ~800Mi of real headroom |
+
+So the honest constraint is worst-case burst, not schedulability: five pods at the observed ~100Mi working set is ~`500Mi` and fine; five pods each *allowed* the full `512Mi` is `2560Mi` and would exhaust the node.
+
+**The bigger finding is not the limits at all.** The overlay sets `nodeSelector: kubernetes.io/hostname: newwave4org-node01`, pinning every replica to that one node — the most loaded of the three. There is no spreading and no high availability: losing that node takes the site down, and the HPA can only add replicas onto the box it is already crowding. For "does staging resemble production", that matters more than any CPU number.
 
 ---
 
@@ -222,7 +233,43 @@ This matters because the issue's own framing assumed memory was the risk. The da
 
 ---
 
-## 9. Reproducing it
+## 9. What to actually change
+
+Editing `helm/frontend-chart/values.yaml` does **not** change what runs. Confirmed with `helm -n staging get values newwave4-frontend`, which lists `resources` under `USER-SUPPLIED VALUES` — it comes from the `VALUES_YAML` repo secret, and the deploy applies that secret *after* the committed chart, so the secret wins.
+
+[ADR 0005](./decisions/0005-commit-helm-values-defaults-to-git.md) intended that secret to carry only the three genuinely-secret `NEXT_PUBLIC_*` values, with everything else committed and reviewable. It has drifted well past that: it now also pins resources, autoscaling, replica count and node placement — all non-secret infrastructure config that is invisible in git and cannot be diffed in a PR.
+
+**The cleanest fix is to delete the `resources` block from `VALUES_YAML` entirely**, letting the committed defaults apply:
+
+```yaml
+# remove this from the VALUES_YAML secret:
+resources:
+  limits:
+    cpu: 150m
+    memory: 156Mi
+  requests:
+    cpu: 150m
+    memory: 156Mi
+```
+
+which yields the committed `100m`/`256Mi` requests and `500m`/`512Mi` limits. If you would rather keep it explicit in the secret, set it to the same values instead of deleting it.
+
+Two things worth doing in the same pass, both visible in the `helm get values` output:
+
+- **`nodeSelector: kubernetes.io/hostname: newwave4org-node01`** pins every replica to one node. Removing it lets the scheduler spread across all three and gives the deployment actual high availability.
+- **`targetMemoryUtilizationPercentage: 80`** on the HPA is measured against requests. Once requests are `256Mi`, idle utilisation drops from ~60% to ~39% and stops triggering spurious scale-ups. Scaling on CPU alone would also be defensible, since CPU is the real constraint.
+
+After changing the secret, re-run the deploy and confirm the rollout actually lands — `helm upgrade` has no `--wait` and the workflow has no `kubectl rollout status`, so a green job does not by itself mean new pods are serving:
+
+```bash
+kubectl -n staging rollout status deploy/newwave4-frontend
+kubectl -n staging top pod
+curl -sS https://new.newwave4.org/api/version
+```
+
+---
+
+## 10. Reproducing it
 
 ```bash
 # 1. Ground truth from the cluster (read-only)
