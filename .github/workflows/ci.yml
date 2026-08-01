@@ -82,7 +82,7 @@ jobs:
   # Never a real semver, never auto-deployed anywhere.
   docker-pr-publish:
     name: docker-pr-publish
-    needs: quality-gates
+    needs: [changes, quality-gates]
     # Skipped for Dependabot, which GitHub runs without repo secrets. This job
     # exists to give a reviewer a pullable image; built from placeholder env it
     # would point at https://ci.invalid and be actively misleading to anyone who
@@ -94,6 +94,7 @@ jobs:
       github.event_name == 'pull_request'
       && github.base_ref == 'development'
       && github.actor != 'dependabot[bot]'
+      && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     permissions:
       packages: write
