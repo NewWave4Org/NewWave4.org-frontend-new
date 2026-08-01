@@ -66,10 +66,16 @@ jobs:
             echo "::notice::Documentation-only change — skipping build gates."
           fi
 
+  # NOT `if: ... == 'true'`. Skipping this call outright means its child jobs
+  # never exist, so the required contexts `quality-gates / casing-guard`,
+  # `/ unit-test` and `/ docker-smoke` never report and the PR is blocked on
+  # checks that can never arrive — verified the hard way on PR #503. Passing a
+  # flag instead keeps every job running and reporting, doing no work.
   quality-gates:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
     uses: ./.github/workflows/_quality-gates.yml
+    with:
+      run_full: ${{ needs.changes.outputs.code == 'true' }}
     secrets: inherit
 
   # Ephemeral, traceable image for manual reviewer pulls on PRs into development.
