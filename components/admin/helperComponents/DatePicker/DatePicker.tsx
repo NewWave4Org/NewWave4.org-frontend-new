@@ -35,14 +35,25 @@ interface IDatePicker {
   onChange?: (val: IPickerValue | null) => void;
 }
 
-function DatePicker({ name, pickerId, pickerValue, pickerType = 'single', pickerLocal = 'en', pickerSnowWeekend = true, pickerPlaceholder, pickerWithTime = false, onChange }: IDatePicker) {
-
+function DatePicker({
+  name,
+  pickerId,
+  pickerValue,
+  pickerType = 'single',
+  pickerLocal = 'en',
+  pickerSnowWeekend = true,
+  pickerPlaceholder,
+  pickerWithTime = false,
+  onChange,
+}: IDatePicker) {
   const formik = useContext(FormikContext);
 
   const formikValues = formik?.values;
   const formikSetFieldValue = formik?.setFieldValue;
 
-  const [localValue, setLocalValue] = useState<IPickerValue | null>(pickerValue ?? null);
+  const [localValue, setLocalValue] = useState<IPickerValue | null>(
+    pickerValue ?? null,
+  );
 
   const safeInitValue = useMemo(() => {
     const value = formikValues?.[name] ?? localValue;

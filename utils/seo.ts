@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { prefix } from '@/utils/prefix';
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://new.newwave4.org').replace(/\/$/, '');
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://new.newwave4.org'
+).replace(/\/$/, '');
 export const DEFAULT_OG_IMAGE = `${prefix}/logo.png`;
 
 export function stripHtml(html: string): string {

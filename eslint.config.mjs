@@ -20,8 +20,7 @@ const eslintConfig = [
       // job in _quality-gates.yml. This is here so the two agree the moment
       // lint works again.
       'no-console': ['error', { allow: ['error', 'warn'] }],
-      'no-debugger':
-        process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     },
   },
 ];

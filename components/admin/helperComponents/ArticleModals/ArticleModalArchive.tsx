@@ -14,7 +14,6 @@ function ArticleModalArchive({ title }: { title?: string }) {
   const dispatch = useAppDispatch();
   const handleThunk = useHandleThunk();
 
-
   const currentProject = useAppSelector(
     state => state.modal.payload,
   ) as IArticleBody & { id: number };
@@ -34,7 +33,12 @@ function ArticleModalArchive({ title }: { title?: string }) {
       setSubmitError('');
       toast.success(`Your ${title} has been successfully archived!`);
       dispatch(closeModal());
-      dispatch(removeArticle({ id: currentProject.id, articleType: currentProject.articleType }));
+      dispatch(
+        removeArticle({
+          id: currentProject.id,
+          articleType: currentProject.articleType,
+        }),
+      );
 
       if (articlesOnPage === 1) {
         const params: any = {

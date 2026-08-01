@@ -12,7 +12,10 @@ function EditProgramPage() {
 
   return (
     <>
-      <Button onClick={() => router.back()} className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10">
+      <Button
+        onClick={() => router.back()}
+        className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10"
+      >
         <ArrowLeft4Icon color="white" />
         Back
       </Button>
@@ -22,7 +25,10 @@ function EditProgramPage() {
       ) : (
         <>
           <div className="text-h4 mb-5">Project wasn't created</div>
-          <Button onClick={() => router.back()} className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+          <Button
+            onClick={() => router.back()}
+            className="!bg-background-darkBlue !h-auto flex text-white !rounded-[5px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+          >
             <ArrowLeft4Icon />
             Back
           </Button>

@@ -62,6 +62,27 @@ jobs:
           fi
           echo "No console.log/console.info found in shipped code."
 
+  format-check:
+    name: format-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      # `format:check` existed but was wired into no workflow, so 320 files had
+      # drifted out of style with nothing to catch it (issue #455). Blocking
+      # from the start: the tree was formatted in the same PR that added this,
+      # so it starts green and can only be broken deliberately.
+      #
+      # See .prettierignore — helm/**/templates/ is excluded because Go
+      # templating is not valid YAML and Prettier throws a hard SyntaxError on
+      # it, which would make this job unpassable.
+      - name: Check formatting
+        run: npm run format:check
+
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest

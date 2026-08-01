@@ -1,4 +1,3 @@
-
 import DropDown from '@/components/shared/DropDown';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 
@@ -10,7 +9,9 @@ import LogoAdmin from '../Logo_admin';
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
   const route = useRouter();
-  const isAuthenticated = useAppSelector(state => state.authUser.isAuthenticated);
+  const isAuthenticated = useAppSelector(
+    state => state.authUser.isAuthenticated,
+  );
   const currentUser = useAppSelector(state => state.authUser.user);
   const currentUserName = currentUser?.name;
 
@@ -20,7 +21,8 @@ const AdminHeader = () => {
       toast.success('Ви успішно вийшли з акаунту');
       route.push('/admin');
     } catch (err: any) {
-      const errorMessage = err?.payload?.message || err?.message || 'Сталася помилка при виході';
+      const errorMessage =
+        err?.payload?.message || err?.message || 'Сталася помилка при виході';
       toast.error(errorMessage);
       console.error('Ошибка при выходе:', err);
     }
@@ -50,7 +52,13 @@ const AdminHeader = () => {
                 items={[
                   // { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
                   // { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
-                  { id: 1, label: 'Log out', href: '#', isLink: false, onClick: handleLogOut },
+                  {
+                    id: 1,
+                    label: 'Log out',
+                    href: '#',
+                    isLink: false,
+                    onClick: handleLogOut,
+                  },
                 ]}
               />
             </div>

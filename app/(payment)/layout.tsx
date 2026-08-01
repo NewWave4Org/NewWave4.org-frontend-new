@@ -41,7 +41,8 @@ const poppinsFont = Poppins({
 });
 
 const DONATION_TITLE = 'Donate | Ukrainian New Wave';
-const DONATION_DESCRIPTION = 'Support Ukrainian New Wave with a donation. Your contribution helps preserve Ukrainian culture, run educational programs, and provide humanitarian aid to Ukraine.';
+const DONATION_DESCRIPTION =
+  'Support Ukrainian New Wave with a donation. Your contribution helps preserve Ukrainian culture, run educational programs, and provide humanitarian aid to Ukraine.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

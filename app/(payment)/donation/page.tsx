@@ -1,10 +1,8 @@
-import DonationPage from '@/components/payment/DonationPage'
+import DonationPage from '@/components/payment/DonationPage';
 import React from 'react';
 
 function Donation() {
-  return (
-    <DonationPage />
-  )
+  return <DonationPage />;
 }
 
-export default Donation
+export default Donation;

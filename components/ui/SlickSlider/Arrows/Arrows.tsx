@@ -29,4 +29,3 @@ export function SamplePrevArrow(props: CustomArrowProps) {
     </div>
   );
 }
-

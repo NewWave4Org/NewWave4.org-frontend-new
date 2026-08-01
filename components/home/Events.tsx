@@ -17,11 +17,9 @@ const Events = () => {
     pageSize: 3,
   });
 
-  if(loading || !articles) {
+  if (loading || !articles) {
     return (
-      <div className="w-full text-center py-8 text-gray-500">
-        Loading...
-      </div>
+      <div className="w-full text-center py-8 text-gray-500">Loading...</div>
     );
   }
 
@@ -41,15 +39,11 @@ const Events = () => {
             </Button>
           </div>
 
-          {articles.length > 0
-            ? <ArticlesGrid
-                articles={articles}
-                basePath="/events"
-              />
-            : <div className='text-center'>{t('articles.articles_empty')}</div>
-          }
-
-          
+          {articles.length > 0 ? (
+            <ArticlesGrid articles={articles} basePath="/events" />
+          ) : (
+            <div className="text-center">{t('articles.articles_empty')}</div>
+          )}
         </div>
       </div>
     </section>

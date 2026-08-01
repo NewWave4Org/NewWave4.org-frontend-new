@@ -1,9 +1,11 @@
 # ADR-0004: Semver prereleases for `development`, ephemeral tags for PRs
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-07-19
 
 ## Context
@@ -20,9 +22,11 @@ Split dev/PR image tagging into two distinct, purpose-built mechanisms:
 ## Alternatives Considered
 
 ### Literally `1.0.0.<PR number>`
+
 - Rejected outright: not valid semver, so Docker/Helm/npm tooling that expects semver ordering (including Helm's own `Chart.yaml` validation) can't reason about it correctly.
 
 ### `semantic-release` prerelease mode for every PR, not just merged `development` commits
+
 - Pros: every build gets a "real" version.
 - Cons: would burn through version numbers for work that never merges, or gets squashed/rewritten before merge — the version history would carry PR churn that has nothing to do with what was actually shipped.
 - Rejected — reserve real prerelease numbers for what's actually landed on `development`.

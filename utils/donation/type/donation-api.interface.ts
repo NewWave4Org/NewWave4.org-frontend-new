@@ -1,7 +1,7 @@
-import { IDonationRequestDTO, IDonationResponseDTO } from "./interface";
+import { IDonationRequestDTO, IDonationResponseDTO } from './interface';
 
 interface IDonationApi {
   getAllDonations: (data: IDonationRequestDTO) => Promise<IDonationResponseDTO>;
 }
 
-export type {IDonationApi};
+export type { IDonationApi };

@@ -1,5 +1,5 @@
-import Select from "@/components/shared/Select";
-import { TranslateDirectionEnum } from "../../Pages/enum/types";
+import Select from '@/components/shared/Select';
+import { TranslateDirectionEnum } from '../../Pages/enum/types';
 
 interface TranslateBlockProps {
   translateBlockIndex: number;
@@ -7,7 +7,11 @@ interface TranslateBlockProps {
   handleChange: any;
 }
 
-function TranslateSection({ translateBlockIndex, translateStatus, handleChange }: TranslateBlockProps) {
+function TranslateSection({
+  translateBlockIndex,
+  translateStatus,
+  handleChange,
+}: TranslateBlockProps) {
   return (
     <div className="p-4 shadow-lg rounded-2xl m-1">
       <div className="mb-3">
@@ -34,8 +38,14 @@ function TranslateSection({ translateBlockIndex, translateStatus, handleChange }
             onChange={handleChange}
             required
             options={[
-              { value: TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(), label: 'Ukrainian → English' },
-              { value: TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase(), label: 'English → Ukrainian' },
+              {
+                value: TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+                label: 'Ukrainian → English',
+              },
+              {
+                value: TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase(),
+                label: 'English → Ukrainian',
+              },
             ]}
           />
         </>

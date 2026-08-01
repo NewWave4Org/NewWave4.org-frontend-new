@@ -8,7 +8,11 @@ interface ISortProps<T> {
   initialSortOrder?: SortVal;
 }
 
-function useSortTable<T>({ data, initialSortField, initialSortOrder = 'asc' }: ISortProps<T>) {
+function useSortTable<T>({
+  data,
+  initialSortField,
+  initialSortOrder = 'asc',
+}: ISortProps<T>) {
   const [sortField, setSortField] = useState(initialSortField);
   const [sortVal, setSortVal] = useState(initialSortOrder);
 
@@ -19,9 +23,15 @@ function useSortTable<T>({ data, initialSortField, initialSortOrder = 'asc' }: I
       const aVal = a[sortField] ?? '';
       const bVal = b[sortField] ?? '';
 
-      if (sortField === 'articleStatus' && typeof aVal === 'string' && typeof bVal === 'string') {
+      if (
+        sortField === 'articleStatus' &&
+        typeof aVal === 'string' &&
+        typeof bVal === 'string'
+      ) {
         const order = ['PUBLISHED', 'DRAFT'];
-        return sortVal === 'asc' ? order.indexOf(aVal) - order.indexOf(bVal) : order.indexOf(bVal) - order.indexOf(aVal);
+        return sortVal === 'asc'
+          ? order.indexOf(aVal) - order.indexOf(bVal)
+          : order.indexOf(bVal) - order.indexOf(aVal);
       }
 
       if (typeof aVal === 'number' && typeof bVal === 'number') {
@@ -29,11 +39,15 @@ function useSortTable<T>({ data, initialSortField, initialSortOrder = 'asc' }: I
       }
 
       if (typeof aVal === 'boolean' && typeof bVal === 'boolean') {
-        return sortVal === 'asc' ? Number(aVal) - Number(bVal) : Number(bVal) - Number(aVal);
+        return sortVal === 'asc'
+          ? Number(aVal) - Number(bVal)
+          : Number(bVal) - Number(aVal);
       }
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return sortVal === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        return sortVal === 'asc'
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
       }
 
       return 0;

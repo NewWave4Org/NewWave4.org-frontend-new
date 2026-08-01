@@ -1,4 +1,7 @@
-import { PagesType, TranslateDirection } from '@/components/admin/Pages/enum/types';
+import {
+  PagesType,
+  TranslateDirection,
+} from '@/components/admin/Pages/enum/types';
 
 export interface IPagesResponseDTO {
   id: number;
@@ -11,7 +14,9 @@ export interface IPagesResponseDTO {
   contentBlocksEng?: any[] | null;
 }
 
-export type ChangedPagesBody = IPagesResponseDTO & {contentBlocksToShow?: any[] | null}
+export type ChangedPagesBody = IPagesResponseDTO & {
+  contentBlocksToShow?: any[] | null;
+};
 
 export interface IOurPartnersResponseDTO {
   id: number;

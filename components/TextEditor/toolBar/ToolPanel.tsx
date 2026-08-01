@@ -23,8 +23,9 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
   const [url, setUrl] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const savedSelection = useRef<ReturnType<typeof editorState.getSelection> | null>(null);
-
+  const savedSelection = useRef<ReturnType<
+    typeof editorState.getSelection
+  > | null>(null);
 
   useEffect(() => {
     if (showLinkInput && inputRef.current) {
@@ -71,19 +72,24 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
     setUrl('');
     savedSelection.current = null;
   };
-  
 
   const applyStyle = (e: React.MouseEvent, style: string, method: IMethod) => {
     e.preventDefault();
 
-    const newState = method === 'block' ? RichUtils.toggleBlockType(editorState, style) : RichUtils.toggleInlineStyle(editorState, style);
+    const newState =
+      method === 'block'
+        ? RichUtils.toggleBlockType(editorState, style)
+        : RichUtils.toggleInlineStyle(editorState, style);
     setEditorState(newState);
   };
 
   const isActive = (style: string, method: IMethod) => {
     if (method === 'block') {
       const selection = editorState.getSelection();
-      const blockType = editorState.getCurrentContent().getBlockForKey(selection.getStartKey()).getType();
+      const blockType = editorState
+        .getCurrentContent()
+        .getBlockForKey(selection.getStartKey())
+        .getType();
       return blockType === style;
     } else {
       const currentStyle = editorState.getCurrentInlineStyle();
@@ -97,7 +103,9 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
         key={`${tool.label}-${idx}`}
         title={tool.label}
         style={{
-          color: isActive(tool.style, method) ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.3)',
+          color: isActive(tool.style, method)
+            ? 'rgba(0, 0, 0, 1)'
+            : 'rgba(0, 0, 0, 0.3)',
         }}
         onClick={e => applyStyle(e, tool.style, method)}
         onMouseDown={e => e.preventDefault()}
@@ -107,10 +115,14 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
     );
   };
 
-   return (
-    <div className='mb-5'>
-      <div>{INLINE_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'inline', idx))}</div>
-      <div>{BLOCK_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'block', idx))}</div>
+  return (
+    <div className="mb-5">
+      <div>
+        {INLINE_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'inline', idx))}
+      </div>
+      <div>
+        {BLOCK_TOOLS_MAP.map((tool, idx) => renderButton(tool, 'block', idx))}
+      </div>
 
       <button
         type="button"
@@ -136,16 +148,30 @@ function Toolbar({ editorState, setEditorState }: IToolbar) {
             value={url}
             onChange={e => setUrl(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); }
-              if (e.key === 'Escape') { e.preventDefault(); handleCancel(); }
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddLink();
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancel();
+              }
             }}
             placeholder="https://..."
             className="border rounded px-2 py-1 w-48"
           />
-          <button type="button" className="bg-blue-600 text-white px-2 py-1 rounded ml-2" onClick={handleAddLink}>
+          <button
+            type="button"
+            className="bg-blue-600 text-white px-2 py-1 rounded ml-2"
+            onClick={handleAddLink}
+          >
             Add link
           </button>
-          <button type="button" className="bg-gray-400 text-white px-2 py-1 rounded ml-2" onClick={handleCancel}>
+          <button
+            type="button"
+            className="bg-gray-400 text-white px-2 py-1 rounded ml-2"
+            onClick={handleCancel}
+          >
             Cancel
           </button>
         </div>

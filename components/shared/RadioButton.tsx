@@ -31,8 +31,8 @@ const RadioButton: React.FC<RadioButtonProps> = ({
           error
             ? 'border-status-danger-500'
             : checked
-            ? 'border-font-accent bg-font-accent'
-            : 'border-grey-500'
+              ? 'border-font-accent bg-font-accent'
+              : 'border-grey-500'
         }`}
       >
         {checked && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}

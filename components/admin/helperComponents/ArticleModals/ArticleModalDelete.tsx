@@ -1,7 +1,10 @@
 import Button from '@/components/shared/Button';
 
 import { deleteArticle, getAllArticle } from '@/store/article-content/action';
-import { removeArticle, removeArticleFromArchive } from '@/store/article-content/article-content_slice';
+import {
+  removeArticle,
+  removeArticleFromArchive,
+} from '@/store/article-content/article-content_slice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { closeModal } from '@/store/modal/ModalSlice';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
@@ -35,9 +38,11 @@ function ArticleModalDelete({ title }: { title: string }) {
       setSubmitError('');
       toast.success(`Your ${title} has been successfully deleted!`);
       dispatch(closeModal());
-      dispatch(removeArticleFromArchive({ 
-        id: currentProject.id
-      }));
+      dispatch(
+        removeArticleFromArchive({
+          id: currentProject.id,
+        }),
+      );
 
       if (articlesOnPage === 1) {
         const params: any = {

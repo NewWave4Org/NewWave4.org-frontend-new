@@ -25,35 +25,37 @@ export const useArticles = ({
   projectId,
   limit,
 }: UseArticlesParams) => {
-	const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   const locale = useLocale();
   const [articles, setArticles] = useState<PreparedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
-	const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         setLoading(true);
 
-				const result = await dispatch(getAllArticle({
-					articleType,
-          page,
-          size: pageSize,
-          articleStatus: ArticleStatusEnum.PUBLISHED,
-          sortByCreatedAtDescending: true,
-          sortByDateOfWriting: true,
-					relevantProjectId: projectId
-				})).unwrap();
+        const result = await dispatch(
+          getAllArticle({
+            articleType,
+            page,
+            size: pageSize,
+            articleStatus: ArticleStatusEnum.PUBLISHED,
+            sortByCreatedAtDescending: true,
+            sortByDateOfWriting: true,
+            relevantProjectId: projectId,
+          }),
+        ).unwrap();
 
         const mapped = result?.content?.map((article: any) =>
           prepareArticle(article, locale),
         );
         setArticles(mapped ?? []);
         setTotalElements(result?.totalElements);
-				setTotalPages(result?.totalPages);
+        setTotalPages(result?.totalPages);
       } catch (error) {
         setArticles([]);
         console.error(error);

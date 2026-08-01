@@ -1,14 +1,14 @@
 'use client';
 
-import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import TextArea from "@/components/shared/TextArea";
-import { sendNewsletter } from "@/store/newsletter/action";
-import { NewsletterRequestDTO } from "@/utils/newsletter/type/interface";
-import useHandleThunk from "@/utils/useHandleThunk";
-import { Form, Formik } from "formik";
-import { useState } from "react";
-import { toast } from "react-toastify";
+import Button from '@/components/shared/Button';
+import Input from '@/components/shared/Input';
+import TextArea from '@/components/shared/TextArea';
+import { sendNewsletter } from '@/store/newsletter/action';
+import { NewsletterRequestDTO } from '@/utils/newsletter/type/interface';
+import useHandleThunk from '@/utils/useHandleThunk';
+import { Form, Formik } from 'formik';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object({
@@ -22,7 +22,6 @@ function NewsletterPage() {
   const [submitError, setSubmitError] = useState('');
 
   async function handleSubmit(data: NewsletterRequestDTO) {
-
     try {
       const result = await handleThunk(sendNewsletter, data, setSubmitError);
       toast.success(result);
@@ -34,20 +33,22 @@ function NewsletterPage() {
     console.error('submitError', submitError);
   }
 
-
   const initialValues = {
-    subject: "",
-    newsTitle: "",
-    newsBody: ""
+    subject: '',
+    newsTitle: '',
+    newsBody: '',
   };
 
-
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
-      {({handleChange, values, touched, errors, isSubmitting}) => {
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      validationSchema={validationSchema}
+    >
+      {({ handleChange, values, touched, errors, isSubmitting }) => {
         return (
           <Form>
-            <div className='mb-5'>
+            <div className="mb-5">
               <Input
                 id="subject"
                 name="subject"
@@ -65,7 +66,7 @@ function NewsletterPage() {
                 }
               />
             </div>
-            <div className='mb-5'>
+            <div className="mb-5">
               <Input
                 id="newsTitle"
                 name="newsTitle"
@@ -83,7 +84,7 @@ function NewsletterPage() {
                 }
               />
             </div>
-            <div className='mb-5'>
+            <div className="mb-5">
               <TextArea
                 id="newsBody"
                 label="News text"
@@ -92,7 +93,7 @@ function NewsletterPage() {
                 labelClass="!text-admin-700"
                 value={values.newsBody}
                 onChange={handleChange}
-                 validationText={
+                validationText={
                   touched.newsBody && errors.newsBody
                     ? (errors.newsBody as string)
                     : ''

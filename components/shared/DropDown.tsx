@@ -8,7 +8,7 @@ interface DropDownItem {
   href?: string;
   isLink?: boolean;
   onClick?: (e: React.MouseEvent) => void;
-  id: number
+  id: number;
 }
 
 interface DropDownProps {
@@ -29,7 +29,7 @@ const DropDown = ({
   classNameMenu,
   classNameParent,
   renderBth,
-  renderItem
+  renderItem,
 }: DropDownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropDownRef = useRef<HTMLDivElement>(null);
@@ -44,7 +44,10 @@ const DropDown = ({
 
   useEffect(() => {
     function handleClickOutSide(e: MouseEvent) {
-      if (dropDownRef.current && !dropDownRef.current.contains(e.target as Node)) {
+      if (
+        dropDownRef.current &&
+        !dropDownRef.current.contains(e.target as Node)
+      ) {
         closeDropDown();
       }
     }
@@ -56,28 +59,35 @@ const DropDown = ({
 
   return (
     <div className={`relative ${classNameParent}`} ref={dropDownRef}>
-      {typeof renderBth === "function" && renderBth(isOpen, toggle)}
+      {typeof renderBth === 'function' && renderBth(isOpen, toggle)}
 
       {isOpen && (
-        <div className={`absolute z-10 mt-2 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn ${classNameMenu}`}>
+        <div
+          className={`absolute z-10 mt-2 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn ${classNameMenu}`}
+        >
           {items?.map(item => (
             <div key={item.id} className={classNameItem}>
-              {renderItem
-                ? renderItem(item, closeDropDown) 
-                : item.isLink && item.href
-                  ? <Link href={item.href} onClick={() => closeDropDown()} className='py-2 px-4 block border-b hover:text-admin-700'>
-                    {item.label}
-                  </Link>
-                 :
-                  <div 
-                  onClick={(e) => {
-                    item.onClick?.(e); 
+              {renderItem ? (
+                renderItem(item, closeDropDown)
+              ) : item.isLink && item.href ? (
+                <Link
+                  href={item.href}
+                  onClick={() => closeDropDown()}
+                  className="py-2 px-4 block border-b hover:text-admin-700"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <div
+                  onClick={e => {
+                    item.onClick?.(e);
                     closeDropDown();
                   }}
-                  className='py-2 px-4 border-b hover:text-admin-700 cursor-pointer'>
-                    {item.label}
-                  </div>
-                }
+                  className="py-2 px-4 border-b hover:text-admin-700 cursor-pointer"
+                >
+                  {item.label}
+                </div>
+              )}
             </div>
           ))}
         </div>

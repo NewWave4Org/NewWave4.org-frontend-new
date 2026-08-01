@@ -6,11 +6,11 @@ Documented, not fixed, as part of the CI/CD/testing/release work — either out 
 
 `tsc --noEmit` reported **36 errors across 21 files** and nothing caught them: `typecheck` was `continue-on-error: true`, and `next.config.ts` set `typescript.ignoreBuildErrors: true` so `next build` never validated types either.
 
-**Both are gone (issue #453).** The tree is at zero errors, `typecheck` is a blocking gate in `_quality-gates.yml`, and `ignoreBuildErrors` has been removed — verified by planting a deliberate type error and confirming `next build` exits 1 (it exited 0 before). The no-ratchet gap ADR 0003 flagged is closed by reaching zero: blocking `tsc --noEmit` *is* the ratchet, with no baseline file to maintain.
+**Both are gone (issue #453).** The tree is at zero errors, `typecheck` is a blocking gate in `_quality-gates.yml`, and `ignoreBuildErrors` has been removed — verified by planting a deliberate type error and confirming `next build` exits 1 (it exited 0 before). The no-ratchet gap ADR 0003 flagged is closed by reaching zero: blocking `tsc --noEmit` _is_ the ratchet, with no baseline file to maintain.
 
 Several of the 36 were real defects rather than type noise, and are worth knowing about since they had shipped: a dead import of a non-existent `FilterIcon` module (elided by SWC only because it was never referenced — the first use would have broken the build); PayPal orders created with `description: undefined`; `DropDown` keyed by a label that is a live countdown, remounting the item every second; and admin content pages blanking an article's title when it had no English translation. See the PR for the full list.
 
-What is *not* fixed: the same backend "article" concept is still described by four overlapping, mutually inconsistent interfaces (`GetArticleByIdResponseDTO`, `Article`, `IArticleBody`, `ArticleFull`). `ArticleFull` was realigned to what its mapper actually returns, but reconciling all four is a data-model refactor with no test coverage to protect it — deliberately left out of the type-error cleanup.
+What is _not_ fixed: the same backend "article" concept is still described by four overlapping, mutually inconsistent interfaces (`GetArticleByIdResponseDTO`, `Article`, `IArticleBody`, `ArticleFull`). `ArticleFull` was realigned to what its mapper actually returns, but reconciling all four is a data-model refactor with no test coverage to protect it — deliberately left out of the type-error cleanup.
 
 ## `npm run lint` is broken under TypeScript 7
 
@@ -81,10 +81,10 @@ Full method, tooling and reasoning: [performance-measurement.md](./performance-m
 
 The `150m` CPU / `156Mi` memory limit was left unexamined at the time. It has now been measured rather than guessed: the production image was run under each limit pair and load-tested at 10 concurrent requests against `/ua`, the full dynamic SSR homepage.
 
-| limits          | throughput   | p50   | p99    | peak memory        |
-| --------------- | ------------ | ----- | ------ | ------------------ |
-| `150m`/`156Mi`  | 9.2 req/s    | 905ms | 2103ms | 89Mi (57% of cap)  |
-| `500m`/`512Mi`  | 42.3 req/s   | 194ms | 494ms  | 95Mi (19% of cap)  |
+| limits         | throughput | p50   | p99    | peak memory       |
+| -------------- | ---------- | ----- | ------ | ----------------- |
+| `150m`/`156Mi` | 9.2 req/s  | 905ms | 2103ms | 89Mi (57% of cap) |
+| `500m`/`512Mi` | 42.3 req/s | 194ms | 494ms  | 95Mi (19% of cap) |
 
 **CPU is the binding constraint, not memory.** At `150m` the container sits pinned at exactly its cap and degrades to ~1s median for a homepage render; the 4.6× throughput difference is entirely CPU throttling. That is the same starvation that crash-looped the pods above — the probe fix addressed the symptom, not this.
 
@@ -93,12 +93,12 @@ The working set is ~95–100Mi under load, corroborated by the live pods (`kubec
 **Two things follow, and neither is fixable from this repo alone:**
 
 1. `helm/frontend-chart/values.yaml` already specifies `100m`/`256Mi` requests and `500m`/`512Mi` limits — correctly sized. The `150m`/`156Mi` that actually runs comes from the **`VALUES_YAML` secret overlay**, applied on top at deploy time and invisible here. Editing the committed defaults changes nothing until that secret is updated.
-2. The staging HPA (306 days old: min 1, max 5, both targets 80%) is mis-tuned against those requests. It scales on utilisation of *requests*, and the overlay sets requests == limits == `156Mi`; with a ~95–100Mi working set, memory sits near 60% at idle (observed `cpu: 24%/80%, memory: 59%/80%`). The HPA therefore adds replicas for what is just Node's normal heap. Restoring a `256Mi` request drops that to ~39% and lets CPU — the real constraint — drive scaling.
+2. The staging HPA (306 days old: min 1, max 5, both targets 80%) is mis-tuned against those requests. It scales on utilisation of _requests_, and the overlay sets requests == limits == `156Mi`; with a ~95–100Mi working set, memory sits near 60% at idle (observed `cpu: 24%/80%, memory: 59%/80%`). The HPA therefore adds replicas for what is just Node's normal heap. Restoring a `256Mi` request drops that to ~39% and lets CPU — the real constraint — drive scaling.
 
 **Scheduling headroom is fine; actual memory pressure is the real constraint — and everything is pinned to one node.** These are easy to confuse, so both numbers matter:
 
-- Kubernetes schedules on *requests*. On `newwave4org-node01` requests are only **29% memory / 49% CPU** (`1170Mi` and `1980m` of `4009Mi`/`4000m`), leaving ~`2839Mi` schedulable. Restoring `100m`/`256Mi` requests fits comfortably even at the HPA's maximum of 5 replicas (`1280Mi`).
-- *Actual* usage on that node is `3193Mi`/`4009Mi` (**81%**), which `kubectl top` reports and scheduling ignores. Five pods at the observed ~100Mi working set is ~`500Mi` (vs ~`170Mi` today) and lands the node around 88% — workable. Five pods each *allowed* the full `512Mi` would be `2560Mi` and would exhaust it. So the limit is real but is about worst-case burst, not about whether the requests fit.
+- Kubernetes schedules on _requests_. On `newwave4org-node01` requests are only **29% memory / 49% CPU** (`1170Mi` and `1980m` of `4009Mi`/`4000m`), leaving ~`2839Mi` schedulable. Restoring `100m`/`256Mi` requests fits comfortably even at the HPA's maximum of 5 replicas (`1280Mi`).
+- _Actual_ usage on that node is `3193Mi`/`4009Mi` (**81%**), which `kubectl top` reports and scheduling ignores. Five pods at the observed ~100Mi working set is ~`500Mi` (vs ~`170Mi` today) and lands the node around 88% — workable. Five pods each _allowed_ the full `512Mi` would be `2560Mi` and would exhaust it. So the limit is real but is about worst-case burst, not about whether the requests fit.
 
 The sharper problem is that the overlay also sets `nodeSelector: kubernetes.io/hostname: newwave4org-node01`, pinning **every** replica to that single node — the most memory-loaded of the three. There is no spreading and no high availability: losing that one node takes the site down, and the HPA can only add replicas onto the same box it is already crowding.
 

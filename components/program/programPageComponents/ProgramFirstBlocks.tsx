@@ -22,15 +22,35 @@ interface IProgramFirstBlocks {
   };
 }
 
-function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBlocks) {
+function ProgramFirstBlocks({
+  title,
+  description,
+  dateProgram,
+}: IProgramFirstBlocks) {
   const router = useRouter();
   const locale = useLocale();
 
-  const dateNumberFormatFrom = new Date(dateProgram?.from.year, dateProgram?.from.month - 1, dateProgram?.from.day);
-  const dateNumberFormatTo = new Date(dateProgram?.to.year, dateProgram?.to.month - 1, dateProgram?.to.day);
+  const dateNumberFormatFrom = new Date(
+    dateProgram?.from.year,
+    dateProgram?.from.month - 1,
+    dateProgram?.from.day,
+  );
+  const dateNumberFormatTo = new Date(
+    dateProgram?.to.year,
+    dateProgram?.to.month - 1,
+    dateProgram?.to.day,
+  );
 
-  const formattedDateFrom = isValid(dateNumberFormatFrom) ? format(new Date(dateNumberFormatFrom), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
-  const formattedDateTo = isValid(dateNumberFormatTo) ? format(new Date(dateNumberFormatTo), 'd MMMM', { locale: locale === EN_LOCALE ?  enUS : uk }) : '';
+  const formattedDateFrom = isValid(dateNumberFormatFrom)
+    ? format(new Date(dateNumberFormatFrom), 'd MMMM', {
+        locale: locale === EN_LOCALE ? enUS : uk,
+      })
+    : '';
+  const formattedDateTo = isValid(dateNumberFormatTo)
+    ? format(new Date(dateNumberFormatTo), 'd MMMM', {
+        locale: locale === EN_LOCALE ? enUS : uk,
+      })
+    : '';
 
   const descriptionText = convertDraftToHTML(description, locale);
 
@@ -39,7 +59,9 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
       <div className="bg-skyBlue-300 flex-1 flex lg:justify-end justify-center">
         <div className="lg:max-w-[708px] max-w-full md:py-12 md:px-24 py-6 px-12 flex items-center">
           <div className="container">
-            <h2 className="lg:text-h2 text-h5 text-font-primary font-ebGaramond">{title}</h2>
+            <h2 className="lg:text-h2 text-h5 text-font-primary font-ebGaramond">
+              {title}
+            </h2>
           </div>
         </div>
       </div>
@@ -52,12 +74,24 @@ function ProgramFirstBlocks({ title, description, dateProgram }: IProgramFirstBl
         <div className="lg:max-w-[732px] max-w-full w-full md:px-24 md:pt-[70px] pt-[100px] pb-[30px] px-12 ">
           <div className="container">
             {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
-            <div className="text-body text-font-primary" dangerouslySetInnerHTML={{ __html: descriptionText }} />
+            <div
+              className="text-body text-font-primary"
+              dangerouslySetInnerHTML={{ __html: descriptionText }}
+            />
             <div className="mt-4 flex">
-              <Button size="large" className="flex justify-self-center items-center custom-donate-btn" onClick={() => router.push('/donation')}>
+              <Button
+                size="large"
+                className="flex justify-self-center items-center custom-donate-btn"
+                onClick={() => router.push('/donation')}
+              >
                 Donate
                 <span className="ml-2 duration-500">
-                  <Image src="/icons/Icon_uk-heart.svg" width={26} height={22} alt="icon" />
+                  <Image
+                    src="/icons/Icon_uk-heart.svg"
+                    width={26}
+                    height={22}
+                    alt="icon"
+                  />
                 </span>
               </Button>
             </div>

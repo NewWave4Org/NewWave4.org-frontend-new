@@ -25,7 +25,7 @@ function renderWithStore() {
       <AuthGate>
         <div>protected content</div>
       </AuthGate>
-    </Provider>
+    </Provider>,
   );
 }
 
@@ -35,13 +35,18 @@ describe('AuthGate', () => {
   });
 
   it('renders children once getUserInfo resolves', async () => {
-    getUserInfoMock.mockResolvedValueOnce({ id: 1, email: 'admin@newwave4.org' });
+    getUserInfoMock.mockResolvedValueOnce({
+      id: 1,
+      email: 'admin@newwave4.org',
+    });
 
     renderWithStore();
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
 
-    await waitFor(() => expect(screen.getByText('protected content')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('protected content')).toBeInTheDocument(),
+    );
 
     expect(replaceMock).not.toHaveBeenCalled();
   });

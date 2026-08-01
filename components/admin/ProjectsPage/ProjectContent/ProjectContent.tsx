@@ -37,7 +37,10 @@ import Loading from '../../helperComponents/Loading/Loading';
 import { decorator } from '@/components/TextEditor/toolBar/Link/Link';
 import AuthorField from '../../helperComponents/AuthorField/AuthorField';
 import TranslateSection from '../../helperComponents/TranslateSection/TranslateSection';
-import { TranslateDirection, TranslateDirectionEnum } from '../../Pages/enum/types';
+import {
+  TranslateDirection,
+  TranslateDirectionEnum,
+} from '../../Pages/enum/types';
 
 export interface UpdateArticleFormValues {
   title: string;
@@ -55,24 +58,28 @@ const validationSchema = Yup.object({
   translateDirection: Yup.string().test(
     'required-if-translate',
     'Translation direction is required',
-    function(value) {
+    function (value) {
       const contentBlocks = this.parent.contentBlocks;
       const translateBlock = contentBlocks?.find(
-        (b: any) => b.contentBlockType === 'TRANSLATE'
+        (b: any) => b.contentBlockType === 'TRANSLATE',
       );
       if (translateBlock?.translateStatus === 'yes') {
         return !!value;
       }
       return true;
-    }
+    },
   ),
 });
 
 function ProjectContent({ projectId }: { projectId: number }) {
-  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(null);
+  const [project, setProject] = useState<GetArticleByIdResponseDTO | null>(
+    null,
+  );
   const [loadingProject, setLoadingProgect] = useState(false);
   const [projectStatus, setProjectsStatus] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'saving' | 'translating'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<
+    'idle' | 'saving' | 'translating'
+  >('idle');
 
   const router = useRouter();
 
@@ -91,7 +98,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   const [deletedFiles, setDeletedFiles] = useState<string[]>([]);
 
-  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>({});
+  const [editorStates, setEditorStates] = useState<Record<string, EditorState>>(
+    {},
+  );
   const [editorKey, setEditorKey] = useState<Record<string, string>>({});
 
   const { usersList, currentAuthor } = useUsers(true);
@@ -104,16 +113,34 @@ function ProjectContent({ projectId }: { projectId: number }) {
     title: '',
     articleType: ArticleTypeEnum.PROJECT,
     authorName: currentAuthor?.name || undefined,
-    translateDirection: (project?.translateDirection as TranslateDirection) || undefined,
+    translateDirection:
+      (project?.translateDirection as TranslateDirection) || undefined,
     dateOfWriting: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
       { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
       { id: uuid(), contentBlockType: 'VIDEO', videoUrl: '' },
-      { id: uuid(), contentBlockType: 'QUOTE', translatable_text_text: '', translatable_text_editorState: null },
+      {
+        id: uuid(),
+        contentBlockType: 'QUOTE',
+        translatable_text_text: '',
+        translatable_text_editorState: null,
+      },
       { id: uuid(), contentBlockType: 'LINK_TO_SITE', siteUrl: '' },
-      { id: uuid(), contentBlockType: 'SOCIAL_MEDIA', typeSocialMedia: '', socialMediaUrl: '' },
-      { id: uuid(), contentBlockType: 'SECTION', translatable_text_sectionTitle: '', translatable_text_text: '', files: [], translatable_text_editorState: null },
+      {
+        id: uuid(),
+        contentBlockType: 'SOCIAL_MEDIA',
+        typeSocialMedia: '',
+        socialMediaUrl: '',
+      },
+      {
+        id: uuid(),
+        contentBlockType: 'SECTION',
+        translatable_text_sectionTitle: '',
+        translatable_text_text: '',
+        files: [],
+        translatable_text_editorState: null,
+      },
     ],
   };
 
@@ -127,8 +154,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         const result = await dispatch(getArticleById(projectId)).unwrap();
 
-        const isEngDirection = result?.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
-        
+        const isEngDirection =
+          result?.translateDirection ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+
         const sourceBlocks = isEngDirection
           ? (result?.contentBlocksEng ?? [])
           : (result?.contentBlocks ?? []);
@@ -145,7 +174,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
         const mergedBlocks = [
           ...serverBlocks,
           ...defaultFormValues.contentBlocks.filter(
-            defBlock => !serverBlocks.some(b => b.contentBlockType === defBlock.contentBlockType)
+            defBlock =>
+              !serverBlocks.some(
+                b => b.contentBlockType === defBlock.contentBlockType,
+              ),
           ),
         ];
 
@@ -153,7 +185,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
           let editor;
           try {
             editor = block.translatable_text_editorState
-              ? EditorState.createWithContent(convertFromRaw(block.translatable_text_editorState), decorator)
+              ? EditorState.createWithContent(
+                  convertFromRaw(block.translatable_text_editorState),
+                  decorator,
+                )
               : EditorState.createEmpty(decorator);
           } catch (err: any) {
             console.error('err', err);
@@ -169,7 +204,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
         setProject({
           ...result,
-          title: isEngDirection ? (result.titleEng ?? result.title) : result.title,
+          title: isEngDirection
+            ? (result.titleEng ?? result.title)
+            : result.title,
           contentBlocks: mergedBlocks,
         });
       } catch (error) {
@@ -185,89 +222,98 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
   //Action for Save the project
   async function handleSubmit(
-      values: UpdateArticleFormValues,
-      { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
-    ) {
-      for (const url of deletedFiles) {
-        try {
-          await deleteFile(url);
-        } catch (error: any) {
-          console.error('Failed to delete file', url, error);
-        }
-      }
-
-      const translateStatus = values.contentBlocks?.find(block => block.contentBlockType === 'TRANSLATE')?.translateStatus ?? 'no';
-
-      const isEngDirection = translateStatus === 'yes' && values.translateDirection === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
-
-      const { translateDirection, contentBlocks, ...rest } = values;
-
-      const preparedData = isEngDirection
-        ? {
-            ...rest,
-            titleEng: values.title,
-            title: '',
-            translateDirection,
-            englishPublished: translateStatus === 'yes',
-            contentBlocksEng: contentBlocks,
-            contentBlocks: [],
-            dateOfWriting: convertToISO(values.dateOfWriting),
-          }
-        : {
-            ...rest,
-            title: values.title,
-            titleEng: '',
-            translateDirection,
-            englishPublished: translateStatus === 'no',
-            contentBlocks,
-            contentBlocksEng: [],
-            dateOfWriting: convertToISO(values.dateOfWriting),
-          };
-
-      setSubmitStatus('saving');
-
-
+    values: UpdateArticleFormValues,
+    { setSubmitting }: FormikHelpers<UpdateArticleFormValues>,
+  ) {
+    for (const url of deletedFiles) {
       try {
-        const result = await handleThunk(
-          updateArticle,
-          { id: projectId, data: preparedData },
-          setSubmitError,
-        );
-        // setProject(result);
-
-        const translateFrom = values.translateDirection;
-
-        if (result) {
-          // ---- TRANSLATION ----
-          if (translateStatus === 'yes') {
-            setSubmitStatus('translating');
-            try {
-              await handleThunk(createTranslation, {id: projectId, translateFrom: translateFrom?.toUpperCase()}, setSubmitErrorTranslate);
-              toast.success(`The translation was successfully created`);
-            } catch (error) {
-              setSubmitStatus('idle');
-              console.error('error translate', error);
-              toast.error(`Something go wrong with translation! ${error}`);
-            } finally {
-              setSubmitStatus('idle');
-            }
-          }
-
-          setSubmitError('');
-          setDeletedFiles([]);
-          const message = pathname.includes('/edit')
-            ? 'Your project was updated successfully!'
-            : 'Your project was created successfully!';
-          toast.success(message);
-        }
-      } catch (error) {
-        setSubmitStatus('idle');
-        toast.error(`Something go wrong! ${error}`);
-      } finally {
-        setSubmitStatus('idle');
-        setSubmitting(false);
+        await deleteFile(url);
+      } catch (error: any) {
+        console.error('Failed to delete file', url, error);
       }
     }
+
+    const translateStatus =
+      values.contentBlocks?.find(
+        block => block.contentBlockType === 'TRANSLATE',
+      )?.translateStatus ?? 'no';
+
+    const isEngDirection =
+      translateStatus === 'yes' &&
+      values.translateDirection ===
+        TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+
+    const { translateDirection, contentBlocks, ...rest } = values;
+
+    const preparedData = isEngDirection
+      ? {
+          ...rest,
+          titleEng: values.title,
+          title: '',
+          translateDirection,
+          englishPublished: translateStatus === 'yes',
+          contentBlocksEng: contentBlocks,
+          contentBlocks: [],
+          dateOfWriting: convertToISO(values.dateOfWriting),
+        }
+      : {
+          ...rest,
+          title: values.title,
+          titleEng: '',
+          translateDirection,
+          englishPublished: translateStatus === 'no',
+          contentBlocks,
+          contentBlocksEng: [],
+          dateOfWriting: convertToISO(values.dateOfWriting),
+        };
+
+    setSubmitStatus('saving');
+
+    try {
+      const result = await handleThunk(
+        updateArticle,
+        { id: projectId, data: preparedData },
+        setSubmitError,
+      );
+      // setProject(result);
+
+      const translateFrom = values.translateDirection;
+
+      if (result) {
+        // ---- TRANSLATION ----
+        if (translateStatus === 'yes') {
+          setSubmitStatus('translating');
+          try {
+            await handleThunk(
+              createTranslation,
+              { id: projectId, translateFrom: translateFrom?.toUpperCase() },
+              setSubmitErrorTranslate,
+            );
+            toast.success(`The translation was successfully created`);
+          } catch (error) {
+            setSubmitStatus('idle');
+            console.error('error translate', error);
+            toast.error(`Something go wrong with translation! ${error}`);
+          } finally {
+            setSubmitStatus('idle');
+          }
+        }
+
+        setSubmitError('');
+        setDeletedFiles([]);
+        const message = pathname.includes('/edit')
+          ? 'Your project was updated successfully!'
+          : 'Your project was created successfully!';
+        toast.success(message);
+      }
+    } catch (error) {
+      setSubmitStatus('idle');
+      toast.error(`Something go wrong! ${error}`);
+    } finally {
+      setSubmitStatus('idle');
+      setSubmitting(false);
+    }
+  }
 
   //Action for publish the project
   async function handlePublish(projectId: number) {
@@ -294,12 +340,17 @@ function ProjectContent({ projectId }: { projectId: number }) {
     const content = newState.getCurrentContent();
     const raw = convertToRaw(content);
 
-    const index = values.contentBlocks.findIndex((block: { id?: string | number }) => block.id === id);
+    const index = values.contentBlocks.findIndex(
+      (block: { id?: string | number }) => block.id === id,
+    );
 
     if (index === -1) return;
 
     setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
-    setFieldValue(`contentBlocks.${index}.translatable_text_text`, content.getPlainText());
+    setFieldValue(
+      `contentBlocks.${index}.translatable_text_text`,
+      content.getPlainText(),
+    );
   };
 
   if (loadingProject) {
@@ -316,7 +367,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
         enableReinitialize
         initialValues={{
           title: project?.title || defaultFormValues.title,
-          translateDirection: (project?.translateDirection as TranslateDirection) || undefined,
+          translateDirection:
+            (project?.translateDirection as TranslateDirection) || undefined,
           authorName: project?.authorName || defaultFormValues.authorName,
           dateOfWriting:
             convertFromISO(project?.dateOfWriting) ||
@@ -333,15 +385,27 @@ function ProjectContent({ projectId }: { projectId: number }) {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, handleChange, isSubmitting, values, setFieldValue }) => {
-          const translateBlockIndex = values.contentBlocks.findIndex(b => b.contentBlockType === 'TRANSLATE');
+        {({
+          errors,
+          touched,
+          handleChange,
+          isSubmitting,
+          values,
+          setFieldValue,
+        }) => {
+          const translateBlockIndex = values.contentBlocks.findIndex(
+            b => b.contentBlockType === 'TRANSLATE',
+          );
 
-          return(
+          return (
             <Form>
-              <div className='mb-5'>
+              <div className="mb-5">
                 <TranslateSection
                   translateBlockIndex={translateBlockIndex}
-                  translateStatus={values.contentBlocks[translateBlockIndex]?.translateStatus ?? 'no'}
+                  translateStatus={
+                    values.contentBlocks[translateBlockIndex]
+                      ?.translateStatus ?? 'no'
+                  }
                   handleChange={handleChange}
                 />
               </div>
@@ -358,17 +422,31 @@ function ProjectContent({ projectId }: { projectId: number }) {
                   value={values?.title || ''}
                   label="Project title"
                   labelClass="!text-admin-700"
-                  validationText={touched.title && errors.title ? errors.title : ''}
+                  validationText={
+                    touched.title && errors.title ? errors.title : ''
+                  }
                 />
               </div>
 
               <div className="mb-5">
-                <div className="block text-medium2 mb-1 !text-admin-700">Choose the creation date</div>
-                <DatePicker name="dateOfWriting" pickerId="project-creationDate" pickerWithTime={false} pickerType="single" pickerPlaceholder="Choose date" pickerValue={values?.dateOfWriting} />
+                <div className="block text-medium2 mb-1 !text-admin-700">
+                  Choose the creation date
+                </div>
+                <DatePicker
+                  name="dateOfWriting"
+                  pickerId="project-creationDate"
+                  pickerWithTime={false}
+                  pickerType="single"
+                  pickerPlaceholder="Choose date"
+                  pickerValue={values?.dateOfWriting}
+                />
               </div>
 
               <div className="mb-5">
-                <AuthorField usersList={usersList} defaultValue={project?.authorName}  />
+                <AuthorField
+                  usersList={usersList}
+                  defaultValue={project?.authorName}
+                />
               </div>
 
               <FieldArray name="contentBlocks">
@@ -380,7 +458,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                     <div className="mb-5">
                       {/* Base blocks */}
                       {initialBlocks.map(block => {
-                        const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                        const blockIndex = values.contentBlocks.findIndex(
+                          item => item.id === block.id,
+                        );
                         return (
                           <React.Fragment key={block.id}>
                             {block?.contentBlockType === 'VIDEO' && (
@@ -400,8 +480,24 @@ function ProjectContent({ projectId }: { projectId: number }) {
                             {block.contentBlockType === 'QUOTE' && (
                               <div className="mb-4">
                                 <div>
-                                  <label className="block mb-2 text-admin-700 font-medium">Quote text</label>
-                                  <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                  <label className="block mb-2 text-admin-700 font-medium">
+                                    Quote text
+                                  </label>
+                                  <TextEditor
+                                    key={editorKey[block.id]}
+                                    value={
+                                      editorStates[block.id] ||
+                                      EditorState.createEmpty(decorator)
+                                    }
+                                    onChange={newState =>
+                                      handleEditorChange(
+                                        block.id,
+                                        values,
+                                        newState,
+                                        setFieldValue,
+                                      )
+                                    }
+                                  />
                                 </div>
                               </div>
                             )}
@@ -452,7 +548,10 @@ function ProjectContent({ projectId }: { projectId: number }) {
                             {/* TEXT block */}
                             {block.contentBlockType === 'SECTION' && (
                               <div className="mb-5">
-                                <Accordion title={`Section #1 - ${block.translatable_text_sectionTitle}`} classNameTop="min-h-14">
+                                <Accordion
+                                  title={`Section #1 - ${block.translatable_text_sectionTitle}`}
+                                  classNameTop="min-h-14"
+                                >
                                   <div className="flex gap-4">
                                     <div className="w-1/2 h-[442px] flex flex-col flex-1 block-with-photo">
                                       <div className="mb-4">
@@ -462,17 +561,31 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                           name={`contentBlocks.${blockIndex}.translatable_text_sectionTitle`}
                                           type="text"
                                           className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                          value={block.translatable_text_sectionTitle}
+                                          value={
+                                            block.translatable_text_sectionTitle
+                                          }
                                           label="Section title"
                                           labelClass="!text-admin-700"
                                         />
                                       </div>
                                       <div className="flex-1 flex flex-col block-with-editor">
-                                        <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
+                                        <div className="block text-medium2 mb-1 text-admin-700 ">
+                                          Text block
+                                        </div>
                                         <TextEditor
                                           key={editorKey[block.id]}
-                                          value={editorStates[block.id] || EditorState.createEmpty(decorator)}
-                                          onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)}
+                                          value={
+                                            editorStates[block.id] ||
+                                            EditorState.createEmpty(decorator)
+                                          }
+                                          onChange={newState =>
+                                            handleEditorChange(
+                                              block.id,
+                                              values,
+                                              newState,
+                                              setFieldValue,
+                                            )
+                                          }
                                         />
                                       </div>
                                     </div>
@@ -485,8 +598,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                         uploadedUrls={block.files || []}
                                         positionBlockImg={true}
                                         onFilesChange={(files, deleted) => {
-                                          setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                          setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                          setFieldValue(
+                                            `contentBlocks.${blockIndex}.files`,
+                                            files,
+                                          );
+                                          setDeletedFiles(prev => [
+                                            ...prev,
+                                            ...(deleted || []),
+                                          ]);
                                         }}
                                       />
                                     </div>
@@ -500,7 +619,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
 
                       {additionalBlocks.map((block, pairIndex) => {
                         const index = pairIndex + 6;
-                        const blockIndex = values.contentBlocks.findIndex(item => item.id === block.id);
+                        const blockIndex = values.contentBlocks.findIndex(
+                          item => item.id === block.id,
+                        );
 
                         if (block.contentBlockType !== 'SECTION') {
                           return null;
@@ -518,10 +639,16 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                     const blockId = block.id;
                                     // remove(index);
                                     if (block.files) {
-                                      setDeletedFiles(prev => [...prev, ...block.files]);
+                                      setDeletedFiles(prev => [
+                                        ...prev,
+                                        ...block.files,
+                                      ]);
                                     }
 
-                                    const blockIndex = values.contentBlocks.findIndex(b => b.id === block.id);
+                                    const blockIndex =
+                                      values.contentBlocks.findIndex(
+                                        b => b.id === block.id,
+                                      );
                                     if (blockIndex !== -1) remove(blockIndex);
 
                                     setEditorStates(prev => {
@@ -542,7 +669,9 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                 </button>
                               }
                             >
-                              <div className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                              <div
+                                className={`flex gap-4 mb-3 ${pairIndex % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}
+                              >
                                 <div className="w-1/2 h-[442px] flex flex-col">
                                   <div className="mb-4">
                                     <Input
@@ -551,15 +680,33 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                       name={`contentBlocks.${blockIndex}.translatable_text_sectionTitle`}
                                       type="text"
                                       className="!bg-background-light w-full h-[50px] px-5 rounded-lg !ring-0"
-                                      value={block.translatable_text_sectionTitle}
+                                      value={
+                                        block.translatable_text_sectionTitle
+                                      }
                                       label="Section title"
                                       labelClass="!text-admin-700"
                                     />
                                   </div>
 
                                   <div className="flex-1 flex flex-col">
-                                    <div className="block text-medium2 mb-1 text-admin-700 ">Text block</div>
-                                    <TextEditor key={editorKey[block.id]} value={editorStates[block.id] || EditorState.createEmpty(decorator)} onChange={newState => handleEditorChange(block.id, values, newState, setFieldValue)} />
+                                    <div className="block text-medium2 mb-1 text-admin-700 ">
+                                      Text block
+                                    </div>
+                                    <TextEditor
+                                      key={editorKey[block.id]}
+                                      value={
+                                        editorStates[block.id] ||
+                                        EditorState.createEmpty(decorator)
+                                      }
+                                      onChange={newState =>
+                                        handleEditorChange(
+                                          block.id,
+                                          values,
+                                          newState,
+                                          setFieldValue,
+                                        )
+                                      }
+                                    />
                                   </div>
                                 </div>
 
@@ -573,8 +720,14 @@ function ProjectContent({ projectId }: { projectId: number }) {
                                     uploadedUrls={block?.files || []}
                                     positionBlockImg={true}
                                     onFilesChange={(files, deleted) => {
-                                      setFieldValue(`contentBlocks.${blockIndex}.files`, files);
-                                      setDeletedFiles(prev => [...prev, ...(deleted || [])]);
+                                      setFieldValue(
+                                        `contentBlocks.${blockIndex}.files`,
+                                        files,
+                                      );
+                                      setDeletedFiles(prev => [
+                                        ...prev,
+                                        ...(deleted || []),
+                                      ]);
                                     }}
                                   />
                                 </div>
@@ -617,42 +770,63 @@ function ProjectContent({ projectId }: { projectId: number }) {
                 }}
               </FieldArray>
 
-              {submitError && <div className="text-red-700 text-medium1 mt-4"> {submitError}</div>}
+              {submitError && (
+                <div className="text-red-700 text-medium1 mt-4">
+                  {' '}
+                  {submitError}
+                </div>
+              )}
 
               <div className="mt-10">
                 <sup className="font-bold text-red-600 text-small2">*</sup>
-                <em>You must save the page before you can preview or publish it</em>
+                <em>
+                  You must save the page before you can preview or publish it
+                </em>
               </div>
 
               <div className="my-4">
                 <sup className="font-bold text-red-600 text-small2">*</sup>
-                After any changes you need to click the <strong>Save</strong> button
+                After any changes you need to click the <strong>
+                  Save
+                </strong>{' '}
+                button
               </div>
 
               <div className="flex gap-x-6 mt-2">
-                <Button type="submit" disabled={isSubmitting || submitStatus !== 'idle'} 
-                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || submitStatus !== 'idle'}
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+                >
                   {submitStatus === 'saving' && (
-                    <div className='flex items-center'>
+                    <div className="flex items-center">
                       <Spinner />
-                      <span className='ml-2'>Saving...</span>
+                      <span className="ml-2">Saving...</span>
                     </div>
                   )}
                   {submitStatus === 'translating' && (
-                    <div className='flex items-center'>
+                    <div className="flex items-center">
                       <Spinner />
-                      <span className='ml-2'>Translating...</span>
+                      <span className="ml-2">Translating...</span>
                     </div>
                   )}
                   {submitStatus === 'idle' && 'Save'}
                 </Button>
 
-                <LinkBtn href={`/admin/projects/preview?id=${projectId}`} targetLink="_self" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                <LinkBtn
+                  href={`/admin/projects/preview?id=${projectId}`}
+                  targetLink="_self"
+                  className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                >
                   Preview
                 </LinkBtn>
 
-                {(project?.articleStatus !== 'PUBLISHED' && !projectStatus) && (
-                  <Button onClick={() => handlePublish(projectId)} type="button" className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300">
+                {project?.articleStatus !== 'PUBLISHED' && !projectStatus && (
+                  <Button
+                    onClick={() => handlePublish(projectId)}
+                    type="button"
+                    className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-80 duration-300"
+                  >
                     Publish
                   </Button>
                 )}

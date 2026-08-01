@@ -18,12 +18,15 @@ const SOCIAL_ICONS: Record<string, JSX.Element> = {
 
 const SocialButtons = () => {
   const dispatch = useAppDispatch();
-  const [socialLinks, setSocialLinks] = useState<IGlobalSectionsResponseDTO | null>(null);
+  const [socialLinks, setSocialLinks] =
+    useState<IGlobalSectionsResponseDTO | null>(null);
 
   useEffect(() => {
     async function fetchSocial() {
       try {
-        const response = await dispatch(getGlobalSectionByKey(GlobalSectionsType.OUR_SOCIAL_LINKS)).unwrap();
+        const response = await dispatch(
+          getGlobalSectionByKey(GlobalSectionsType.OUR_SOCIAL_LINKS),
+        ).unwrap();
 
         setSocialLinks(response);
       } catch (error) {
@@ -43,7 +46,10 @@ const SocialButtons = () => {
         const Icon = SOCIAL_ICONS[item.contentBlockType];
 
         return (
-          <IconButton key={item.contentBlockType} onClick={() => window.open(item.link)}>
+          <IconButton
+            key={item.contentBlockType}
+            onClick={() => window.open(item.link)}
+          >
             {Icon ?? null}
           </IconButton>
         );

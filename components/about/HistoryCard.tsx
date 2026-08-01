@@ -11,23 +11,39 @@ interface IHistoryCard {
   ourHistoryPhotos: { files: any[] };
 }
 
-const HistoryCard = ({ ourHistoryTitle, ourHistoryDescription, ourHistoryPhotos }: IHistoryCard) => {
+const HistoryCard = ({
+  ourHistoryTitle,
+  ourHistoryDescription,
+  ourHistoryPhotos,
+}: IHistoryCard) => {
   const t = useTranslations();
   const locale = useLocale();
 
-  const ourHistoryDescriptionText = convertDraftToHTML(ourHistoryDescription?.translatable_text_editorState, locale);
+  const ourHistoryDescriptionText = convertDraftToHTML(
+    ourHistoryDescription?.translatable_text_editorState,
+    locale,
+  );
 
   return (
     <section className="history-card md:py-14 md:my-20 py-7 my-10">
       <div className="history-card__inner container px-4 mx-auto">
-        <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">{t('sections_title.our_story')}</h4>
+        <h4 className="preheader mb-10 text-center md:text-left mx-auto !text-font-primary">
+          {t('sections_title.our_story')}
+        </h4>
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="w-full lg:max-w-[718px] overflow-hidden">
-            <SlickCarousel slides={ourHistoryPhotos} customStyles='max-w-[718px] h-[200px] md:h-[524px]' />
+            <SlickCarousel
+              slides={ourHistoryPhotos}
+              customStyles="max-w-[718px] h-[200px] md:h-[524px]"
+            />
           </div>
           <div className="w-full lg:w-2/5 flex flex-col justify-center mt-4 sm:mt-0">
-            <h4 className="text-lg sm:text-xl font-ebGaramond text-font-accent mb-6 font-semibold text-center sm:text-left leading-[140%]">{ourHistoryTitle}</h4>
-            <div dangerouslySetInnerHTML={{ __html: ourHistoryDescriptionText }} />
+            <h4 className="text-lg sm:text-xl font-ebGaramond text-font-accent mb-6 font-semibold text-center sm:text-left leading-[140%]">
+              {ourHistoryTitle}
+            </h4>
+            <div
+              dangerouslySetInnerHTML={{ __html: ourHistoryDescriptionText }}
+            />
           </div>
         </div>
       </div>

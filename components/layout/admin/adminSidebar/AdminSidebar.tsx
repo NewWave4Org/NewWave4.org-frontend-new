@@ -86,7 +86,9 @@ const AdminSidebar = () => {
   const currentUser = useAppSelector(state => state.authUser.user);
   const currentUserRole = currentUser?.roles;
 
-  const isAdmin = currentUserRole?.includes('ROLE_ADMIN') || currentUserRole?.includes('ROLE_SUPER_ADMIN');
+  const isAdmin =
+    currentUserRole?.includes('ROLE_ADMIN') ||
+    currentUserRole?.includes('ROLE_SUPER_ADMIN');
 
   return (
     <div className="adminSidebar xl:p-12 p-9">
@@ -98,7 +100,9 @@ const AdminSidebar = () => {
               {adminMenu
                 .filter(link => link.allowedToAdmin)
                 .map(link => {
-                  const isActive = pathName === link.href || pathName.startsWith(`${link.href}/`);
+                  const isActive =
+                    pathName === link.href ||
+                    pathName.startsWith(`${link.href}/`);
                   return (
                     <Link
                       key={link.id}
@@ -112,12 +116,13 @@ const AdminSidebar = () => {
                 })}
             </div>
           )}
-          
+
           {/* Anothers links */}
           {adminMenu
             .filter(link => !link.allowedToAdmin)
             .map(link => {
-              const isActive = pathName === link.href || pathName.startsWith(`${link.href}/`);
+              const isActive =
+                pathName === link.href || pathName.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.id}
@@ -128,10 +133,9 @@ const AdminSidebar = () => {
                   {link.title}
                 </Link>
               );
-            })}   
+            })}
         </div>
-</div>
-
+      </div>
     </div>
   );
 };

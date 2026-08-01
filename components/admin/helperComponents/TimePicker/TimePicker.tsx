@@ -14,7 +14,13 @@ interface ITimePicker {
   setFieldValue: (field: string, value: any) => void;
 }
 
-function TimePicker({ name, label, value, classBlock, setFieldValue }: ITimePicker) {
+function TimePicker({
+  name,
+  label,
+  value,
+  classBlock,
+  setFieldValue,
+}: ITimePicker) {
   const { hour = '', minute = '', period = 'AM' } = value || {};
 
   useEffect(() => {
@@ -88,7 +94,12 @@ function TimePicker({ name, label, value, classBlock, setFieldValue }: ITimePick
         {/* AM/PM */}
         <div>
           <label className="block text-xs text-gray-500 mb-1">AM or PM</label>
-          <select value={period} name={name} onChange={handlePeriodChange} className={`${classBlock} focus:ring-blue-500 focus:border-blue-500 px-2 w-[80px] text-center`}>
+          <select
+            value={period}
+            name={name}
+            onChange={handlePeriodChange}
+            className={`${classBlock} focus:ring-blue-500 focus:border-blue-500 px-2 w-[80px] text-center`}
+          >
             <option value="AM">AM</option>
             <option value="PM">PM</option>
           </select>

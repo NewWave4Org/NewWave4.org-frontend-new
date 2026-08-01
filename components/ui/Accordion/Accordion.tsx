@@ -11,14 +11,28 @@ interface IAccordionProps {
   initState?: boolean;
 }
 
-function Accordion({ title, children, actions, classNameTop, initState = false }: IAccordionProps) {
+function Accordion({
+  title,
+  children,
+  actions,
+  classNameTop,
+  initState = false,
+}: IAccordionProps) {
   const [isOpen, setIsOpen] = useState(initState);
 
   return (
     <div className="border rounded-lg">
-      <div className={`${classNameTop} flex items-center justify-between shadow-custom`}>
-        <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex mr-0 w-full p-3">
-          <ArrowUp4Icon className={`${!isOpen ? 'rotate-90' : ''} mr-3 duration-500`} />
+      <div
+        className={`${classNameTop} flex items-center justify-between shadow-custom`}
+      >
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex mr-0 w-full p-3"
+        >
+          <ArrowUp4Icon
+            className={`${!isOpen ? 'rotate-90' : ''} mr-3 duration-500`}
+          />
           {title}
         </button>
         {actions && <div className="flex items-center gap-2">{actions}</div>}

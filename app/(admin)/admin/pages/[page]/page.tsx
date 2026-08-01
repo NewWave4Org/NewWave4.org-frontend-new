@@ -11,10 +11,12 @@ function PageEdit() {
   const { page } = useParams();
   const router = useRouter();
 
-
   return (
     <div>
-      <Button onClick={() => router.back()} className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10">
+      <Button
+        onClick={() => router.back()}
+        className="!py-2 pl-2 pr-4 !min-h-8 !h-auto flex text-white !bg-admin-700 hover:!bg-admin-600 duration-500 mb-10"
+      >
         <ArrowLeft4Icon color="white" />
         Back
       </Button>

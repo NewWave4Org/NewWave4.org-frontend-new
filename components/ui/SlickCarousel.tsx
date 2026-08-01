@@ -9,11 +9,11 @@ import { SampleNextArrow, SamplePrevArrow } from './SlickSlider/Arrows/Arrows';
 import SliderDots from './SlickSlider/Dots/SliderDots';
 
 export interface SliderCarousel {
-  files: string[]
+  files: string[];
 }
 
 interface ISlickCarouselProps extends Settings {
-  slides: {files: string[]};
+  slides: { files: string[] };
   speed?: number;
   infinite?: boolean;
   slideHover?: boolean;
@@ -26,19 +26,37 @@ interface ISlickCarouselProps extends Settings {
   slideStyles?: string;
   centerPadding?: string;
   customStyle?: string;
-  responsive?: any[],
-  variableWidth?: boolean,
-  parentClass?: string
+  responsive?: any[];
+  variableWidth?: boolean;
+  parentClass?: string;
 }
 
-const SlickCarousel = ({ slides, speed = 400, infinite = true, slideHover = true, autoplay = true, slidesToShow = 1, customStyles = '', centerMode = false, showArrows = false, dots = false, slideStyles = '', centerPadding = '0', customStyle = 'h-[200px] md:h-[524px]', responsive = [],variableWidth = false, parentClass = '' }: ISlickCarouselProps) => {
-
+const SlickCarousel = ({
+  slides,
+  speed = 400,
+  infinite = true,
+  slideHover = true,
+  autoplay = true,
+  slidesToShow = 1,
+  customStyles = '',
+  centerMode = false,
+  showArrows = false,
+  dots = false,
+  slideStyles = '',
+  centerPadding = '0',
+  customStyle = 'h-[200px] md:h-[524px]',
+  responsive = [],
+  variableWidth = false,
+  parentClass = '',
+}: ISlickCarouselProps) => {
   const settings = {
     className: 'h-full',
     infinite: infinite,
     speed: speed,
     dots: dots,
-    appendDots: dots ? (dotsElements: React.ReactNode) => <SliderDots dots={dotsElements} /> : undefined,
+    appendDots: dots
+      ? (dotsElements: React.ReactNode) => <SliderDots dots={dotsElements} />
+      : undefined,
     slidesToScroll: 1,
     autoplay: autoplay,
     autoplaySpeed: 3000,
@@ -47,11 +65,11 @@ const SlickCarousel = ({ slides, speed = 400, infinite = true, slideHover = true
     variableWidth: variableWidth,
     arrows: showArrows,
     centerMode: centerMode,
-    cssEase: 'linear', 
+    cssEase: 'linear',
     centerPadding: centerPadding,
-    nextArrow:  <SampleNextArrow /> ,
-    prevArrow:  <SamplePrevArrow />,
-    responsive: responsive
+    nextArrow: <SampleNextArrow />,
+    prevArrow: <SamplePrevArrow />,
+    responsive: responsive,
   };
 
   return (
@@ -59,9 +77,18 @@ const SlickCarousel = ({ slides, speed = 400, infinite = true, slideHover = true
       <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
         <Slider {...settings}>
           {slides?.files.map((slide, index) => (
-            <div className={`${customStyle} relative group/slide group`} key={index}>
+            <div
+              className={`${customStyle} relative group/slide group`}
+              key={index}
+            >
               <div className={`h-full ${slideStyles}`}>
-                <Image key={index} src={slide} alt={`slider-${index}`} fill className={`rounded-xl object-contain ${customStyle}`} />
+                <Image
+                  key={index}
+                  src={slide}
+                  alt={`slider-${index}`}
+                  fill
+                  className={`rounded-xl object-contain ${customStyle}`}
+                />
               </div>
             </div>
           ))}

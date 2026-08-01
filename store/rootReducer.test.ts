@@ -11,7 +11,9 @@ describe('rootReducer', () => {
     expect(dirtyState.authUser.isAuthenticated).toBe(true);
     expect(dirtyState).not.toEqual(initialState);
 
-    const resetState = rootReducer(dirtyState, { type: logOutAuth.fulfilled.type });
+    const resetState = rootReducer(dirtyState, {
+      type: logOutAuth.fulfilled.type,
+    });
 
     expect(resetState).toEqual(initialState);
   });
@@ -19,7 +21,9 @@ describe('rootReducer', () => {
   it('leaves state untouched for unrelated actions', () => {
     const initialState = rootReducer(undefined, { type: '@@INIT' });
 
-    const nextState = rootReducer(initialState, { type: 'some/unrelatedAction' });
+    const nextState = rootReducer(initialState, {
+      type: 'some/unrelatedAction',
+    });
 
     expect(nextState).toEqual(initialState);
   });

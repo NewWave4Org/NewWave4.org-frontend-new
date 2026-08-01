@@ -3,7 +3,11 @@ import { PagesType } from '@/components/admin/Pages/enum/types';
 import { ArticleType } from '@/utils/ArticleType';
 
 interface IPhotoApi {
-  uploadPhoto: (params: { entityReferenceId: number; articleType: ArticleType | GlobalSectionsType | PagesType; file: File }) => Promise<string>;
+  uploadPhoto: (params: {
+    entityReferenceId: number;
+    articleType: ArticleType | GlobalSectionsType | PagesType;
+    file: File;
+  }) => Promise<string>;
 
   uploadPhotoWithOutAttach: (params: { file: File }) => Promise<string>;
 

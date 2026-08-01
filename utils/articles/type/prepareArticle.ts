@@ -1,62 +1,67 @@
-import { EN_LOCALE } from "@/i18n";
-import { ContentBlockType } from "@/utils/articles/type/contentBlockType";
+import { EN_LOCALE } from '@/i18n';
+import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 
 export interface ContentBlock<T = unknown> {
-    contentBlockType: ContentBlockType | string;
-    translatable_text_data?: T;
-    translatable_text_editorState?: T;
-    data?: T;
+  contentBlockType: ContentBlockType | string;
+  translatable_text_data?: T;
+  translatable_text_editorState?: T;
+  data?: T;
 }
 
 export function getBlockValue<T>(
-    blocks: ContentBlock[],
-    type: ContentBlockType
+  blocks: ContentBlock[],
+  type: ContentBlockType,
 ): T | undefined {
-    const block = blocks.find(b => b.contentBlockType === type);
-    return (block?.translatable_text_editorState ?? block?.data) as T | undefined;
+  const block = blocks.find(b => b.contentBlockType === type);
+  return (block?.translatable_text_editorState ?? block?.data) as T | undefined;
 }
 
-
 export interface Article {
-    id: number;
-    title: string;
-    titleEng?: string;
-    contentBlocks: ContentBlock[];
-    contentBlocksEng?: ContentBlock[];
-    publishedAt: string;
+  id: number;
+  title: string;
+  titleEng?: string;
+  contentBlocks: ContentBlock[];
+  contentBlocksEng?: ContentBlock[];
+  publishedAt: string;
 }
 
 export interface PreparedArticle {
-    id: number;
-    title: string;
-    text: string;
-    imageSrc: string;
-    publishedAt: string;
+  id: number;
+  title: string;
+  text: string;
+  imageSrc: string;
+  publishedAt: string;
 }
-export const prepareArticle = (article: Article, locale: string = 'ua'): PreparedArticle => {
-    const isEng = EN_LOCALE;
-    const blocks = isEng === locale && article.contentBlocksEng ? article.contentBlocksEng : article.contentBlocks;
-    const title = isEng === locale ? article.titleEng ?? '' : article.title;
+export const prepareArticle = (
+  article: Article,
+  locale: string = 'ua',
+): PreparedArticle => {
+  const isEng = EN_LOCALE;
+  const blocks =
+    isEng === locale && article.contentBlocksEng
+      ? article.contentBlocksEng
+      : article.contentBlocks;
+  const title = isEng === locale ? (article.titleEng ?? '') : article.title;
 
-    const text =
-        getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
-        getBlockValue<string>(blocks, ContentBlockType.TEXT) ??
-        "";
+  const text =
+    getBlockValue<string>(blocks, ContentBlockType.MAIN_NEWS_BLOCK) ??
+    getBlockValue<string>(blocks, ContentBlockType.TEXT) ??
+    '';
 
-    const photoData = getBlockValue<string | string[]>(
-        blocks,
-        ContentBlockType.PHOTO
-    );
+  const photoData = getBlockValue<string | string[]>(
+    blocks,
+    ContentBlockType.PHOTO,
+  );
 
-    const imageSrc = Array.isArray(photoData)
-        ? photoData[0] ?? ""
-        : photoData ?? "";
+  const imageSrc = Array.isArray(photoData)
+    ? (photoData[0] ?? '')
+    : (photoData ?? '');
 
-    return {
-        id: article.id,
-        title,
-        text,
-        imageSrc,
-        publishedAt: article.publishedAt,
-    };
+  return {
+    id: article.id,
+    title,
+    text,
+    imageSrc,
+    publishedAt: article.publishedAt,
+  };
 };

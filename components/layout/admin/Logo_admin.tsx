@@ -2,15 +2,12 @@ import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
 import Link from 'next/link';
 
-
 type LogoProps = {
   textColor?: string;
 };
 
-const LogoAdmin = ({
-  textColor = 'text-font-primary'
-}: LogoProps) => {
-  const text = 'Ukrainian New Wave'
+const LogoAdmin = ({ textColor = 'text-font-primary' }: LogoProps) => {
+  const text = 'Ukrainian New Wave';
   return (
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">

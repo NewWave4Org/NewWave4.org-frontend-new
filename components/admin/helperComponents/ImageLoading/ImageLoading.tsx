@@ -86,24 +86,26 @@ function ImageLoading({
 
     setTimeout(() => {
       onFilesChange?.(updatedUrls, [url]);
-      
     }, 0);
   };
 
-  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
-    onDrop,
-    accept: {
-      'image/*': ['.jpeg', '.png', '.webp', '.jpg'],
-    },
-    maxFiles: maxFiles,
-    maxSize: MAX_FILE_SIZE,
-  });
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      onDrop,
+      accept: {
+        'image/*': ['.jpeg', '.png', '.webp', '.jpg'],
+      },
+      maxFiles: maxFiles,
+      maxSize: MAX_FILE_SIZE,
+    });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
     <div key={file.name} className="text-red-600">
       {errors.map(e => {
         if (e.code === 'file-too-large') {
-          return <p key={e.code}>{file.name} is too large. Max size is 10Mb.</p>;
+          return (
+            <p key={e.code}>{file.name} is too large. Max size is 10Mb.</p>
+          );
         }
         if (e.code === 'file-invalid-type') {
           return <p key={e.code}>{file.name} has invalid file type.</p>;
@@ -113,14 +115,17 @@ function ImageLoading({
     </div>
   ));
 
-  const showDropzone = urls.length === 0 || (urls.length < maxFiles && maxFiles > 1);
+  const showDropzone =
+    urls.length === 0 || (urls.length < maxFiles && maxFiles > 1);
 
   return (
     <div className="flex flex-col h-full">
       {label && (
         <div className="block text-medium2 mb-1 text-admin-700 ">
           {label}
-          {required && <span className="text-status-danger-500 text-body"> *</span>}
+          {required && (
+            <span className="text-status-danger-500 text-body"> *</span>
+          )}
         </div>
       )}
       {note && <p className="text-xs text-gray-500 italic my-1">{note}</p>}
@@ -133,13 +138,21 @@ function ImageLoading({
         >
           <input {...getInputProps()} />
           {loading ? (
-            <p className="text-medium2 mb-1 text-admin-700">Uploading... Please wait</p>
+            <p className="text-medium2 mb-1 text-admin-700">
+              Uploading... Please wait
+            </p>
           ) : isDragActive ? (
             <p>Drop the files here ...</p>
           ) : (
             <>
-              <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
-              <em>(Only *.jpeg, *.png, *.webp, *.jpg and 10Mb images will be accepted)</em>
+              <p>
+                Drag &apos;n&apos; drop some files here, or click to select
+                files
+              </p>
+              <em>
+                (Only *.jpeg, *.png, *.webp, *.jpg and 10Mb images will be
+                accepted)
+              </em>
             </>
           )}
         </div>
@@ -148,12 +161,32 @@ function ImageLoading({
       {fileRejectionItems}
 
       {urls.length > 0 && (
-        <div className={`${positionBlockImg ? 'h-full' : ''} ${isObjectCover ? 'overflow-hidden' : 'overflow-visible'} flex gap-2 flex-wrap `}>
+        <div
+          className={`${positionBlockImg ? 'h-full' : ''} ${isObjectCover ? 'overflow-hidden' : 'overflow-visible'} flex gap-2 flex-wrap `}
+        >
           {urls
-            .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
+            .filter(
+              (url): url is string =>
+                typeof url === 'string' && url.trim() !== '',
+            )
             .map((url, i) => (
-              <div key={i} className={clsx(`${positionBlockImg ? 'w-full' : ''} ${previewClassName} relative mt-5 mr-2`)} style={positionBlockImg ? {} : { width: `${previewSize}px`, height: `${previewSize}px` }}>
-                <Image src={url} alt={`uploaded-${i}`} fill className={`h-full w-auto ${isObjectCover ? 'object-cover' : 'object-contain p-4'} rounded-md`} />
+              <div
+                key={i}
+                className={clsx(
+                  `${positionBlockImg ? 'w-full' : ''} ${previewClassName} relative mt-5 mr-2`,
+                )}
+                style={
+                  positionBlockImg
+                    ? {}
+                    : { width: `${previewSize}px`, height: `${previewSize}px` }
+                }
+              >
+                <Image
+                  src={url}
+                  alt={`uploaded-${i}`}
+                  fill
+                  className={`h-full w-auto ${isObjectCover ? 'object-cover' : 'object-contain p-4'} rounded-md`}
+                />
                 <button
                   type="button"
                   className="absolute -top-2 -right-2 bg-red-500 text-white p-1 
@@ -167,7 +200,11 @@ function ImageLoading({
             ))}
         </div>
       )}
-      {validationText && <div className="text-status-danger-500 text-sm mt-2">{validationText}</div>}
+      {validationText && (
+        <div className="text-status-danger-500 text-sm mt-2">
+          {validationText}
+        </div>
+      )}
     </div>
   );
 }

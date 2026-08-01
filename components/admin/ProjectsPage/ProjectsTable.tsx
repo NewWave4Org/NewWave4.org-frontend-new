@@ -70,7 +70,10 @@ function ProjectsTable({
               ))}
 
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span onClick={e => handleSortByDate(e)} className="cursor-pointer">
+                <span
+                  onClick={e => handleSortByDate(e)}
+                  className="cursor-pointer"
+                >
                   Created
                   <span
                     data-value="true"
@@ -90,7 +93,10 @@ function ProjectsTable({
               </th>
 
               <th className="pb-4 px-2 border-b  border-admin-300">
-                <span onClick={e => handleStatusSort(e)} className="cursor-pointer">
+                <span
+                  onClick={e => handleStatusSort(e)}
+                  className="cursor-pointer"
+                >
                   Status
                   <span
                     data-value="true"
@@ -111,7 +117,10 @@ function ProjectsTable({
 
               <th className="pb-4 border-b  border-admin-300 flex justify-end">
                 <Link href="/admin/projects/new">
-                  <Button variant="primary" className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]">
+                  <Button
+                    variant="primary"
+                    className="flex text-font-white !bg-background-darkBlue px-[12px] py-[9px] h-auto min-w-[135px]"
+                  >
                     <div className="flex items-center mr-[12px]">
                       <PenIcon color="#fff" />
                     </div>
@@ -122,8 +131,11 @@ function ProjectsTable({
             </>
           )}
           renderRow={project => {
-            const { id, articleStatus, title, views, authorName, createdAt } = project;
-            const status = articleStatus.slice(0, 1).toUpperCase() + articleStatus.toLowerCase().slice(1);
+            const { id, articleStatus, title, views, authorName, createdAt } =
+              project;
+            const status =
+              articleStatus.slice(0, 1).toUpperCase() +
+              articleStatus.toLowerCase().slice(1);
             return (
               <>
                 <td className="min-w-[200px] max-w-[250px] pl-3 py-6">
@@ -134,20 +146,29 @@ function ProjectsTable({
 
                 <td className="px-3 py-6">
                   <div className="flex items-center justify-center gap-[10px]">
-                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">{views}</p>
+                    <p className="font-bold text-[20px] text-admin-700 line-clamp-1">
+                      {views}
+                    </p>
 
                     {/* <span className="text-sm text-grey-400">views</span> */}
                   </div>
                 </td>
 
-                <td className="px-3 py-6 text-center">{numericDate(createdAt)}</td>
+                <td className="px-3 py-6 text-center">
+                  {numericDate(createdAt)}
+                </td>
 
                 <td className="px-3 py-6">
                   <span
-                    className={clsx('flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2', {
-                      'border-status-success-500 text-status-success-500': articleStatus === ArticleStatusEnum.PUBLISHED,
-                      'border-status-danger-500 text-status-danger-500': articleStatus === ArticleStatusEnum.DRAFT,
-                    })}
+                    className={clsx(
+                      'flex items-center justify-center w-[120px] px-3 py-1 rounded-full border-2',
+                      {
+                        'border-status-success-500 text-status-success-500':
+                          articleStatus === ArticleStatusEnum.PUBLISHED,
+                        'border-status-danger-500 text-status-danger-500':
+                          articleStatus === ArticleStatusEnum.DRAFT,
+                      },
+                    )}
                   >
                     {status}
                   </span>
@@ -199,7 +220,8 @@ function ProjectsTable({
         />
       </div>
 
-      {renderPagination && renderPagination({ currentPage, totalPages, changePage })}
+      {renderPagination &&
+        renderPagination({ currentPage, totalPages, changePage })}
     </div>
   );
 }
