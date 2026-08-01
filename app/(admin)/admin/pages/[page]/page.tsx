@@ -11,7 +11,6 @@ function PageEdit() {
   const { page } = useParams();
   const router = useRouter();
 
-  console.log('pages', page);
 
   return (
     <div>

@@ -22,17 +22,16 @@ function NewsletterPage() {
   const [submitError, setSubmitError] = useState('');
 
   async function handleSubmit(data: NewsletterRequestDTO) {
-    console.log('data', data);
 
     try {
       const result = await handleThunk(sendNewsletter, data, setSubmitError);
       toast.success(result);
     } catch (error: any) {
-      console.log('error', error);
+      console.error('error', error);
       toast.error('Failed to send newsletter');
     }
 
-    console.log('submitError', submitError);
+    console.error('submitError', submitError);
   }
 
 

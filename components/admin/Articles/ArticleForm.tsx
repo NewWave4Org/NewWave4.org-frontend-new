@@ -83,7 +83,7 @@ const ArticleForm = ({ articleType }: ArticleFormProps) => {
         setProjects(mappedProjects);
       } catch (err) {
         toast.error('Failed to fetch projects');
-        console.log(err);
+        console.error(err);
       }
     };
 

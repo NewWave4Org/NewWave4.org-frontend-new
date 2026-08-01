@@ -28,7 +28,7 @@ const SocialButtons = () => {
         setSocialLinks(response);
       } catch (error) {
         setSocialLinks(null);
-        console.log('fetchSocial error', error);
+        console.error('fetchSocial error', error);
       }
     }
 

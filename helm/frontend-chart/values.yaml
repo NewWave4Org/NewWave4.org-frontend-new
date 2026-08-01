@@ -79,6 +79,31 @@ ingress:
       hosts:
         - staging.newwave4.org
 
+# Measured 2026-07-31 (issue #449), not guessed. The production image was run
+# under each limit pair and load-tested at 10 concurrent requests against /ua —
+# the full dynamic SSR homepage, i.e. the expensive path:
+#
+#   limits            throughput    p50     p99     peak memory
+#   150m / 156Mi       9.2 req/s   905ms   2103ms   89Mi  (57% of limit)
+#   500m / 512Mi      42.3 req/s   194ms    494ms   95Mi  (19% of limit)
+#
+# Two conclusions:
+#
+# 1. CPU is the binding constraint, not memory. At 150m the container sits
+#    pinned at exactly its cap (docker stats showed a flat 15% of one core =
+#    0.15 cores) and degrades to ~1s median for a homepage render. The 4.6x
+#    throughput difference is entirely CPU throttling. This is the same
+#    starvation that crash-looped the pods on 2026-07-19, when probes hit the
+#    same SSR path under the same 150m.
+#
+# 2. The working set is ~95-100Mi under load, which the live staging pods
+#    corroborate (73Mi and 98Mi via kubectl top). A 156Mi limit leaves ~36%
+#    headroom for Node's GC; 512Mi leaves the app at under a fifth of its cap.
+#
+# These committed defaults are already correctly sized. The 150m/156Mi that
+# actually runs in the cluster comes from the VALUES_YAML secret overlay, which
+# is applied on top of this file at deploy time and is invisible in this repo —
+# so fixing this file alone changes nothing. See docs/known-issues.md.
 resources:
   requests:
     cpu: 100m
@@ -115,6 +140,20 @@ readinessProbe:
   periodSeconds: 10
   timeoutSeconds: 5
 
+# NOTE (2026-07-31, issue #449): `enabled: false` here disagrees with reality.
+# An HPA has existed in the staging namespace for 306 days —
+# `kubectl -n staging get hpa` shows minReplicas 1, maxReplicas 5, both targets
+# at 80% — so it is being switched on by the VALUES_YAML secret overlay with
+# different numbers than these defaults (min 1 vs 2, CPU 80% vs 75%).
+#
+# That HPA is also mis-tuned against the current requests. It scales on
+# utilisation of *requests*, and the overlay sets requests == limits == 156Mi.
+# With a ~95-100Mi working set, memory utilisation sits near 60% at idle
+# (observed: cpu 24%/80%, memory 59%/80%), so the pods are already close to the
+# 80% memory trigger while doing almost nothing — the HPA adds replicas for
+# memory that is just Node's normal heap, rather than for real load. Restoring
+# a 256Mi request drops that to roughly 39% and lets CPU, the actual
+# constraint, drive scaling.
 autoscaling:
   enabled: false
   minReplicas: 2

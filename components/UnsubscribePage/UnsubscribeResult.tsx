@@ -22,7 +22,7 @@ function UnsubscribeResult({id}: {id: string}) {
         } catch (error: any) {
           setStatus('error');
           setErrorMessage(error?.original?.errors[0]);
-          console.log('fetchUnsubscribeResult', error);
+          console.error('fetchUnsubscribeResult', error);
         }
       }
     }

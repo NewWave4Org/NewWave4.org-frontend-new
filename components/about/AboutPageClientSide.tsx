@@ -46,12 +46,11 @@ function AboutPageClientSide() {
         });
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
           setAboutPage(null);
           return;
         }
 
-        console.log('error', error);
+        console.error('error', error);
         setAboutPage(null);
         toast.error('Failed to fetch Home page');
       }
@@ -64,12 +63,11 @@ function AboutPageClientSide() {
         setOurPartners(result);
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
           setOurPartners(null);
           return;
         }
 
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch partners');
       }
     }
@@ -81,12 +79,11 @@ function AboutPageClientSide() {
         setOurTeam(result);
       } catch (error: any) {
         if (error.original.errors[0].includes('with key') || error.original.errors[0].includes('find page')) {
-          console.log('Section does not exist yet → creating new one');
           setOurTeam(null);
           return;
         }
 
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch Our Team');
       }
     }

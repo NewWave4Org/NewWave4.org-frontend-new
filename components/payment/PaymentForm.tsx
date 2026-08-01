@@ -53,7 +53,6 @@ const PaymentForm = () => {
   // const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
-    console.log('paymentDetails', paymentDetails);
     const baseUrl =
       paymentDetails.paymentMethod === 'paypal'
         ? 'payments/paypal/checkout-session'
@@ -81,7 +80,7 @@ const PaymentForm = () => {
         setLoading(false);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.error('error', error);
       alert(error?.response?.data?.message);
       setLoading(false);
     }

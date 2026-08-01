@@ -32,7 +32,7 @@ function ProgramPreviewPage() {
 
         setProgram(result);
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch project');
       } finally {
         setLoadingProgram(false);

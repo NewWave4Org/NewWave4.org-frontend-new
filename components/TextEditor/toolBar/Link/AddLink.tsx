@@ -7,19 +7,15 @@ export function addLink(
 ): EditorState {
   const contentState = editorState.getCurrentContent();
 
-  console.log('selection isCollapsed:', selection.isCollapsed());
-  console.log('selection start:', selection.getStartOffset(), 'end:', selection.getEndOffset());
 
   const contentWithEntity = contentState.createEntity('LINK', 'MUTABLE', { url });
   const entityKey = contentWithEntity.getLastCreatedEntityKey();
 
-   console.log('entityKey:', entityKey);
 
   const newContent = Modifier.applyEntity(contentWithEntity, selection, entityKey);
 
   const newState = EditorState.set(editorState, { currentContent: newContent });
 
-  console.log('raw after:', convertToRaw(newState.getCurrentContent()));
 
 
   return EditorState.set(editorState, { currentContent: newContent });

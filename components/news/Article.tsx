@@ -16,7 +16,7 @@ import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import { EN_LOCALE } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
-import EmblaCarousel, { SliderCarousel } from '../ui/EmblaCarousel';
+import SlickCarousel, { SliderCarousel } from '../ui/SlickCarousel';
 import { ArticleStatusEnum, ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import { GetArticleByIdResponseDTO, IArticleBody } from '@/utils/article-content/type/interfaces';
 import { toast } from 'react-toastify';
@@ -68,7 +68,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
         setDopPrograms(result?.content);
       } catch (error) {
-        console.log('error', error);
+        console.error('error', error);
         toast.error('Failed to fetch project');
       }
     }
@@ -253,7 +253,7 @@ export default function Article({ articleType, initialArticleData }: { articleTy
 
         {slides.files?.length > 2 && (
           <div className="mb-[55px]">
-            <EmblaCarousel 
+            <SlickCarousel 
               slides={slides}  
               dots={true} 
               showArrows={true} 
