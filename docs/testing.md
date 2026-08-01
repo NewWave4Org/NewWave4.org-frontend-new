@@ -51,4 +51,12 @@ These are draft-js/dropzone-heavy forms with a lot of orchestration logic packed
 
 ## Coverage philosophy
 
-No hard coverage percentage gate yet — there's no baseline to set a meaningful floor against. `test:coverage` runs in CI and uploads the `coverage/` directory as a build artifact on every run, so trend is visible without blocking anything. Revisit introducing a numeric floor (via `vitest.config.ts`'s `coverage.thresholds`) after a few months of real usage.
+**A coverage floor is now enforced** (issue #462), and adding it corrected a much bigger problem than the missing gate.
+
+Coverage previously reported **~55–61%**, including on the public status page. That number was measured only over files a test happened to import — `vitest.config.ts` had no `coverage.include`, so v8 reported on loaded files only. With 371 source files in the repo, most were simply absent from the denominator. It also moved the wrong way: deleting tests *raised* the figure, because the survivors were the well-covered ones, and adding a large untested surface did not move it at all.
+
+Setting `coverage.include` to the source tree gives the honest number: **7.61% statements, 6.4% branches, 4.88% functions, 7.84% lines** (336 of 4414 statements), measured 2026-07-31. Nothing got worse — the denominator got real. Expect the status-page figure to drop accordingly.
+
+`coverage.thresholds` is set just below each measured value, so coverage cannot fall without failing the build. Raise them as coverage improves; never lower them to make a build pass.
+
+`--passWithNoTests` was also removed from the `test` and `test:coverage` scripts. It dated from before any tests existed and meant a repo with zero tests exited 0. Verified end to end: with all 13 unit-test files removed the build now fails with `Coverage for lines (0%) does not meet global threshold (7%)`, where previously it passed cleanly.
