@@ -4,6 +4,17 @@ name: Quality Gates
 # Called by ci.yml (feature/fix branches, PRs) and release.yml (main/development pushes).
 on:
   workflow_call:
+    inputs:
+      run_full:
+        description: >-
+          When false, every job below still runs and reports its check, but does
+          no work. Used for documentation-only pull requests (see ci.yml).
+          The jobs must not be skipped outright: three of their check names are
+          required by branch protection, and a job that never exists never
+          reports, leaving the PR blocked on a check that can never arrive.
+        type: boolean
+        required: false
+        default: true
 
 jobs:
   casing-guard:
@@ -11,9 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
+        if: inputs.run_full
         uses: actions/checkout@v7
 
       - name: Guard mis-cased import paths
+        if: inputs.run_full
         run: |
           set -e
           bad=0
@@ -38,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
+        if: inputs.run_full
         uses: actions/checkout@v7
 
       # eslint.config.mjs carries a matching no-console rule, but `npm run lint`
@@ -52,6 +66,7 @@ jobs:
       # scripts/ and e2e/ are excluded -- Node CLI tools and test harnesses
       # where writing to stdout is the entire point.
       - name: Guard against console.log/console.info in shipped code
+        if: inputs.run_full
         run: |
           set -e
           if grep -RInE "console\.(log|info)\s*\(" \
@@ -68,10 +83,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
+        if: inputs.run_full
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
+        if: inputs.run_full
       # `format:check` existed but was wired into no workflow, so 320 files had
       # drifted out of style with nothing to catch it (issue #455). Blocking
       # from the start: the tree was formatted in the same PR that added this,
@@ -81,6 +98,7 @@ jobs:
       # templating is not valid YAML and Prettier throws a hard SyntaxError on
       # it, which would make this job unpassable.
       - name: Check formatting
+        if: inputs.run_full
         run: npm run format:check
 
   typecheck:
@@ -89,14 +107,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
+        if: inputs.run_full
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
+        if: inputs.run_full
       # Blocking since 2026-07-31: the 36-error backlog that forced
       # continue-on-error is paid off (issue #453) and the tree is clean, so
       # this is now the ratchet — any new type error fails the build.
       - name: Type check
+        if: inputs.run_full
         run: npx tsc --noEmit
 
   lint:
@@ -105,14 +126,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
+        if: inputs.run_full
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
+        if: inputs.run_full
       # Non-blocking: typescript@7.0.2 is incompatible with eslint-config-next's
       # bundled typescript-eslint (upstream blocker, see CLAUDE.md and
       # docs/decisions/0003-lint-non-blocking-pending-ts7-support.md).
       - name: Lint (non-blocking, see docs/known-issues.md)
+        if: inputs.run_full
         continue-on-error: true
         run: npx eslint .
 
@@ -122,13 +146,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
+        if: inputs.run_full
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
+        if: inputs.run_full
       - run: npm run test:coverage
+        if: inputs.run_full
       - name: Upload coverage
-        if: always()
+        if: always() && inputs.run_full
         uses: actions/upload-artifact@v7
         with:
           name: coverage
@@ -162,13 +189,15 @@ jobs:
       HAS_SECRETS: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL != '' }}
     steps:
       - name: Checkout Repository
+        if: inputs.run_full
         uses: actions/checkout@v7
 
       - name: Set Org Lowercase
+        if: inputs.run_full
         uses: ./.github/actions/set-org-lowercase
 
       - name: Generate .env file
-        if: env.HAS_SECRETS == 'true'
+        if: env.HAS_SECRETS == 'true' && inputs.run_full
         uses: ./.github/actions/generate-env
         with:
           paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
@@ -184,15 +213,17 @@ jobs:
       # It cannot mask a missing production secret, because this job only builds
       # (`push: false`) — nothing published or deployed comes from here.
       - name: Use committed CI placeholders (no secrets on Dependabot/fork PRs)
-        if: env.HAS_SECRETS != 'true'
+        if: env.HAS_SECRETS != 'true' && inputs.run_full
         run: |
           echo "::notice::No repo secrets available (Dependabot or fork PR) — building with .env.ci placeholders."
           cp .env.ci .env
 
       - name: Set up Docker Buildx
+        if: inputs.run_full
         uses: docker/setup-buildx-action@v4
 
       - name: Docker build for testing
+        if: inputs.run_full
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -209,6 +240,7 @@ jobs:
             IMAGE_TAG=${{ github.sha }}
 
       - name: Docker image smoke test
+        if: inputs.run_full
         env:
           EXPECTED_COMMIT: ${{ github.sha }}
         run: |
