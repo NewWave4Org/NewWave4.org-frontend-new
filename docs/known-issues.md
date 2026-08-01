@@ -75,7 +75,25 @@ Shortly after the first `1.0.0` deploy to staging (2026-07-19), pods crash-loope
 
 Mitigated immediately with a direct `kubectl patch` against the live Deployment (probe path → `/robots.txt`, `timeoutSeconds: 5`), then fixed properly in `helm/frontend-chart/values.yaml` so it's baked into the chart for future releases — see the comment directly above the `livenessProbe`/`readinessProbe` block for the reasoning. `/robots.txt` is a statically prerendered route, outside `middleware.ts`'s matcher entirely, so it's a cheap, backend-independent "is this process alive" check.
 
-Not otherwise addressed here: the `150m` CPU / `156Mi` memory limit for staging (set via the `VALUES_YAML` secret, not this repo) is genuinely tight for a Node.js SSR app and may be worth revisiting separately if slow responses recur even against the lightweight probe path.
+### The resource limits behind it — measured 2026-07-31 (issue #449)
+
+The `150m` CPU / `156Mi` memory limit was left unexamined at the time. It has now been measured rather than guessed: the production image was run under each limit pair and load-tested at 10 concurrent requests against `/ua`, the full dynamic SSR homepage.
+
+| limits          | throughput   | p50   | p99    | peak memory        |
+| --------------- | ------------ | ----- | ------ | ------------------ |
+| `150m`/`156Mi`  | 9.2 req/s    | 905ms | 2103ms | 89Mi (57% of cap)  |
+| `500m`/`512Mi`  | 42.3 req/s   | 194ms | 494ms  | 95Mi (19% of cap)  |
+
+**CPU is the binding constraint, not memory.** At `150m` the container sits pinned at exactly its cap and degrades to ~1s median for a homepage render; the 4.6× throughput difference is entirely CPU throttling. That is the same starvation that crash-looped the pods above — the probe fix addressed the symptom, not this.
+
+The working set is ~95–100Mi under load, corroborated by the live pods (`kubectl top`: 73Mi and 98Mi). So `156Mi` is not immediately fatal, but leaves only ~36% headroom for Node's GC.
+
+**Two things follow, and neither is fixable from this repo alone:**
+
+1. `helm/frontend-chart/values.yaml` already specifies `100m`/`256Mi` requests and `500m`/`512Mi` limits — correctly sized. The `150m`/`156Mi` that actually runs comes from the **`VALUES_YAML` secret overlay**, applied on top at deploy time and invisible here. Editing the committed defaults changes nothing until that secret is updated.
+2. The staging HPA (306 days old: min 1, max 5, both targets 80%) is mis-tuned against those requests. It scales on utilisation of *requests*, and the overlay sets requests == limits == `156Mi`; with a ~95–100Mi working set, memory sits near 60% at idle (observed `cpu: 24%/80%, memory: 59%/80%`). The HPA therefore adds replicas for what is just Node's normal heap. Restoring a `256Mi` request drops that to ~39% and lets CPU — the real constraint — drive scaling.
+
+**Cluster headroom is the limiting factor on how far these can be raised.** All three nodes are 4 CPU / ~4009Mi with memory already at 70–81% used. The `100m`/`256Mi` *requests* are schedulable today; the `500m` limit is burst capacity, not reserved. Anything substantially larger, multiplied by an HPA that can reach 5 replicas, would not fit.
 
 ## Deploy-drift detection samples one replica, and "running since" is not deploy time
 
