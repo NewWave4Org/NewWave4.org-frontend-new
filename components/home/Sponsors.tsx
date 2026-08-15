@@ -16,19 +16,19 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
           <h4 className="lg:mb-0 mb-4 !text-font-primary font-bold text-[34px] lora-family uppercase">
             {t('sections_title.trust_us')}
           </h4>
-          <div className="flex items-center flex-wrap">
+          <div className="flex items-center flex-wrap justify-between">
             {ourPartners?.map((item, index) =>
               item.files.map((img, imgIndex) => (
                 <div
                   key={item.id}
-                  className="relative p-4 w-full sm:w-1/2 md:w-1/4"
+                  className="relative p-4 w-full sm:w-1/2 md:w-1/6"
                 >
                   <Image
                     key={`${item.id}-${imgIndex}`}
                     className="w-full h-auto object-contain"
                     src={img}
                     alt={`Logo-${index}`}
-                    width={200}
+                    width={150}
                     height={100}
                   />
                 </div>
