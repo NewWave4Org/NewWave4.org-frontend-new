@@ -19,6 +19,8 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
+  font-size: 18px;
+  line-height: 1.6px;
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,

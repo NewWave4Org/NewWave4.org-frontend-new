@@ -13,7 +13,7 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
     <section className="sponsors lg:py-14 py-7">
       <section className="container mx-auto px-4">
         <div className="sponsors__inner">
-          <h4 className="lg:mb-0 mb-4 !text-font-primary font-bold text-[34px] font-ebGaramond uppercase">
+          <h4 className="lg:mb-0 mb-4 !text-font-primary font-bold text-[34px] lora-family uppercase">
             {t('sections_title.trust_us')}
           </h4>
           <div className="flex items-center flex-wrap">

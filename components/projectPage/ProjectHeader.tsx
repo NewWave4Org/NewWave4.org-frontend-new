@@ -9,7 +9,7 @@ const ProjectHeader = ({
     <div className={`lg:mb-[40px] mb-[20px] ${className}`}>
       <div className="projectsBlock__header bg-skyBlue-300">
         <div className="container mx-auto px-4">
-          <div className="text-3xl lg:text-h2 font-ebGaramond projectsBlock__title text-center max-w-[830px] mx-auto py-[38px] text-font-primary ">
+          <div className="text-[38px] lg:text-h2 lora-family projectsBlock__title text-center max-w-[830px] mx-auto py-[38px] font-bold text-font-primary ">
             {title}
           </div>
         </div>

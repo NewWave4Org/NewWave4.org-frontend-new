@@ -35,7 +35,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
   return (
     <section className="our-mission lg:py-14 py-7 lg:mb-20 mb-10 bg-skyBlue-300">
       <div className="container mx-auto px-4">
-        <h3 className="section-title text-h3 text-center text-font-accent mb-10 font-bold font-ebGaramond">
+        <h3 className="section-title text-[38px] text-center text-font-accent mb-10 font-bold lora-family">
           {t('sections_title.our_mission')}
         </h3>
         <div className="flex flex-col items-baseline gap-6 md:flex-row md:justify-between">
@@ -61,7 +61,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
                     className="mb-4"
                   />
                 </span>
-                <h4 className="mb-3 text-h5 font-ebGaramond">
+                <h4 className="mb-3 text-h4 lora-family">
                   {item.translatable_text_title}
                 </h4>
                 {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}

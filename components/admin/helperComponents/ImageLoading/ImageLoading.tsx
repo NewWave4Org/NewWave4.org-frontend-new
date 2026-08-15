@@ -189,7 +189,7 @@ function ImageLoading({
                 />
                 <button
                   type="button"
-                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 
+                  className="absolute -top-2 -right-2 bg-red-500! text-white p-1 
                 flex items-center justify-center rounded-full text-xl w-8 h-8
                 hover:bg-red-900 duration-500 font-bold"
                   onClick={() => handleDelete(url)}

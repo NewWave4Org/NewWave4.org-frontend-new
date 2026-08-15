@@ -13,7 +13,7 @@ import { ArticleFull } from '@/utils/articles/type/interface';
 
 import { useParams } from 'next/navigation';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
-import { EN_LOCALE } from '@/i18n';
+import { EN_LOCALE, Link, useRouter } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
 import { getAllArticle, getArticleById } from '@/store/article-content/action';
 import SlickCarousel, { SliderCarousel } from '../ui/SlickCarousel';
@@ -28,6 +28,8 @@ import {
 } from '@/utils/article-content/type/interfaces';
 import { toast } from 'react-toastify';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
+import Button from '../shared/Button';
+import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
 
 export default function Article({
   articleType,
@@ -37,6 +39,7 @@ export default function Article({
   initialArticleData?: GetArticleByIdResponseDTO | null;
 }) {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const params = useParams();
   const locale = useLocale();
@@ -163,6 +166,15 @@ export default function Article({
   return (
     <div className="article_page pt-12">
       <div className="container px-4 mx-auto">
+        <div className='mb-5'>
+          <Button
+            onClick={() => router.back()}
+            className="shadow-md rounded-3xl! bg-white py-2.5! px-5! flex items-center text-primary-700 hover:shadow-admin-700 hover:bg-white h-10! duration-500 cursor-pointer"
+          >
+            <ArrowLeft4Icon  className='text-primary-700 hover:text-white' />
+            {articleType === ArticleTypeEnum.NEWS ? 'Back to News' : 'Back to Events'}
+          </Button>
+        </div>
         <div className="flex lg:items-stretch items-start lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
           {article.mainPhoto?.[0] && (
             <div className="lg:max-w-[718px] lg:mb-0 mb-6 md:min-h-[365px] flex-1 w-full relative overflow-hidden">
@@ -203,7 +215,7 @@ export default function Article({
                         {t('news_events.author')}
                       </span>
                     </div>
-                    <div className="text-font-primary text-small">
+                    <div className="text-blue-600 text-small">
                       {article.authorName}
                     </div>
                   </>
