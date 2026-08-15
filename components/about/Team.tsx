@@ -23,7 +23,7 @@ const Team = ({ ourTeam }: { ourTeam: ourTeamProps[] }) => {
   return (
     <section className="team md:py-14 md:my-20 py-7 my-10 bg-skyBlue-300">
       <div className="container px-4 mx-auto">
-        <h4 className="preheader mb-10 max-w-[1248px] text-center md:text-left mx-auto !text-font-primary">
+        <h4 className="text-2xl font-bold mb-10 uppercase max-w-[1248px] text-center md:text-left mx-auto lora-family !text-font-primary">
           {t('sections_title.our_team')}
         </h4>
         <div className="">

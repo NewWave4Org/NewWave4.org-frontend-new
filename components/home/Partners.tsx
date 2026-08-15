@@ -29,7 +29,7 @@ const Partners: React.FC<PartnersProps> = ({
     <section className={`${className} sponsors py-14`}>
       <div className="container mx-auto px-4">
         <div className="sponsors__inner">
-          <h4 className="lg:mb-0 mb-4 !text-font-primary font-ebGaramond font-bold text-[34px] uppercase">
+          <h4 className="lg:mb-0 mb-4 !text-font-primary lora-family font-bold text-[34px] uppercase">
             {t('sections_title.become_partner')}
           </h4>
           <div className="flex gap-x-[108px] lg:flex-row flex-col">

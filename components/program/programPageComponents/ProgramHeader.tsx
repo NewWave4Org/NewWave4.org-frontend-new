@@ -15,25 +15,23 @@ function ProgramHeader({
   pageBanner,
 }: IProgramHeader) {
   const overlayClasses = pageBanner
-    ? 'after:content-[""] after:absolute after:inset-0 after:z-[1] after:bg-[rgba(0,0,0,0.2)]'
+    ? 'after:content-[""] after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(to_right,#0F1B40_0%,#0F1B40_0%,rgba(15,27,64,0.8)_50%,rgba(15,27,64,0.25)_80%,transparent_90%)]'
     : '';
   return (
     <section
-      className={`${classNameParent} relative ${overlayClasses} min-h-[420px] md:min-h-[420px] flex items-end justify-start text-white`}
+      className={`${classNameParent} ${overlayClasses} relative min-h-[177px] md:min-h-[177px] flex items-center text-white page-banner`}
     >
       <Image
-        src={`${pageBanner && pageBanner?.length > 0 ? pageBanner : `${prefix}/hero/about.svg`}`}
+        src={`${pageBanner && pageBanner?.length > 0 ? pageBanner : `${prefix}/programs/program.png`}`}
         alt={title || ''}
         fill
         className="object-cover"
         priority
       />
-      <div className="container mx-auto px-4">
-        <div className={`${classNametext} relative z-10 pb-16 w-1/2`}>
-          <h1 className="font-bold text-3xl lg:text-h1 font-ebGaramond">
-            {title}
-          </h1>
-        </div>
+      <div className="container mx-auto px-4 relative z-10">
+        <h1 className="font-bold text-[45px] lg:text-h1 lora-family uppercase page-banner__title relative">
+          {title}
+        </h1>
       </div>
     </section>
   );
