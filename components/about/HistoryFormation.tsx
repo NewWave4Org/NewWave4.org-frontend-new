@@ -16,7 +16,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
   return (
     <section className="history-formation py-14">
       <div className="history-formation__inner">
-        <h4 className="preheader mb-14 text-center md:text-left container px-4 mx-auto !text-font-primary">
+        <h4 className="mb-14 text-center md:text-left container px-4 mx-auto !text-font-primary lora-family text-2xl font-bold uppercase">
           {t('sections_title.history_formation')}
         </h4>
 

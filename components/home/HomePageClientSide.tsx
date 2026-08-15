@@ -105,7 +105,7 @@ function HomePageClientSide({
 
         setOurPartners(result);
       } catch (error: any) {
-        console.error('error', error);
+        console?.error('error', error);
         toast.error('Failed to fetch partners');
         setOurPartners(null);
       }

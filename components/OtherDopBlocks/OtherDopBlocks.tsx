@@ -22,7 +22,7 @@ function OtherDopBlocks({
   return (
     <div className="program-block-dop lg:mt-[80px] mt-10">
       <div className="container mx-auto px-4">
-        <h4 className="font-medium text-h5 uppercase !text-font-primary lg:mb-10 mb-6">
+        <h4 className="lora-family text-2xl font-bold uppercase !text-font-primary lg:mb-10 mb-6">
           {t(title)}
         </h4>
 

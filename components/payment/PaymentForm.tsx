@@ -344,7 +344,7 @@ const PaymentForm = () => {
                     router.push('/');
                   }}
                 >
-                  Cancel and go back to Homepage
+                  ← Back to Home
                 </Button>
               </div>
 
