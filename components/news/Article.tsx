@@ -166,13 +166,15 @@ export default function Article({
   return (
     <div className="article_page pt-12">
       <div className="container px-4 mx-auto">
-        <div className='mb-5'>
+        <div className="mb-5">
           <Button
             onClick={() => router.back()}
             className="shadow-md rounded-3xl! bg-white py-2.5! px-5! flex items-center text-primary-700 hover:shadow-admin-700 hover:bg-white h-10! duration-500 cursor-pointer"
           >
-            <ArrowLeft4Icon  className='text-primary-700 hover:text-white' />
-            {articleType === ArticleTypeEnum.NEWS ? 'Back to News' : 'Back to Events'}
+            <ArrowLeft4Icon className="text-primary-700 hover:text-white" />
+            {articleType === ArticleTypeEnum.NEWS
+              ? 'Back to News'
+              : 'Back to Events'}
           </Button>
         </div>
         <div className="flex lg:items-stretch items-start lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[56px]">
