@@ -7,6 +7,9 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { SampleNextArrow, SamplePrevArrow } from './SlickSlider/Arrows/Arrows';
 import SliderDots from './SlickSlider/Dots/SliderDots';
+import { useEffect } from 'react';
+
+import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
 export interface SliderCarousel {
   files: string[];
@@ -29,6 +32,8 @@ interface ISlickCarouselProps extends Settings {
   responsive?: any[];
   variableWidth?: boolean;
   parentClass?: string;
+  zoomIcon?: boolean;
+  fancyBoxGallery?: boolean;
 }
 
 const SlickCarousel = ({
@@ -48,6 +53,8 @@ const SlickCarousel = ({
   responsive = [],
   variableWidth = false,
   parentClass = '',
+  zoomIcon = false,
+  fancyBoxGallery = false,
 }: ISlickCarouselProps) => {
   const settings = {
     className: 'h-full',
@@ -72,6 +79,15 @@ const SlickCarousel = ({
     responsive: responsive,
   };
 
+  useEffect(() => {
+    if (!fancyBoxGallery) return;
+    return () => {
+      import('@fancyapps/ui/dist/fancybox/').then(({ Fancybox }) => {
+        Fancybox.close();
+      });
+    };
+  }, [fancyBoxGallery]);
+
   return (
     <section className="relative group/arrows">
       <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
@@ -82,13 +98,50 @@ const SlickCarousel = ({
               key={index}
             >
               <div className={`h-full ${slideStyles}`}>
-                <Image
-                  key={index}
-                  src={slide}
-                  alt={`slider-${index}`}
-                  fill
-                  className={`rounded-xl object-contain ${customStyle}`}
-                />
+                {fancyBoxGallery ? (
+                  <>
+                    <a
+                      href={slide}
+                      onClick={e => {
+                        e.preventDefault();
+                        import('@fancyapps/ui/dist/fancybox/').then(
+                          ({ Fancybox }) => {
+                            Fancybox.show(
+                              slides.files.map(src => ({ src, type: 'image' })),
+                              {
+                                startIndex: index,
+                                Carousel: {
+                                  Thumbs: false,
+                                },
+                              },
+                            );
+                          },
+                        );
+                      }}
+                    >
+                      <Image
+                        src={slide}
+                        alt={`slider-${index}`}
+                        fill
+                        className={`rounded-xl object-contain ${customStyle}`}
+                      />
+                      {zoomIcon && (
+                        <button type="button" className="zoomIn__btn">
+                          <svg className="zoomIn__icon" width="24" height="24">
+                            <use href="/icons/zoom-in-icon.svg#zoom-in"></use>
+                          </svg>
+                        </button>
+                      )}
+                    </a>
+                  </>
+                ) : (
+                  <Image
+                    src={slide}
+                    alt={`slider-${index}`}
+                    fill
+                    className={`rounded-xl object-contain ${customStyle}`}
+                  />
+                )}
               </div>
             </div>
           ))}
