@@ -9,7 +9,7 @@ import { SampleNextArrow, SamplePrevArrow } from './SlickSlider/Arrows/Arrows';
 import SliderDots from './SlickSlider/Dots/SliderDots';
 import { useEffect } from 'react';
 
-import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
 export interface SliderCarousel {
   files: string[];
@@ -54,7 +54,7 @@ const SlickCarousel = ({
   variableWidth = false,
   parentClass = '',
   zoomIcon = false,
-  fancyBoxGallery = false
+  fancyBoxGallery = false,
 }: ISlickCarouselProps) => {
   const settings = {
     className: 'h-full',
@@ -80,54 +80,67 @@ const SlickCarousel = ({
   };
 
   useEffect(() => {
-    if (!fancyBoxGallery) return
+    if (!fancyBoxGallery) return;
     return () => {
       import('@fancyapps/ui/dist/fancybox/').then(({ Fancybox }) => {
-        Fancybox.close()
-      })
-    }
-  }, [fancyBoxGallery])
+        Fancybox.close();
+      });
+    };
+  }, [fancyBoxGallery]);
 
   return (
     <section className="relative group/arrows">
       <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
         <Slider {...settings}>
           {slides?.files.map((slide, index) => (
-            <div className={`${customStyle} relative group/slide group`} key={index}>
+            <div
+              className={`${customStyle} relative group/slide group`}
+              key={index}
+            >
               <div className={`h-full ${slideStyles}`}>
                 {fancyBoxGallery ? (
                   <>
                     <a
                       href={slide}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        import('@fancyapps/ui/dist/fancybox/').then(({ Fancybox }) => {
-                          Fancybox.show(
-                            slides.files.map(src => ({ src, type: 'image' })),
-                            { 
-                              startIndex: index,
-                              Carousel: {
-                                Thumbs: false,
-                              }
-                            }
-                          )
-                        })
+                      onClick={e => {
+                        e.preventDefault();
+                        import('@fancyapps/ui/dist/fancybox/').then(
+                          ({ Fancybox }) => {
+                            Fancybox.show(
+                              slides.files.map(src => ({ src, type: 'image' })),
+                              {
+                                startIndex: index,
+                                Carousel: {
+                                  Thumbs: false,
+                                },
+                              },
+                            );
+                          },
+                        );
                       }}
                     >
-                      <Image src={slide} alt={`slider-${index}`} fill className={`rounded-xl object-contain ${customStyle}`} />
+                      <Image
+                        src={slide}
+                        alt={`slider-${index}`}
+                        fill
+                        className={`rounded-xl object-contain ${customStyle}`}
+                      />
                       {zoomIcon && (
-                        <button
-                          type="button"
-                          className="zoomIn__btn"
-                        >
-                          <svg className="zoomIn__icon" width="24" height="24"><use href="/icons/zoom-in-icon.svg#zoom-in"></use></svg>
+                        <button type="button" className="zoomIn__btn">
+                          <svg className="zoomIn__icon" width="24" height="24">
+                            <use href="/icons/zoom-in-icon.svg#zoom-in"></use>
+                          </svg>
                         </button>
                       )}
                     </a>
-                    
                   </>
                 ) : (
-                  <Image src={slide} alt={`slider-${index}`} fill className={`rounded-xl object-contain ${customStyle}`} />
+                  <Image
+                    src={slide}
+                    alt={`slider-${index}`}
+                    fill
+                    className={`rounded-xl object-contain ${customStyle}`}
+                  />
                 )}
               </div>
             </div>
