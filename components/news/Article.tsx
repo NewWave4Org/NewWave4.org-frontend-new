@@ -300,10 +300,11 @@ export default function Article({
               dots={true}
               showArrows={true}
               centerMode={true}
-              variableWidth={true}
-              parentClass="article-slider"
-              slideStyles="mx-2 relative"
+              slidesToShow={3}
+              slideStyles="mx-2 relative photo-gallery"
               customStyle="h-[370px]"
+              fancyBoxGallery={true}
+              zoomIcon={true}
             />
           </div>
         )}
