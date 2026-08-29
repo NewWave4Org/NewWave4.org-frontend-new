@@ -470,6 +470,25 @@ p a {
   transform: translateY(-50%);
   background: url('/banner-before.svg') no-repeat;
 }
+
+.photo-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.zoomIn__btn {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 12px;
+  border-radius: 15px;
+  right: 15px;
+  bottom: 15px;
+  cursor: pointer;
+}
+
+.zoomIn__icon {
+  fill: white;
+}
 @media (max-width: 576px) {
   .home-main-title {
     font-size: 55px;
@@ -478,5 +497,14 @@ p a {
     position: static;
     margin-top: 15px;
     display: block;
+  }
+}
+
+@media (max-width: 991px) {
+  .page-banner__title {
+    padding-left: 70px;
+  }
+  .page-banner__title:before {
+    left: -100px;
   }
 }
