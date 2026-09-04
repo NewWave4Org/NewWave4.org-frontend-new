@@ -29,6 +29,17 @@ Production is **never** auto-deployed. To promote a specific, already-published 
 3. The workflow refuses anything that isn't an exact `X.Y.Z` semver for `namespace: production` — `latest`, `pr-*`, and `*-dev.*` tags are all rejected by design, so production can never accidentally run an untagged or prerelease build.
 4. If a `production` GitHub Environment with required reviewers has been configured (see [ci-cd.md](./ci-cd.md) prerequisite #3), the run pauses for approval before deploying.
 
+## When a merge to `main` publishes nothing
+
+`semantic-release` only counts Conventional Commits. If a promotion PR is merged with a **merge commit** instead of a squash, it analyzes the individual commits it brought in — and subjects like `feature: added Fancybox` or `fix slider` (no `fix:` prefix) match nothing, so the run ends with "no relevant changes, so no new version is released". The `Release` run is green, but `docker-publish`, `helm-publish` and `deploy-staging` all show as **skipped**, no image exists for that commit, and `:latest` still points at the previous release. This happened for PR #527 on 2026-08-29.
+
+Two ways out:
+
+1. **Preferred — cut a real version.** Land a conventional commit on `development` and promote it, e.g. `git commit --allow-empty -m "fix: release <what the skipped merge contained>"`. This produces a proper `X.Y.Z` tag, image and chart, and staging auto-deploys as usual.
+2. **Immediate — force a build.** Actions → Release → Run workflow, branch `main`, tick **`force_build`**. `docker-publish` then builds `main`'s HEAD tagged `<package.json version>-<short sha>` (e.g. `1.4.0-767dc58`), re-aliases `:latest` to it, and `deploy-staging` rolls it out using the chart version already in `helm/frontend-chart/Chart.yaml` (which must already be published — it is, whenever `main` last released normally). No git tag, GitHub Release or chart is produced, and the next conventional commit still computes its version from the last real tag. The status page will report staging as running an "unrecognised version" until a real release follows — that is accurate, not a bug. `force_build` never reaches production: `deploy-to-kubernetes.yml` rejects non-`X.Y.Z` image tags there.
+
+If `force_build` is ticked on a run that _does_ find a releasable commit, the normal versioned path wins and the `-<sha>` tag is not used.
+
 ## Handling a bad release
 
 - **Bad code already deployed to staging**: promote a previous known-good `X.Y.Z` version to staging the same way as a production promotion, just with `namespace: staging`.

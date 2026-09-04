@@ -23,10 +23,28 @@ name: Release
 #
 # Keeping the dispatch regardless: it costs nothing and is the recovery path for
 # any future case where a push doesn't produce the release it should.
+#
+# The `force_build` input covers the *other* silent-skip: a push that DID run
+# Release, but where semantic-release found no releasable commit (merge commits,
+# `feature:` / bare `fix slider` subjects) and so published nothing -- leaving
+# docker-publish, helm-publish and deploy-staging all `skipped` and `:latest`
+# pointing at the previous release. Happened for real on 2026-08-29 (PR #527).
+# With force_build, docker-publish builds the branch HEAD anyway, tagged
+# `<package.json version>-<short sha>` (never a semver that could collide with
+# a real release), re-aliases `:latest` on main, and deploy-staging rolls it
+# out against the already-published chart version from Chart.yaml. No tag,
+# GitHub Release or chart is produced -- the next conventional commit still
+# cuts the real version.
 on:
   push:
     branches: [main, development]
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Build and push a Docker image from the branch HEAD even if semantic-release publishes nothing (tag: <version>-<sha>; on main also re-aliases :latest and deploys staging)'
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: release-${{ github.ref }}
@@ -72,6 +90,13 @@ jobs:
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
       new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      # What docker-publish / deploy-staging actually consume. On a real
+      # release these equal new_release_version; on a force_build dispatch
+      # they fall back to `<package.json version>-<short sha>` for the image
+      # and Chart.yaml's version for the chart. See the `resolve` step.
+      publish_image: ${{ steps.resolve.outputs.publish_image }}
+      image_tag: ${{ steps.resolve.outputs.image_tag }}
+      chart_version: ${{ steps.resolve.outputs.chart_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -102,10 +127,44 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_ADMIN_TOKEN }}
 
+      # Decide what, if anything, to build. Runs after semantic-release so a
+      # force_build dispatch that *does* find a releasable commit still takes
+      # the normal versioned path rather than a `-<sha>` build.
+      - name: Resolve image tag and chart version
+        id: resolve
+        env:
+          RELEASED: ${{ steps.semantic.outputs.new_release_published }}
+          RELEASED_VERSION: ${{ steps.semantic.outputs.new_release_version }}
+          FORCE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.force_build == true }}
+        run: |
+          set -euo pipefail
+          if [ "$RELEASED" = "true" ]; then
+            echo "publish_image=true" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${RELEASED_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "chart_version=${RELEASED_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "Release ${RELEASED_VERSION} published -- versioned build."
+          elif [ "$FORCE_BUILD" = "true" ]; then
+            PKG_VERSION=$(node -p "require('./package.json').version")
+            CHART_VERSION=$(sed -nE 's/^version:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/p' helm/frontend-chart/Chart.yaml)
+            SHORT_SHA=$(git rev-parse --short=7 HEAD)
+            if [ -z "$PKG_VERSION" ] || [ -z "$CHART_VERSION" ]; then
+              echo "::error::Could not read package.json version ('${PKG_VERSION}') or Chart.yaml version ('${CHART_VERSION}')."
+              exit 1
+            fi
+            IMAGE_TAG="${PKG_VERSION}-${SHORT_SHA}"
+            echo "publish_image=true" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+            echo "chart_version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "::notice::No release published; force_build set -- building image ${IMAGE_TAG} against chart ${CHART_VERSION} (must already be in GHCR)."
+          else
+            echo "publish_image=false" >> "$GITHUB_OUTPUT"
+            echo "No release published and force_build not set -- nothing to build."
+          fi
+
   docker-publish:
     name: docker-publish
     needs: release
-    if: needs.release.outputs.new_release_published == 'true'
+    if: needs.release.outputs.publish_image == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -161,10 +220,14 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.new_release_version }}
+          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.image_tag }}
+          # APP_VERSION deliberately gets the full tag (e.g. `1.4.0-767dc58`) on
+          # a force build, not the bare package.json version: /api/version and
+          # the status page's drift check should say "unrecognised version"
+          # rather than falsely report staging as in sync with v1.4.0.
           build-args: |
-            APP_VERSION=${{ needs.release.outputs.new_release_version }}
-            IMAGE_TAG=${{ needs.release.outputs.new_release_version }}
+            APP_VERSION=${{ needs.release.outputs.image_tag }}
+            IMAGE_TAG=${{ needs.release.outputs.image_tag }}
             GIT_COMMIT=${{ steps.stamp.outputs.commit }}
             BUILD_TIME=${{ steps.stamp.outputs.built_at }}
 
@@ -173,8 +236,11 @@ jobs:
         run: |
           docker buildx imagetools create \
             -t ghcr.io/${{ env.ORG }}/newwave4-frontend:latest \
-            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.new_release_version }}
+            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.image_tag }}
 
+  # Release-only on purpose: a force_build has no new chart version to publish
+  # (Chart.yaml is bumped by semantic-release), and re-pushing the existing
+  # one would silently overwrite a released artifact.
   helm-publish:
     name: helm-publish
     needs: release
@@ -214,13 +280,23 @@ jobs:
           set -euo pipefail
           helm push "${{ steps.pkg.outputs.pkg }}" oci://ghcr.io/${{ env.ORG }}/charts
 
+  # `!cancelled()` + explicit result checks instead of the default needs
+  # semantics: on a force_build, helm-publish is legitimately `skipped`, and
+  # the default would skip this job along with it. A failed docker-publish or
+  # helm-publish still blocks the deploy.
   deploy-staging:
     name: deploy-staging
     needs: [release, docker-publish, helm-publish]
-    if: needs.release.outputs.new_release_published == 'true' && github.ref == 'refs/heads/main'
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main'
+      && needs.release.result == 'success'
+      && needs.release.outputs.publish_image == 'true'
+      && needs.docker-publish.result == 'success'
+      && (needs.helm-publish.result == 'success' || needs.helm-publish.result == 'skipped')
     uses: ./.github/workflows/deploy-to-kubernetes.yml
     with:
       namespace: staging
-      chart_version: ${{ needs.release.outputs.new_release_version }}
-      image_tag: ${{ needs.release.outputs.new_release_version }}
+      chart_version: ${{ needs.release.outputs.chart_version }}
+      image_tag: ${{ needs.release.outputs.image_tag }}
     secrets: inherit
