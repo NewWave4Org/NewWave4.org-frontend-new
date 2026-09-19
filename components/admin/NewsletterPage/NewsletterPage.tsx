@@ -3,7 +3,7 @@
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
 import TextArea from '@/components/shared/TextArea';
-import { sendNewsletter } from '@/store/newsletter/action';
+import { sendNewsletter, sendNewsletterTest } from '@/store/newsletter/action';
 import { NewsletterRequestDTO } from '@/utils/newsletter/type/interface';
 import useHandleThunk from '@/utils/useHandleThunk';
 import { Form, Formik } from 'formik';
@@ -20,6 +20,7 @@ const validationSchema = Yup.object({
 function NewsletterPage() {
   const handleThunk = useHandleThunk();
   const [submitError, setSubmitError] = useState('');
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   async function handleSubmit(data: NewsletterRequestDTO) {
     try {
@@ -31,6 +32,25 @@ function NewsletterPage() {
     }
 
     console.error('submitError', submitError);
+  }
+
+  // Same payload, but the backend mails only the logged-in admin. Use this before
+  // "Send": a broadcast goes to every subscriber and cannot be recalled.
+  async function handleSendTest(data: NewsletterRequestDTO) {
+    setIsSendingTest(true);
+    try {
+      const result = await handleThunk(
+        sendNewsletterTest,
+        data,
+        setSubmitError,
+      );
+      toast.success(result);
+    } catch (error: any) {
+      console.error('error', error);
+      toast.error('Failed to send test newsletter');
+    } finally {
+      setIsSendingTest(false);
+    }
   }
 
   const initialValues = {
@@ -45,7 +65,15 @@ function NewsletterPage() {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
     >
-      {({ handleChange, values, touched, errors, isSubmitting }) => {
+      {({
+        handleChange,
+        values,
+        touched,
+        errors,
+        isSubmitting,
+        validateForm,
+        setTouched,
+      }) => {
         return (
           <Form>
             <div className="mb-5">
@@ -101,14 +129,38 @@ function NewsletterPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              title={isSubmitting ? 'Submitting...' : ''}
-              disabled={isSubmitting}
-              className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
-            >
-              Send
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                title="Sends this newsletter only to your own email address"
+                disabled={isSubmitting || isSendingTest}
+                onClick={async () => {
+                  const formErrors = await validateForm();
+                  if (Object.keys(formErrors).length > 0) {
+                    setTouched({
+                      subject: true,
+                      newsTitle: true,
+                      newsBody: true,
+                    });
+                    return;
+                  }
+                  await handleSendTest(values);
+                }}
+                className="!bg-transparent !text-background-darkBlue border border-background-darkBlue !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
+                {isSendingTest ? 'Sending test...' : 'Send test to me'}
+              </Button>
+              <Button
+                type="submit"
+                title={
+                  isSubmitting ? 'Submitting...' : 'Sends to every subscriber'
+                }
+                disabled={isSubmitting || isSendingTest}
+                className="!bg-background-darkBlue text-white !rounded-[5px] !h-[60px] font-normal text-xl p-4 hover:opacity-[0.8] duration-500"
+              >
+                Send
+              </Button>
+            </div>
           </Form>
         );
       }}
