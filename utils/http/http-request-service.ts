@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance, axiosOpenInstance } from './axiosInstance';
 
 import { RequestOptions } from './type/interface';
 import buildRequestConfig from './buildRequestConfig';
@@ -47,6 +47,39 @@ export const refreshAccessToken = async () => {
   }
 };
 
+function unwrapResponse<T>(response: AxiosResponse<T>) {
+  if (response.data === '') {
+    return {
+      success: true,
+      status: response.status,
+      message: 'No content returned',
+    } as any;
+  }
+
+  return response.data;
+}
+
+/**
+ * For endpoints an anonymous visitor submits (partner request, newsletter
+ * subscribe/confirm/unsubscribe). No cookies, no token refresh, and — the
+ * point — no redirect to the admin login when the backend answers 401/403.
+ * Errors are normalized exactly like request() so thunks and forms keep
+ * reading `errors[0]`.
+ */
+export async function requestPublic<T>(options: RequestOptions) {
+  const { method, url, body, params, config } = options;
+
+  try {
+    const response: AxiosResponse<T> = await axiosOpenInstance(
+      buildRequestConfig({ method, url, body, params, config }),
+    );
+
+    return unwrapResponse(response);
+  } catch (error: unknown) {
+    throw normalizeApiError(error);
+  }
+}
+
 export async function request<T>(options: RequestOptions) {
   const { method, url, body, params, config } = options;
 
@@ -60,15 +93,7 @@ export async function request<T>(options: RequestOptions) {
     });
     const response: AxiosResponse<T> = await axiosInstance(requestConfig);
 
-    if (response.data === '') {
-      return {
-        success: true,
-        status: response.status,
-        message: 'No content returned',
-      } as any;
-    }
-
-    return response.data;
+    return unwrapResponse(response);
   } catch (error: unknown) {
     const err = error as AxiosError;
 

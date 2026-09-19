@@ -2,11 +2,17 @@ import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import HttpMethod from './enums/http-method';
 
-const { axiosInstanceMock, dispatchMock, toastErrorMock } = vi.hoisted(() => {
+const {
+  axiosInstanceMock,
+  axiosOpenInstanceMock,
+  dispatchMock,
+  toastErrorMock,
+} = vi.hoisted(() => {
   const instance = vi.fn() as any;
   instance.post = vi.fn();
   return {
     axiosInstanceMock: instance,
+    axiosOpenInstanceMock: vi.fn(),
     dispatchMock: vi.fn(),
     toastErrorMock: vi.fn(),
   };
@@ -14,7 +20,7 @@ const { axiosInstanceMock, dispatchMock, toastErrorMock } = vi.hoisted(() => {
 
 vi.mock('./axiosInstance', () => ({
   axiosInstance: axiosInstanceMock,
-  axiosOpenInstance: vi.fn(),
+  axiosOpenInstance: axiosOpenInstanceMock,
 }));
 
 vi.mock('@/store/store', () => ({
@@ -28,7 +34,7 @@ vi.mock('react-toastify', () => ({
 // request()/refreshAccessToken() import getUserInfo/logOutAuth thunks just to
 // dispatch them by reference — the real thunks are fine to import since
 // `store.dispatch` itself is mocked above and never actually executes them.
-import { request } from './http-request-service';
+import { request, requestPublic } from './http-request-service';
 
 function unauthorizedError(status: 401 | 403 = 401) {
   const error = new AxiosError('Unauthorized');
@@ -150,5 +156,100 @@ describe('http-request-service request()', () => {
     // never even attempted, because `_retry` was already true before this call
     expect(axiosInstanceMock.post).not.toHaveBeenCalled();
     expect(axiosInstanceMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+// The public forms (partner, subscribe, unsubscribe) are submitted by anonymous
+// visitors. Sending them through request() meant a 401/403 from the backend
+// bounced the visitor to the admin login page.
+describe('http-request-service requestPublic()', () => {
+  let originalLocation: Location;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    originalLocation = window.location;
+    // @ts-expect-error - jsdom's real navigation isn't needed, just an observable stub
+    delete window.location;
+    // @ts-expect-error - minimal stub, only `.href` is read/written by the code under test
+    window.location = { href: '' };
+  });
+
+  afterEach(() => {
+    // @ts-expect-error - restoring the real Location object stubbed out above
+    window.location = originalLocation;
+  });
+
+  it('sends through the credential-less instance and returns response data', async () => {
+    axiosOpenInstanceMock.mockResolvedValueOnce({ data: 'ok', status: 200 });
+
+    const result = await requestPublic({
+      method: HttpMethod.POST,
+      url: 'mail/public/subscribe',
+      body: 'visitor@example.com',
+    });
+
+    expect(result).toBe('ok');
+    expect(axiosOpenInstanceMock).toHaveBeenCalledOnce();
+    expect(axiosOpenInstanceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: HttpMethod.POST,
+        url: 'mail/public/subscribe',
+        data: 'visitor@example.com',
+      }),
+    );
+    expect(axiosInstanceMock).not.toHaveBeenCalled();
+  });
+
+  it('normalizes an empty response body like request() does', async () => {
+    axiosOpenInstanceMock.mockResolvedValueOnce({ data: '', status: 200 });
+
+    const result = await requestPublic({
+      method: HttpMethod.PATCH,
+      url: 'mail/public/unsubscribe',
+    });
+
+    expect(result).toEqual({
+      success: true,
+      status: 200,
+      message: 'No content returned',
+    });
+  });
+
+  it('never refreshes, logs out or redirects on a 401 — it just throws the normalized error', async () => {
+    axiosOpenInstanceMock.mockRejectedValueOnce(unauthorizedError(401));
+
+    await expect(
+      requestPublic({ method: HttpMethod.POST, url: 'mail/become-partner' }),
+    ).rejects.toMatchObject({ status: undefined });
+
+    expect(axiosInstanceMock.post).not.toHaveBeenCalled();
+    expect(dispatchMock).not.toHaveBeenCalled();
+    expect(toastErrorMock).not.toHaveBeenCalled();
+    expect(window.location.href).toBe('');
+    expect(axiosOpenInstanceMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws the backend error envelope so forms can show errors[0] inline', async () => {
+    const error = new AxiosError('Conflict');
+    error.response = {
+      status: 409,
+      statusText: 'Conflict',
+      data: {
+        status: 'CONFLICT',
+        errors: ['This email is already taken'],
+        timestamp: 't',
+      },
+      headers: {},
+      config: {} as never,
+    };
+    axiosOpenInstanceMock.mockRejectedValueOnce(error);
+
+    await expect(
+      requestPublic({ method: HttpMethod.POST, url: 'mail/public/subscribe' }),
+    ).rejects.toEqual({
+      status: 'CONFLICT',
+      errors: ['This email is already taken'],
+      timestamp: 't',
+    });
   });
 });
