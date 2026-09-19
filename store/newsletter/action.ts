@@ -16,3 +16,17 @@ export const sendNewsletter = createAsyncThunk(
     }
   },
 );
+
+export const sendNewsletterTest = createAsyncThunk(
+  'send-newsletter-test',
+  async (data: NewsletterRequestDTO, { rejectWithValue }) => {
+    try {
+      const result = await newsletterService.sendNewsletterTest(data);
+
+      return result;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
