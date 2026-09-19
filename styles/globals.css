@@ -149,8 +149,22 @@ html {
   .sponsors__inner {
     @apply flex flex-col gap-y-10;
   }
-  .sponsors-logos {
-    @apply flex items-center justify-center gap-x-20;
+  /* Logo marquee: the viewport clips and fades the edges, the track scrolls. */
+  .sponsors-marquee {
+    @apply overflow-hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+  }
+  .sponsors-marquee__track {
+    @apply flex w-max animate-marquee motion-reduce:animate-none;
+  }
+  .sponsors-marquee:hover .sponsors-marquee__track {
+    animation-play-state: paused;
   }
 
   /* .sponsors-slider .slick-track {
