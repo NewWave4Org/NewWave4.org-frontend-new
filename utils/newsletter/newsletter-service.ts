@@ -12,6 +12,10 @@ class NewsletterService implements INewsletterService {
   async sendNewsletter(data: NewsletterRequestDTO) {
     return this.newsletter.sendNewsletter(data);
   }
+
+  async sendNewsletterTest(data: NewsletterRequestDTO) {
+    return this.newsletter.sendNewsletterTest(data);
+  }
 }
 
 export default NewsletterService;

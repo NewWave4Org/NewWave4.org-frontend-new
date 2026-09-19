@@ -12,6 +12,14 @@ class NewsletterAPI implements INewsletterAPI {
       body: data,
     });
   }
+
+  async sendNewsletterTest(data: NewsletterRequestDTO) {
+    return request({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.NEWSLETTER_TEST,
+      body: data,
+    });
+  }
 }
 
 export default NewsletterAPI;

@@ -50,6 +50,7 @@ const ApiEndpoint = {
 
   //NEWSLETTER
   NEWSLETTER: 'mail/newsletter/send',
+  NEWSLETTER_TEST: 'mail/newsletter/send-test',
 
   //Fetches a paginated list of all donation payments, sorted by most recent.
   GET_ALL_DONATION: 'payments/donations/search',
