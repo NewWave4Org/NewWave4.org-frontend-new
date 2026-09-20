@@ -3,6 +3,7 @@ name: Cloudflare Preview
 # Uploads a Worker *version* (no traffic change) for every PR and posts its
 # preview URL. Replaces the docker-pr-publish label flow for frontend-only
 # review. Fork and Dependabot PRs have no access to secrets, so they skip.
+# The Worker must already exist — see plan Task 6 — or `versions upload` fails.
 on:
   pull_request:
     branches: [development, main]

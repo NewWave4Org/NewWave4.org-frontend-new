@@ -29,6 +29,7 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: staging
     env:
       VERSION: ${{ inputs.version }}
@@ -63,10 +64,12 @@ jobs:
       - name: Build Worker
         run: npm run cf:build
 
-      - name: Report bundle size
-        run: |
-          echo "worker.js: $(du -h .open-next/worker.js | cut -f1)  (Workers Free limit: 3 MB compressed)"
-          echo "assets:    $(du -sh .open-next/assets | cut -f1)"
+      # wrangler's own accounting is the number that matters against the
+      # Worker size limit (see https://developers.cloudflare.com/workers/platform/limits/);
+      # .open-next/worker.js is only a 4 KB shim, the real bundle lives in
+      # server-functions/ and is measured after wrangler bundles it.
+      - name: Report bundle size (dry run)
+        run: npx wrangler deploy --dry-run --outdir .open-next/dry-run | grep -E 'Total Upload|gzip' || true
 
       - name: Stamp build metadata
         id: stamp
@@ -78,6 +81,9 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # Equivalent to `opennextjs-cloudflare deploy` while there are no cache bindings;
+        # if an R2 incremental cache is ever added, switch to
+        # `npx opennextjs-cloudflare deploy -- --var …` so populateCache runs.
         run: |
           npx wrangler deploy \
             --var APP_VERSION:"$VERSION" \
