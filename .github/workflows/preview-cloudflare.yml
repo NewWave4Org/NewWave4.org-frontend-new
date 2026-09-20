@@ -1,0 +1,66 @@
+name: Cloudflare Preview
+
+# Uploads a Worker *version* (no traffic change) for every PR and posts its
+# preview URL. Replaces the docker-pr-publish label flow for frontend-only
+# review. Fork and Dependabot PRs have no access to secrets, so they skip.
+on:
+  pull_request:
+    branches: [development, main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-cloudflare-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: preview
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository
+      && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate .env file
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      - run: npm run cf:build
+
+      - name: Upload preview version
+        id: upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          out=$(npx wrangler versions upload \
+            --tag "pr-${{ github.event.pull_request.number }}" \
+            --message "PR #${{ github.event.pull_request.number }} ${{ github.event.pull_request.head.sha }}" 2>&1 | tee /dev/stderr)
+          url=$(echo "$out" | grep -oE 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' | head -1)
+          if [ -z "$url" ]; then echo "::error::no preview URL in wrangler output"; exit 1; fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: cloudflare-preview
+          message: |
+            🌩 **Cloudflare preview** for `${{ github.event.pull_request.head.sha }}`: ${{ steps.upload.outputs.url }}
+
+            Built with staging `NEXT_PUBLIC_*` values; talks to the staging API. Admin login works only if the backend's CORS allowlist includes `*.workers.dev`.
