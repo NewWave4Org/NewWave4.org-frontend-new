@@ -42,6 +42,10 @@ jobs:
       NAMESPACE: ${{ inputs.namespace }}
       CHART_VERSION: ${{ inputs.chart_version }}
       IMAGE_TAG: ${{ inputs.image_tag }}
+      # Production pulls the image built with production NEXT_PUBLIC_* values
+      # (release.yml's docker-publish-production job); everything else gets the
+      # default build, whose API origin is staging's. Same X.Y.Z tag either way.
+      IMAGE_NAME: ${{ inputs.namespace == 'production' && 'newwave4-frontend-production' || 'newwave4-frontend' }}
     steps:
       - name: Guard production versions
         if: inputs.namespace == 'production'
@@ -127,6 +131,27 @@ jobs:
           echo "Top-level keys:"
           yq eval 'keys' ./values.yaml
 
+      # `environment: production` resolves VALUES_YAML from that environment's
+      # secrets -- but if the secret isn't set there, GitHub silently falls
+      # back to the repo-level one, which holds staging's values. Catch that
+      # before Helm turns it into a production release with a staging hostname.
+      - name: Guard production values
+        if: inputs.namespace == 'production'
+        run: |
+          hosts=$(yq eval '[.ingress.hosts[].host, .ingress.tls[].hosts[]] | .[]' ./values.yaml 2>/dev/null || true)
+          if [ -z "${hosts}" ]; then
+            echo "::error::values.yaml for production sets no ingress host -- the production VALUES_YAML secret is missing from the 'production' GitHub Environment (see docs/ci-cd.md, prerequisite 3)."
+            exit 1
+          fi
+          if echo "${hosts}" | grep -qiE '(^|\.)(staging|stage|new)\.newwave4\.org$'; then
+            echo "::error::values.yaml for production carries a staging hostname:"
+            echo "${hosts}" | sed 's/^/  /'
+            echo "::error::This is the repo-level (staging) VALUES_YAML leaking through -- add a production VALUES_YAML to the 'production' GitHub Environment."
+            exit 1
+          fi
+          echo "Production ingress hosts:"
+          echo "${hosts}" | sed 's/^/  /'
+
       - name: Create/Update imagePullSecret for GHCR
         run: |
           kubectl create secret docker-registry ghcr-regcred \
@@ -166,7 +191,7 @@ jobs:
             --create-namespace \
             -f helm/frontend-chart/values.yaml \
             -f ./values.yaml \
-            --set image.repository=ghcr.io/${{ env.ORG }}/newwave4-frontend \
+            --set image.repository=ghcr.io/${{ env.ORG }}/${{ env.IMAGE_NAME }} \
             --set image.tag="${{ env.IMAGE_TAG }}" \
             --set imagePullSecrets[0].name=ghcr-regcred
 
