@@ -127,7 +127,7 @@ served by Cloudflare DNS, so the zone moves; registration does not.
 
 ### 5.3 Docs
 
-- `docs/decisions/0007-staging-frontend-on-cloudflare-workers.md` — this decision,
+- `docs/decisions/0008-staging-frontend-on-cloudflare-workers.md` — this decision,
   short form, linking here.
 - `docs/ci-cd.md` — new deploy path, PR previews, what `release.yml` still does.
 - `docs/known-issues.md` — the 2026-09-19 incident summary as the motivating context.
@@ -212,14 +212,14 @@ re-running `deploy-to-kubernetes.yml` with the last published version.
 
 ## 9. Risks
 
-| Risk | Mitigation |
-| --- | --- |
-| Nameserver move breaks mail or an API subdomain | Record-by-record verification in §4 step 2 before switching; all records DNS-only; do it off-hours |
-| Axios `node:http` adapter fails under `workerd` | `adapter: 'fetch'` (§5.2); covered by the `workers.dev` verification before any DNS change |
-| Worker bundle over 3 MB | Size printed in the deploy job; upgrade to Workers Paid if needed |
-| `getUserInfo` refresh path (`refreshAccessToken` dynamic-imports the store) behaves differently server-side | Runs in the browser only; verified by admin login in §7 |
-| `APP_VERSION` drift check on the status page targets the old host | Worker `vars` + smoke check in §6.1 |
-| Cost surprise | Free tier is 100k requests/day; staging traffic is far below that |
+| Risk                                                                                                        | Mitigation                                                                                         |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Nameserver move breaks mail or an API subdomain                                                             | Record-by-record verification in §4 step 2 before switching; all records DNS-only; do it off-hours |
+| Axios `node:http` adapter fails under `workerd`                                                             | `adapter: 'fetch'` (§5.2); covered by the `workers.dev` verification before any DNS change         |
+| Worker bundle over 3 MB                                                                                     | Size printed in the deploy job; upgrade to Workers Paid if needed                                  |
+| `getUserInfo` refresh path (`refreshAccessToken` dynamic-imports the store) behaves differently server-side | Runs in the browser only; verified by admin login in §7                                            |
+| `APP_VERSION` drift check on the status page targets the old host                                           | Worker `vars` + smoke check in §6.1                                                                |
+| Cost surprise                                                                                               | Free tier is 100k requests/day; staging traffic is far below that                                  |
 
 ## 10. Out of scope
 
