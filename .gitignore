@@ -50,3 +50,6 @@ next-env.d.ts
 tmp
 /helm/frontend-chart/valuesV2.yaml
 
+
+# superpowers SDD scratch (ledgers, briefs, review packages)
+.superpowers/
