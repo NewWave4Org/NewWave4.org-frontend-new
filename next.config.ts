@@ -21,3 +21,8 @@ const nextConfig: NextConfig = {
 const withNextIntl = createNextIntlPlugin('./i18n/config/request.ts');
 
 export default withNextIntl(nextConfig);
+
+// Gives `next dev` access to Cloudflare bindings/vars (getCloudflareContext) so
+// local behaviour matches the Worker. No-op in `next build`.
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+initOpenNextCloudflareForDev();

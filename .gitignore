@@ -53,3 +53,7 @@ tmp
 
 # superpowers SDD scratch (ledgers, briefs, review packages)
 .superpowers/
+
+# OpenNext / wrangler build output
+.open-next/
+.wrangler/

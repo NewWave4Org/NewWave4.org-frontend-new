@@ -99,13 +99,8 @@ served by Cloudflare DNS, so the zone moves; registration does not.
     `wrangler deploy --var`.
   - `preview_urls: true` so `wrangler versions upload` returns a preview URL (§6.2).
 - `cloudflare-env.d.ts` via `wrangler types` (`cf-typegen` script).
-- `next.config.ts`:
-  - remove `output: 'standalone'` — OpenNext produces its own bundle. The Dockerfile
-    still copies `.next/standalone`; keep Docker working by setting
-    `output: process.env.NEXT_OUTPUT_MODE === 'standalone' ? 'standalone' : undefined`
-    and passing `NEXT_OUTPUT_MODE=standalone` as a Docker build arg. (Docker stays
-    needed for the production SPA path and for rollback, see §7.)
-  - append `initOpenNextCloudflareForDev()` for `next dev` parity.
+- `next.config.ts`: keep `output: 'standalone'` — OpenNext consumes Next's standalone
+  output, and the Dockerfile still needs it. Append `initOpenNextCloudflareForDev()`.
 - `package.json` scripts: `cf:build` (`opennextjs-cloudflare build`), `cf:preview`
   (build + `opennextjs-cloudflare preview`, runs the real Worker runtime locally),
   `cf:deploy`, `cf-typegen`.
