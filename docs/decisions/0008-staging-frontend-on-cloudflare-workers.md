@@ -23,7 +23,8 @@ Java API.
 Cloudflare adapter (`@opennextjs/cloudflare`), deployed by
 `.github/workflows/deploy-cloudflare.yml` from `release.yml` on `main`. The app
 is unchanged (SSR, middleware, sitemap, route handlers all run in the Worker);
-`NEXT_PUBLIC_*` stay build-time. Every PR gets a preview URL.
+`NEXT_PUBLIC_*` stay build-time. Every same-repo, non-Dependabot PR gets a
+preview URL.
 
 Static export (Cloudflare Pages) was rejected: it drops per-article Open Graph
 metadata, the live sitemap, locale middleware and the server-side donation
@@ -40,10 +41,21 @@ rollback.
   `node:http` is unavailable in `workerd`.
 - The zone `newwave4.org` is served by Cloudflare DNS (registration stays at
   GoDaddy). All records are DNS-only unless decided otherwise per record.
-- Worker bundle must stay under the Free plan's 3 MB compressed limit, or the
-  account moves to Workers Paid.
+- Worker bundle must stay under the Worker size limit on the current
+  Cloudflare limits page (measured on this branch: ~2.2 MiB gzip / 10.7 MiB
+  raw via `wrangler deploy --dry-run`), or the account moves to Workers Paid.
 - `esbuild` is an explicit devDependency: `@opennextjs/cloudflare` imports it
   at runtime but does not ship it, and its transitive dependencies pin two
   conflicting exact versions, so nothing hoists without it.
+- Workers Free also caps CPU time at 10 ms per request; SSR of a Next 16 page
+  can exceed it under load even though the bundle-size mitigation above does
+  not cover this. If a route hits Cloudflare error 1102 (CPU time limit
+  exceeded), the mitigation is the same as for bundle size: upgrade to
+  Workers Paid (USD 5/month, 30 s CPU).
+- `initOpenNextCloudflareForDev()` is deliberately not called in
+  `next.config.ts`: it is not a no-op under `next build` and cannot run on
+  the Alpine Docker builder (workerd is glibc-only). If Cloudflare bindings
+  are ever needed in `next dev`, add it guarded by
+  `process.env.NODE_ENV === 'development'`.
 
 Full design: `docs/superpowers/specs/2026-09-20-cloudflare-workers-staging-design.md`.

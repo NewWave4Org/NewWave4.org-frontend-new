@@ -1,7 +1,7 @@
 # Design: move the staging frontend (`new.newwave4.org`) to Cloudflare Workers
 
 **Date:** 2026-09-20
-**Status:** approved design, awaiting implementation plan
+**Status:** approved; implementation plan at docs/superpowers/plans/2026-09-20-cloudflare-workers-staging.md
 **Scope:** staging frontend only. Production (`newwave4.org`, the old React SPA in
 the `frontend-prod` namespace) and every backend workload stay on the Kubernetes
 cluster. See "Out of scope".
@@ -102,7 +102,8 @@ served by Cloudflare DNS, so the zone moves; registration does not.
   - `preview_urls: true` so `wrangler versions upload` returns a preview URL (§6.2).
 - `cloudflare-env.d.ts` via `wrangler types` (`cf-typegen` script).
 - `next.config.ts`: keep `output: 'standalone'` — OpenNext consumes Next's standalone
-  output, and the Dockerfile still needs it. Append `initOpenNextCloudflareForDev()`.
+  output, and the Dockerfile still needs it. See ADR 0008 Consequences for why
+  `initOpenNextCloudflareForDev()` is deliberately not called here.
 - `package.json` scripts: `cf:build` (`opennextjs-cloudflare build`), `cf:preview`
   (build + `opennextjs-cloudflare preview`, runs the real Worker runtime locally),
   `cf:deploy`, `cf-typegen`.
@@ -118,9 +119,14 @@ served by Cloudflare DNS, so the zone moves; registration does not.
 - `donation/finish` already uses `fetch` — no change.
 - `next/font/google` and `next/font/local` resolve at build time — no change.
 - `middleware.ts` runs in the Worker unchanged.
-- Bundle size: Workers Free allows 3 MB compressed; the deploy job prints the size
-  and fails if `wrangler` rejects it. If exceeded, the decision is Workers Paid
-  (USD 5/month, 10 MB), not trimming features.
+- Bundle size: the Worker size limit on the current Cloudflare limits page
+  (measured on this branch: ~2.2 MiB gzip / 10.7 MiB raw via
+  `wrangler deploy --dry-run`); the deploy job reports the size and fails if
+  `wrangler` rejects it. If exceeded, the decision is Workers Paid (USD
+  5/month), not trimming features.
+- CPU time: Workers Free caps CPU time at 10 ms per request; SSR of a Next 16
+  page can exceed it. `cf:preview` (local workerd) does not enforce this
+  limit, so it can only be caught by deployed traffic.
 
 ### 5.3 Docs
 
@@ -213,7 +219,8 @@ re-running `deploy-to-kubernetes.yml` with the last published version.
 | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Nameserver move breaks mail or an API subdomain                                                             | Record-by-record verification in §4 step 2 before switching; all records DNS-only; do it off-hours |
 | Axios `node:http` adapter fails under `workerd`                                                             | `adapter: 'fetch'` (§5.2); covered by the `workers.dev` verification before any DNS change         |
-| Worker bundle over 3 MB                                                                                     | Size printed in the deploy job; upgrade to Workers Paid if needed                                  |
+| Worker bundle over the size limit                                                                           | Size printed in the deploy job; upgrade to Workers Paid if needed                                  |
+| SSR route exceeds the 10 ms CPU-time-per-request limit (Workers Free), surfaced as Cloudflare error 1102    | Pre-approved mitigation: upgrade to Workers Paid (USD 5/month, 30 s CPU), same as bundle size      |
 | `getUserInfo` refresh path (`refreshAccessToken` dynamic-imports the store) behaves differently server-side | Runs in the browser only; verified by admin login in §7                                            |
 | `APP_VERSION` drift check on the status page targets the old host                                           | Worker `vars` + smoke check in §6.1                                                                |
 | Cost surprise                                                                                               | Free tier is 100k requests/day; staging traffic is far below that                                  |

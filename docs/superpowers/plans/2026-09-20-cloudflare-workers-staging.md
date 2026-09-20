@@ -17,7 +17,7 @@
 - `NEXT_PUBLIC_*` are build-time only; supplied via `.github/actions/generate-env` (writes `.env`). Never read `process.env.NEXT_PUBLIC_NEWWAVE_API_URL` outside `utils/http/api-base-url.ts` (ADR 0006).
 - `output: 'standalone'` **stays** in `next.config.ts` (OpenNext consumes standalone output; the Dockerfile relies on it). This corrects spec §5.1.
 - Worker name: `newwave4-frontend-staging`. Custom domain: `new.newwave4.org`. Staging API: `https://api.stage.newwave4.org`.
-- `compatibility_flags`: `nodejs_compat`, `global_fetch_strictly_public`. Workers Free bundle limit: 3 MB compressed.
+- `compatibility_flags`: `nodejs_compat`, `global_fetch_strictly_public`. Worker size limit: see the current Cloudflare limits page (measured on this branch: ~2.2 MiB gzip / 10.7 MiB raw via `wrangler deploy --dry-run`).
 - Staging deploys from `main` only (unchanged release semantics). `deploy-staging` (Helm) is removed only in the cutover PR (Task 9), never in the migration PR.
 - Commit messages are Conventional Commits (`pr-title-lint.yml` enforces the PR title). `typecheck` and `format-check` are blocking gates; run `npm run typecheck && npx prettier --check <files>` before every commit.
 - Local shell gotcha: `/usr/local/bin/node` is x64; `node_modules` is arm64. Prefix commands with `export PATH=/opt/homebrew/bin:$PATH`.
@@ -114,18 +114,11 @@ export default defineCloudflareConfig({});
 }
 ```
 
-- [ ] **Step 4: Wire `next.config.ts`**
+- [ ] **Step 4: `next.config.ts`**
 
-Append after the existing `export default withNextIntl(nextConfig);`:
-
-```ts
-// Gives `next dev` access to Cloudflare bindings/vars (getCloudflareContext) so
-// local behaviour matches the Worker. No-op in `next build`.
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-initOpenNextCloudflareForDev();
-```
-
-Do **not** remove `output: 'standalone'`.
+No change needed beyond what's already there. Do **not** remove
+`output: 'standalone'`. See ADR 0008 Consequences for why
+`initOpenNextCloudflareForDev()` is deliberately not called here.
 
 - [ ] **Step 5: Scripts and ignores**
 
@@ -169,7 +162,8 @@ In `docs/superpowers/specs/2026-09-20-cloudflare-workers-staging-design.md` §5.
 
 ```
 - `next.config.ts`: keep `output: 'standalone'` — OpenNext consumes Next's standalone
-  output, and the Dockerfile still needs it. Append `initOpenNextCloudflareForDev()`.
+  output, and the Dockerfile still needs it. See ADR 0008 Consequences for why
+  `initOpenNextCloudflareForDev()` is deliberately not called here.
 ```
 
 - [ ] **Step 8: Build and preview locally**
@@ -192,7 +186,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8787/ua
 # expect 200 (page renders even if the API in .env is unreachable)
 ```
 
-Expected: all four pass; `worker.js` well under 3 MB. If the build fails on a Node API, note the module — Task 2 covers axios; anything else is a real finding to raise before continuing.
+Expected: all four pass; `worker.js` well under the Worker size limit. If the build fails on a Node API, note the module — Task 2 covers axios; anything else is a real finding to raise before continuing.
 
 - [ ] **Step 9: Run gates and commit**
 
@@ -367,10 +361,12 @@ jobs:
       - name: Build Worker
         run: npm run cf:build
 
-      - name: Report bundle size
-        run: |
-          echo "worker.js: $(du -h .open-next/worker.js | cut -f1)  (Workers Free limit: 3 MB compressed)"
-          echo "assets:    $(du -sh .open-next/assets | cut -f1)"
+      # wrangler's own accounting is the number that matters against the
+      # Worker size limit (see https://developers.cloudflare.com/workers/platform/limits/);
+      # .open-next/worker.js is only a 4 KB shim, the real bundle lives in
+      # server-functions/ and is measured after wrangler bundles it.
+      - name: Report bundle size (dry run)
+        run: npx wrangler deploy --dry-run --outdir .open-next/dry-run | grep -E 'Total Upload|gzip' || true
 
       - name: Stamp build metadata
         id: stamp
@@ -571,7 +567,8 @@ Java API.
 Cloudflare adapter (`@opennextjs/cloudflare`), deployed by
 `.github/workflows/deploy-cloudflare.yml` from `release.yml` on `main`. The app
 is unchanged (SSR, middleware, sitemap, route handlers all run in the Worker);
-`NEXT_PUBLIC_*` stay build-time. Every PR gets a preview URL.
+`NEXT_PUBLIC_*` stay build-time. Every same-repo, non-Dependabot PR gets a
+preview URL.
 
 Static export (Cloudflare Pages) was rejected: it drops per-article Open Graph
 metadata, the live sitemap, locale middleware and the server-side donation
@@ -588,8 +585,22 @@ rollback.
   `node:http` is unavailable in `workerd`.
 - The zone `newwave4.org` is served by Cloudflare DNS (registration stays at
   GoDaddy). All records are DNS-only unless decided otherwise per record.
-- Worker bundle must stay under the Free plan's 3 MB compressed limit, or the
-  account moves to Workers Paid.
+- Worker bundle must stay under the Worker size limit on the current
+  Cloudflare limits page (measured on this branch: ~2.2 MiB gzip / 10.7 MiB
+  raw via `wrangler deploy --dry-run`), or the account moves to Workers Paid.
+- `esbuild` is an explicit devDependency: `@opennextjs/cloudflare` imports it
+  at runtime but does not ship it, and its transitive dependencies pin two
+  conflicting exact versions, so nothing hoists without it.
+- Workers Free also caps CPU time at 10 ms per request; SSR of a Next 16 page
+  can exceed it under load even though the bundle-size mitigation above does
+  not cover this. If a route hits Cloudflare error 1102 (CPU time limit
+  exceeded), the mitigation is the same as for bundle size: upgrade to
+  Workers Paid (USD 5/month, 30 s CPU).
+- `initOpenNextCloudflareForDev()` is deliberately not called in
+  `next.config.ts`: it is not a no-op under `next build` and cannot run on
+  the Alpine Docker builder (workerd is glibc-only). If Cloudflare bindings
+  are ever needed in `next dev`, add it guarded by
+  `process.env.NODE_ENV === 'development'`.
 
 Full design: `docs/superpowers/specs/2026-09-20-cloudflare-workers-staging-design.md`.
 ```
@@ -650,7 +661,14 @@ git commit -m "docs: ADR 0008 and CI docs for the Cloudflare Workers staging dep
   - (variable `CLOUDFLARE_STAGING_URL` stays **unset** until Task 8 step 3)
   - The `staging` GitHub environment already exists (used by `deploy-to-kubernetes.yml`); nothing to add.
 
-- [ ] **Step 3: Open the PR**
+- [ ] **Step 3 (new): First deploy by hand.** `wrangler versions upload` refuses to
+      upload to a Worker that does not exist yet, and preview URLs are only enabled by
+      a real `deploy`. From this branch, with `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID`
+      exported and the staging `.env` in place: `npm run cf:deploy`. This creates
+      `newwave4-frontend-staging` on `workers.dev`; only then will the PR preview job
+      succeed.
+
+- [ ] **Step 4: Open the PR**
 
 ```bash
 git push -u origin feature/cloudflare-workers
@@ -659,7 +677,7 @@ gh pr create --base development --title 'feat: deploy the staging frontend to Cl
 
 Expected on the PR: all existing gates green; `Cloudflare Preview` posts a `*.workers.dev` URL. Open it: `/` redirects to `/ua`, home renders with real content, an article page has `og:title`/`og:image` in the HTML (`curl -s <url>/ua/news/<id> | grep -o '<meta property="og:[^>]*'`).
 
-- [ ] **Step 4: Merge** `development`, then promote `development → main` per `docs/release-process.md`. `release.yml` on `main` runs `deploy-cloudflare-staging`; check the run's "Report bundle size" and that `wrangler deploy` printed `https://newwave4-frontend-staging.<account>.workers.dev`.
+- [ ] **Step 5: Merge** `development`, then promote `development → main` per `docs/release-process.md`. `release.yml` on `main` runs `deploy-cloudflare-staging`; check the run's "Report bundle size" and that `wrangler deploy` printed `https://newwave4-frontend-staging.<account>.workers.dev`.
 
 ---
 
@@ -711,6 +729,10 @@ curl -s $W/robots.txt | head -3
 curl -s $W/api/version                                                            # version == latest tag
 ```
 
+If any SSR route returns Cloudflare error **1102 (Worker exceeded CPU time
+limit)**, upgrade the account to Workers Paid (USD 5/month, 30 s CPU) —
+pre-approved as the mitigation, same as for bundle size — and re-check.
+
 - [ ] **Step 2: Playwright against the Worker**
 
 ```bash
@@ -748,7 +770,7 @@ Leave the Helm release. Note the date; Task 9 happens one week later.
 
 - Modify: `.github/workflows/release.yml` (remove `deploy-staging`), `.github/workflows/e2e.yml` (nightly against the live host), `docs/ci-cd.md`, `docs/release-process.md`
 
-- [ ] **Step 1: `release.yml`** — delete the whole `deploy-staging` job and its comment. `docker-publish` and `helm-publish` stay. In the `deploy-cloudflare-staging` comment, drop the sentence about running alongside Helm.
+- [ ] **Step 1: `release.yml`** — delete the whole `deploy-staging` job and its comment. `docker-publish` and `helm-publish` stay. In the `deploy-cloudflare-staging` comment, drop the sentence about running alongside Helm. Decide what `force_build` means once Helm staging is gone (either drop the input or make `deploy-cloudflare.yml` accept a sha-based build).
 
 - [ ] **Step 2: `e2e.yml`** — make the nightly hit the deployed host instead of a Docker build. Add a first job-level step and gate the Docker steps on its output:
 
