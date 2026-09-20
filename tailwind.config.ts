@@ -12,6 +12,12 @@ export default {
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',
         marquee: 'marquee 40s linear infinite',
+        // Scroll-triggered entrances (About page timeline + team). Each one
+        // runs once, `forwards`, and is staggered per item via animation-delay.
+        'tl-draw': 'tlDraw 1.6s cubic-bezier(0.65, 0, 0.35, 1) forwards',
+        'tl-pop': 'tlPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'tl-rise': 'tlRise 0.6s ease-out forwards',
+        'tl-ring': 'tlRing 1.4s ease-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -23,6 +29,25 @@ export default {
         marquee: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
+        },
+        // The timeline's dotted line "draws itself": the line is fully laid
+        // out from the start and a clip-path reveals it end to end, so the dot
+        // pattern never stretches.
+        tlDraw: {
+          '0%': { clipPath: 'inset(0 100% 0 0)' },
+          '100%': { clipPath: 'inset(0 0 0 0)' },
+        },
+        tlPop: {
+          '0%': { opacity: '0', transform: 'scale(0) rotate(-20deg)' },
+          '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
+        },
+        tlRise: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        tlRing: {
+          '0%': { transform: 'scale(1)', opacity: '0.6' },
+          '100%': { transform: 'scale(3.2)', opacity: '0' },
         },
       },
       fontFamily: {
