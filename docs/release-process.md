@@ -13,7 +13,7 @@
    - (Prereleases on `development` are **not** auto-deployed anywhere — only pushes to `main` trigger the staging auto-deploy.)
 5. When `development` is ready to ship, open the `development` → `main` PR (the only PR `restrict-main-merges.yml` allows into `main`) and squash-merge it.
 6. That push to `main` triggers `release.yml` again. Because the merge was a squash (a new commit, not an ancestor of the individual `development` commits carrying `-dev.*` tags), `semantic-release` finds no prior tag reachable from `main` on the very first run and computes `main`'s first release as exactly **`1.0.0`** — see [versioning.md](./versioning.md) for why this is guaranteed rather than coincidental. Subsequent `main` releases compute normally from commits since the last `main` tag.
-7. The same publish steps run (image, chart, `CHANGELOG.md`, GitHub Release), and — because this is `main` — the pipeline also auto-deploys that exact version to the `staging` namespace via `deploy-to-kubernetes.yml`.
+7. The same publish steps run (image, chart, `CHANGELOG.md`, GitHub Release), and — because this is `main` — the pipeline also auto-deploys that exact version to the `staging` namespace via `deploy-to-kubernetes.yml`. `main` releases additionally build a **second image**, `newwave4-frontend-production:X.Y.Z`, from the `PROD_NEXT_PUBLIC_*` secrets — same commit, production API origin baked in — which is the one a production deploy pulls (see [ADR 0007](./decisions/0007-separate-production-image.md)). It is skipped with a warning while those secrets are unset.
 
 At the end of this, everything traces to one version number: the git tag, the `CHANGELOG.md` entry, the GitHub Release notes, the Docker image tag, and the Helm chart version/appVersion are all `1.0.0` (or whatever `X.Y.Z` was computed) for that release.
 
@@ -21,7 +21,7 @@ At the end of this, everything traces to one version number: the git tag, the `C
 
 Production is **never** auto-deployed. To promote a specific, already-published version:
 
-1. Confirm the version you want is published — check the repo's GitHub Releases page or `git tag -l`.
+1. Confirm the version you want is published — check the repo's GitHub Releases page or `git tag -l` — **and** that its `docker-publish-production` job built the `newwave4-frontend-production:X.Y.Z` image (it skips when the `PROD_*` secrets are missing; see [ci-cd.md](./ci-cd.md) prerequisite 3). Production never runs the staging-configured `newwave4-frontend:X.Y.Z` image.
 2. Run `deploy-to-kubernetes.yml` manually (Actions → Deploy to Kubernetes → Run workflow):
    - `namespace`: `production`
    - `chart_version`: the exact version, e.g. `1.2.3`
