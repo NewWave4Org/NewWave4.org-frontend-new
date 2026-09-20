@@ -89,6 +89,8 @@ served by Cloudflare DNS, so the zone moves; registration does not.
 
 - `npm install -D @opennextjs/cloudflare wrangler` (start from
   `npx @opennextjs/cloudflare migrate`, then reconcile with the items below).
+- `esbuild` as an explicit devDependency (see ADR 0008 — upstream packaging
+  gap in `@opennextjs/cloudflare`).
 - `open-next.config.ts` — `defineCloudflareConfig({})` (defaults; no cache bindings).
 - `wrangler.jsonc`:
   - `name: "newwave4-frontend-staging"`, `main: ".open-next/worker.js"`
