@@ -6,10 +6,16 @@ import { API_V1_BASE_URL } from './api-base-url';
 // staging, which meant a production build called the staging backend and there
 // was no way to run against a local Spring Boot instance without editing this
 // file (issue #446).
+//
+// `adapter: 'fetch'` on both: the default Node `http` adapter does not exist
+// inside the Cloudflare Worker that renders sitemap.ts and article pages
+// server-side. The fetch adapter behaves identically for this code (JSON
+// bodies, headers, status codes; withCredentials → credentials: 'include').
 
 export const axiosInstance = axios.create({
   baseURL: API_V1_BASE_URL,
   withCredentials: true,
+  adapter: 'fetch',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -18,6 +24,7 @@ export const axiosInstance = axios.create({
 
 export const axiosOpenInstance = axios.create({
   baseURL: API_V1_BASE_URL,
+  adapter: 'fetch',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
