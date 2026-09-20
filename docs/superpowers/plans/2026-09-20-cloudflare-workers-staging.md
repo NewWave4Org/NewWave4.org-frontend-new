@@ -32,8 +32,8 @@
 | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `open-next.config.ts` (new)                                                                                                 | OpenNext adapter config — defaults, no cache bindings                                         |
 | `wrangler.jsonc` (new)                                                                                                      | Worker name, entry, assets binding, self-reference, compat flags, version `vars` placeholders |
-| `cloudflare-env.d.ts` (new, generated)                                                                                      | Types for Worker bindings/vars                                                                |
-| `next.config.ts`                                                                                                            | `+ initOpenNextCloudflareForDev()`                                                            |
+| `cloudflare-env.d.ts` (generated, git-ignored)                                                                              | Types for Worker bindings/vars via `cf-typegen` on demand; never committed (ADR 0008)         |
+| `next.config.ts`                                                                                                            | unchanged — `initOpenNextCloudflareForDev()` deliberately not called (ADR 0008)               |
 | `package.json`                                                                                                              | `cf:build`, `cf:preview`, `cf:deploy`, `cf-typegen` scripts; devDeps                          |
 | `.gitignore`, `.prettierignore`, `.dockerignore`, `tsconfig.json`, `vitest.config.ts`                                       | ignore `.open-next/`, `.wrangler/`                                                            |
 | `utils/http/axiosInstance.ts` (+ new test)                                                                                  | `adapter: 'fetch'` on both instances                                                          |
@@ -152,8 +152,7 @@ Append to `.prettierignore` (under the build-output block) and `.dockerignore`:
 - [ ] **Step 6: Generate binding types**
 
 ```bash
-npm run cf-typegen
-git add cloudflare-env.d.ts
+npm run cf-typegen   # writes cloudflare-env.d.ts locally; it is git-ignored (ADR 0008) — do not stage it
 ```
 
 - [ ] **Step 7: Correct the spec (standalone stays)**
@@ -192,7 +191,7 @@ Expected: all four pass; `worker.js` well under the Worker size limit. If the bu
 
 ```bash
 npm run test && npx prettier --check open-next.config.ts wrangler.jsonc next.config.ts package.json tsconfig.json vitest.config.ts
-git add open-next.config.ts wrangler.jsonc cloudflare-env.d.ts next.config.ts package.json package-lock.json .gitignore .prettierignore .dockerignore tsconfig.json vitest.config.ts docs/superpowers/specs/2026-09-20-cloudflare-workers-staging-design.md
+git add open-next.config.ts wrangler.jsonc next.config.ts package.json package-lock.json .gitignore .prettierignore .dockerignore tsconfig.json vitest.config.ts docs/superpowers/specs/2026-09-20-cloudflare-workers-staging-design.md
 git commit -m "feat(cloudflare): add OpenNext adapter and Worker config for staging"
 ```
 
@@ -714,7 +713,7 @@ Send yourself a test email to the domain if mail is hosted there.
 
 ### Task 8: **[MANUAL]** Cutover of `new.newwave4.org`
 
-Prerequisites: Task 6 step 4 done (Worker live on `workers.dev`), Task 7 done.
+Prerequisites: the Worker is live on `workers.dev` (Task 6 step 3's manual `cf:deploy`, then step 5's release deploy), Task 7 done.
 
 - [ ] **Step 1: Verify the Worker on `workers.dev`** (`W=https://newwave4-frontend-staging.<account>.workers.dev`):
 
