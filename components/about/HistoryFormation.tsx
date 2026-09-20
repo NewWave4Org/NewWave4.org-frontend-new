@@ -1,6 +1,10 @@
+'use client';
+
 import Image from 'next/image';
+import { CSSProperties } from 'react';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 import { useLocale, useTranslations } from 'next-intl';
+import { useInView } from '@/utils/hooks/useInView';
 
 interface IOurTimeLine {
   year: string;
@@ -9,82 +13,114 @@ interface IOurTimeLine {
   translatable_text_editorState: any;
 }
 
+/*
+  Milestones alternate above / below a horizontal dotted line on desktop and
+  stack beside a vertical one on smaller screens. The line draws itself when
+  the section scrolls into view and each milestone pops in as the line
+  reaches it -- see the `.timeline` rules in styles/globals.css for the
+  choreography; this file only sets `--i` (the stagger index) per item.
+*/
 const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
   const t = useTranslations();
   const locale = useLocale();
+  const { ref, inView } = useInView<HTMLElement>();
+
+  const count = ourTimeLine?.length ?? 0;
+  if (count === 0) return null;
+
+  // Desktop: the line runs from the first dot's centre to the last dot's, not
+  // edge to edge, so it never dangles past the outermost milestones.
+  const halfColumn = `calc(100% / ${count} / 2)`;
 
   return (
-    <section className="history-formation py-14">
-      <div className="history-formation__inner">
-        <h4 className="mb-14 text-center md:text-left container px-4 mx-auto !text-font-primary lora-family text-2xl font-bold uppercase">
+    <section
+      ref={ref}
+      className={`timeline history-formation py-14 ${inView ? 'is-inview' : ''}`}
+    >
+      <div className="container mx-auto px-4">
+        <h4 className="mb-14 text-center md:text-left !text-font-primary lora-family text-2xl font-bold uppercase">
           {t('sections_title.history_formation')}
         </h4>
 
-        <div className="container mx-auto px-4">
-          <div className="xl:py-[300px] w-full flex xl:flex-row flex-col relative">
-            {ourTimeLine?.map((event, index) => {
-              const ourTimeLineText = convertDraftToHTML(
+        <div className="relative">
+          {/* Desktop line (horizontal, through the dots) */}
+          <div
+            aria-hidden
+            className="timeline__line absolute top-1/2 hidden h-2 -translate-y-1/2 xl:block"
+            style={{ left: halfColumn, right: halfColumn }}
+          />
+          {/* Mobile line (vertical, down the left edge) */}
+          <div
+            aria-hidden
+            className="timeline__line timeline__line--vertical absolute bottom-6 left-[15px] top-2 w-2 -translate-x-1/2 xl:hidden"
+          />
+
+          <ol
+            className="relative grid grid-cols-1 !list-none !pl-0 xl:min-h-[460px] xl:grid-cols-[repeat(var(--timeline-count),minmax(0,1fr))]"
+            style={{ '--timeline-count': count } as CSSProperties}
+          >
+            {ourTimeLine.map((event, index) => {
+              const above = index % 2 === 0;
+              const html = convertDraftToHTML(
                 event?.translatable_text_editorState,
                 locale,
               );
-              const iconCircus = `after:content-[""] after:absolute xl:after:w-[8px] after:w-[20px] xl:after:h-[8px] after:h-[20px] after:bg-accent-600 after:z-[1] after:rounded-full xl:after:left-1/2 after:-translate-x-1/2 ${
-                index % 2 === 0
-                  ? 'xl:after:-bottom-1 xl:after:top-auto after:top-1/2 after:-right-[36px] after:left-auto'
-                  : 'xl:after:-top-1  after:top-1/2 after:-left-4 after:right-auto'
-              }`;
-
-              const lineBlock = `xl:after-content-none after:content-[""] after:absolute after:w-[2px] after:h-full xl:after:border-none after:border-[1px] after:border-dashed after:border-primary-900 after:top-0`;
 
               return (
-                <div
+                // One set of markup for every breakpoint. Desktop: each
+                // milestone owns a column and an [above | dot | below] row
+                // triple; `order-*` flips body/year/ornament so the year always
+                // sits nearest the line. Mobile: year + ornament inline, body
+                // beneath, dot on the vertical line to the left.
+                <li
                   key={index}
-                  className={`relative text-center text-5xl text-font-accent font-bold leading-[1.2] flex-1
-                font-ebGaramond xl:border-[1px] border-none xl:border-dashed border-primary-900 xl:mr-0.5 mb-0.5 xl:block flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
+                  style={{ '--i': index } as CSSProperties}
+                  className="timeline__item relative mb-0 block pl-12 pb-10 before:hidden last:pb-0 xl:grid xl:grid-rows-[1fr_auto_1fr] xl:px-3 xl:pb-0 xl:pl-3 xl:text-center"
                 >
+                  <span
+                    aria-hidden
+                    className={`timeline__dot absolute left-[15px] top-[14px] block h-3 w-3 -translate-x-1/2 rounded-full bg-accent-600
+                      xl:static xl:row-start-2 xl:translate-x-0 xl:justify-self-center`}
+                  />
+
                   <div
-                    className={`xl:absolute relative xl:w-full w-1/2 xl:h-[300px] px-4 xl:border-none border-dashed border-primary-900 xl:py-0 py-6 ${lineBlock} ${
-                      index % 2 === 0
-                        ? 'justify-start after:-right-[1px]'
-                        : 'justify-end after:-left-[1px]'
-                    }`}
+                    className={`flex flex-wrap items-center gap-x-3 gap-y-3
+                      xl:flex-col xl:flex-nowrap xl:gap-3 ${
+                        above
+                          ? 'xl:row-start-1 xl:justify-end xl:pb-4'
+                          : 'xl:row-start-3 xl:justify-start xl:pt-4'
+                      }`}
                   >
                     <div
-                      className={`relative h-full ${iconCircus} flex ${index % 2 === 0 ? 'xl:flex-col-reverse flex-col xl:bottom-[300px] justify-between' : 'flex-col'}`}
+                      className={`timeline__year order-1 font-ebGaramond text-5xl font-bold leading-[1.1] text-font-accent xl:order-2`}
                     >
-                      <span
-                        className={`flex justify-center ${index % 2 === 0 ? 'mt-5 mb-3' : 'mb-5 mt-3'}`}
-                      >
-                        <Image
-                          src="/icons/history-icon.svg"
-                          width={35}
-                          height={36}
-                          alt="icon"
-                        />
-                      </span>
+                      {event.year}
+                    </div>
+                    <Image
+                      aria-hidden
+                      src="/icons/history-icon.svg"
+                      width={35}
+                      height={36}
+                      alt=""
+                      className={`timeline__ornament order-2 ${above ? 'xl:order-3' : 'xl:order-1'}`}
+                    />
+                    <div
+                      className={`timeline__body order-3 basis-full ${above ? 'xl:order-1' : 'xl:order-3'} xl:basis-auto`}
+                    >
+                      <h5 className="mb-2 font-ebGaramond text-xl font-semibold text-font-primary">
+                        {event.translatable_text_title}
+                      </h5>
+                      {/* div, not p — draft-js HTML already contains <p>. */}
                       <div
-                        className={`history-formation__timeline-date ${index % 2 === 0 ? '' : 'mb-4'}`}
-                      >
-                        {event.year}
-                      </div>
-
-                      <div
-                        className={`history-formation__timeline-info text-center`}
-                      >
-                        <h4 className="text-xl font-semibold text-font-primary mb-4">
-                          {event.translatable_text_title}
-                        </h4>
-                        {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
-                        <div
-                          className="text-base text-font-primary w-full leading-[1.5] font-normal font-helv"
-                          dangerouslySetInnerHTML={{ __html: ourTimeLineText }}
-                        />
-                      </div>
+                        className="font-helv text-base font-normal leading-[1.5] text-font-primary"
+                        dangerouslySetInnerHTML={{ __html: html }}
+                      />
                     </div>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </div>
       </div>
     </section>

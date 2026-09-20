@@ -167,6 +167,124 @@ html {
     animation-play-state: paused;
   }
 
+  /* About page: history timeline */
+
+  /*
+    Every animated piece starts hidden and is released by `.is-inview` on the
+    section (set from useInView). Per-item stagger comes from `--i`, set inline
+    on each milestone, so the cascade tracks the line as it draws. Reduced
+    motion: everything snaps to its final state.
+  */
+  .timeline__line {
+    background-image: radial-gradient(
+      circle,
+      theme('colors.primary.900') 1.2px,
+      transparent 1.4px
+    );
+    background-size: 8px 8px;
+    background-repeat: repeat-x;
+    background-position: center;
+    clip-path: inset(0 100% 0 0);
+  }
+  .timeline__line--vertical {
+    background-repeat: repeat-y;
+    clip-path: inset(0 0 100% 0);
+  }
+  .timeline.is-inview .timeline__line {
+    @apply animate-tl-draw;
+  }
+  .timeline.is-inview .timeline__line--vertical {
+    animation-name: tlDrawDown;
+  }
+  @keyframes tlDrawDown {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .timeline__dot,
+  .timeline__ornament,
+  .timeline__year,
+  .timeline__body {
+    opacity: 0;
+  }
+  .timeline.is-inview .timeline__dot,
+  .timeline.is-inview .timeline__ornament {
+    @apply animate-tl-pop;
+    animation-delay: calc(0.3s + var(--i) * 0.2s);
+  }
+  .timeline.is-inview .timeline__year {
+    @apply animate-tl-rise;
+    animation-delay: calc(0.45s + var(--i) * 0.2s);
+  }
+  .timeline.is-inview .timeline__body {
+    @apply animate-tl-rise;
+    animation-delay: calc(0.6s + var(--i) * 0.2s);
+  }
+
+  /* Hover: the year warms to the accent and the dot sends out a soft ring. */
+  .timeline__year {
+    @apply transition-colors duration-300;
+  }
+  .timeline__item:hover .timeline__year {
+    @apply text-accent-700;
+  }
+  .timeline__dot::before {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-accent-600 opacity-0;
+  }
+  .timeline__item:hover .timeline__dot::before {
+    @apply animate-tl-ring;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline__line,
+    .timeline__line--vertical {
+      clip-path: none;
+    }
+    .timeline__dot,
+    .timeline__ornament,
+    .timeline__year,
+    .timeline__body {
+      opacity: 1;
+    }
+    .timeline.is-inview .timeline__line,
+    .timeline.is-inview .timeline__dot,
+    .timeline.is-inview .timeline__ornament,
+    .timeline.is-inview .timeline__year,
+    .timeline.is-inview .timeline__body,
+    .timeline__item:hover .timeline__dot::before {
+      animation: none;
+    }
+  }
+
+  /* About page: team grid */
+
+  .team-grid__item {
+    opacity: 0;
+  }
+  .team-grid.is-inview .team-grid__item {
+    @apply animate-tl-rise;
+    animation-delay: calc(var(--i) * 0.06s);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .team-grid__item {
+      opacity: 1;
+    }
+    .team-grid.is-inview .team-grid__item {
+      animation: none;
+    }
+  }
+  /* Touch devices have no hover: keep the card footer always visible. */
+  @media (hover: none) {
+    .member-card__footer {
+      @apply translate-y-0 opacity-100;
+    }
+  }
+
   /* .sponsors-slider .slick-track {
     display: flex;
     align-items: center

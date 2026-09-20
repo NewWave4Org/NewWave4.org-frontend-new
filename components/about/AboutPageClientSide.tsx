@@ -139,7 +139,7 @@ function AboutPageClientSide() {
       {quote && quote?.translatable_text_text !== '' && (
         <DetailedTextInformation quote={quote} />
       )}
-      {ourTeam?.contentBlocks.length && (
+      {ourTeam && ourTeam.contentBlocks.length > 0 && (
         <Team ourTeam={ourTeam?.contentBlocks} />
       )}
       <HistoryCard
