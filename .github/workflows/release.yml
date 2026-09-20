@@ -238,6 +238,115 @@ jobs:
             -t ghcr.io/${{ env.ORG }}/newwave4-frontend:latest \
             ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.image_tag }}
 
+  # Production build of the same commit. NEXT_PUBLIC_* values are inlined at
+  # build time (see ADR 0006 / 0007), so an image built with staging's API
+  # origin can only ever talk to staging -- production needs its own image,
+  # built from the PROD_NEXT_PUBLIC_* repo secrets and pushed under a separate
+  # name (`newwave4-frontend-production`) with the *same* X.Y.Z tag, which is
+  # what deploy-to-kubernetes.yml pulls for `namespace: production`.
+  #
+  # Deliberately not bound to the `production` GitHub Environment: that
+  # environment carries the deploy secrets and (ideally) required reviewers,
+  # and a reviewer gate must hold up deploys, not release builds. Until the
+  # PROD_* secrets exist the job skips its build steps rather than failing,
+  # so releases keep working while production is being set up.
+  docker-publish-production:
+    name: docker-publish-production
+    needs: release
+    if: >-
+      needs.release.outputs.publish_image == 'true'
+      && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      packages: write
+    env:
+      PROD_API_URL: ${{ secrets.PROD_NEXT_PUBLIC_NEWWAVE_API_URL }}
+      PROD_SITE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SITE_URL }}
+      PROD_PAYPAL_CLIENT_ID: ${{ secrets.PROD_NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+      PROD_STRIPE_PUBLISHABLE_KEYS: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+      PROD_STRIPE_WEBHOOK_URL: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+    steps:
+      # The secrets context can't be tested in a job-level `if`, so the
+      # "is production configured yet?" decision is made here and every later
+      # step keys off it. Only the three values the app can't build without
+      # are mandatory; the Stripe webhook URL is ceremonial (see CLAUDE.md).
+      - name: Check production build config
+        id: cfg
+        run: |
+          missing=""
+          [ -z "${PROD_API_URL}" ] && missing="${missing} PROD_NEXT_PUBLIC_NEWWAVE_API_URL"
+          [ -z "${PROD_PAYPAL_CLIENT_ID}" ] && missing="${missing} PROD_NEXT_PUBLIC_PAYPAL_CLIENT_ID"
+          [ -z "${PROD_STRIPE_PUBLISHABLE_KEYS}" ] && missing="${missing} PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS"
+          if [ -n "${missing}" ]; then
+            echo "::warning::Skipping the production image: repo secret(s) not set:${missing}. See docs/ci-cd.md, prerequisite 3."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            if [ -z "${PROD_SITE_URL}" ]; then
+              echo "::warning::PROD_NEXT_PUBLIC_SITE_URL is unset -- canonical URLs, hreflang and sitemap.xml in the production image will point at utils/seo.ts's staging fallback."
+            fi
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.cfg.outputs.configured == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set Org Lowercase
+        if: steps.cfg.outputs.configured == 'true'
+        uses: ./.github/actions/set-org-lowercase
+
+      - name: Generate .env file (production values)
+        if: steps.cfg.outputs.configured == 'true'
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ env.PROD_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ env.PROD_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ env.PROD_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ env.PROD_API_URL }}
+          site_url: ${{ env.PROD_SITE_URL }}
+
+      - name: GHCR Login
+        if: steps.cfg.outputs.configured == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        if: steps.cfg.outputs.configured == 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Stamp build metadata
+        if: steps.cfg.outputs.configured == 'true'
+        id: stamp
+        run: |
+          set -euo pipefail
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      # Same tag as the staging image, different name: deploy-to-kubernetes.yml
+      # only accepts a bare X.Y.Z for production, and keeping the tag identical
+      # means the version-drift check (/api/version vs the newest release)
+      # works for production without special-casing.
+      - name: Build and push production image
+        if: steps.cfg.outputs.configured == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend-production:${{ needs.release.outputs.image_tag }}
+          build-args: |
+            APP_VERSION=${{ needs.release.outputs.image_tag }}
+            IMAGE_TAG=${{ needs.release.outputs.image_tag }}
+            GIT_COMMIT=${{ steps.stamp.outputs.commit }}
+            BUILD_TIME=${{ steps.stamp.outputs.built_at }}
+
   # Release-only on purpose: a force_build has no new chart version to publish
   # (Chart.yaml is bumped by semantic-release), and re-pushing the existing
   # one would silently overwrite a released artifact.
