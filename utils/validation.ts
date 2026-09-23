@@ -21,6 +21,10 @@ export const passwordValidation = Yup.string().required(
   'Password field cannot be empty',
 );
 
+export const messageValidation = Yup.string().required(
+  'Message field cannot be empty',
+);
+
 export const adminPassValidation = Yup.string()
   .required('Password field cannot be empty')
   .min(8, 'Password must be at least 8 characters long')

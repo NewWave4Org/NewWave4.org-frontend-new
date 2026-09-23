@@ -108,14 +108,16 @@ const PaymentForm = () => {
     resetForm();
   };
 
-  // const onModalClose = () => setOpenModal(false);
   const onApprovedModalClose = () => setIsPaymentApproved(false);
 
   useEffect(() => {
-    if (isPaymentApproved) {
-      // setOpenModal(false);
+    if (!isPaymentApproved) return;
+
+    const timeoutId = window.setTimeout(() => {
       router.replace('/donation/finish');
-    }
+    }, 1500);
+
+    return () => window.clearTimeout(timeoutId);
   }, [isPaymentApproved, router]);
 
   const handleAmountChange = (e: any) => {
@@ -151,7 +153,7 @@ const PaymentForm = () => {
         setFieldValue,
       }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
-          {isPaymentApproved && (
+          {true && (
             <Modal
               type={isPaymentApproved ? 'success' : 'error'}
               isOpen={isPaymentApproved || isPaymentError}

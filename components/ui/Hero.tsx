@@ -13,11 +13,11 @@ const Hero = ({
         src={`${pageBanner ? pageBanner : `/hero/about.svg`}`}
         alt={title || ''}
         fill
-        className="object-cover"
+        className="page-banner__img"
         priority
       />
       <div className="container mx-auto px-4 relative z-10">
-        <h1 className="font-bold text-[45px] lg:text-[50px] lora-family uppercase page-banner__title relative">
+        <h1 className="text-[45px] lg:text-[50px] lora-family uppercase page-banner__title relative">
           {title}
         </h1>
       </div>

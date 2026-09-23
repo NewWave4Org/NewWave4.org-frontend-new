@@ -8,6 +8,7 @@ import Modal from '../shared/Modal';
 import TextArea from '../shared/TextArea';
 import {
   emailValidation,
+  messageValidation,
   nameValidation,
   phoneValidation,
 } from '@/utils/validation';
@@ -18,6 +19,7 @@ const validationSchema = Yup.object({
   email: emailValidation,
   name: nameValidation,
   tel: phoneValidation,
+  message: messageValidation,
 });
 
 interface InnerContactFormValues {
@@ -77,6 +79,8 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
             label={`${t('forms_label.message_text')}`}
             maxLength={200}
             value={values.message}
+            required
+            validationText={touched.message && errors.message ? errors.message : ''}
             onChange={handleChange}
             className="w-full h-[100px]"
           />
