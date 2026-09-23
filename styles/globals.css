@@ -588,6 +588,11 @@ p a {
 .page-banner {
   background: #0f1b40;
 }
+.page-banner__img {
+  width: auto !important;
+  left: auto !important;
+  right: 0 !important;
+}
 .page-banner__title {
   padding-left: 30px;
 }
@@ -621,11 +626,12 @@ p a {
 .zoomIn__icon {
   fill: white;
 }
-@media (max-width: 576px) {
+@media (max-width: 767px) {
   .home-main-title {
     font-size: 55px;
   }
   .home-main-subtitle {
+    font-size: 25px;
     position: static;
     margin-top: 15px;
     display: block;

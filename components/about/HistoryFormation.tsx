@@ -56,7 +56,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
       className={`timeline history-formation py-14 ${inView ? 'is-inview' : ''}`}
     >
       <div className="container mx-auto px-4">
-        <h4 className="mb-14 text-center md:text-left !text-font-primary lora-family text-2xl font-bold uppercase">
+        <h4 className="mb-14 text-center md:text-left !text-font-primary lora-family lg:text-[34px] text-[38px] font-bold uppercase">
           {t('sections_title.history_formation')}
         </h4>
 

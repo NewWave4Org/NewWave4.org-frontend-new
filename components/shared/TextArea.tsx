@@ -41,6 +41,7 @@ const TextArea: React.FC<TextAreaProps> = ({
         ${className} 
         resize-none bg-transparent
         hover:ring-2 hover:ring-grey-600
+        ${validationText && 'ring-status-danger-500'}
         focus:outline-none focus:ring-2 focus:ring-status-info-500 `}
         {...props}
       />

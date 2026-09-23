@@ -46,14 +46,13 @@ const FinishPage = () => {
       return error;
     }
   };
+
   useEffect(() => {
-    if (!!datafromlocal && Object.keys(datafromlocal).length > 0) {
-      saveformData()
-        .then()
-        .catch(err => console.warn(err));
-    } else {
-      router.push('/donation');
+    if (!datafromlocal || Object.keys(datafromlocal).length === 0) {
+      return;
     }
+
+    saveformData().catch(err => console.warn(err));
   }, [datafromlocal]);
 
   return (

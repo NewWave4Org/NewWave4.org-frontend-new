@@ -25,11 +25,11 @@ function ProgramHeader({
         src={`${pageBanner && pageBanner?.length > 0 ? pageBanner : `${prefix}/programs/program.png`}`}
         alt={title || ''}
         fill
-        className="object-cover"
+        className="page-banner__img"
         priority
       />
       <div className="container mx-auto px-4 relative z-10">
-        <h1 className="font-bold text-[45px] lg:text-h1 lora-family uppercase page-banner__title relative">
+        <h1 className="text-[45px] lg:text-h1 lora-family uppercase page-banner__title relative">
           {title}
         </h1>
       </div>
