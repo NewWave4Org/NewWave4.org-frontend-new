@@ -80,7 +80,9 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
             maxLength={200}
             value={values.message}
             required
-            validationText={touched.message && errors.message ? errors.message : ''}
+            validationText={
+              touched.message && errors.message ? errors.message : ''
+            }
             onChange={handleChange}
             className="w-full h-[100px]"
           />
