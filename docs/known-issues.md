@@ -153,3 +153,16 @@ Given both DoS advisories require attacker-influenced input reaching `Immutable.
 **This app never actually invokes sharp today**: `next.config.ts` sets `images: { unoptimized: true }`, which removes the `/​_next/image` optimization route entirely (confirmed: returns a plain 404 rather than attempting to process an image) — so the vulnerable libvips code path has zero live exposure regardless of the installed version. Fixed anyway via `overrides.next.sharp: "^0.35.3"` (matching the `postcss` override already in place for the same reason — forcing a nested dependency of `next` that npm's own resolver can't reach) rather than leaving a known-vulnerable version sitting in `package-lock.json`.
 
 That override alone was not sufficient: Next's `output: 'standalone'` build traces (`@vercel/nft`) which `node_modules` files the server needs and copies only those into `.next/standalone` — confirmed (via a plain `npm ci` in the Dockerfile's `deps` stage, compared against the traced `.next/standalone` output) that the tracer correctly bundles `sharp@0.34.5`'s native `libvips-cpp.so` but silently drops it for `0.35.3`, leaving `@img/sharp-libvips-linuxmusl-arm64/lib/` present as a directory with no `.so` file inside — a `require('sharp')` then throws `ERR_DLOPEN_FAILED`. The Dockerfile's `runner` stage now explicitly overlays `COPY --from=builder /app/node_modules/@img ./node_modules/@img` (the builder stage's full, untraced `node_modules`) on top of the standalone copy, so the real binary is present regardless of the tracer gap — verified by building the actual image, running the container, and confirming `sharp` renders a real image buffer inside it. Since `images.unoptimized: true` means this code path isn't exercised in production either way, revisit whether the Dockerfile overlay is still needed once a `next` release bundles `sharp >= 0.35.0` natively (its own file-tracer would presumably be updated in step).
+
+## 2026-09-19 staging-node outage (context for ADR 0008)
+
+`staging-node` (4 GB, also an etcd/control-plane member) ran at 99% memory
+commitment; a `newwave4-api` rollout with `maxSurge` briefly ran three JVMs and
+the node OOM-wedged (kubelet, sshd and the etcd peer stopped responding). etcd
+lost quorum, `prod-mariadb-0` was killed by its 1-second probes ~30 times while
+Longhorn rebuilt its degraded volume, and both staging deploy attempts failed on
+`kubectl cluster-info`. Recovery: remove the node from etcd, reboot it from the
+provider console, clear `/var/lib/rancher/rke2/server/db` before restart.
+Backend/infra follow-ups (not this repo): `maxSurge: 0` and HPA cap for the
+staging API, explicit `-Xmx`, looser mariadb probes, recreate the missing
+`google-credentials` secret in `backend-prod`, keep etcd off the staging box.

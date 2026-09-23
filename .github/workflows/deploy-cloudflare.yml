@@ -1,0 +1,105 @@
+name: Deploy to Cloudflare
+
+# Deploys an already-published release of the frontend as the
+# `newwave4-frontend-staging` Worker. Called from release.yml on main, or
+# dispatched by hand to redeploy a known version (mirrors
+# deploy-to-kubernetes.yml). NEXT_PUBLIC_* are build-time: the Worker is
+# rebuilt from the release tag with staging values, exactly like the Docker
+# image is.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Published release version to deploy (e.g. 1.5.1 — the git tag v<version> must exist)'
+        required: true
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-cloudflare-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Guard version format
+        run: |
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::'$VERSION' is not a semver release version"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          ref: v${{ inputs.version }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate .env file
+        uses: ./.github/actions/generate-env
+        with:
+          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      - name: Build Worker
+        run: npm run cf:build
+
+      # wrangler's own accounting is the number that matters against the
+      # Worker size limit (see https://developers.cloudflare.com/workers/platform/limits/);
+      # .open-next/worker.js is only a 4 KB shim, the real bundle lives in
+      # server-functions/ and is measured after wrangler bundles it.
+      - name: Report bundle size (dry run)
+        run: npx wrangler deploy --dry-run --outdir .open-next/dry-run | grep -E 'Total Upload|gzip' || true
+
+      - name: Stamp build metadata
+        id: stamp
+        run: |
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # Equivalent to `opennextjs-cloudflare deploy` while there are no cache bindings;
+        # if an R2 incremental cache is ever added, switch to
+        # `npx opennextjs-cloudflare deploy -- --var …` so populateCache runs.
+        run: |
+          npx wrangler deploy \
+            --var APP_VERSION:"$VERSION" \
+            --var GIT_COMMIT:"${{ steps.stamp.outputs.commit }}" \
+            --var BUILD_TIME:"${{ steps.stamp.outputs.built_at }}" \
+            --var IMAGE_TAG:"cloudflare-$VERSION"
+
+      # Repo variable CLOUDFLARE_STAGING_URL is set once the custom domain is
+      # attached (cutover step 3). Until then there is nothing public to check.
+      - name: Smoke-check /api/version
+        if: vars.CLOUDFLARE_STAGING_URL != ''
+        run: |
+          url="${{ vars.CLOUDFLARE_STAGING_URL }}/api/version"
+          for i in 1 2 3 4 5 6; do
+            got=$(curl -fsS --max-time 20 "$url" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).version' || true)
+            if [ "$got" = "$VERSION" ]; then echo "OK: $url reports $got"; exit 0; fi
+            echo "attempt $i: got '$got', want '$VERSION' — retrying in 10s"; sleep 10
+          done
+          echo "::error::$url did not report $VERSION"; exit 1
