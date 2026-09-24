@@ -32,7 +32,7 @@ const Team = ({ ourTeam }: { ourTeam: ourTeamProps[] }) => {
     >
       <div className="container mx-auto px-4">
         <div className="mb-10 text-center md:text-left">
-          <h4 className="lora-family lg:text-[34px] text-[38px] font-bold uppercase !text-font-primary">
+          <h4 className="lora-family lg:text-[34px] text-[38px] font-bold !text-font-primary">
             {t('sections_title.our_team')}
           </h4>
           <p className="mt-2 font-helv text-base text-grey-600">
