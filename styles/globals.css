@@ -261,6 +261,11 @@ html {
     }
   }
 
+  /* Home page: "How to join us" reuses the timeline's dotted path. */
+  .join-paths .timeline__item:hover .join-paths__title {
+    @apply text-accent-700;
+  }
+
   /* About page: team grid */
 
   .team-grid__item {
