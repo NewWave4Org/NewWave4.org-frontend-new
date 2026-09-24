@@ -26,7 +26,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
         />
       </div>
       <div className="pt-2 pb-4 px-4 flex flex-col gap-y-2 flex-1">
-        <h2 className="text-font-primary text-body font-bold lora-family">
+        <h2 className="text-font-primary text-body font-bold">
           {title}
         </h2>
         <div
