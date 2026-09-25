@@ -610,7 +610,7 @@ p a {
   right: 0 !important;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1199px) {
   .page-banner__img {
     object-fit: cover;
     object-position: right;
