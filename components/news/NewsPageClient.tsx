@@ -34,7 +34,7 @@ const NewsPageClient: React.FC<NewsPageClientProps> = ({
       <Hero
         title={pageBannerTitle}
         pageBanner={
-          isNewsPage ? '/news/news-img.png' : '/events/events-img.png'
+          isNewsPage ? '/news/news-img.png' : '/events/events-img.jpeg'
         }
       />
       <div className="pt-[46px] pb-[80px] relative">
