@@ -46,7 +46,10 @@ for (const { name, path } of PUBLIC_PAGES) {
       if (REACT_ERROR.test(err.message)) reactErrors.push(err.message);
     });
 
-    await page.goto(path, { waitUntil: 'networkidle' });
+    // Avoid `networkidle` here: the public pages in this app can keep
+    // background requests alive in CI, and waiting for a perfectly quiet
+    // network makes the test flaky even when the page itself rendered fine.
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
 
     expect(
       reactErrors,
