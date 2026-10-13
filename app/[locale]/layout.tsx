@@ -93,7 +93,9 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ReduxProvider>
             <Header currentLocale={locale} />
-            <main className="flex-1 overflow-hidden pt-[96px]">{children}</main>
+            <main className="flex-1 overflow-hidden  pt-[96px]">
+              {children}
+            </main>
             <Subscribe />
             <Footer />
           </ReduxProvider>

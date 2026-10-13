@@ -21,6 +21,7 @@ body {
   box-sizing: border-box;
   font-size: 18px;
   line-height: 1.6;
+  overflow-x: clip;
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
@@ -35,9 +36,9 @@ body {
   outline: none !important;
 }
 
-html {
+/* html {
   scroll-behavior: smooth;
-}
+} */
 
 @media (width >= 1536px) {
   .container {
@@ -476,6 +477,12 @@ p:not(:last-child) {
   width: 1px;
   height: 12px;
   background: #b5b5b5;
+}
+.home-slider .slick-track {
+  display: flex;
+}
+.home-slider .slick-slide {
+  float: none;
 }
 .home-slider .slick-list,
 .home-slider .slick-track,

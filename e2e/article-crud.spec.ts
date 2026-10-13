@@ -176,7 +176,9 @@ test.describe('article content management', () => {
     // beforehand. Waiting for that fetch is the difference between this test
     // being reliable and being mysteriously flaky.
     await page.waitForResponse(
-      r => new RegExp(`/article/public/${createdArticleId}$`).test(r.url()),
+      r =>
+        r.request().method() === 'GET' &&
+        r.url().includes(`/article/public/${createdArticleId}`),
       { timeout: 15_000 },
     );
 
