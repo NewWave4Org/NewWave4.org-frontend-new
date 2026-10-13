@@ -45,7 +45,7 @@ function HomeSlider({
   autoplay = true,
   variableWidth = true,
   slidesToShow = 3,
-  locale
+  locale,
 }: HomeSliderProps) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -155,7 +155,10 @@ function HomeSlider({
                 style={{ width: sliderLength > 2 ? '556px' : '100%' }}
               >
                 {typeof slide.link === 'string' && slide.link.trim() !== '' ? (
-                  <Link href={`${locale}/${slide.link}`} className="block h-full">
+                  <Link
+                    href={`${locale}/${slide.link}`}
+                    className="block h-full"
+                  >
                     {slideContent}
                   </Link>
                 ) : (

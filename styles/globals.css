@@ -482,7 +482,7 @@ p:not(:last-child) {
   display: flex;
 }
 .home-slider .slick-slide {
-  float: none
+  float: none;
 }
 .home-slider .slick-list,
 .home-slider .slick-track,

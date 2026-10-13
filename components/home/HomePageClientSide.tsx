@@ -119,7 +119,7 @@ function HomePageClientSide({
     }
   }, [dispatch, locale]);
 
-  console.log('slides', slides)
+  console.log('slides', slides);
 
   return (
     <>
