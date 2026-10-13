@@ -119,11 +119,14 @@ function HomePageClientSide({
     }
   }, [dispatch, locale]);
 
+  console.log('slides', slides)
+
   return (
     <>
       <section className="bg-skyBlue-300 overflow-hidden home-general-section lg:mb-10 lg:pb-0 mb-0 pb-5">
         <HomeSlider
           slides={slides}
+          locale={locale}
           className="xl:h-1/2 mb-5 lg:px-0 px-4 home-slider"
         />
         <WhoWeAre
