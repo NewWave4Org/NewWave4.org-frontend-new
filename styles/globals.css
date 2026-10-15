@@ -636,7 +636,7 @@ p a {
   width: 240px;
   height: 170px;
   position: absolute;
-  left: -160px;
+  left: -240px;
   top: 50%;
   transform: translateY(-50%);
   background: url('/banner-before.svg') no-repeat;
