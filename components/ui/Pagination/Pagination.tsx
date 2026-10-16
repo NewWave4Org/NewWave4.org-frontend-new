@@ -27,13 +27,13 @@ function Pagination({
         marginPagesDisplayed={2}
         pageCount={totalPages}
         renderOnZeroPageCount={null}
-        pageLinkClassName="flex items-center justify-center w-full h-full  font-normal"
+        pageLinkClassName="flex items-center justify-center w-full h-full  font-normal cursor-pointer"
         pageClassName="before:content-none p-0 !m-0 hover:bg-admin-300 text-admin-700 flex items-center justify-center size-[32px] rounded-lg transition-all duration-300"
         previousClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
         nextClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
         disabledClassName="!hover:bg-transparent pointer-events-none opacity-40"
         breakClassName="before:content-none p-0 !m-0 list-none"
-        containerClassName="flex justify-center gap-2.5 w-full"
+        containerClassName="!flex justify-center gap-2.5 w-full"
         activeClassName="bg-admin-700 text-white"
       />
     </div>

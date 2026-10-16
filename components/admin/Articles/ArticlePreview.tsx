@@ -14,6 +14,7 @@ import { getArticleById } from '@/store/article-content/action';
 import { mapGetArticleByIdResponseToFull } from '@/utils/articles/type/mapper';
 import { formatDateUk } from '@/utils/date';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
+import { TranslateDirectionEnum } from '../Pages/enum/types';
 
 interface IArticlePreview {
   articleId?: number;
@@ -38,7 +39,23 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
       try {
         setLoading(true);
         const data = await dispatch(getArticleById(articleId)).unwrap();
-        const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(data);
+        const isEnSource =
+          data.translateDirection.toUpperCase() ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+
+        const activeData = isEnSource
+          ? {
+              ...data,
+              title: data.titleEng ?? data.title,
+              contentBlocks: data.contentBlocksEng?.length
+                ? data.contentBlocksEng
+                : data.contentBlocks,
+            }
+          : data;
+
+        const articleFull: ArticleFull =
+          mapGetArticleByIdResponseToFull(activeData);
+
         setArticle(articleFull);
         if (articleFull.video) {
           setArticleVideoUrl(convertYoutubeUrlToEmbed(articleFull.video));
@@ -61,24 +78,6 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
 
     fetchArticle();
   }, [articleId, dispatch]);
-
-  // useEffect(() => {
-  //   if (!article?.relevantProjectId) return;
-
-  //   const fetchProject = async () => {
-  //     try {
-  //       const project = await dispatch(
-  //         getArticleById(article.relevantProjectId!,
-  //         ),
-  //       ).unwrap();
-  //       setProjectTitle(project.title);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-
-  //   fetchProject();
-  // }, [article?.relevantProjectId, dispatch]);
 
   if (loading) {
     return <div>Loading...</div>;

@@ -46,7 +46,7 @@ export interface UpdateArticleFormValues {
   articleStatus: string;
   contentBlocks: any[];
   dateOfWriting: any;
-  translateDirection: TranslateDirection;
+  translateDirection: string;
 }
 
 const validationSchema = Yup.object({
@@ -150,7 +150,8 @@ function ProgramContent({ programId }: { programId: number }) {
     dateOfWriting: convertFromISO(new Date()),
     authorName: program?.authorName || undefined,
     translateDirection:
-      (program?.translateDirection as TranslateDirection) || undefined,
+      (program?.translateDirection as TranslateDirection) ||
+      TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
     articleStatus: '',
     contentBlocks: [
       { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
@@ -500,7 +501,8 @@ function ProgramContent({ programId }: { programId: number }) {
         initialValues={{
           title: program?.title || defaultFormValues.title,
           translateDirection:
-            (program?.translateDirection as TranslateDirection) || undefined,
+            (program?.translateDirection as TranslateDirection) ||
+            TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
           dateOfWriting:
             convertFromISO(program?.dateOfWriting) ||
             defaultFormValues.dateOfWriting,

@@ -77,6 +77,7 @@ const SlickCarousel = ({
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
     responsive: responsive,
+    mobileFirst: false,
   };
 
   useEffect(() => {

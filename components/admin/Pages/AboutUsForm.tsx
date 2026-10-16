@@ -126,7 +126,9 @@ function AboutUsForm() {
 
   const initialValues = {
     pageType: PagesType.ABOUT_US,
-    translateDirection: aboutUsPage?.translateDirection ?? '',
+    translateDirection:
+      aboutUsPage?.translateDirection ??
+      TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
     contentBlocks:
       aboutUsPage?.contentBlocks && aboutUsPage?.contentBlocks.length
         ? aboutUsPage?.contentBlocks
