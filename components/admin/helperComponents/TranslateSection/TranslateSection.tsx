@@ -3,7 +3,7 @@ import { TranslateDirectionEnum } from '../../Pages/enum/types';
 
 interface TranslateBlockProps {
   translateBlockIndex: number;
-  translateStatus: string;
+  translateStatus?: string;
   handleChange: any;
 }
 
@@ -28,28 +28,25 @@ function TranslateSection({
         />
       </div>
 
-      {translateStatus === 'yes' && (
-        <>
-          <Select
-            label="Translation direction"
-            adminSelectClass={true}
-            name="translateDirection"
-            labelClass="!text-admin-700"
-            onChange={handleChange}
-            required
-            options={[
-              {
-                value: TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
-                label: 'Ukrainian → English',
-              },
-              {
-                value: TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase(),
-                label: 'English → Ukrainian',
-              },
-            ]}
-          />
-        </>
-      )}
+
+      <Select
+        label="Translation direction"
+        adminSelectClass={true}
+        name="translateDirection"
+        labelClass="!text-admin-700"
+        onChange={handleChange}
+        options={[
+          {
+            value: TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+            label: 'Ukrainian → English',
+          },
+          {
+            value: TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase(),
+            label: 'English → Ukrainian',
+          },
+        ]}
+      />
+
     </div>
   );
 }

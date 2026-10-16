@@ -14,7 +14,7 @@ import * as Yup from 'yup';
 import { useAppDispatch } from '@/store/hook';
 import { ContentBlockType } from '@/utils/articles/type/contentBlockType';
 import { Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { extractErrorMessage } from '@/utils/apiErrors';
@@ -64,6 +64,45 @@ const getDefaultContentBlocks = () => [
   { contentBlockType: ContentBlockType.PHOTOS_LIST, data: [] },
   { contentBlockType: ContentBlockType.PHOTOS_SLIDER, data: [] },
 ];
+
+const EN_TO_UK = TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+const DEFAULT_DIRECTION = TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase();
+
+const isEnSource = (direction?: string | null) =>
+  direction?.toUpperCase() === EN_TO_UK;
+
+const normalizeBlocks = (blocks?: any[] | null) => {
+  const result = [...(blocks ?? [])];
+  getDefaultContentBlocks().forEach(def => {
+    if (!result.some(b => b.contentBlockType === def.contentBlockType)) {
+      result.push(def);
+    }
+  });
+  return result;
+};
+
+const toEditorState = (value: unknown): EditorState => {
+  if (!value) return EditorState.createEmpty(decorator);
+  try {
+    const raw = typeof value === 'string' ? JSON.parse(value) : value;
+    return EditorState.createWithContent(
+      convertFromRaw({ entityMap: {}, ...(raw as object) } as RawDraftContentState),
+      decorator,
+    );
+  } catch {
+    return EditorState.createEmpty(decorator);
+  }
+};
+
+const hasEditorText = (value: unknown): boolean => {
+  if (!value) return false;
+  try {
+    const raw = typeof value === 'string' ? JSON.parse(value) : value;
+    return convertFromRaw({ entityMap: {}, ...(raw as object) } as RawDraftContentState).hasText();
+  } catch {
+    return false;
+  }
+};
 
 const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
   const dispatch = useAppDispatch();
@@ -123,18 +162,13 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
         switch (block?.contentBlockType) {
           case ContentBlockType.MAIN_NEWS_BLOCK:
             return Yup.object({
-              translatable_text_editorState: Yup.mixed()
-                .required('Text block 1 is required')
-                .test('not-empty', 'Text block 1 is required', value => {
-                  if (!value) return false;
-                  try {
-                    return convertFromRaw(
-                      value as RawDraftContentState,
-                    ).hasText();
-                  } catch {
-                    return false;
-                  }
-                }),
+            translatable_text_editorState: Yup.mixed()
+              .required('Text block 1 is required')
+              .test(
+                'not-empty',
+                'Text block 1 is required',
+                value => hasEditorText(value),
+              ),
             });
 
           case ContentBlockType.VIDEO:
@@ -160,6 +194,23 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       }),
     ),
   });
+
+  const initialValues = useMemo(() => {
+    const enSource = isEnSource(article?.translateDirection);
+    return {
+      title: (enSource ? article?.titleEng : article?.title) || '',
+      translateDirection: article?.translateDirection || TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+      dateOfWriting: article?.dateOfWriting
+        ? convertFromISO(article.dateOfWriting)
+        : convertFromISO(new Date()),
+      authorName: article?.authorName,
+      englishPublished: false,
+      relevantProjectId: article?.relevantProjectId,
+      contentBlocks: normalizeBlocks(
+        enSource ? article?.contentBlocksEng : article?.contentBlocks,
+      ),
+    };
+  }, [article]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -189,36 +240,19 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const fetchArticle = async () => {
       try {
         const data = await dispatch(getArticleById(articleId)).unwrap();
-        const isEngDirection =
-          data.translateDirection ===
-          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
-        const formData = {
-          ...data,
-          title: isEngDirection ? (data.titleEng ?? data.title) : data.title,
-        };
+        setArticle(data);
 
-        setArticle(formData);
-
-        const activeBlocks = isEngDirection
-          ? data.contentBlocksEng
-          : data.contentBlocks;
-
-        const getState = (blockType: ContentBlockType): EditorState => {
-          const block = activeBlocks?.find(
-            (b: any) => b.contentBlockType === blockType,
-          );
-          try {
-            return block?.translatable_text_editorState
-              ? EditorState.createWithContent(
-                  convertFromRaw(block.translatable_text_editorState),
-                  decorator,
-                )
-              : EditorState.createEmpty(decorator);
-          } catch {
-            return EditorState.createEmpty(decorator);
-          }
-        };
+        const blocks = normalizeBlocks(
+          isEnSource(data.translateDirection)
+            ? data.contentBlocksEng
+            : data.contentBlocks,
+        );
+        const getState = (type: ContentBlockType) =>
+        toEditorState(
+          blocks.find((b: any) => b.contentBlockType === type)
+            ?.translatable_text_editorState,
+        );
 
         setEditorStates({
           textblock1: getState(ContentBlockType.MAIN_NEWS_BLOCK),
@@ -243,8 +277,8 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     blockType: ContentBlockType,
     newState: EditorState,
     values: any,
-    setFieldValue: (field: string, value: any) => void,
-    setFieldTouched: (field: string, touched: boolean) => void,
+    setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
+    setFieldTouched: (field: string, touched: boolean, shouldValidate?: boolean) => void,
   ) => {
     const stateKey =
       blockType === ContentBlockType.MAIN_NEWS_BLOCK
@@ -253,7 +287,12 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           ? 'textblock2'
           : 'quote';
 
+  const contentChanged =
+    editorStates[stateKey].getCurrentContent() !== newState.getCurrentContent();
+
     setEditorStates(prev => ({ ...prev, [stateKey]: newState }));
+
+    if (!contentChanged) return;
 
     const index = values.contentBlocks.findIndex(
       (b: any) => b.contentBlockType === blockType,
@@ -261,75 +300,29 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     if (index === -1) return;
 
     const raw = convertToRaw(newState.getCurrentContent());
+    const field = `contentBlocks.${index}.translatable_text_editorState`;
 
-    setFieldValue(`contentBlocks.${index}.translatable_text_editorState`, raw);
-    setFieldTouched(
-      `contentBlocks.${index}.translatable_text_editorState`,
-      true,
-    );
+    setFieldValue(field, raw, true);
+    setFieldTouched(field, true, false);
   };
 
   async function handleSubmit(values: any) {
+    if (!articleId) return false;
+
+    const direction: string = values.translateDirection || DEFAULT_DIRECTION;
+    const enSource = isEnSource(direction);
+
     const translateStatus =
       values.contentBlocks.find((b: any) => b.contentBlockType === 'TRANSLATE')
         ?.translateStatus ?? 'no';
 
-    const isEngDirection =
-      translateStatus === 'yes' &&
-      values.translateDirection ===
-        TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
-
-    // ---- PREPARE DATA ----
-    const { translateDirection, ...rest } = values;
-
-    const preparedData = isEngDirection
-      ? {
-          ...rest,
-          title: '',
-          titleEng: values.title,
-          translateDirection,
-          englishPublished: translateStatus === 'yes',
-          dateOfWriting: convertToISO(values.dateOfWriting),
-          articleType,
-          contentBlocks: [],
-          contentBlocksEng: values.contentBlocks,
-        }
-      : {
-          ...rest,
-          title: values.title,
-          translateDirection,
-          englishPublished: translateStatus === 'no',
-          dateOfWriting: convertToISO(values.dateOfWriting),
-          articleType,
-          titleEng: null,
-          contentBlocks: values.contentBlocks,
-          contentBlocksEng: [],
-        };
-
     // ---- VALIDATION ----
-    const textblock1Block =
-      preparedData.contentBlocks?.find(
-        (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-      ) ??
-      preparedData.contentBlocksEng?.find(
-        (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
-      );
-
-    const isTextblock1Empty =
-      !textblock1Block?.translatable_text_editorState ||
-      (() => {
-        try {
-          return !convertFromRaw(
-            textblock1Block.translatable_text_editorState,
-          ).hasText();
-        } catch {
-          return true;
-        }
-      })();
-
-    if (isTextblock1Empty) {
+    const textblock1Block = values.contentBlocks.find(
+      (b: any) => b.contentBlockType === ContentBlockType.MAIN_NEWS_BLOCK,
+    );
+    if (!hasEditorText(textblock1Block?.translatable_text_editorState)) {
       toast.error('Text block 1 is required');
-      return;
+      return false;
     }
 
     const mainPhotoBlock = values.contentBlocks.find(
@@ -337,20 +330,32 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     );
     if (!mainPhotoBlock?.data?.length) {
       toast.error('Main photo is required');
-      return;
+      return false;
     }
 
-    // ---- UPDATE ----
-    let updateSuccess = false;
 
+    // ---- PREPARE DATA ----
+    const { translateDirection, ...rest } = values;
+
+    const preparedData = {
+      ...rest,
+      translateDirection: direction,
+      dateOfWriting: convertToISO(values.dateOfWriting),
+      articleType,
+      title: enSource ? (article?.title ?? '') : values.title,
+      titleEng: enSource ? values.title : (article?.titleEng ?? null),
+      contentBlocks: enSource ? (article?.contentBlocks ?? []) : values.contentBlocks,
+      contentBlocksEng: enSource ? values.contentBlocks : (article?.contentBlocksEng ?? []),
+      englishPublished: enSource ? translateStatus === 'yes' : translateStatus === 'no', // см. вопрос 3 ниже
+    };
+
+    // ---- UPDATE ----
     try {
       if (articleId) {
-        await dispatch(
-          updateArticle({ id: articleId, data: preparedData }),
-        ).unwrap();
+        await dispatch(updateArticle({ id: articleId, data: preparedData })).unwrap();
 
-        updateSuccess = true;
-        // setArticle(prev => ({ ...prev!, contentBlocks: values.contentBlocks }));
+        setArticle(prev => (prev ? ({ ...prev, ...preparedData } as GetArticleByIdResponseDTO) : prev));
+
         toast.success(
           `${getTypeName(articleType)} content saved successfully!`,
         );
@@ -358,28 +363,35 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     } catch (error) {
       setSubmitStatus('idle');
       toast.error(`Something went wrong! ${error}`);
+      return false;
     } finally {
       setSubmitStatus('idle');
     }
 
     // ---- TRANSLATION ----
-    if (!updateSuccess || translateStatus !== 'yes') return;
 
-    const translateFrom = values.translateDirection;
-    setSubmitStatus('translating');
-    try {
-      await handleThunk(
-        createTranslation,
-        { id: articleId, translateFrom: translateFrom.toUpperCase() },
-        setSubmitErrorTranslate,
-      );
-      toast.success(`The translation was successfully created`);
-    } catch (error) {
-      setSubmitStatus('idle');
-      toast.error(`Something went wrong with translation! ${error}`);
-    } finally {
-      setSubmitStatus('idle');
+    if (translateStatus === 'yes') {
+      setSubmitStatus('translating');
+      try {
+        await handleThunk(
+          createTranslation,
+          { id: articleId, translateFrom: values.translateDirection.toUpperCase() },
+          setSubmitErrorTranslate,
+        );
+
+        const fresh = await dispatch(getArticleById(articleId)).unwrap();
+        setArticle(fresh);
+
+        toast.success(`The translation was successfully created`);
+      } catch (error) {
+        setSubmitStatus('idle');
+        toast.error(`Something went wrong with translation! ${error}`);
+      } finally {
+        setSubmitStatus('idle');
+      }
     }
+
+    return true;
   }
 
   async function handlePublish(values: any) {
@@ -397,7 +409,7 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return;
     }
 
-    if (!textblock1Block?.translatable_text_editorState) {
+    if (!hasEditorText(textblock1Block?.translatable_text_editorState)) {
       toast.error('Text block 1 cannot be empty');
       return;
     }
@@ -422,22 +434,11 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     <div className="modal__body">
       <Formik
         enableReinitialize
-        initialValues={{
-          title: article?.title || '',
-          translateDirection: article?.translateDirection || undefined,
-          dateOfWriting: article?.dateOfWriting
-            ? convertFromISO(article.dateOfWriting)
-            : convertFromISO(new Date()),
-          authorName: article?.authorName,
-          englishPublished: false,
-          relevantProjectId: article?.relevantProjectId,
-          contentBlocks: article?.contentBlocks?.length
-            ? article.contentBlocks
-            : getDefaultContentBlocks(),
-        }}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={async (values, { resetForm }) => {
-          await handleSubmit(values);
+          const ok = await handleSubmit(values);
+          if (!ok) return;
           setSliderPhotosChanged(false);
           resetForm({ values });
         }}
