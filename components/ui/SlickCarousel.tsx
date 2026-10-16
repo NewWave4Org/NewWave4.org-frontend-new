@@ -80,7 +80,6 @@ const SlickCarousel = ({
     mobileFirst: false,
   };
 
-
   const [width, setWidth] = useState<number | null>(null);
 
   useEffect(() => {
@@ -100,11 +99,11 @@ const SlickCarousel = ({
   }, []);
 
   const activeResponsive =
-  width === null
-    ? undefined
-    : [...responsive]
-        .sort((a, b) => a.breakpoint - b.breakpoint)
-        .find(r => width <= r.breakpoint)?.settings;
+    width === null
+      ? undefined
+      : [...responsive]
+          .sort((a, b) => a.breakpoint - b.breakpoint)
+          .find(r => width <= r.breakpoint)?.settings;
 
   const settings = { ...baseSettings, ...activeResponsive };
 
@@ -121,7 +120,10 @@ const SlickCarousel = ({
   return (
     <section className="relative group/arrows">
       <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
-        <Slider key={`${settings.slidesToShow}-${settings.centerMode}`} {...settings}>
+        <Slider
+          key={`${settings.slidesToShow}-${settings.centerMode}`}
+          {...settings}
+        >
           {slides?.files.map((slide, index) => (
             <div
               className={`${customStyle} relative group/slide group`}
