@@ -28,7 +28,6 @@ function TranslateSection({
         />
       </div>
 
-
       <Select
         label="Translation direction"
         adminSelectClass={true}
@@ -46,7 +45,6 @@ function TranslateSection({
           },
         ]}
       />
-
     </div>
   );
 }

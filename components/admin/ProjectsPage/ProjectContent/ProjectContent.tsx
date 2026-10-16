@@ -114,7 +114,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
     articleType: ArticleTypeEnum.PROJECT,
     authorName: currentAuthor?.name || undefined,
     translateDirection:
-      (project?.translateDirection as TranslateDirection) || TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+      (project?.translateDirection as TranslateDirection) ||
+      TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
     dateOfWriting: convertFromISO(new Date()),
     articleStatus: '',
     contentBlocks: [
@@ -368,7 +369,8 @@ function ProjectContent({ projectId }: { projectId: number }) {
         initialValues={{
           title: project?.title || defaultFormValues.title,
           translateDirection:
-            (project?.translateDirection as TranslateDirection) || TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+            (project?.translateDirection as TranslateDirection) ||
+            TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
           authorName: project?.authorName || defaultFormValues.authorName,
           dateOfWriting:
             convertFromISO(project?.dateOfWriting) ||

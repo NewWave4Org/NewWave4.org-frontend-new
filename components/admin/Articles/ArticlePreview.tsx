@@ -39,19 +39,22 @@ const ArticlePreview = ({ articleId }: IArticlePreview) => {
       try {
         setLoading(true);
         const data = await dispatch(getArticleById(articleId)).unwrap();
-        const isEnSource = data.translateDirection.toUpperCase() === TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
+        const isEnSource =
+          data.translateDirection.toUpperCase() ===
+          TranslateDirectionEnum.EN_TO_UK.toLocaleUpperCase();
 
         const activeData = isEnSource
-        ? {
-            ...data,
-            title: data.titleEng ?? data.title,
-            contentBlocks: data.contentBlocksEng?.length
-              ? data.contentBlocksEng
-              : data.contentBlocks,
-          }
-        : data;
+          ? {
+              ...data,
+              title: data.titleEng ?? data.title,
+              contentBlocks: data.contentBlocksEng?.length
+                ? data.contentBlocksEng
+                : data.contentBlocks,
+            }
+          : data;
 
-        const articleFull: ArticleFull = mapGetArticleByIdResponseToFull(activeData);
+        const articleFull: ArticleFull =
+          mapGetArticleByIdResponseToFull(activeData);
 
         setArticle(articleFull);
         if (articleFull.video) {

@@ -86,7 +86,10 @@ const toEditorState = (value: unknown): EditorState => {
   try {
     const raw = typeof value === 'string' ? JSON.parse(value) : value;
     return EditorState.createWithContent(
-      convertFromRaw({ entityMap: {}, ...(raw as object) } as RawDraftContentState),
+      convertFromRaw({
+        entityMap: {},
+        ...(raw as object),
+      } as RawDraftContentState),
       decorator,
     );
   } catch {
@@ -98,7 +101,10 @@ const hasEditorText = (value: unknown): boolean => {
   if (!value) return false;
   try {
     const raw = typeof value === 'string' ? JSON.parse(value) : value;
-    return convertFromRaw({ entityMap: {}, ...(raw as object) } as RawDraftContentState).hasText();
+    return convertFromRaw({
+      entityMap: {},
+      ...(raw as object),
+    } as RawDraftContentState).hasText();
   } catch {
     return false;
   }
@@ -162,13 +168,11 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
         switch (block?.contentBlockType) {
           case ContentBlockType.MAIN_NEWS_BLOCK:
             return Yup.object({
-            translatable_text_editorState: Yup.mixed()
-              .required('Text block 1 is required')
-              .test(
-                'not-empty',
-                'Text block 1 is required',
-                value => hasEditorText(value),
-              ),
+              translatable_text_editorState: Yup.mixed()
+                .required('Text block 1 is required')
+                .test('not-empty', 'Text block 1 is required', value =>
+                  hasEditorText(value),
+                ),
             });
 
           case ContentBlockType.VIDEO:
@@ -199,7 +203,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     const enSource = isEnSource(article?.translateDirection);
     return {
       title: (enSource ? article?.titleEng : article?.title) || '',
-      translateDirection: article?.translateDirection || TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+      translateDirection:
+        article?.translateDirection ||
+        TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
       dateOfWriting: article?.dateOfWriting
         ? convertFromISO(article.dateOfWriting)
         : convertFromISO(new Date()),
@@ -249,10 +255,10 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
             : data.contentBlocks,
         );
         const getState = (type: ContentBlockType) =>
-        toEditorState(
-          blocks.find((b: any) => b.contentBlockType === type)
-            ?.translatable_text_editorState,
-        );
+          toEditorState(
+            blocks.find((b: any) => b.contentBlockType === type)
+              ?.translatable_text_editorState,
+          );
 
         setEditorStates({
           textblock1: getState(ContentBlockType.MAIN_NEWS_BLOCK),
@@ -277,8 +283,16 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
     blockType: ContentBlockType,
     newState: EditorState,
     values: any,
-    setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
-    setFieldTouched: (field: string, touched: boolean, shouldValidate?: boolean) => void,
+    setFieldValue: (
+      field: string,
+      value: any,
+      shouldValidate?: boolean,
+    ) => void,
+    setFieldTouched: (
+      field: string,
+      touched: boolean,
+      shouldValidate?: boolean,
+    ) => void,
   ) => {
     const stateKey =
       blockType === ContentBlockType.MAIN_NEWS_BLOCK
@@ -287,8 +301,9 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
           ? 'textblock2'
           : 'quote';
 
-  const contentChanged =
-    editorStates[stateKey].getCurrentContent() !== newState.getCurrentContent();
+    const contentChanged =
+      editorStates[stateKey].getCurrentContent() !==
+      newState.getCurrentContent();
 
     setEditorStates(prev => ({ ...prev, [stateKey]: newState }));
 
@@ -333,7 +348,6 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       return false;
     }
 
-
     // ---- PREPARE DATA ----
     const { translateDirection, ...rest } = values;
 
@@ -344,17 +358,29 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       articleType,
       title: enSource ? (article?.title ?? '') : values.title,
       titleEng: enSource ? values.title : (article?.titleEng ?? null),
-      contentBlocks: enSource ? (article?.contentBlocks ?? []) : values.contentBlocks,
-      contentBlocksEng: enSource ? values.contentBlocks : (article?.contentBlocksEng ?? []),
-      englishPublished: enSource ? translateStatus === 'yes' : translateStatus === 'no', // см. вопрос 3 ниже
+      contentBlocks: enSource
+        ? (article?.contentBlocks ?? [])
+        : values.contentBlocks,
+      contentBlocksEng: enSource
+        ? values.contentBlocks
+        : (article?.contentBlocksEng ?? []),
+      englishPublished: enSource
+        ? translateStatus === 'yes'
+        : translateStatus === 'no', // см. вопрос 3 ниже
     };
 
     // ---- UPDATE ----
     try {
       if (articleId) {
-        await dispatch(updateArticle({ id: articleId, data: preparedData })).unwrap();
+        await dispatch(
+          updateArticle({ id: articleId, data: preparedData }),
+        ).unwrap();
 
-        setArticle(prev => (prev ? ({ ...prev, ...preparedData } as GetArticleByIdResponseDTO) : prev));
+        setArticle(prev =>
+          prev
+            ? ({ ...prev, ...preparedData } as GetArticleByIdResponseDTO)
+            : prev,
+        );
 
         toast.success(
           `${getTypeName(articleType)} content saved successfully!`,
@@ -375,7 +401,10 @@ const ArticleContent = ({ articleId, articleType }: IArticleContent) => {
       try {
         await handleThunk(
           createTranslation,
-          { id: articleId, translateFrom: values.translateDirection.toUpperCase() },
+          {
+            id: articleId,
+            translateFrom: values.translateDirection.toUpperCase(),
+          },
           setSubmitErrorTranslate,
         );
 

@@ -126,7 +126,9 @@ function HomeForm() {
     contentBlocks: homePage?.contentBlocks?.length
       ? homePage.contentBlocks
       : defaultFormValues.contentBlocks,
-    translateDirection: homePage?.translateDirection ??  TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+    translateDirection:
+      homePage?.translateDirection ??
+      TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
   };
 
   const formatType = (str: string) =>

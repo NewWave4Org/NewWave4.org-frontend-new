@@ -149,7 +149,9 @@ function ProgramContent({ programId }: { programId: number }) {
     articleType: ArticleTypeEnum.PROGRAM,
     dateOfWriting: convertFromISO(new Date()),
     authorName: program?.authorName || undefined,
-    translateDirection: (program?.translateDirection as TranslateDirection) || TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+    translateDirection:
+      (program?.translateDirection as TranslateDirection) ||
+      TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
     articleStatus: '',
     contentBlocks: [
       { id: uuid(), contentBlockType: 'TRANSLATE', translateStatus: 'no' },
@@ -499,7 +501,8 @@ function ProgramContent({ programId }: { programId: number }) {
         initialValues={{
           title: program?.title || defaultFormValues.title,
           translateDirection:
-            (program?.translateDirection as TranslateDirection) ||  TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
+            (program?.translateDirection as TranslateDirection) ||
+            TranslateDirectionEnum.UK_TO_EN.toLocaleUpperCase(),
           dateOfWriting:
             convertFromISO(program?.dateOfWriting) ||
             defaultFormValues.dateOfWriting,
