@@ -7,7 +7,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { SampleNextArrow, SamplePrevArrow } from './SlickSlider/Arrows/Arrows';
 import SliderDots from './SlickSlider/Dots/SliderDots';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
@@ -56,7 +56,7 @@ const SlickCarousel = ({
   zoomIcon = false,
   fancyBoxGallery = false,
 }: ISlickCarouselProps) => {
-  const settings = {
+  const baseSettings = {
     className: 'h-full',
     infinite: infinite,
     speed: speed,
@@ -80,6 +80,8 @@ const SlickCarousel = ({
     mobileFirst: false,
   };
 
+  const [width, setWidth] = useState<number | null>(null);
+
   useEffect(() => {
     if (!fancyBoxGallery) return;
     return () => {
@@ -89,10 +91,39 @@ const SlickCarousel = ({
     };
   }, [fancyBoxGallery]);
 
+  useEffect(() => {
+    const update = () => setWidth(window.innerWidth);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const activeResponsive =
+    width === null
+      ? undefined
+      : [...responsive]
+          .sort((a, b) => a.breakpoint - b.breakpoint)
+          .find(r => width <= r.breakpoint)?.settings;
+
+  const settings = { ...baseSettings, ...activeResponsive };
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className={`${customStyle} ${parentClass}`} />;
+  }
+
   return (
     <section className="relative group/arrows">
       <div className={`overflow-hidden ${customStyles} ${parentClass}`}>
-        <Slider {...settings}>
+        <Slider
+          key={`${settings.slidesToShow}-${settings.centerMode}`}
+          {...settings}
+        >
           {slides?.files.map((slide, index) => (
             <div
               className={`${customStyle} relative group/slide group`}
