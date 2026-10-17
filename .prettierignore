@@ -28,6 +28,9 @@ test-results/
 playwright-report/
 .status-data/
 node_modules/
+.open-next/
+.wrangler/
+cloudflare-env.d.ts
 
 # Static assets, not source.
 public/
