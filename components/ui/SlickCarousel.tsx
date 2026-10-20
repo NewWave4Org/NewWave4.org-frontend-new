@@ -160,7 +160,7 @@ const SlickCarousel = ({
                       {zoomIcon && (
                         <button type="button" className="zoomIn__btn">
                           <svg className="zoomIn__icon" width="24" height="24">
-                            <use href="/icons/zoom-in-icon.svg#zoom-in"></use>
+                            <use href="/icons/zoom-icon.svg#zoom-icon"></use>
                           </svg>
                         </button>
                       )}

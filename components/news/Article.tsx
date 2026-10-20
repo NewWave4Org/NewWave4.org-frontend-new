@@ -30,6 +30,7 @@ import { toast } from 'react-toastify';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 import Button from '../shared/Button';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
+import useFancybox from '@/utils/hooks/useFancybox';
 
 export default function Article({
   articleType,
@@ -45,6 +46,12 @@ export default function Article({
   const locale = useLocale();
   const t = useTranslations();
   const articleId = Number(params.id);
+
+  const [fancyboxRef] = useFancybox({
+    Carousel: {
+      Thumbs: false,
+    },
+  });
 
   // Seeds first paint from the server-fetched article (see app/[locale]/(main)/news/[id]/page.tsx)
   // so crawlers get real content instead of "Loading...". Client-side navigation between
@@ -256,27 +263,54 @@ export default function Article({
         )}
 
         {article.photoList?.length > 0 && (
-          <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto">
+          <div
+            className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto"
+            ref={fancyboxRef}
+          >
             {article.photoList[0] && (
               <div className="lg:max-w-[718px] lg:flex-1 lg:mb-0 mb-6">
-                <Image
-                  src={article.photoList[0]}
-                  className="w-full h-full object-contain"
-                  width={100}
-                  height={100}
-                  alt=""
-                />
+                <a
+                  href={article.photoList[0]}
+                  className="block relative  h-full"
+                  data-fancybox="gallery"
+                >
+                  <Image
+                    src={article.photoList[0]}
+                    className="w-full h-full object-cover rounded-2xl shadow-2xl"
+                    width={100}
+                    height={100}
+                    alt=""
+                  />
+
+                  <button type="button" className="zoomIn__btn">
+                    <svg className="zoomIn__icon" width="24" height="24">
+                      <use href="/icons/zoom-icon.svg#zoom-icon"></use>
+                    </svg>
+                  </button>
+                </a>
               </div>
             )}
             {article.photoList[1] && (
-              <div className="lg:max-w-[506px]">
-                <Image
-                  src={article.photoList[1]}
-                  className="w-full h-full object-contain"
-                  width={100}
-                  height={100}
-                  alt=""
-                />
+              <div className="lg:max-w-[506px] flex-auto">
+                <a
+                  href={article.photoList[1]}
+                  className="block relative  h-full"
+                  data-fancybox="gallery"
+                >
+                  <Image
+                    src={article.photoList[1]}
+                    className="w-full h-full object-cover rounded-2xl shadow-2xl"
+                    width={100}
+                    height={100}
+                    alt=""
+                  />
+
+                  <button type="button" className="zoomIn__btn">
+                    <svg className="zoomIn__icon" width="24" height="24">
+                      <use href="/icons/zoom-icon.svg#zoom-icon"></use>
+                    </svg>
+                  </button>
+                </a>
               </div>
             )}
           </div>
