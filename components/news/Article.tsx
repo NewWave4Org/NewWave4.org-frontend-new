@@ -263,10 +263,17 @@ export default function Article({
         )}
 
         {article.photoList?.length > 0 && (
-          <div className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto" ref={fancyboxRef}>
+          <div
+            className="flex lg:gap-6 md:gap-0 lg:flex-row flex-col mb-[40px] lg:h-[370px] h-auto"
+            ref={fancyboxRef}
+          >
             {article.photoList[0] && (
               <div className="lg:max-w-[718px] lg:flex-1 lg:mb-0 mb-6">
-                <a href={article.photoList[0]} className='block relative  h-full' data-fancybox="gallery">
+                <a
+                  href={article.photoList[0]}
+                  className="block relative  h-full"
+                  data-fancybox="gallery"
+                >
                   <Image
                     src={article.photoList[0]}
                     className="w-full h-full object-cover rounded-2xl shadow-2xl"
@@ -285,7 +292,11 @@ export default function Article({
             )}
             {article.photoList[1] && (
               <div className="lg:max-w-[506px] flex-auto">
-                <a href={article.photoList[1]} className='block relative  h-full' data-fancybox="gallery">
+                <a
+                  href={article.photoList[1]}
+                  className="block relative  h-full"
+                  data-fancybox="gallery"
+                >
                   <Image
                     src={article.photoList[1]}
                     className="w-full h-full object-cover rounded-2xl shadow-2xl"
