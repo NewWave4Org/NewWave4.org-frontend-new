@@ -152,7 +152,7 @@ export default function Article({
     }
 
     fetchDopPrograms();
-  }, [dispatch, articleId, articleType])
+  }, [dispatch, articleId, articleType]);
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
