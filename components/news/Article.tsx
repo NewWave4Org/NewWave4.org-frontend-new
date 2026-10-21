@@ -81,25 +81,6 @@ export default function Article({
   });
 
   useEffect(() => {
-    async function fetchDopPrograms() {
-      try {
-        const result = await dispatch(
-          getAllArticle({
-            page: 0,
-            size: 3,
-            articleType: articleType,
-            articleStatus: ArticleStatusEnum.PUBLISHED,
-            excludeArticleId: articleId,
-          }),
-        ).unwrap();
-
-        setDopPrograms(result?.content);
-      } catch (error) {
-        console.error('error', error);
-        toast.error('Failed to fetch project');
-      }
-    }
-
     const loadArticle = async () => {
       try {
         setLoading(true);
@@ -140,9 +121,38 @@ export default function Article({
     } else {
       loadArticle();
     }
+  }, [articleId]);
+
+  useEffect(() => {
+    async function fetchDopPrograms() {
+      try {
+        const result = await dispatch(
+          getAllArticle({
+            page: 0,
+            size: 20,
+            articleType: articleType,
+            articleStatus: ArticleStatusEnum.PUBLISHED,
+            excludeArticleId: articleId,
+          }),
+        ).unwrap();
+
+        const articles = [...(result?.content ?? [])];
+
+        for (let i = articles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+
+          [articles[i], articles[j]] = [articles[j], articles[i]];
+        }
+
+        setDopPrograms(articles.slice(0, 3));
+      } catch (error) {
+        console.error('error', error);
+        toast.error('Failed to fetch project');
+      }
+    }
 
     fetchDopPrograms();
-  }, [articleId]);
+  }, [dispatch, articleId, articleType]);
 
   if (isNaN(articleId)) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
