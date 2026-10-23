@@ -21,7 +21,7 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_NEWWAVE_API_URL: 'http://api.test.invalid',
     },
-    exclude: ['node_modules', '.next', 'e2e'],
+    exclude: ['node_modules', '.next', '.open-next', 'e2e'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html', 'json-summary'],

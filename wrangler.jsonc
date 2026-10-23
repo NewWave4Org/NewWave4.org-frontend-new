@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "newwave4-frontend-staging",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-20",
+  "compatibility_flags": [
+    // Node.js APIs (Next's server runtime needs them)
+    "nodejs_compat",
+    // Only public URLs may be fetched from the Worker — the staging API is public
+    "global_fetch_strictly_public",
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "newwave4-frontend-staging",
+    },
+  ],
+  // Lets `wrangler versions upload` hand back a preview URL (PR previews).
+  "preview_urls": true,
+  // Read at request time by app/api/version/route.ts. Placeholders only —
+  // deploy-cloudflare.yml overrides them with `wrangler deploy --var`.
+  "vars": {
+    "APP_VERSION": "0.0.0-dev",
+    "GIT_COMMIT": "unknown",
+    "BUILD_TIME": "unknown",
+    "IMAGE_TAG": "cloudflare",
+  },
+}
