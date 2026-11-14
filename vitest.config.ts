@@ -21,7 +21,9 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_NEWWAVE_API_URL: 'http://api.test.invalid',
     },
-    exclude: ['node_modules', '.next', 'e2e'],
+    // '.claude/**' keeps local agent worktrees (each with its own node_modules)
+    // out of the run; listing 'exclude' replaces vitest's defaults entirely.
+    exclude: ['**/node_modules/**', '.next', 'e2e', '.claude/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html', 'json-summary'],
