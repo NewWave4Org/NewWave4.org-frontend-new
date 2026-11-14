@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       namespace:
-        description: 'Kubernetes namespace to deploy into'
+        description: 'Target environment (GitHub Environment name). staging -> cluster namespace newwave-dev, production -> newwave-prod'
         required: true
         default: 'staging'
         type: choice
@@ -39,7 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.namespace }}
     env:
-      NAMESPACE: ${{ inputs.namespace }}
+      # The input names the GitHub Environment; the Kubernetes namespace is derived.
+      # Both clusters (Infra rebuild 2026-10-31) use one namespace per environment.
+      NAMESPACE: ${{ inputs.namespace == 'production' && 'newwave-prod' || 'newwave-dev' }}
       CHART_VERSION: ${{ inputs.chart_version }}
       IMAGE_TAG: ${{ inputs.image_tag }}
       # Production pulls the image built with production NEXT_PUBLIC_* values
