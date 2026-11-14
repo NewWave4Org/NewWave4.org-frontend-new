@@ -15,18 +15,14 @@ import { useParams } from 'next/navigation';
 import { convertYoutubeUrlToEmbed } from '@/utils/videoUtils';
 import { EN_LOCALE, Link, useRouter } from '@/i18n';
 import { useAppDispatch } from '@/store/hook';
-import { getAllArticle, getArticleById } from '@/store/article-content/action';
+import { getArticleById } from '@/store/article-content/action';
 import SlickCarousel, { SliderCarousel } from '../ui/SlickCarousel';
-import {
-  ArticleStatusEnum,
-  ArticleType,
-  ArticleTypeEnum,
-} from '@/utils/ArticleType';
+import { ArticleType, ArticleTypeEnum } from '@/utils/ArticleType';
 import {
   GetArticleByIdResponseDTO,
   IArticleBody,
 } from '@/utils/article-content/type/interfaces';
-import { toast } from 'react-toastify';
+import { fetchRelatedArticles } from '@/utils/article-content/related-articles';
 import OtherDopBlocks from '../OtherDopBlocks/OtherDopBlocks';
 import Button from '../shared/Button';
 import ArrowLeft4Icon from '../icons/navigation/ArrowLeft4Icon';
@@ -80,39 +76,36 @@ export default function Article({
     return mapped.video ? convertYoutubeUrlToEmbed(mapped.video) : '';
   });
 
+  const invalidId = isNaN(articleId);
+
   useEffect(() => {
+    if (invalidId) return;
+
+    // A response for an article the user has already navigated away from (or
+    // a locale they've switched from) must not overwrite the current one.
+    let cancelled = false;
+
     const loadArticle = async () => {
       try {
         setLoading(true);
 
         const articleData = await dispatch(getArticleById(articleId)).unwrap();
+        if (cancelled) return;
 
         const mapped = mapGetArticleByIdResponseToFull(articleData, locale);
 
         setArticle(mapped);
-
-        // if (mapped?.relevantProjectId) {
-        //   const projectData = await dispatch(getArticleById(mapped.relevantProjectId)).unwrap();
-
-        //   setProjectTitle(locale === EN_LOCALE ? projectData?.titleEng ?? '' : projectData?.title);
-        // }
-
-        if (mapped.video) {
-          setArticleVideoUrl(convertYoutubeUrlToEmbed(mapped.video));
-        }
-
-        if (mapped?.photoSlider) {
-          const slidesData = {
-            files: mapped.photoSlider.filter(Boolean),
-          };
-
-          setSlides(slidesData);
-        }
+        setError(false);
+        setArticleVideoUrl(
+          mapped.video ? convertYoutubeUrlToEmbed(mapped.video) : '',
+        );
+        setSlides({ files: mapped.photoSlider?.filter(Boolean) ?? [] });
       } catch (err) {
+        if (cancelled) return;
         console.error('Error fetching article:', err);
         setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -121,40 +114,35 @@ export default function Article({
     } else {
       loadArticle();
     }
-  }, [articleId]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, articleId, locale, invalidId]);
 
   useEffect(() => {
-    async function fetchDopPrograms() {
-      try {
-        const result = await dispatch(
-          getAllArticle({
-            page: 0,
-            size: 20,
-            articleType: articleType,
-            articleStatus: ArticleStatusEnum.PUBLISHED,
-            excludeArticleId: articleId,
-          }),
-        ).unwrap();
+    if (invalidId) return;
 
-        const articles = [...(result?.content ?? [])];
+    let cancelled = false;
+    // Drop the previous article's set so it can't flash (or list the article
+    // now being read) while the next set loads.
+    setDopPrograms(null);
 
-        for (let i = articles.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
+    fetchRelatedArticles({ articleType, excludeArticleId: articleId })
+      .then(related => {
+        if (!cancelled) setDopPrograms(related);
+      })
+      .catch(err => {
+        // The block is optional: log it, don't alarm the reader with a toast.
+        if (!cancelled) console.error('Error fetching related articles:', err);
+      });
 
-          [articles[i], articles[j]] = [articles[j], articles[i]];
-        }
+    return () => {
+      cancelled = true;
+    };
+  }, [articleId, articleType, invalidId]);
 
-        setDopPrograms(articles.slice(0, 3));
-      } catch (error) {
-        console.error('error', error);
-        toast.error('Failed to fetch project');
-      }
-    }
-
-    fetchDopPrograms();
-  }, [dispatch, articleId, articleType]);
-
-  if (isNaN(articleId)) return <div>Invalid article ID</div>;
+  if (invalidId) return <div>Invalid article ID</div>;
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error || !article)
     return (
