@@ -108,7 +108,6 @@ jobs:
       - name: Generate .env file
         uses: ./.github/actions/generate-env
         with:
-          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}

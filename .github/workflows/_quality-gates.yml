@@ -35,15 +35,6 @@ jobs:
             echo "Found '/components/Payment/'. Use '/components/payment/'."
             bad=1
           fi
-          # Component casing (imports vs file)
-          if grep -RIn "PayPalComponent" --include=\*.{ts,tsx,js,jsx} app components; then
-            echo "Found 'PayPalComponent' in imports. Standardize on 'PaypalComponent' OR provide shim."
-          fi
-          # Ensure required file exists with correct casing
-          if [ ! -f components/payment/PaypalComponent.tsx ]; then
-            echo "Missing components/payment/PaypalComponent.tsx (check case)."
-            bad=1
-          fi
           exit $bad
 
   no-console-log:
@@ -200,7 +191,6 @@ jobs:
         if: env.HAS_SECRETS == 'true' && inputs.run_full
         uses: ./.github/actions/generate-env
         with:
-          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}

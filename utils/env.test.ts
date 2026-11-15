@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { collectEnvProblems, validateEnv } from './env';
 
 const VALID = {
-  NEXT_PUBLIC_PAYPAL_CLIENT_ID: 'pp-client-id',
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS: 'pk_test_123',
   NEXT_PUBLIC_NEWWAVE_API_URL: 'https://api.stage.newwave4.org',
   NEXT_PUBLIC_SITE_URL: 'https://new.newwave4.org',
@@ -18,7 +17,6 @@ describe('collectEnvProblems', () => {
   it('flags each missing required variable', () => {
     const { errors } = collectEnvProblems({});
     expect(errors.map(e => e.name)).toEqual([
-      'NEXT_PUBLIC_PAYPAL_CLIENT_ID',
       'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS',
       'NEXT_PUBLIC_NEWWAVE_API_URL',
     ]);
@@ -35,9 +33,11 @@ describe('collectEnvProblems', () => {
 
     const { errors: ws } = collectEnvProblems({
       ...VALID,
-      NEXT_PUBLIC_PAYPAL_CLIENT_ID: '   ',
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS: '   ',
     });
-    expect(ws.map(e => e.name)).toEqual(['NEXT_PUBLIC_PAYPAL_CLIENT_ID']);
+    expect(ws.map(e => e.name)).toEqual([
+      'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS',
+    ]);
   });
 
   it('warns but does not error when NEXT_PUBLIC_SITE_URL is unset', () => {
@@ -157,8 +157,7 @@ describe('validateEnv', () => {
     } catch (e) {
       message = (e as Error).message;
     }
-    expect(message).toContain('3 problems found');
-    expect(message).toContain('NEXT_PUBLIC_PAYPAL_CLIENT_ID');
+    expect(message).toContain('2 problems found');
     expect(message).toContain('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS');
     expect(message).toContain('NEXT_PUBLIC_NEWWAVE_API_URL');
   });
