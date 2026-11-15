@@ -320,6 +320,15 @@ body {
     }
   }
 
+  /* Touch devices have no hover: from md up keep the in-photo card footer
+     always visible. Below md the footer is hidden and MemberTeaser shows an
+     info row under the role instead. */
+  @media (hover: none) and (min-width: 768px) {
+    .member-card__footer {
+      @apply translate-y-0 opacity-100;
+    }
+  }
+
   /* .sponsors-slider .slick-track {
     display: flex;
     align-items: center

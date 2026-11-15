@@ -105,7 +105,11 @@ describe('Team', () => {
     )!;
     expect(inside.closest('.member-card__footer')).toHaveClass('max-md:hidden');
 
-    expect(screen.getByText('Role 1')).toHaveClass('line-clamp-3');
+    // Full role on phones (no title tooltip on touch); 2 lines from md.
+    expect(screen.getByText('Role 1')).toHaveClass(
+      'max-md:line-clamp-none',
+      'md:line-clamp-2',
+    );
   });
 
   it('social link is a 44px target outside the photo', () => {
@@ -149,9 +153,11 @@ describe('Team', () => {
       'break-words',
     );
     const role = screen.getByText(longRole);
-    expect(role).toHaveClass('line-clamp-3');
+    // Not clamped on phones; desktop keeps its 2-line clamp.
+    expect(role).toHaveClass('max-md:line-clamp-none', 'md:line-clamp-2');
     expect(role).not.toHaveClass('line-clamp-1');
     expect(role).not.toHaveClass('line-clamp-2');
+    expect(role).not.toHaveClass('line-clamp-3');
   });
 
   it('no social link and no location', () => {

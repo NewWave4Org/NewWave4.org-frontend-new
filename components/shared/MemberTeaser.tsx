@@ -24,7 +24,8 @@ const socialIcons: Record<string, React.ReactNode> = {
 /*
   Compact team card: square portrait, name and role always visible. From md
   up, location and the social link live in a footer that slides up over the
-  photo on hover / focus. Below md there is no hover, so the same data sits in
+  photo on hover / focus (pinned open on touch devices from md up -- see
+  `.member-card__footer` in globals.css). Below md there is no hover, so the same data sits in
   an info row under the role instead (the in-photo footer is hidden there);
   each piece renders in exactly one place per breakpoint.
 */
@@ -82,12 +83,13 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
           which would pick up the global `p:not(:last-child)` 10px margin. */}
       <p
         title={position}
-        className="!mb-0 mt-1 line-clamp-3 text-sm leading-snug text-primary-500 md:line-clamp-2"
+        className="!mb-0 mt-1 text-sm leading-snug text-primary-500 max-md:line-clamp-none md:line-clamp-2"
       >
         {position}
       </p>
 
-      {/* Phone info row: full location + a 44px social link (no hover here). */}
+      {/* Phone info row: full location + a 44px social link (no hover here).
+          The role above is not clamped on phones: `title` is unreachable on touch. */}
       {(location || hasSocial) && (
         <div
           data-testid="member-info"
