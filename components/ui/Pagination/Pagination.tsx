@@ -18,7 +18,7 @@ function Pagination({
   return (
     <div className="container mx-auto px-4">
       <ReactPaginate
-        breakLabel="..."
+        breakLabel={<span aria-hidden="true">...</span>}
         nextLabel={<ArrowRight4Icon />}
         previousLabel={<ArrowLeft4Icon />}
         forcePage={currentPage}
@@ -27,12 +27,15 @@ function Pagination({
         marginPagesDisplayed={2}
         pageCount={totalPages}
         renderOnZeroPageCount={null}
-        pageLinkClassName="flex items-center justify-center w-full h-full  font-normal cursor-pointer"
-        pageClassName="before:content-none p-0 !m-0 hover:bg-admin-300 text-admin-700 flex items-center justify-center size-[32px] rounded-lg transition-all duration-300"
-        previousClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
-        nextClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center"
+        pageLinkClassName="flex items-center justify-center w-full h-full  font-normal cursor-pointer max-md:min-h-11 max-md:min-w-11"
+        pageClassName="before:content-none p-0 !m-0 hover:bg-admin-300 text-admin-700 flex items-center justify-center size-[32px] rounded-lg transition-all duration-300 max-md:min-h-11 max-md:min-w-11"
+        previousClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center max-md:min-h-11 max-md:min-w-11"
+        previousLinkClassName="max-md:min-h-11 max-md:min-w-11"
+        nextClassName="before:content-none p-0 !m-0 flex items-center hover:bg-admin-300 rounded-lg w-8 justify-center max-md:min-h-11 max-md:min-w-11"
+        nextLinkClassName="max-md:min-h-11 max-md:min-w-11"
         disabledClassName="!hover:bg-transparent pointer-events-none opacity-40"
         breakClassName="before:content-none p-0 !m-0 list-none"
+        breakLinkClassName="max-md:inline-flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center"
         containerClassName="!flex justify-center gap-2.5 w-full"
         activeClassName="bg-admin-700 text-white"
       />
