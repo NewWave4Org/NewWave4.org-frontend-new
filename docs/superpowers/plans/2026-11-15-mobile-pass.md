@@ -35,35 +35,37 @@
 
 ## File map
 
-| File | Responsibility | Task |
-|---|---|---|
-| `playwright.config.ts` | add `mobile`, `mobile-small` projects; keep `chromium` for existing specs | 1 |
-| `e2e/mobile.spec.ts` (new) | phone check: overflow, tap targets, reveal visibility, carousel overlap | 1, 3, 4 |
-| `e2e/mobile-helpers.ts` (new) | `ROUTES`, `PENDING_TARGETS`, `PENDING_OVERFLOW`, `collectViolations(page)`, `resolveDetailIds(page)` | 1 |
-| `e2e/desktop-guard.spec.ts` (new, not in CI) | 1440 px screenshots compared against a `development` baseline | 1 |
-| `components/shared/Button.tsx` (+ test) | phone min height for `size="small"` | 2 |
-| `styles/globals.css` | `.tap-target` utility; phone visibility for reveal animations; team card touch rules | 2, 3, 9 |
-| `components/home/HomeSlider/**`, `components/ui/SlickSlider/**`, `components/home/programs/*`, `components/home/Partners.tsx`, `components/home/Sponsors.tsx` | carousel controls off content; logo grid on phone | 4 |
-| `components/ui/Pagination/Pagination.tsx` | 44 px controls | 5 |
-| `components/layout/Subscribe.tsx`, `SubscribeForm.tsx` | phone heading, full-width form | 6 |
-| `components/layout/Header.tsx`, `Logo.tsx` | ≈ 64 px header on phone | 7 |
-| `components/home/WhoWeAre.tsx`, `HomeSlider.tsx`, `programs/ProgramCard.tsx`, `JoinCommunity.tsx`, `PartnerForm.tsx` | home page | 8 |
-| `components/about/Team.tsx`, `components/shared/MemberTeaser.tsx`, `components/about/HistoryFormation.tsx`, `HistoryCard.tsx`, mission block in `AboutPageClientSide.tsx` | about page | 9 |
-| `components/contacts/ContactForm.tsx`, `Contacts.tsx` | contacts | 10 |
-| `components/shared/Card.tsx`, `components/news/ArticlesGrid.tsx` | list cards | 11 |
-| `components/program/programPageComponents/*` | program detail | 12 |
-| `components/projectPage/*` | projects (layout only) | 13 |
-| `components/payment/PaymentForm.tsx`, `app/(payment)/donation/**`, `app/subscribe`, `app/unsubscribe`, `app/inactive-link` | donation + result pages | 14 |
+| File                                                                                                                                                                      | Responsibility                                                                                       | Task    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
+| `playwright.config.ts`                                                                                                                                                    | add `mobile`, `mobile-small` projects; keep `chromium` for existing specs                            | 1       |
+| `e2e/mobile.spec.ts` (new)                                                                                                                                                | phone check: overflow, tap targets, reveal visibility, carousel overlap                              | 1, 3, 4 |
+| `e2e/mobile-helpers.ts` (new)                                                                                                                                             | `ROUTES`, `PENDING_TARGETS`, `PENDING_OVERFLOW`, `collectViolations(page)`, `resolveDetailIds(page)` | 1       |
+| `e2e/desktop-guard.spec.ts` (new, not in CI)                                                                                                                              | 1440 px screenshots compared against a `development` baseline                                        | 1       |
+| `components/shared/Button.tsx` (+ test)                                                                                                                                   | phone min height for `size="small"`                                                                  | 2       |
+| `styles/globals.css`                                                                                                                                                      | `.tap-target` utility; phone visibility for reveal animations; team card touch rules                 | 2, 3, 9 |
+| `components/home/HomeSlider/**`, `components/ui/SlickSlider/**`, `components/home/programs/*`, `components/home/Partners.tsx`, `components/home/Sponsors.tsx`             | carousel controls off content; logo grid on phone                                                    | 4       |
+| `components/ui/Pagination/Pagination.tsx`                                                                                                                                 | 44 px controls                                                                                       | 5       |
+| `components/layout/Subscribe.tsx`, `SubscribeForm.tsx`                                                                                                                    | phone heading, full-width form                                                                       | 6       |
+| `components/layout/Header.tsx`, `Logo.tsx`                                                                                                                                | ≈ 64 px header on phone                                                                              | 7       |
+| `components/home/WhoWeAre.tsx`, `HomeSlider.tsx`, `programs/ProgramCard.tsx`, `JoinCommunity.tsx`, `PartnerForm.tsx`                                                      | home page                                                                                            | 8       |
+| `components/about/Team.tsx`, `components/shared/MemberTeaser.tsx`, `components/about/HistoryFormation.tsx`, `HistoryCard.tsx`, mission block in `AboutPageClientSide.tsx` | about page                                                                                           | 9       |
+| `components/contacts/ContactForm.tsx`, `Contacts.tsx`                                                                                                                     | contacts                                                                                             | 10      |
+| `components/shared/Card.tsx`, `components/news/ArticlesGrid.tsx`                                                                                                          | list cards                                                                                           | 11      |
+| `components/program/programPageComponents/*`                                                                                                                              | program detail                                                                                       | 12      |
+| `components/projectPage/*`                                                                                                                                                | projects (layout only)                                                                               | 13      |
+| `components/payment/PaymentForm.tsx`, `app/(payment)/donation/**`, `app/subscribe`, `app/unsubscribe`, `app/inactive-link`                                                | donation + result pages                                                                              | 14      |
 
 ---
 
 ### Task 1: Phone check and desktop guard
 
 **Files:**
+
 - Modify: `playwright.config.ts`
 - Create: `e2e/mobile-helpers.ts`, `e2e/mobile.spec.ts`, `e2e/desktop-guard.spec.ts`
 
 **Interfaces:**
+
 - Produces:
   - `export const ROUTES: { name: string; path: string }[]`: for locale in `['en','ua']`: home `/<l>`, about, contacts, news, `news-item`, events, `event-item`, projects, `program-item`. Plus locale-less `/donation`, `/donation/finish`, `/donation/error`, `/subscribe`, `/unsubscribe`, `/inactive-link`.
   - `export const PENDING_TARGETS: Set<string>` and `export const PENDING_OVERFLOW: Set<string>`: route names whose tap-target / overflow test is still expected to fail. `PENDING_TARGETS` starts with **all** route names; `PENDING_OVERFLOW` starts with the names Step 3 finds still overflowing (likely none). Tasks remove names as they fix them.
@@ -92,9 +94,9 @@ for (const r of ROUTES) {
 `pathFor` maps `news-item`, `event-item` and `program-item` through `resolveDetailIds`.
 
 - [ ] **Step 3: Run against development as it is today.** Start `NEXT_PUBLIC_NEWWAVE_API_URL=https://api.stage.newwave4.org npm run dev` and run `E2E_BASE_URL=http://localhost:3000 npx playwright test --project=mobile --project=mobile-small`.
-  Expected: every tap-target test reports "expected to fail" (passes as `test.fail`). Overflow tests that pass mean the route goes in neither list; any route that does overflow goes in `PENDING_OVERFLOW`. Re-run: all green.
+      Expected: every tap-target test reports "expected to fail" (passes as `test.fail`). Overflow tests that pass mean the route goes in neither list; any route that does overflow goes in `PENDING_OVERFLOW`. Re-run: all green.
 
-- [ ] **Step 4: Write `e2e/desktop-guard.spec.ts`**: for each `ROUTES` entry in `en`, `await expect(page).toHaveScreenshot(\`${r.name}.png\`, { fullPage: true, maxDiffPixelRatio: 0.002, animations: 'disabled' })`. Set `snapshotPathTemplate: '{testDir}/../.desktop-guard/{arg}{ext}'` on that project, and add `.desktop-guard/` to `.gitignore`. To take the baseline, run on a `development` checkout with `--project=desktop-guard --update-snapshots`. Later tasks run it without `--update-snapshots`.
+- [ ] **Step 4: Write `e2e/desktop-guard.spec.ts`**: for each `ROUTES` entry in `en`, `await expect(page).toHaveScreenshot(\`${r.name}.png\`, { fullPage: true, maxDiffPixelRatio: 0.002, animations: 'disabled' })`. Set `snapshotPathTemplate: '{testDir}/../.desktop-guard/{arg}{ext}'`on that project, and add`.desktop-guard/`to`.gitignore`. To take the baseline, run on a `development`checkout with`--project=desktop-guard --update-snapshots`. Later tasks run it without `--update-snapshots`.
 
 - [ ] **Step 5: Run `npx playwright test --project=chromium`.** Expected: the existing specs are unchanged and still pass (or fail exactly as before on this machine).
 

@@ -16,8 +16,11 @@ const LOCALE_PAGES = [
 ] as const;
 
 export const ROUTES: Route[] = [
-  ...LOCALES.flatMap((l) =>
-    LOCALE_PAGES.map(([page, suffix]) => ({ name: `${l}-${page}`, path: `/${l}${suffix}` })),
+  ...LOCALES.flatMap(l =>
+    LOCALE_PAGES.map(([page, suffix]) => ({
+      name: `${l}-${page}`,
+      path: `/${l}${suffix}`,
+    })),
   ),
   { name: 'donation', path: '/donation' },
   { name: 'donation-finish', path: '/donation/finish' },
@@ -31,13 +34,19 @@ export const ROUTES: Route[] = [
 // Tasks remove a name once they fix that route.
 // inactive-link and donation already have no undersized targets, so they start out fixed.
 export const PENDING_TARGETS = new Set<string>(
-  ROUTES.map((r) => r.name).filter((n) => n !== 'inactive-link' && n !== 'donation'),
+  ROUTES.map(r => r.name).filter(
+    n => n !== 'inactive-link' && n !== 'donation',
+  ),
 );
 export const PENDING_OVERFLOW = new Set<string>([]);
 
 type DetailIds = { news: string; event: string; program: string };
 
-async function firstId(page: Page, listPath: string, segment: string): Promise<string | null> {
+async function firstId(
+  page: Page,
+  listPath: string,
+  segment: string,
+): Promise<string | null> {
   await page.goto(listPath);
   const link = page.locator(`a[href*="/${segment}/"]`).first();
   try {
@@ -54,7 +63,7 @@ async function firstId(page: Page, listPath: string, segment: string): Promise<s
 // public programs search the home page fires.
 async function firstProgramId(page: Page): Promise<string | null> {
   const response = page.waitForResponse(
-    (r) => r.url().includes('articleType=PROGRAM') && r.ok(),
+    r => r.url().includes('articleType=PROGRAM') && r.ok(),
     { timeout: 20_000 },
   );
   await page.goto('/en');
@@ -74,7 +83,10 @@ export async function resolveDetailIds(page: Page): Promise<DetailIds> {
   const news = await firstId(page, '/en/news', 'news');
   const event = await firstId(page, '/en/events', 'events');
   const program = await firstProgramId(page);
-  test.skip(!news || !event || !program, 'no news/event/program item available to open');
+  test.skip(
+    !news || !event || !program,
+    'no news/event/program item available to open',
+  );
   cached = { news: news!, event: event!, program: program! };
   return cached;
 }
@@ -82,13 +94,18 @@ export async function resolveDetailIds(page: Page): Promise<DetailIds> {
 export async function collectViolations(
   page: Page,
 ): Promise<{ overflowPx: number; smallTargets: string[] }> {
-  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+  await page
+    .waitForLoadState('networkidle', { timeout: 5_000 })
+    .catch(() => {});
   return page.evaluate(() => {
     const doc = document.documentElement;
     const overflowPx = doc.scrollWidth - doc.clientWidth;
-    const selector = 'a, button, [role=button], input, select, textarea, summary';
+    const selector =
+      'a, button, [role=button], input, select, textarea, summary';
     const smallTargets: string[] = [];
-    for (const el of Array.from(document.querySelectorAll<HTMLElement>(selector))) {
+    for (const el of Array.from(
+      document.querySelectorAll<HTMLElement>(selector),
+    )) {
       if (el.closest('.article-content, [aria-hidden="true"]')) continue;
       const style = getComputedStyle(el);
       if (style.display === 'none' || style.visibility === 'hidden') continue;
@@ -105,7 +122,9 @@ export async function collectViolations(
         .trim()
         .replace(/\s+/g, ' ')
         .slice(0, 40);
-      smallTargets.push(`${Math.round(box.width)}x${Math.round(box.height)} ${label}`);
+      smallTargets.push(
+        `${Math.round(box.width)}x${Math.round(box.height)} ${label}`,
+      );
     }
     return { overflowPx, smallTargets };
   });

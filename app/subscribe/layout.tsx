@@ -52,7 +52,9 @@ export default async function LocaleLayout({ children }: ILocaleLayout) {
         <NextIntlClientProvider>
           <ReduxProvider>
             <Header currentLocale="ua" />
-            <main className="flex-1 overflow-hidden pt-[60px] md:pt-[96px]">{children}</main>
+            <main className="flex-1 overflow-hidden pt-[60px] md:pt-[96px]">
+              {children}
+            </main>
             <Footer />
           </ReduxProvider>
         </NextIntlClientProvider>

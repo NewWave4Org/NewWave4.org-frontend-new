@@ -32,11 +32,11 @@ Screens of every public page at 390×664 on the live site (2026-11-15), reviewed
 
 ## Approaches considered
 
-| | Approach | Trade-off | Decision |
-|---|---|---|---|
-| A | Fix the shared pieces once (Button, forms, carousels, pagination, section spacing, headings, reveal animation), then each page with responsive Tailwind classes in the existing components. Add a Playwright phone check to CI. | Root causes fixed once; desktop untouched because changes sit behind `max-*`/unprefixed-then-`md:`/`lg:` restores. Several medium PRs. | **Chosen by the owner** |
-| B | Separate mobile components (`MobileTeam`, …) switched by breakpoint. | Free layout, but every component exists twice and drifts. | Rejected (anti-goal) |
-| C | Design-system rework first (new tokens, type scale, component library), then rebuild pages. | Most consistent, but weeks of churn and real desktop risk for a phone-usability goal. | Rejected (overkill) |
+|     | Approach                                                                                                                                                                                                                        | Trade-off                                                                                                                              | Decision                |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| A   | Fix the shared pieces once (Button, forms, carousels, pagination, section spacing, headings, reveal animation), then each page with responsive Tailwind classes in the existing components. Add a Playwright phone check to CI. | Root causes fixed once; desktop untouched because changes sit behind `max-*`/unprefixed-then-`md:`/`lg:` restores. Several medium PRs. | **Chosen by the owner** |
+| B   | Separate mobile components (`MobileTeam`, …) switched by breakpoint.                                                                                                                                                            | Free layout, but every component exists twice and drifts.                                                                              | Rejected (anti-goal)    |
+| C   | Design-system rework first (new tokens, type scale, component library), then rebuild pages.                                                                                                                                     | Most consistent, but weeks of churn and real desktop risk for a phone-usability goal.                                                  | Rejected (overkill)     |
 
 ## Design
 
@@ -52,20 +52,21 @@ Screens of every public page at 390×664 on the live site (2026-11-15), reviewed
 
 ### Shared pieces (first PR)
 
-| Piece | Today | Change |
-|---|---|---|
-| `components/shared/Button.tsx` `size="small"` | `px-3 py-1.5` ≈ 30 px tall | `min-h-11` **below `md` only**, restored at `md:` so desktop is unchanged. Used in 7 public places. *(Builder-check call: phone-only, because a 44 px hit area at every width would visibly change desktop.)* |
-| Text-style links ("All news →", "More details", "Leave a comment", "Registration form", email links) | 14–32 px tall | Shared link style with `min-h-11 inline-flex items-center` below `md` only (same reason). |
-| Carousels: `components/home/HomeSlider`, `components/ui/SlickSlider/Arrows`, programs carousel, partner/sponsor logos | Arrows overlay text; 12 px dots; edge-cut logo cards | On phone: arrows move below the content next to the dots (44 px each) or are hidden in favour of swipe; dots get a 44 px hit area. Partner/sponsor logos become a static 2-column grid on phone. |
-| Pagination (news, events) | 24–32 px | 44×44 buttons. |
-| Subscribe block (`components/layout/Subscribe*.tsx`, on every page) | 48 px heading on 3 lines; input ≈ 265 px; button ≈ 105 px | 28 px heading; full-width input and 48 px button. |
-| Form pattern (partner form, contacts, donation) | Narrow inputs inside padded cards | Card padding 16 px on phone; full-width inputs and button. |
-| Reveal animations (`useInView`, `.team-grid`, `HistoryFormation`, `JoinCommunity`) | Sections render blank until the observer fires | Visible by default on phones / reduced motion; animate only as enhancement. |
-| Site header | 96 px tall sticky (≈ 14 % of the screen) | ≈ 64 px on phone (smaller logo block). Hide-on-scroll is **not** in scope. |
+| Piece                                                                                                                 | Today                                                     | Change                                                                                                                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `components/shared/Button.tsx` `size="small"`                                                                         | `px-3 py-1.5` ≈ 30 px tall                                | `min-h-11` **below `md` only**, restored at `md:` so desktop is unchanged. Used in 7 public places. _(Builder-check call: phone-only, because a 44 px hit area at every width would visibly change desktop.)_ |
+| Text-style links ("All news →", "More details", "Leave a comment", "Registration form", email links)                  | 14–32 px tall                                             | Shared link style with `min-h-11 inline-flex items-center` below `md` only (same reason).                                                                                                                     |
+| Carousels: `components/home/HomeSlider`, `components/ui/SlickSlider/Arrows`, programs carousel, partner/sponsor logos | Arrows overlay text; 12 px dots; edge-cut logo cards      | On phone: arrows move below the content next to the dots (44 px each) or are hidden in favour of swipe; dots get a 44 px hit area. Partner/sponsor logos become a static 2-column grid on phone.              |
+| Pagination (news, events)                                                                                             | 24–32 px                                                  | 44×44 buttons.                                                                                                                                                                                                |
+| Subscribe block (`components/layout/Subscribe*.tsx`, on every page)                                                   | 48 px heading on 3 lines; input ≈ 265 px; button ≈ 105 px | 28 px heading; full-width input and 48 px button.                                                                                                                                                             |
+| Form pattern (partner form, contacts, donation)                                                                       | Narrow inputs inside padded cards                         | Card padding 16 px on phone; full-width inputs and button.                                                                                                                                                    |
+| Reveal animations (`useInView`, `.team-grid`, `HistoryFormation`, `JoinCommunity`)                                    | Sections render blank until the observer fires            | Visible by default on phones / reduced motion; animate only as enhancement.                                                                                                                                   |
+| Site header                                                                                                           | 96 px tall sticky (≈ 14 % of the screen)                  | ≈ 64 px on phone (smaller logo block). Hide-on-scroll is **not** in scope.                                                                                                                                    |
 
 ### Per page
 
 **Home** (`components/home/*`)
+
 - `WhoWeAre`: the decorative home photo box (fixed 415 px, `object-contain`) is hidden on phone, or reduced to a short decorative strip; the intro heading uses the phone type scale (≈ 32–36 px, 2 lines) and the subtitle 16 px sentence-case.
 - Hero slider: title below the image instead of over it; dots per the carousel rule.
 - Programs carousel: arrows off the text (carousel rule); a stable text area so the card height doesn't jump.
@@ -73,6 +74,7 @@ Screens of every public page at 390×664 on the live site (2026-11-15), reviewed
 - Partner form: full-width input and button; larger "Leave a comment" toggle.
 
 **About** (`components/about/*`)
+
 - Our team (`Team.tsx`, `MemberTeaser.tsx`): **2 columns** on phone (≈ 170 px cards); `sm:grid-cols-4` and `lg:grid-cols-6` as today. On touch, no overlay on the photo: under the name show the role (up to 3 lines), the full location, and a 44 px social icon. Desktop keeps the hover-reveal footer.
 - History (`HistoryFormation.tsx`): visible without animation; the whole accordion row is the tap target; years ≈ 28 px.
 - Mission blocks: left-aligned, ≈ 24 px headings; the embroidery motif moves off the text.
@@ -89,7 +91,7 @@ Screens of every public page at 390×664 on the live site (2026-11-15), reviewed
 
 ### Verification
 
-- **Phone check** (new `e2e/mobile.spec.ts`, a Playwright project using the iPhone 14 device): for each route below, fail if the page scrolls horizontally or if any visible `a, button, [role=button], input, select, textarea, summary` is smaller than 44×44 px, with a short reviewed allow-list for inline links inside article body text. *(Builder-check call.)* It runs like the existing e2e specs: in the `e2e.yml` job (PRs into `main`, nightly, on demand) against the real staging backend, and locally against any URL via `E2E_BASE_URL` (including the dev site, so each PR can be checked after it lands on `development`). It does **not** run on PRs into `development`: that would need network mocks or fixture data the project doesn't have, which is out of scope. Detail routes take their IDs from the live list pages at test time.
+- **Phone check** (new `e2e/mobile.spec.ts`, a Playwright project using the iPhone 14 device): for each route below, fail if the page scrolls horizontally or if any visible `a, button, [role=button], input, select, textarea, summary` is smaller than 44×44 px, with a short reviewed allow-list for inline links inside article body text. _(Builder-check call.)_ It runs like the existing e2e specs: in the `e2e.yml` job (PRs into `main`, nightly, on demand) against the real staging backend, and locally against any URL via `E2E_BASE_URL` (including the dev site, so each PR can be checked after it lands on `development`). It does **not** run on PRs into `development`: that would need network mocks or fixture data the project doesn't have, which is out of scope. Detail routes take their IDs from the live list pages at test time.
 - **Routes covered** (both `en` and `ua`): home, about, contacts, news, a news item, events, an event, projects, a program; plus `/donation`, `/donation/finish`, `/donation/error`, `/subscribe`, `/unsubscribe`, `/inactive-link`. The small result pages get the same rules (full-width buttons, 44 px targets) in PR 3.
 - **Desktop guard**: before/after screenshots of every public route at 1440 px are compared during review; any visible change is a bug unless listed above.
 - **Unit tests**: existing component tests (e.g. `Team.test.tsx`, `HistoryFormation.test.tsx`, `Button.test.tsx`) updated for the new markup.
@@ -98,10 +100,11 @@ Screens of every public page at 390×664 on the live site (2026-11-15), reviewed
 ### Delivery
 
 PRs into `development`, each reviewable on its own:
+
 1. Shared pieces + CI phone check (the check may start with an allow-list that shrinks in later PRs).
 2. Home + About (includes the three reported issues).
 3. Contacts, News, Events, Program detail, Projects (layout only), Donation.
-Then a normal release to `main` and a production frontend deploy.
+   Then a normal release to `main` and a production frontend deploy.
 
 ## Found, not in this pass (owner to decide)
 

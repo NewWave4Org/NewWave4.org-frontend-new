@@ -67,7 +67,11 @@ test('carousel arrows do not cover text', async ({ page }) => {
     const section = document.querySelector('section.programs')!;
     const visible = (el: Element) => {
       const b = el.getBoundingClientRect();
-      return b.width > 0 && b.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      return (
+        b.width > 0 &&
+        b.height > 0 &&
+        getComputedStyle(el).visibility !== 'hidden'
+      );
     };
     // The slider heading sits outside the slides; only slide text counts.
     const heading = section.querySelector(':scope > div > h4');
@@ -75,14 +79,24 @@ test('carousel arrows do not cover text', async ({ page }) => {
       .filter(el => el !== heading && visible(el))
       .map(el => el.getBoundingClientRect());
     const arrows = [...section.querySelectorAll('button')]
-      .filter(b => b.querySelector('svg') && !b.textContent?.trim() && visible(b))
+      .filter(
+        b => b.querySelector('svg') && !b.textContent?.trim() && visible(b),
+      )
       .map(b => b.getBoundingClientRect());
     const hit = (a: DOMRect, b: DOMRect) =>
-      a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      a.left < b.right &&
+      b.left < a.right &&
+      a.top < b.bottom &&
+      b.top < a.bottom;
     return {
       arrows: arrows.length,
       overlaps: arrows.flatMap((a, i) =>
-        text.filter(t => hit(a, t)).map(t => `arrow ${i} @${a.x|0},${a.y|0} hits text @${t.x|0},${t.y|0}`),
+        text
+          .filter(t => hit(a, t))
+          .map(
+            t =>
+              `arrow ${i} @${a.x | 0},${a.y | 0} hits text @${t.x | 0},${t.y | 0}`,
+          ),
       ),
     };
   });
@@ -101,11 +115,17 @@ test('carousel dots have 44px hit areas', async ({ page }) => {
     els.map(el => {
       const target = el.closest('button') ?? el;
       const b = target.getBoundingClientRect();
-      return { tag: target.tagName, w: Math.round(b.width), h: Math.round(b.height) };
+      return {
+        tag: target.tagName,
+        w: Math.round(b.width),
+        h: Math.round(b.height),
+      };
     }),
   );
   expect(sizes.length).toBeGreaterThan(0);
-  expect(sizes.filter(s => s.tag !== 'BUTTON' || s.w < 44 || s.h < 44)).toEqual([]);
+  expect(sizes.filter(s => s.tag !== 'BUTTON' || s.w < 44 || s.h < 44)).toEqual(
+    [],
+  );
 });
 
 test('subscribe form is full width', async ({ page }) => {
@@ -120,7 +140,9 @@ test('subscribe form is full width', async ({ page }) => {
   const vw = page.viewportSize()!.width;
   const inputBox = (await input.boundingBox())!;
   const buttonBox = (await button.boundingBox())!;
-  const fontSize = await heading.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+  const fontSize = await heading.evaluate(el =>
+    parseFloat(getComputedStyle(el).fontSize),
+  );
   expect(inputBox.width).toBeGreaterThanOrEqual(vw - 32);
   expect(buttonBox.width).toBeGreaterThanOrEqual(vw - 32);
   expect(buttonBox.height).toBeGreaterThanOrEqual(48);
