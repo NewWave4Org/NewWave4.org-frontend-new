@@ -29,9 +29,9 @@ export const ROUTES: Route[] = [
 
 // Route names whose tap-target / overflow test is still expected to fail.
 // Tasks remove a name once they fix that route.
-// inactive-link already has no undersized targets, so it starts out fixed.
+// inactive-link and donation already have no undersized targets, so they start out fixed.
 export const PENDING_TARGETS = new Set<string>(
-  ROUTES.map((r) => r.name).filter((n) => n !== 'inactive-link'),
+  ROUTES.map((r) => r.name).filter((n) => n !== 'inactive-link' && n !== 'donation'),
 );
 export const PENDING_OVERFLOW = new Set<string>([]);
 
