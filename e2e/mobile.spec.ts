@@ -49,3 +49,61 @@ for (const name of ['en-home', 'en-about']) {
     expect(opacities.filter(o => o !== '1')).toEqual([]);
   });
 }
+
+// Carousel controls on en-home: the programs slider is the one section whose
+// arrows can land on text; every slider dot is a tap target.
+async function gotoHomeCarousels(page: Page) {
+  const r = ROUTES.find(x => x.name === 'en-home')!;
+  await page.goto(r.path);
+  await page
+    .locator('section.programs h4, section.programs p')
+    .nth(1)
+    .waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+test('carousel arrows do not cover text', async ({ page }) => {
+  await gotoHomeCarousels(page);
+  const { arrows, overlaps } = await page.evaluate(() => {
+    const section = document.querySelector('section.programs')!;
+    const visible = (el: Element) => {
+      const b = el.getBoundingClientRect();
+      return b.width > 0 && b.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+    };
+    // The slider heading sits outside the slides; only slide text counts.
+    const heading = section.querySelector(':scope > div > h4');
+    const text = [...section.querySelectorAll('p, h3, h4')]
+      .filter(el => el !== heading && visible(el))
+      .map(el => el.getBoundingClientRect());
+    const arrows = [...section.querySelectorAll('button')]
+      .filter(b => b.querySelector('svg') && !b.textContent?.trim() && visible(b))
+      .map(b => b.getBoundingClientRect());
+    const hit = (a: DOMRect, b: DOMRect) =>
+      a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    return {
+      arrows: arrows.length,
+      overlaps: arrows.flatMap((a, i) =>
+        text.filter(t => hit(a, t)).map(t => `arrow ${i} @${a.x|0},${a.y|0} hits text @${t.x|0},${t.y|0}`),
+      ),
+    };
+  });
+  expect(arrows).toBeGreaterThan(0);
+  expect(overlaps).toEqual([]);
+});
+
+test('carousel dots have 44px hit areas', async ({ page }) => {
+  await gotoHomeCarousels(page);
+  // Hero (react-slick) dots and programs slider dots.
+  const dots = page.locator(
+    '.embla-slider-dots li button, section.programs [data-slider-dot], section.programs .embla-slider-dot',
+  );
+  await dots.first().waitFor({ state: 'attached' });
+  const sizes = await dots.evaluateAll(els =>
+    els.map(el => {
+      const target = el.closest('button') ?? el;
+      const b = target.getBoundingClientRect();
+      return { tag: target.tagName, w: Math.round(b.width), h: Math.round(b.height) };
+    }),
+  );
+  expect(sizes.length).toBeGreaterThan(0);
+  expect(sizes.filter(s => s.tag !== 'BUTTON' || s.w < 44 || s.h < 44)).toEqual([]);
+});
