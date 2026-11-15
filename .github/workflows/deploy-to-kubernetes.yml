@@ -37,7 +37,12 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: ${{ inputs.namespace }}
+    # One deploy per environment at a time; never cancel a rollout midway.
+    concurrency:
+      group: deploy-frontend-${{ inputs.namespace }}
+      cancel-in-progress: false
     env:
       # The input names the GitHub Environment; the Kubernetes namespace is derived.
       # Both clusters (Infra rebuild 2026-10-31) use one namespace per environment.
@@ -96,10 +101,14 @@ jobs:
           kubectl get ns "${{ env.NAMESPACE }}" >/dev/null 2>&1 || \
           kubectl create ns "${{ env.NAMESPACE }}"
 
+      # Pinned to Helm 3: there `--atomic --wait` waits for workloads only.
+      # Helm 4's default watcher also waits on cert-manager resources, which
+      # blocks a deploy whenever a certificate is (re)issuing, and renames
+      # --atomic. Bump deliberately, not via 'latest'.
       - name: Install Helm
         uses: azure/setup-helm@v5
         with:
-          version: 'latest'
+          version: 'v3.17.3'
 
       # Login for Helm OCI (private charts). For public charts this is harmless.
       # Use a PAT with read:packages OR rely on GITHUB_TOKEN if the chart is in the same org and permissions allow it.
@@ -193,6 +202,9 @@ jobs:
           curl -s -H "Authorization: Bearer ${BEARER}" \
             "https://ghcr.io/v2/${ORG}/${REPO_PATH}/tags/list" || echo "Failed to list tags"
 
+      # --atomic --wait: the run only goes green once every pod passes its
+      # readiness probe; a crash-looping or unpullable image fails the run and
+      # Helm rolls the release back to the previous revision.
       - name: Helm Upgrade/Install
         run: |
           echo "Installing chart from OCI repository..."
@@ -205,7 +217,8 @@ jobs:
             -f ./values.yaml \
             --set image.repository=ghcr.io/${{ env.ORG }}/${{ env.IMAGE_NAME }} \
             --set image.tag="${{ env.IMAGE_TAG }}" \
-            --set imagePullSecrets[0].name=ghcr-regcred
+            --set imagePullSecrets[0].name=ghcr-regcred \
+            --atomic --wait --timeout 10m
 
       - name: Cleanup Sensitive Files
         if: always()
