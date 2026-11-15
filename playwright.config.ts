@@ -20,7 +20,32 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /mobile\.spec|desktop-guard/,
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      // Phone emulation on Chromium (the only browser CI installs); WebKit is the iPhone default.
+      name: 'mobile',
+      testMatch: /mobile\.spec/,
+      use: { ...devices['iPhone 14'], defaultBrowserType: 'chromium' },
+    },
+    {
+      name: 'mobile-small',
+      testMatch: /mobile\.spec/,
+      grep: /@overflow/,
+      use: {
+        ...devices['iPhone 14'],
+        defaultBrowserType: 'chromium',
+        viewport: { width: 360, height: 740 },
+      },
+    },
+    {
+      // Local-only visual regression guard for desktop. Baselines live in
+      // .desktop-guard/ (gitignored); take them with --update-snapshots.
+      name: 'desktop-guard',
+      testMatch: /desktop-guard/,
+      snapshotPathTemplate: '{testDir}/../.desktop-guard/{arg}{ext}',
+      use: { viewport: { width: 1440, height: 900 } },
     },
   ],
   // Not started when E2E_BASE_URL points at an already-running deployment

@@ -56,10 +56,16 @@ body {
     @apply text-preheader text-font-accent uppercase;
   }
 
+  /* Touch */
+
+  .tap-target {
+    @apply max-md:inline-flex max-md:min-h-11 max-md:items-center;
+  }
+
   /* Header */
 
   .header {
-    @apply p-4 bg-[#FFF] fixed w-full left-0 z-50;
+    @apply p-4 max-md:py-2 bg-[#FFF] fixed w-full left-0 z-50;
   }
   .header__inner {
     @apply flex justify-between items-center mx-auto w-full lg:max-w-[1344px] max-w-[calc(100%-30px)];
@@ -78,7 +84,7 @@ body {
     @apply hidden;
   }
   .headerShowMobile {
-    @apply bg-white px-12 py-4 rounded-bl-[20px] rounded-br-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
+    @apply bg-white px-12 py-4 rounded-bl-[20px] rounded-br-[20px] shadow-header fixed top-[96px] max-md:top-[60px] w-full left-0 block transition-all duration-300 z-[999];
   }
 
   /* Menu */
@@ -261,6 +267,27 @@ body {
       animation: none;
     }
   }
+  /* Phones: never hide content behind a scroll-triggered reveal. */
+  @media (max-width: 767px) {
+    .timeline__line,
+    .timeline__line--vertical {
+      clip-path: none;
+    }
+    .timeline__dot,
+    .timeline__ornament,
+    .timeline__year,
+    .timeline__body {
+      opacity: 1;
+    }
+    .timeline.is-inview .timeline__line,
+    .timeline.is-inview .timeline__dot,
+    .timeline.is-inview .timeline__ornament,
+    .timeline.is-inview .timeline__year,
+    .timeline.is-inview .timeline__body,
+    .timeline__item:hover .timeline__dot::before {
+      animation: none;
+    }
+  }
 
   /* Home page: "How to join us" reuses the timeline's dotted path. */
   .join-paths .timeline__item:hover .join-paths__title {
@@ -277,6 +304,14 @@ body {
     animation-delay: calc(var(--i) * 0.06s);
   }
   @media (prefers-reduced-motion: reduce) {
+    .team-grid__item {
+      opacity: 1;
+    }
+    .team-grid.is-inview .team-grid__item {
+      animation: none;
+    }
+  }
+  @media (max-width: 767px) {
     .team-grid__item {
       opacity: 1;
     }
@@ -363,6 +398,15 @@ body {
   border: 0;
   background-color: transparent;
   height: 24px;
+}
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 44px;
+    min-width: 44px;
+  }
 }
 .hamburger-box {
   position: relative;

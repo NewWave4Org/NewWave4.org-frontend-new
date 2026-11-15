@@ -115,14 +115,16 @@ const ProgramsSlider = () => {
     );
   }
 
+  // Phone: the arrows sit in normal flow beside the dots, under the card, so
+  // they never cover its text. From md they are lifted out of the row and
+  // centred on the slider's sides as before (267.5px = half the 535px slider).
+  // `!` because .slide-btn lives in globals.css's utilities layer, after these.
+  const arrowClass =
+    'slide-btn flex justify-center items-center max-md:!static max-md:!translate-y-0 max-md:!size-11 max-md:!p-0 max-md:!opacity-100 md:!top-[267.5px]';
+
   return (
-    <>
+    <div className="relative">
       <div className="relative w-full max-w-[969px] h-[535px] mx-auto flex items-center justify-center">
-        {isMobile && (
-          <button className="slide-btn left-0" onClick={scrollPrev}>
-            <ArrowLeft4Icon size="32" color="#fafafa" />
-          </button>
-        )}
         <div className="relative flex justify-center items-center w-full h-full rounded-lg">
           {slidesData.map((slide, index) => (
             <div
@@ -139,27 +141,44 @@ const ProgramsSlider = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="mt-10 flex justify-center items-center max-md:gap-2">
         {isMobile && (
           <button
-            className="slide-btn right-0 flex justify-center items-center"
+            type="button"
+            className={`${arrowClass} left-0`}
+            onClick={scrollPrev}
+          >
+            <ArrowLeft4Icon size="32" color="#fafafa" />
+          </button>
+        )}
+        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6 min-w-[195px] max-md:flex-wrap max-md:gap-2 max-md:py-0 max-md:px-1">
+          {slidesData?.map((slide, index) => (
+            // 12px visual dot; on phones the button grows to 44px and the
+            // padding plus content-box background keep the dot 12px.
+            <button
+              key={index}
+              type="button"
+              data-slider-dot
+              aria-label={slide.title}
+              aria-current={currentIndex === index}
+              onClick={() => setCurrentIndex(index)}
+              className={`embla-slider-dot block bg-clip-content max-md:!size-11 max-md:p-4 ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-200'}`}
+            />
+          ))}
+        </div>
+        {isMobile && (
+          <button
+            type="button"
+            className={`${arrowClass} right-0`}
             onClick={scrollNext}
           >
             <ArrowRight4Icon size="32" color="#fafafa" />
           </button>
         )}
       </div>
-
-      <div className="mt-10 flex  justify-center">
-        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6 min-w-[195px]">
-          {slidesData?.map((_, index) => (
-            <div
-              key={index}
-              className={`embla-slider-dot ${currentIndex === index ? 'bg-primary-500' : 'bg-grey-200'}`}
-            />
-          ))}
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
 
