@@ -181,7 +181,6 @@ jobs:
       - name: Generate .env file
         uses: ./.github/actions/generate-env
         with:
-          paypal_client_id: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
@@ -263,20 +262,18 @@ jobs:
     env:
       PROD_API_URL: ${{ secrets.PROD_NEXT_PUBLIC_NEWWAVE_API_URL }}
       PROD_SITE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SITE_URL }}
-      PROD_PAYPAL_CLIENT_ID: ${{ secrets.PROD_NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
       PROD_STRIPE_PUBLISHABLE_KEYS: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
       PROD_STRIPE_WEBHOOK_URL: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
     steps:
       # The secrets context can't be tested in a job-level `if`, so the
       # "is production configured yet?" decision is made here and every later
-      # step keys off it. Only the three values the app can't build without
+      # step keys off it. Only the two values the app can't build without
       # are mandatory; the Stripe webhook URL is ceremonial (see CLAUDE.md).
       - name: Check production build config
         id: cfg
         run: |
           missing=""
           [ -z "${PROD_API_URL}" ] && missing="${missing} PROD_NEXT_PUBLIC_NEWWAVE_API_URL"
-          [ -z "${PROD_PAYPAL_CLIENT_ID}" ] && missing="${missing} PROD_NEXT_PUBLIC_PAYPAL_CLIENT_ID"
           [ -z "${PROD_STRIPE_PUBLISHABLE_KEYS}" ] && missing="${missing} PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS"
           if [ -n "${missing}" ]; then
             echo "::warning::Skipping the production image: repo secret(s) not set:${missing}. See docs/ci-cd.md, prerequisite 3."
@@ -302,7 +299,6 @@ jobs:
         if: steps.cfg.outputs.configured == 'true'
         uses: ./.github/actions/generate-env
         with:
-          paypal_client_id: ${{ env.PROD_PAYPAL_CLIENT_ID }}
           stripe_publishable_keys: ${{ env.PROD_STRIPE_PUBLISHABLE_KEYS }}
           stripe_webhook_url: ${{ env.PROD_STRIPE_WEBHOOK_URL }}
           newwave_api_url: ${{ env.PROD_API_URL }}

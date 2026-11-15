@@ -9,7 +9,6 @@ import TextArea from '../shared/TextArea';
 import Select from '../shared/Select';
 import { emailValidation, nameValidation } from '@/utils/validation';
 import { useRouter } from 'next/navigation';
-import RadioButton from '../shared/RadioButton';
 import Image from 'next/image';
 import { prefix } from '@/utils/prefix';
 import Modal from '../shared/Modal';
@@ -31,12 +30,10 @@ const validationSchema = Yup.object({
     .required('Please add a donation amount')
     .moreThan(0, 'Donation amount must be greater than 0'),
   purpose: Yup.string().required('Please select a donation purpose'),
-  paymentMethod: Yup.string().required('Please select a payment method'),
 });
 
 const PaymentForm = () => {
   const [showComment, setShowComment] = useState(false);
-  // const [isPaypal, setIsPaypal] = useState<boolean>(false);
   // const [openModal, setOpenModal] = useState<boolean>(false);
   const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
   const {
@@ -53,10 +50,7 @@ const PaymentForm = () => {
   // const stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS);
 
   const handleStripeCheckout = async (paymentDetails: any) => {
-    const baseUrl =
-      paymentDetails.paymentMethod === 'paypal'
-        ? 'payments/paypal/checkout-session'
-        : 'payments/stripe/checkout-session';
+    const baseUrl = 'payments/stripe/checkout-session';
 
     const { name } = paymentDetails;
     const purpose = purposeOptions.find(
@@ -139,19 +133,11 @@ const PaymentForm = () => {
         amount: '',
         purpose: '',
         comment: '',
-        paymentMethod: '',
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmitPaymentForm}
     >
-      {({
-        touched,
-        errors,
-        handleChange,
-        values,
-        resetForm,
-        setFieldValue,
-      }) => (
+      {({ touched, errors, handleChange, values, resetForm }) => (
         <Form className="flex max-[1100px]:flex-col min-[1100px]:gap-x-[131px]">
           {true && (
             <Modal
@@ -264,63 +250,18 @@ const PaymentForm = () => {
           <div className="max-[1100px]:w-full xl:w-[506px] flex flex-col gap-y-[32px] max-[1000px]:pt-6">
             <div className="flex flex-col gap-y-[24px]">
               <h4 className="text-h5 text-font-primary font-ebGaramond">
-                Please, select donation method
-                <span className="inline-block text-status-danger-500 text-body h-[24px] ml-1 translate-y-[-4px] font-helv">
-                  {' '}
-                  *
-                </span>
+                Donation method
               </h4>
-              <div className="flex flex-col gap-y-[16px]">
-                <div className="flex">
-                  <div className="flex-1 flex items-center">
-                    <RadioButton
-                      label="Stripe"
-                      name="paymentMethod"
-                      value="stripe"
-                      checked={values.paymentMethod === 'stripe'}
-                      onChange={() => setFieldValue('paymentMethod', 'stripe')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
-                    />
-                  </div>
-                  <Image
-                    src={`${prefix}/payment/Stripe.svg`}
-                    alt="stripe"
-                    width={78}
-                    height={45}
-                  />
-                </div>
-                <div className="flex">
-                  <div className="flex-1 flex items-center">
-                    <RadioButton
-                      label="PayPal"
-                      name="paymentMethod"
-                      value="paypal"
-                      checked={values.paymentMethod === 'paypal'}
-                      onChange={() => setFieldValue('paymentMethod', 'paypal')}
-                      error={
-                        touched.paymentMethod && errors.paymentMethod
-                          ? errors.paymentMethod
-                          : undefined
-                      }
-                    />
-                  </div>
-                  <Image
-                    src={`${prefix}/payment/PayPal.svg`}
-                    alt="paypal"
-                    width={38}
-                    height={45}
-                  />
-                </div>
-
-                {touched.paymentMethod && errors.paymentMethod && (
-                  <p className="text-status-danger-500 text-small2">
-                    {errors.paymentMethod}
-                  </p>
-                )}
+              <div className="flex items-center">
+                <p className="flex-1 text-body text-font-primary">
+                  Secure card payment via Stripe
+                </p>
+                <Image
+                  src={`${prefix}/payment/Stripe.svg`}
+                  alt="Stripe"
+                  width={78}
+                  height={45}
+                />
               </div>
               <div className="flex justify-between text-[#0F1B40]">
                 <span>Full amount</span>

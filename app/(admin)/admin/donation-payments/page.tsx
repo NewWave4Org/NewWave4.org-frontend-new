@@ -39,6 +39,8 @@ const statusTypes = [
 
 const providerTypes = [
   { value: 'all', label: 'All' },
+  // PayPal is no longer offered for new donations; kept so admins can still
+  // find historical PayPal payments.
   { value: DonationProvider.PAYPAL, label: DonationProvider.PAYPAL },
   { value: DonationProvider.STRIPE, label: DonationProvider.STRIPE },
 ];
