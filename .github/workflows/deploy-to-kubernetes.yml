@@ -154,8 +154,18 @@ jobs:
           echo "Production ingress hosts:"
           echo "${hosts}" | sed 's/^/  /'
 
+      # GITHUB_TOKEN expires when this job ends, so a pull secret built from it
+      # stops working as soon as a pod is rescheduled onto a node that hasn't
+      # cached the image. Production has 3 nodes and must not depend on that:
+      # require the long-lived GHCR_PAT (read:packages) from its Environment.
       - name: Create/Update imagePullSecret for GHCR
+        env:
+          HAS_PAT: ${{ secrets.GHCR_PAT != '' }}
         run: |
+          if [ "${{ inputs.namespace }}" = "production" ] && [ "${HAS_PAT}" != "true" ]; then
+            echo "::error::GHCR_PAT is not set in the 'production' GitHub Environment; refusing to write a pull secret from the short-lived GITHUB_TOKEN."
+            exit 1
+          fi
           kubectl create secret docker-registry ghcr-regcred \
             --docker-server=ghcr.io \
             --docker-username="${{ github.actor }}" \
