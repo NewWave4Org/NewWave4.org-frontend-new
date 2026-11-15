@@ -252,6 +252,10 @@ jobs:
   docker-publish-production:
     name: docker-publish-production
     needs: release
+    # deploy-production keys off this: the job "succeeds" with every build step
+    # skipped while the PROD_* secrets are unset, and that must not deploy.
+    outputs:
+      built: ${{ steps.cfg.outputs.configured }}
     if: >-
       needs.release.outputs.publish_image == 'true'
       && github.ref == 'refs/heads/main'
@@ -402,6 +406,30 @@ jobs:
     uses: ./.github/workflows/deploy-to-kubernetes.yml
     with:
       namespace: staging
+      chart_version: ${{ needs.release.outputs.chart_version }}
+      image_tag: ${{ needs.release.outputs.image_tag }}
+    secrets: inherit
+
+  # Production rollout of a main release. Unlike deploy-staging this pauses
+  # for approval: the `production` GitHub Environment has a required reviewer
+  # and only allows the `main` branch, and it carries production's own
+  # KUBECONFIG, VALUES_YAML and GHCR_PAT. The manual workflow_dispatch on
+  # deploy-to-kubernetes.yml remains for rollbacks and redeploys.
+  # Release-only (no force_build): production accepts only an exact X.Y.Z
+  # chart + image pair, which only a real release produces.
+  deploy-production:
+    name: deploy-production
+    needs: [release, docker-publish-production, helm-publish]
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main'
+      && needs.release.outputs.new_release_published == 'true'
+      && needs.docker-publish-production.result == 'success'
+      && needs.docker-publish-production.outputs.built == 'true'
+      && needs.helm-publish.result == 'success'
+    uses: ./.github/workflows/deploy-to-kubernetes.yml
+    with:
+      namespace: production
       chart_version: ${{ needs.release.outputs.chart_version }}
       image_tag: ${{ needs.release.outputs.image_tag }}
     secrets: inherit
