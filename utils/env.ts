@@ -14,7 +14,6 @@
 
 /** Absent or empty means the app is broken in a way users will hit. */
 const REQUIRED = [
-  'NEXT_PUBLIC_PAYPAL_CLIENT_ID',
   'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS',
   'NEXT_PUBLIC_NEWWAVE_API_URL',
 ] as const;

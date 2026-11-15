@@ -1,5 +1,7 @@
 export const DonationProvider = {
   STRIPE: 'STRIPE',
+  // Historical only: PayPal was removed as a donation method, but old payments
+  // stored with this provider must still display and be filterable.
   PAYPAL: 'PAYPAL',
 } as const;
 

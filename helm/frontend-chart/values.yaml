@@ -172,6 +172,5 @@ volumeMounts: []
 # here only as empty placeholders so `helm lint`/`helm template` succeed
 # against this file alone.
 secret:
-  NEXT_PUBLIC_PAYPAL_CLIENT_ID: ''
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS: ''
   NEXT_PUBLIC_NEWWAVE_API_URL: ''
