@@ -33,3 +33,19 @@ for (const r of ROUTES) {
     expect((await collectViolations(page)).smallTargets).toEqual([]);
   });
 }
+
+for (const name of ['en-home', 'en-about']) {
+  test(`${name} reveal content is visible on first paint`, async ({ page }) => {
+    const r = ROUTES.find(x => x.name === name)!;
+    await page.goto(r.path);
+    const reveal = page.locator(
+      '.timeline__body, .timeline__year, .team-grid__item',
+    );
+    await reveal.first().waitFor({ state: 'attached', timeout: 15_000 });
+    const opacities = await reveal.evaluateAll(els =>
+      els.map(el => getComputedStyle(el).opacity),
+    );
+    expect(opacities.length).toBeGreaterThan(0);
+    expect(opacities.filter(o => o !== '1')).toEqual([]);
+  });
+}
