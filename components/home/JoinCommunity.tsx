@@ -5,7 +5,6 @@ import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n';
 import { useInView } from '@/utils/hooks/useInView';
-import { markTrailingEmptyParagraphs } from './markTrailingEmptyParagraphs';
 
 interface IJoinCommunity {
   translatable_text_title: string;
@@ -59,12 +58,13 @@ const JoinCommunity = ({ joinUs }: { joinUs: IJoinCommunity[] }) => {
           />
 
           <ul
-            className="relative grid grid-cols-1 gap-6 md:gap-10 !list-none !pl-0 lg:gap-16 lg:grid-cols-[repeat(var(--join-count),minmax(0,1fr))]"
+            className="relative grid grid-cols-1 gap-10 !list-none !pl-0 lg:gap-16 lg:grid-cols-[repeat(var(--join-count),minmax(0,1fr))]"
             style={{ '--join-count': count } as CSSProperties}
           >
             {joinUs.map((item, i) => {
-              const joinDescriptionText = markTrailingEmptyParagraphs(
-                convertDraftToHTML(item?.translatable_text_editorState, locale),
+              const joinDescriptionText = convertDraftToHTML(
+                item?.translatable_text_editorState,
+                locale,
               );
               return (
                 <li
@@ -87,7 +87,7 @@ const JoinCommunity = ({ joinUs }: { joinUs: IJoinCommunity[] }) => {
                         Left-aligned, not justified: justified text at this column
                         width opens wide gaps between words. */}
                     <div
-                      className="join-paths__text max-w-[46ch] font-helv text-base leading-[1.6] text-font-primary"
+                      className="max-w-[46ch] font-helv text-base leading-[1.6] text-font-primary"
                       dangerouslySetInnerHTML={{ __html: joinDescriptionText }}
                     />
                   </div>

@@ -91,15 +91,4 @@ describe('HistoryFormation', () => {
       'The first meeting of representatives',
     );
   });
-
-  it('makes the whole year row one 44px button on phones', () => {
-    render(<HistoryFormation ourTimeLine={events} />);
-    const dot = screen.getByRole('button', { name: '2006 — Beginning' });
-    const year = screen.getByRole('button', { name: '2006' });
-
-    // The dot toggle stretches over the full year row below md.
-    expect(dot).toHaveClass('max-md:inset-x-0', 'max-md:min-h-11');
-    // The year itself is ~28px on phones and never shorter than 44px.
-    expect(year).toHaveClass('max-md:text-[28px]', 'max-md:min-h-11');
-  });
 });

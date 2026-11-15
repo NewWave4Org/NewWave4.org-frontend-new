@@ -31,7 +31,7 @@ const Tabs = ({ children }: TabsProps) => {
                 }
               }}
               disabled={isDisabled}
-              className={`py-2 text-medium1 max-md:min-w-11 ${
+              className={`py-2 text-medium1 ${
                 isDisabled
                   ? 'text-grey-700 border-b-4 border-transparent'
                   : activeTab === index

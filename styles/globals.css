@@ -319,11 +319,8 @@ body {
       animation: none;
     }
   }
-
-  /* Touch devices have no hover: from md up keep the in-photo card footer
-     always visible. Below md the footer is hidden and MemberTeaser shows an
-     info row under the role instead. */
-  @media (hover: none) and (min-width: 768px) {
+  /* Touch devices have no hover: keep the card footer always visible. */
+  @media (hover: none) {
     .member-card__footer {
       @apply translate-y-0 opacity-100;
     }
@@ -709,31 +706,13 @@ p a {
 }
 @media (max-width: 767px) {
   .home-main-title {
-    font-size: 34px;
+    font-size: 55px;
   }
-  /* Sentence case on phones: one 16px line under the heading, not three
-     uppercase ones. The <br> is for the desktop layout only. */
   .home-main-subtitle {
-    font-size: 16px;
-    line-height: 1.4;
-    text-transform: none;
+    font-size: 25px;
     position: static;
-    margin-top: 8px;
+    margin-top: 15px;
     display: block;
-  }
-  .home-main-subtitle::first-letter {
-    text-transform: uppercase;
-  }
-  .home-main-subtitle br {
-    display: none;
-  }
-  /* Join steps: no blank lines after a step's text, so steps sit 24px apart. */
-  .join-paths__text > .is-trailing-empty {
-    display: none;
-  }
-  .join-paths__text > p:last-child,
-  .join-paths__text > p:has(+ .is-trailing-empty) {
-    margin-bottom: 0;
   }
 }
 

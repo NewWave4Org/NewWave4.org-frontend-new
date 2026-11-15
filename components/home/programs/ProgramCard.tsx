@@ -39,8 +39,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           />
         </div>
         <div className="flex flex-col pt-2 pb-4 px-4 gap-y-4">
-          <div data-program-text className="flex flex-col gap-y-4">
-            <h4 className="text-body text-font-primary font-medium text-center line-clamp-2 max-md:min-h-[2lh]">
+          <div className="flex flex-col gap-y-4">
+            <h4 className="text-body text-font-primary font-medium text-center line-clamp-2">
               {slide.title}
             </h4>
             <p className="text-info h-[112px] overflow-hidden">{slide.text}</p>
@@ -48,7 +48,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           <Button
             variant="tertiary"
             size="small"
-            className="tap-target flex justify-end w-full"
+            className="flex justify-end w-full"
             onClick={() => onDetailsClick()}
           >
             <span className="flex items-center gap-x-2">
