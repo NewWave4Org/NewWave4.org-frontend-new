@@ -66,6 +66,8 @@ function HomeSlider({
 
   const settings = {
     className: 'h-full',
+    // On phones the dots row sits in normal flow under the slides (see SliderDots).
+    dotsClass: 'slick-dots max-md:!static',
     dots: dots,
     appendDots: dots
       ? (dotsElements: React.ReactNode) => <SliderDots dots={dotsElements} />
@@ -97,7 +99,11 @@ function HomeSlider({
   };
 
   return (
-    <div className={`${className} relative h-[420px] group/arrows`}>
+    // Below md the caption sits in normal flow under a fixed-height image, so
+    // the slider grows to fit it; from md it overlays the 420px image.
+    <div
+      className={`${className} relative h-[420px] max-md:h-auto group/arrows`}
+    >
       <div className="h-full w-full">
         <Slider {...settings}>
           {slides?.map((slide, index) => {
@@ -107,20 +113,25 @@ function HomeSlider({
 
             const slideContent = (
               <div className="w-full h-full slide-group px-2">
-                <div className="relative w-full h-full ">
-                  {slide.files.map((file: string, idx: number) => (
-                    <Image
-                      key={idx}
-                      src={file}
-                      alt={slide.translatable_text_title ?? 'photo'}
-                      fill
-                      className="embla-slide-img transition-all duration-300 object-cover rounded-xl"
-                    />
-                  ))}
+                <div className="relative w-full h-full max-md:h-auto">
+                  {/* No box from md (display: contents), so the images fill
+                      the slide as before; on phones it is the image frame. */}
+                  <div className="md:contents relative h-[240px]">
+                    {slide.files.map((file: string, idx: number) => (
+                      <Image
+                        key={idx}
+                        src={file}
+                        alt={slide.translatable_text_title ?? 'photo'}
+                        fill
+                        className="embla-slide-img transition-all duration-300 object-cover rounded-xl"
+                      />
+                    ))}
+                  </div>
 
                   <div
                     className="
                       absolute bottom-0 h-full w-full rounded-xl
+                      max-md:static max-md:h-auto max-md:bg-none
                       bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_80%,rgba(0,0,0,1)_100%)]
                       lg:bg-none
                       lg:bg-[rgba(0,0,0,0.5)]
@@ -132,12 +143,15 @@ function HomeSlider({
                       group-hover/slide:visible
                     "
                   >
-                    <div className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end">
-                      <div className="text-white text-base font-medium mb-1">
+                    <div
+                      data-hero-caption
+                      className="max-w-[435px] mb-10 p-4 flex flex-col w-full h-[calc(100%-40px)] justify-end max-md:m-0 max-md:h-auto max-md:px-0 max-md:pt-3 max-md:pb-2"
+                    >
+                      <div className="text-white text-base font-medium mb-1 max-md:mb-0 max-md:text-font-primary">
                         {slide.translatable_text_title}
                       </div>
                       <div
-                        className="text-grey-200 line-clamp-2 text-xs"
+                        className="text-grey-200 line-clamp-2 text-xs max-md:hidden"
                         dangerouslySetInnerHTML={{
                           __html: slideDescriptionText,
                         }}

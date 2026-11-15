@@ -50,7 +50,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
             return (
               <div
                 key={item.id}
-                className="flex w-full flex-col items-center text-center text-font-primary md:w-1/3 lg:px-12 md:px-6 md:py-0 sm:w-full sm:px-0 sm:py-4"
+                className="flex w-full flex-col items-center text-center text-font-primary max-md:items-start max-md:text-left md:w-1/3 lg:px-12 md:px-6 md:py-0 sm:w-full sm:px-0 sm:py-4"
               >
                 <span className="relative h-[124px] block">
                   <Image
@@ -61,7 +61,7 @@ const OurMission = ({ ourMission }: { ourMission: IOurMission[] }) => {
                     className="mb-4"
                   />
                 </span>
-                <h4 className="mb-3 text-h4 lora-family lg:text-[24px] text-[29px] font-bold">
+                <h4 className="mb-3 text-h4 lora-family lg:text-[24px] text-[29px] max-md:text-[24px] font-bold">
                   {item.translatable_text_title}
                 </h4>
                 {/* div, not p — see JoinCommunity.tsx: draft-js HTML contains <p>. */}
