@@ -40,7 +40,7 @@ const WhoWeAre: React.FC<IWhoWeAre> = ({
     <div className={`whoWeAre ${className} lg:pt-0 pt-5`}>
       <div className="max-w-[1440px] lg:px-0 px-4 mx-auto lg:h-full overflow-hidden">
         <div className="flex lg:flex-row flex-col items-center lg:h-full">
-          <div className="lg:max-w-[820px] xl:flex-1 2xl:ml-[96px] xl:ml-5 xl:mr-[85px] mx-4 lg:py-5 lg:mb-0 mb-5">
+          <div className="lg:max-w-[820px] xl:flex-1 2xl:ml-[96px] xl:ml-5 xl:mr-[85px] mx-4 max-md:mx-0 lg:py-5 lg:mb-0 mb-5">
             <div className="mb-3 relative">
               <h1 className="text-font-primary font-ebGaramond uppercase home-main-title">
                 {isEng ? (
@@ -73,7 +73,10 @@ const WhoWeAre: React.FC<IWhoWeAre> = ({
               dangerouslySetInnerHTML={{ __html: homeDescriptionText }}
             />
           </div>
-          <div className=" lg:max-w-[435px] lg:min-w-[360px] relative min-h-[415px] lg:h-full h-[415px] w-full rounded-xl mr-4">
+          <div
+            data-home-photo
+            className="max-md:hidden lg:max-w-[435px] lg:min-w-[360px] relative min-h-[415px] lg:h-full h-[415px] w-full rounded-xl mr-4"
+          >
             {homePhotoFile && (
               <Image
                 src={homePhotoFile}

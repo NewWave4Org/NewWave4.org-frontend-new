@@ -44,6 +44,7 @@ const News = ({ title = false, link, textLink, projectId }: NewsProps) => {
             <Button
               variant="tertiary"
               size="small"
+              className="tap-target"
               onClick={() =>
                 router.push(projectId ? `${link}?projectId=${projectId}` : link)
               }

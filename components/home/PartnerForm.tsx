@@ -31,25 +31,30 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
   return (
     <>
       <Form className="lg:grid lg:grid-cols-[1fr_auto] flex flex-col gap-x-6 items-start justify-start">
-        <div className="w-[264px] order-0">
+        <div className="w-[264px] max-md:w-full order-0">
           <Input
             id="email"
             label={t('forms_label.email')}
             maxLength={50}
+            className="max-md:w-full"
             required
             validationText={touched.email && errors.email ? errors.email : ''}
             onChange={handleChange}
             value={values.email}
           />
         </div>
-        <div className="place-self-start mt-[28px] lg:order-none order-3">
+        <div className="place-self-start mt-[28px] lg:order-none order-3 max-md:mt-4 max-md:w-full">
           {!showComment && (
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="max-md:w-full max-md:min-h-12"
+            >
               {t('buttons.become_partner')}
             </Button>
           )}
         </div>
-        <div className="col-span-2 mt-2">
+        <div className="col-span-2 mt-2 max-md:w-full">
           <div className="flex gap-x-6 lg:flex-row flex-col">
             {showComment && (
               <TextArea
@@ -58,12 +63,12 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
                 maxLength={200}
                 value={values.description}
                 onChange={handleChange}
-                className="w-[347px] h-[100px]"
+                className="w-[347px] max-md:w-full h-[100px]"
               />
             )}
             {showComment && (
               <Button
-                className="mt-[72px]"
+                className="mt-[72px] max-md:mt-4 max-md:w-full max-md:min-h-12"
                 type="submit"
                 disabled={isSubmitting}
               >
@@ -75,6 +80,7 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
             variant="tertiary"
             size="small"
             type="button"
+            className="tap-target"
             onClick={() => setShowComment(!showComment)}
           >
             {showComment
