@@ -13,8 +13,12 @@ const Logo = ({
   locale = 'en',
   compact = false,
 }: LogoProps) => {
-  const text =
-    locale === EN_LOCALE ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
+  const isEng = locale === EN_LOCALE;
+  const text = isEng ? 'Ukrainian New Wave' : 'Нова Українська Хвиля';
+  // In the 80px box the Ukrainian name wraps to 3 lines, which makes the
+  // compact (phone) header taller than 64px; give it room for 2 lines there.
+  const textWidth =
+    compact && !isEng ? 'w-[80px] max-md:w-[120px]' : 'w-[80px]';
   return (
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">
@@ -26,7 +30,7 @@ const Logo = ({
           priority
           className={compact ? 'max-md:h-11 max-md:w-11' : undefined}
         />
-        <p className={`w-[80px] m-0 text-small1 ${textColor}`}>{text}</p>
+        <p className={`${textWidth} m-0 text-small1 ${textColor}`}>{text}</p>
       </Link>
     </>
   );
