@@ -56,6 +56,12 @@ body {
     @apply text-preheader text-font-accent uppercase;
   }
 
+  /* Touch */
+
+  .tap-target {
+    @apply max-md:inline-flex max-md:min-h-11 max-md:items-center;
+  }
+
   /* Header */
 
   .header {
