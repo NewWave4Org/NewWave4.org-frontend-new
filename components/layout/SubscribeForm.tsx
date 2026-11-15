@@ -26,25 +26,20 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
   return (
     <>
       <Form>
-        <div className="flex gap-x-4 items-start sm:flex-row flex-col max-sm:gap-y-4">
+        <div className="flex gap-x-4 items-start sm:flex-row flex-col">
           <div className="sm:w-[264px] w-full">
             <Input
               id="email"
               label={t('forms_label.enter_email')}
               maxLength={50}
-              className="max-sm:w-full"
               required
               validationText={touched.email && errors.email ? errors.email : ''}
               onChange={handleChange}
               value={values.email}
             />
           </div>
-          <div className="sm:mt-[28px] max-sm:w-full">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="max-sm:w-full max-sm:min-h-12"
-            >
+          <div className="mt-[28px]">
+            <Button type="submit" disabled={isSubmitting}>
               {t('buttons.sign_up')}
             </Button>
           </div>

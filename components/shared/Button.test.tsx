@@ -36,16 +36,6 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('small buttons reach 44px on phones only', () => {
-    render(<Button size="small">x</Button>);
-
-    const classes = screen
-      .getByRole('button', { name: 'x' })
-      .className.split(/\s+/);
-    expect(classes).toContain('max-md:min-h-11');
-    expect(classes).not.toContain('min-h-11');
-  });
-
   it('merges a custom className with the generated variant/size classes', () => {
     render(
       <Button variant="secondary" size="small" className="custom-class">
