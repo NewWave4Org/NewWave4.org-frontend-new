@@ -1,4 +1,3 @@
-import DropDown from '@/components/shared/DropDown';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 
 import { logOutAuth } from '@/store/auth/action';
@@ -34,33 +33,20 @@ const AdminHeader = () => {
         <div className="flex justify-between items-center py-2">
           <LogoAdmin textColor="text-white" />
           {isAuthenticated && (
-            <div>
-              <DropDown
-                renderBth={(isOpen, toggle) => (
-                  <button
-                    onClick={toggle}
-                    className="text-white !bg-transparent rounded-xl px-4 py-2 
-                    shadow-[0_0_10px_rgba(255,255,255,0.5)]
-                    hover:shadow-[0_0_15px_rgba(255,255,255,0.8)]
-                    duration-500"
-                  >
-                    {currentUserName}
-                  </button>
-                )}
-                classNameItem=""
-                classNameMenu="right-0 w-[200px]"
-                items={[
-                  // { label: 'Профіль', href: adminLink.PROFILE, isLink: true },
-                  // { label: 'Налаштування', href: adminLink.SETTINGS, isLink: true },
-                  {
-                    id: 1,
-                    label: 'Log out',
-                    href: '#',
-                    isLink: false,
-                    onClick: handleLogOut,
-                  },
-                ]}
-              />
+            <div className="flex items-center gap-4">
+              {currentUserName && (
+                <span className="text-white text-sm">{currentUserName}</span>
+              )}
+              <button
+                type="button"
+                onClick={handleLogOut}
+                className="text-white !bg-transparent rounded-xl px-4 py-2
+                shadow-[0_0_10px_rgba(255,255,255,0.5)]
+                hover:shadow-[0_0_15px_rgba(255,255,255,0.8)]
+                duration-500"
+              >
+                Log out
+              </button>
             </div>
           )}
         </div>
