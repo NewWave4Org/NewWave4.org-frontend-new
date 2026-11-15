@@ -35,6 +35,7 @@ export const ROUTES: Route[] = [
 // inactive-link and donation already have no undersized targets, so they start out fixed.
 // Home was fixed in Task 8; its shared footer/social/tab fixes also cleared
 // program-item, the donation result pages, subscribe and unsubscribe.
+// About was fixed in Task 9.
 export const PENDING_TARGETS = new Set<string>(
   ROUTES.map(r => r.name).filter(
     n =>
@@ -43,6 +44,8 @@ export const PENDING_TARGETS = new Set<string>(
         'donation',
         'en-home',
         'ua-home',
+        'en-about',
+        'ua-about',
         'en-program-item',
         'ua-program-item',
         'donation-finish',

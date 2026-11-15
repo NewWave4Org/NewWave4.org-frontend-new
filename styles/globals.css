@@ -319,12 +319,6 @@ body {
       animation: none;
     }
   }
-  /* Touch devices have no hover: keep the card footer always visible. */
-  @media (hover: none) {
-    .member-card__footer {
-      @apply translate-y-0 opacity-100;
-    }
-  }
 
   /* .sponsors-slider .slick-track {
     display: flex;
