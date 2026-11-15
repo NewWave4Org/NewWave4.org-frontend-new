@@ -50,3 +50,4 @@ next-env.d.ts
 tmp
 /helm/frontend-chart/valuesV2.yaml
 
+.desktop-guard/
