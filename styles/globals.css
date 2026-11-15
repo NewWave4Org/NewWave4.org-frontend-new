@@ -65,7 +65,7 @@ body {
   /* Header */
 
   .header {
-    @apply p-4 bg-[#FFF] fixed w-full left-0 z-50;
+    @apply p-4 max-md:py-2 bg-[#FFF] fixed w-full left-0 z-50;
   }
   .header__inner {
     @apply flex justify-between items-center mx-auto w-full lg:max-w-[1344px] max-w-[calc(100%-30px)];
@@ -84,7 +84,7 @@ body {
     @apply hidden;
   }
   .headerShowMobile {
-    @apply bg-white px-12 py-4 rounded-bl-[20px] rounded-br-[20px] shadow-header fixed top-[96px] w-full left-0 block transition-all duration-300 z-[999];
+    @apply bg-white px-12 py-4 rounded-bl-[20px] rounded-br-[20px] shadow-header fixed top-[96px] max-md:top-[60px] w-full left-0 block transition-all duration-300 z-[999];
   }
 
   /* Menu */
@@ -398,6 +398,15 @@ body {
   border: 0;
   background-color: transparent;
   height: 24px;
+}
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 44px;
+    min-width: 44px;
+  }
 }
 .hamburger-box {
   position: relative;

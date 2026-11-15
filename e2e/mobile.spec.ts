@@ -126,3 +126,17 @@ test('subscribe form is full width', async ({ page }) => {
   expect(buttonBox.height).toBeGreaterThanOrEqual(48);
   expect(fontSize).toBeLessThanOrEqual(28);
 });
+
+test('header is at most 64px tall on phones', async ({ page }) => {
+  const r = ROUTES.find(x => x.name === 'en-home')!;
+  await page.goto(r.path);
+  const header = page.locator('header.header');
+  await expect(header).toBeVisible();
+  const hb = (await header.boundingBox())!;
+  const burger = page.locator('header .hamburger');
+  await expect(burger).toBeVisible();
+  const bb = (await burger.boundingBox())!;
+  expect(hb.height).toBeLessThanOrEqual(64);
+  expect(bb.width).toBeGreaterThanOrEqual(44);
+  expect(bb.height).toBeGreaterThanOrEqual(44);
+});

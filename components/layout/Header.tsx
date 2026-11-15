@@ -47,7 +47,7 @@ const Header = ({ currentLocale }: { currentLocale: string }) => {
     <>
       <header className={`header  ${isMenuShow ? 'menuOpen' : ''}`}>
         <div className="header__inner">
-          <Logo locale={locale} />
+          <Logo locale={locale} compact />
           {!isMobile && (
             <div className={`flex items-center justify-between flex-1`}>
               <div className="mx-auto">
