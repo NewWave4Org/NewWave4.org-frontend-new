@@ -107,3 +107,22 @@ test('carousel dots have 44px hit areas', async ({ page }) => {
   expect(sizes.length).toBeGreaterThan(0);
   expect(sizes.filter(s => s.tag !== 'BUTTON' || s.w < 44 || s.h < 44)).toEqual([]);
 });
+
+test('subscribe form is full width', async ({ page }) => {
+  const r = ROUTES.find(x => x.name === 'en-contacts')!;
+  await page.goto(r.path);
+  const input = page.locator('section form input#email');
+  await input.scrollIntoViewIfNeeded();
+  await expect(input).toBeVisible();
+  const form = page.locator('section form');
+  const button = form.locator('button[type=submit]');
+  const heading = page.locator('section:has(form) h2').first();
+  const vw = page.viewportSize()!.width;
+  const inputBox = (await input.boundingBox())!;
+  const buttonBox = (await button.boundingBox())!;
+  const fontSize = await heading.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+  expect(inputBox.width).toBeGreaterThanOrEqual(vw - 32);
+  expect(buttonBox.width).toBeGreaterThanOrEqual(vw - 32);
+  expect(buttonBox.height).toBeGreaterThanOrEqual(48);
+  expect(fontSize).toBeLessThanOrEqual(28);
+});
