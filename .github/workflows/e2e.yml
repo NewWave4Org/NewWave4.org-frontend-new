@@ -54,7 +54,7 @@ jobs:
           tags: newwave4-frontend-e2e:${{ github.sha }}
 
       - name: Start app container
-        run: docker run -d --name e2e-app -p 3000:3000 newwave4-frontend-e2e:${{ github.sha }}
+        run: docker run -d --name e2e-app -p 3000:3000 --env-file .env newwave4-frontend-e2e:${{ github.sha }}
 
       - name: Wait for app to become ready
         run: |

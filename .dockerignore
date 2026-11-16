@@ -17,3 +17,8 @@ yarn-error.log*
 .DS_Store
 .env.local
 .env.*.local
+# No environment values in the image: the API URL, Stripe key and site URL are
+# runtime config (utils/runtime-env.ts), supplied by the Helm chart. A baked
+# .env would silently stand in for a missing value and defeat the startup check.
+.env
+.env.*

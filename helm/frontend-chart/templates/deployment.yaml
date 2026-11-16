@@ -50,14 +50,19 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secret
+          {{- $tag := .Values.image.tag | default .Chart.AppVersion | toString }}
           env:
             # The release this pod runs, for /api/version and the status page.
-            # Set here rather than baked in at build, because a promoted image
-            # keeps the build it was tested as and gains its release tag later.
-            - name: APP_VERSION
-              value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+            # Set at deploy time because a promoted image keeps the build it was
+            # tested as and gains its release tag later. Only a release tag
+            # (X.Y.Z or X.Y.Z-dev.N) overrides APP_VERSION; for pr-*/latest the
+            # version stamped into the image stays.
             - name: IMAGE_TAG
-              value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+              value: {{ $tag | quote }}
+            {{- if regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+(-dev\\.[0-9]+)?$" $tag }}
+            - name: APP_VERSION
+              value: {{ $tag | quote }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

@@ -238,7 +238,9 @@ jobs:
           # it matches, which SIGPIPEs the wget feeding it. Under pipefail that
           # would fail a check that has always passed.
           set -eu
-          docker run --name newwave4-frontend-app -d -p 3000:3000 ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          # The image carries no config (see .dockerignore): pass the .env
+          # written above as runtime env, the way the Helm chart does.
+          docker run --name newwave4-frontend-app -d -p 3000:3000 --env-file .env ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
           echo Testing Image URL using wget
           # Checks for a valid HTML response rather than specific brand text, since the
           # homepage's default locale (UA) legitimately renders its title/branding in
@@ -254,3 +256,24 @@ jobs:
           cat /tmp/version.json
           jq -e --arg expected "$EXPECTED_COMMIT" \
             '.version and .startedAt and (.commit == $expected)' /tmp/version.json > /dev/null
+
+          # Runtime config (utils/runtime-env.ts) must reach the browser: the
+          # page carries the API origin from the env file, not from the build.
+          echo Testing runtime config injection
+          API_URL=$(sed -n 's/^NEXT_PUBLIC_NEWWAVE_API_URL=//p' .env)
+          curl -fsS --max-time 20 127.0.0.1:3000/donation \
+            | grep -o '<script id="nw-public-env">[^<]*' \
+            | grep -qF "\"NEXT_PUBLIC_NEWWAVE_API_URL\":\"${API_URL%/}"
+
+          # ...and an image started without it must refuse to start
+          # (instrumentation.ts), not serve a half-configured site.
+          echo Testing that a container without config exits
+          set +e
+          timeout 60 docker run --rm ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ] || [ "$code" -eq 124 ]; then
+            echo "::error::A container without runtime config did not exit with an error (exit ${code})."
+            exit 1
+          fi
+          echo "Exited with ${code}, as expected."

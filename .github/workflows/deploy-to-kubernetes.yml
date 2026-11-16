@@ -163,15 +163,12 @@ jobs:
           echo "Production ingress hosts:"
           echo "${hosts}" | sed 's/^/  /'
 
-      # GITHUB_TOKEN expires when this job ends, so a pull secret built from it
-      # stops working as soon as a pod is rescheduled onto a node that hasn't
-      # cached the image. Production has 3 nodes and must not depend on that:
-      # require the long-lived GHCR_PAT (read:packages) from its Environment.
       # Public runtime config (utils/runtime-env.ts): the API origin, Stripe
-      # publishable key and site URL the pods read at startup. Taken from the
-      # same secrets the image builds used, staging and production kept strictly
-      # apart: a missing production value fails here rather than falling back to
-      # a staging one. Written last on the helm command line, so it wins over
+      # publishable key and site URL the pods read at startup. Production reads
+      # the repo-level PROD_* secrets; staging reads NEXT_PUBLIC_*, which inside
+      # this job resolve to the `staging` Environment's copies where they exist.
+      # The two are kept strictly apart: a missing production value fails here
+      # rather than falling back to a staging one. Written last on the helm command line, so it wins over
       # anything VALUES_YAML still carries under `secret:`.
       - name: Write runtime config
         env:
@@ -193,18 +190,12 @@ jobs:
           API_URL=$(trim "${API_URL}"); STRIPE_KEY=$(trim "${STRIPE_KEY}"); SITE_URL=$(trim "${SITE_URL}")
           API_URL="${API_URL%/}"; SITE_URL="${SITE_URL%/}"
 
-          # No site URL secret: use the first ingress host, which the
-          # production guard above has already checked is not a staging host.
-          if [ -z "${SITE_URL}" ]; then
-            HOST=$(yq eval '.ingress.hosts[0].host // ""' ./values.yaml)
-            [ -n "${HOST}" ] && SITE_URL="https://${HOST}"
-            echo "::notice::${PREFIX}_SITE_URL is not set; using the first ingress host: ${SITE_URL:-<none>}"
-          fi
-
           fail=0
           [ -z "${API_URL}" ] && { echo "::error::${PREFIX}_NEWWAVE_API_URL is not set."; fail=1; }
           [ -z "${STRIPE_KEY}" ] && { echo "::error::${PREFIX}_STRIPE_PUBLISHABLE_KEYS is not set."; fail=1; }
-          [ -z "${SITE_URL}" ] && { echo "::error::No site URL: set ${PREFIX}_SITE_URL or an ingress host."; fail=1; }
+          # Not derived from the ingress hosts: the canonical origin is not
+          # always the first one (production lists www.newwave4.org first).
+          [ -z "${SITE_URL}" ] && { echo "::error::${PREFIX}_SITE_URL is not set."; fail=1; }
           echo "${API_URL}" | grep -qE '^https?://[^/]+$' || { echo "::error::API URL must be an origin like https://api.example.org (no path)."; fail=1; }
           echo "${SITE_URL}" | grep -qE '^https?://[^/]+$' || { echo "::error::Site URL must be an origin like https://example.org (no path)."; fail=1; }
           if [ "${TARGET}" = "production" ]; then
@@ -222,6 +213,10 @@ jobs:
           chmod 600 ./runtime-values.yaml
           echo "Runtime config for ${TARGET}: API ${API_URL}, site ${SITE_URL}, Stripe key ${STRIPE_KEY:0:8}..."
 
+      # GITHUB_TOKEN expires when this job ends, so a pull secret built from it
+      # stops working as soon as a pod is rescheduled onto a node that hasn't
+      # cached the image. Production has 3 nodes and must not depend on that:
+      # require the long-lived GHCR_PAT (read:packages) from its Environment.
       - name: Create/Update imagePullSecret for GHCR
         env:
           HAS_PAT: ${{ secrets.GHCR_PAT != '' }}
