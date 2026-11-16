@@ -39,8 +39,36 @@ describe('Team', () => {
       screen.getByRole('heading', { name: 'Member 2' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Role 2')).toBeInTheDocument();
-    expect(screen.getByText('City 2')).toBeInTheDocument();
+    // Location renders twice: the hover footer (md+) and the phone row (< md).
+    expect(screen.getAllByText('City 2')).toHaveLength(2);
     expect(screen.getByAltText('Member 2')).toBeInTheDocument();
+  });
+
+  it('on phones shows location and social link under the role, not over the photo', () => {
+    const { container } = render(
+      <Team
+        ourTeam={[
+          member(1, {
+            socialMediaUrl: 'https://facebook.com/member1',
+            typeSocialMedia: '2',
+          }),
+        ]}
+      />,
+    );
+
+    const footer = container.querySelector('.member-card__footer');
+    expect(footer).toHaveClass('max-md:hidden');
+
+    const phoneLocation = screen
+      .getAllByText('City 1')
+      .find(el => !footer?.contains(el));
+    expect(phoneLocation).toBeDefined();
+    expect(phoneLocation?.parentElement).toHaveClass('md:hidden');
+
+    const phoneLink = screen
+      .getAllByRole('link')
+      .find(el => !footer?.contains(el));
+    expect(phoneLink).toHaveClass('min-h-11', 'min-w-11');
   });
 
   it('marks the section as in view so the entrance animation can run', () => {
@@ -67,9 +95,12 @@ describe('Team', () => {
       />,
     );
 
+    // One link per breakpoint (hover footer md+, phone row < md), both for member 1.
     const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute('href', 'https://facebook.com/member1');
-    expect(links[0]).toHaveAttribute('target', '_blank');
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link).toHaveAttribute('href', 'https://facebook.com/member1');
+      expect(link).toHaveAttribute('target', '_blank');
+    }
   });
 });
