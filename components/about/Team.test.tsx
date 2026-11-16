@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Team, { ourTeamProps } from './Team';
 
@@ -39,12 +39,11 @@ describe('Team', () => {
       screen.getByRole('heading', { name: 'Member 2' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Role 2')).toBeInTheDocument();
-    // Location renders twice: the hover footer (md+) and the phone row (< md).
-    expect(screen.getAllByText('City 2')).toHaveLength(2);
+    expect(screen.getByText('City 2')).toBeInTheDocument();
     expect(screen.getByAltText('Member 2')).toBeInTheDocument();
   });
 
-  it('on phones shows location and social link under the role, not over the photo', () => {
+  it('tapping the photo slides the location banner up, and tapping again hides it', () => {
     const { container } = render(
       <Team
         ourTeam={[
@@ -57,18 +56,19 @@ describe('Team', () => {
     );
 
     const footer = container.querySelector('.member-card__footer');
-    expect(footer).toHaveClass('max-md:hidden');
+    expect(footer).not.toHaveClass('max-md:hidden');
+    expect(footer).toContainElement(screen.getByText('City 1'));
+    expect(footer).not.toHaveAttribute('data-open');
 
-    const phoneLocation = screen
-      .getAllByText('City 1')
-      .find(el => !footer?.contains(el));
-    expect(phoneLocation).toBeDefined();
-    expect(phoneLocation?.parentElement).toHaveClass('md:hidden');
+    fireEvent.click(screen.getByAltText('Member 1'));
+    expect(footer).toHaveAttribute('data-open');
 
-    const phoneLink = screen
-      .getAllByRole('link')
-      .find(el => !footer?.contains(el));
-    expect(phoneLink).toHaveClass('min-h-11', 'min-w-11');
+    // Following the social link must not close the banner.
+    fireEvent.click(screen.getByRole('link'));
+    expect(footer).toHaveAttribute('data-open');
+
+    fireEvent.click(screen.getByAltText('Member 1'));
+    expect(footer).not.toHaveAttribute('data-open');
   });
 
   it('marks the section as in view so the entrance animation can run', () => {
@@ -95,12 +95,8 @@ describe('Team', () => {
       />,
     );
 
-    // One link per breakpoint (hover footer md+, phone row < md), both for member 1.
-    const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(2);
-    for (const link of links) {
-      expect(link).toHaveAttribute('href', 'https://facebook.com/member1');
-      expect(link).toHaveAttribute('target', '_blank');
-    }
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'https://facebook.com/member1');
+    expect(link).toHaveAttribute('target', '_blank');
   });
 });
