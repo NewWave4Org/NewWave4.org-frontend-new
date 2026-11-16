@@ -56,6 +56,14 @@ ESLint 9+ uses only the flat config (`eslint.config.mjs`). A `.eslintrc.json` al
 
 **Fixed:** the API URL, Stripe publishable key and site URL are now runtime config (`utils/runtime-env.ts`). The server reads them with a computed `process.env[key]` (which Next does not inline), and every root layout writes them into `window.__NW_PUBLIC_ENV__` for the browser (`components/PublicEnvScript.tsx`). The chart's Secret is now the source of truth; `deploy-to-kubernetes.yml` fills it from the same GitHub secrets the builds used (staging and `PROD_*` kept strictly apart), and a production-mode server refuses to start without all three (`instrumentation.ts`), so a misconfigured deploy rolls back instead of serving. `NEXT_PUBLIC_BASE_PATH` is still build-time, and empty everywhere.
 
+## Stale `staging` Environment secrets failed the 2.2.2 staging deploy (fixed 2026-11-16)
+
+The first release with runtime config (2.2.2) failed at `deploy-staging` with `API URL must be an origin like https://api.example.org (no path)`. Nothing was deployed: the check runs before Helm, so staging stayed on 2.2.1 and production's deploy was skipped.
+
+**Cause:** the `staging` GitHub Environment still held its own `NEXT_PUBLIC_NEWWAVE_API_URL` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS` from 2025-10-29, and the API URL had a path. Inside a job that runs in an Environment, an Environment secret overrides the repo secret of the same name. Before runtime config these copies were never read: only the build job used the values, and it runs outside any Environment, so it always got the correct repo-level ones. Moving the values into the deploy job (#613) exposed them.
+
+**Fixed:** both Environment copies were deleted, so the deploy uses the repo-level secrets every staging build had used. The rerun's config matched the pre-change baseline exactly: same API origin, same Stripe key fingerprint. The rule is now in [ci-cd.md](./ci-cd.md) prerequisite #3: runtime config secrets live at repo level only.
+
 ## `next build` (Turbopack) crashes specifically on GitHub Actions' own infrastructure
 
 `_quality-gates.yml` originally had a standalone `build` job (`npm run build` directly on `ubuntu-latest` via `actions/setup-node`). It crashed deterministically and silently on every run — Next.js printed "Skipping validation of types" then the process died ~100ms later with zero error output — including after clearing GitHub's npm cache and confirming a fresh `npm ci`. It was removed rather than fixed; this entry records the investigation in case it recurs.
