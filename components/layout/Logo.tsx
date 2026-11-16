@@ -1,6 +1,6 @@
 import { EN_LOCALE, Link } from '@/i18n';
-import { prefix } from '@/utils/prefix';
 import Image from 'next/image';
+import { LOGO_SRC } from '@/utils/logo';
 
 type LogoProps = {
   textColor?: string;
@@ -16,13 +16,7 @@ const Logo = ({
   return (
     <>
       <Link href="/" className="flex w-fit gap-x-2 items-center">
-        <Image
-          src={`${prefix}/logo.png`}
-          alt="logo"
-          width={64}
-          height={64}
-          priority
-        />
+        <Image src={LOGO_SRC} alt="logo" width={64} height={64} priority />
         <p className={`w-[80px] m-0 text-small1 ${textColor}`}>{text}</p>
       </Link>
     </>
