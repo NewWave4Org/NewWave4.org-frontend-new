@@ -42,43 +42,16 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
     setRatios(prev => (prev[key] === ratio ? prev : { ...prev, [key]: ratio }));
   }, []);
 
-  const balanced = useMemo(() => balanceLogos(logos, ratios), [logos, ratios]);
-
   const cards = useMemo(() => {
+    const balanced = balanceLogos(logos, ratios);
     if (balanced.length === 0) return [];
     const repeats = Math.ceil(MIN_CARDS_PER_COPY / balanced.length);
     return Array.from({ length: repeats }, (_, r) =>
       balanced.map(logo => ({ ...logo, cardKey: `${logo.key}-${r}` })),
     ).flat();
-  }, [balanced]);
+  }, [logos, ratios]);
 
   if (cards.length === 0) return null;
-
-  // One logo card, shared by the marquee and the phone grid; `size` is the
-  // only thing that differs between them.
-  const renderCard = (
-    { key, src, alt }: (typeof balanced)[number],
-    cardKey: string,
-    size: string,
-  ) => (
-    <div
-      key={cardKey}
-      className={`flex items-center justify-center rounded-2xl border border-grey-200 bg-white px-6 py-4 ${size}`}
-    >
-      <Image
-        // The callback ref catches images that finished loading
-        // before hydration (onLoad never fires for those);
-        // onLoad covers the rest.
-        ref={img => measure(key, img)}
-        onLoad={e => measure(key, e.currentTarget)}
-        className="h-auto max-h-full w-auto max-w-full object-contain mix-blend-multiply"
-        src={src}
-        alt={alt}
-        width={240}
-        height={128}
-      />
-    </div>
-  );
 
   return (
     <section className="sponsors lg:py-14 py-7">
@@ -98,7 +71,7 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
             badges are interleaved (see balanceLogos) so the dense marks don't
             cluster. The second copy is hidden from assistive tech.
           */}
-          <div className="sponsors-marquee max-md:hidden">
+          <div className="sponsors-marquee">
             <div className="sponsors-marquee__track">
               {[0, 1].map(copy => (
                 <div
@@ -106,20 +79,28 @@ const Sponsors = ({ ourPartners }: { ourPartners: IOurPartners[] }) => {
                   aria-hidden={copy === 1}
                   className="flex items-center gap-x-4 pr-4 sm:gap-x-5 sm:pr-5"
                 >
-                  {cards.map(card =>
-                    renderCard(
-                      card,
-                      card.cardKey,
-                      'h-24 w-44 shrink-0 sm:h-28 sm:w-56 lg:h-32 lg:w-60 lg:px-8',
-                    ),
-                  )}
+                  {cards.map(({ cardKey, key, src, alt }) => (
+                    <div
+                      key={cardKey}
+                      className="flex h-24 w-44 shrink-0 items-center justify-center rounded-2xl border border-grey-200 bg-white px-6 py-4 sm:h-28 sm:w-56 lg:h-32 lg:w-60 lg:px-8"
+                    >
+                      <Image
+                        // The callback ref catches images that finished loading
+                        // before hydration (onLoad never fires for those);
+                        // onLoad covers the rest.
+                        ref={img => measure(key, img)}
+                        onLoad={e => measure(key, e.currentTarget)}
+                        className="h-auto max-h-full w-auto max-w-full object-contain mix-blend-multiply"
+                        src={src}
+                        alt={alt}
+                        width={240}
+                        height={128}
+                      />
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          </div>
-          {/* Phones: a static two-column grid, each logo once, nothing cut off. */}
-          <div className="grid grid-cols-2 gap-4 md:hidden">
-            {balanced.map(logo => renderCard(logo, logo.key, 'h-24 w-full'))}
           </div>
         </div>
       </section>

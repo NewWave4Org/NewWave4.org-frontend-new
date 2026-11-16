@@ -103,10 +103,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                   style={{ '--i': index } as CSSProperties}
                   className="timeline__item relative mb-0 block pl-12 pb-10 before:hidden last:pb-0 xl:grid xl:grid-rows-[1fr_auto_1fr] xl:px-3 xl:pb-0 xl:pl-3 xl:text-center"
                 >
-                  {/* The dot is a 28px hit target with the 12px dot inside.
-                      Below md it stretches over the whole year row (44px
-                      tall, full width) so the row is one big toggle; the
-                      dot stays on the line at the left. */}
+                  {/* The dot is a 28px hit target with the 12px dot inside. */}
                   <button
                     type="button"
                     aria-expanded={isOpen}
@@ -115,7 +112,6 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                     onClick={() => toggle(index)}
                     className={`absolute left-[15px] top-[6px] flex h-7 w-7 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 focus-visible:ring-offset-2
-                      max-md:inset-x-0 max-md:top-0 max-md:h-auto max-md:min-h-11 max-md:w-auto max-md:translate-x-0 max-md:justify-start max-md:rounded-md max-md:pl-[9px]
                       xl:static xl:row-start-2 xl:-my-2 xl:translate-x-0 xl:justify-self-center`}
                   >
                     <span
@@ -137,7 +133,7 @@ const HistoryFormation = ({ ourTimeLine }: { ourTimeLine: IOurTimeLine[] }) => {
                       aria-expanded={isOpen}
                       aria-controls={panelId}
                       onClick={() => toggle(index)}
-                      className={`timeline__year order-1 cursor-pointer rounded font-ebGaramond text-5xl font-bold leading-[1.1] text-font-accent max-md:min-h-11 max-md:text-[28px]
+                      className={`timeline__year order-1 cursor-pointer rounded font-ebGaramond text-5xl font-bold leading-[1.1] text-font-accent
                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 focus-visible:ring-offset-2 xl:order-2 ${
                           isOpen ? 'text-accent-700' : ''
                         }`}

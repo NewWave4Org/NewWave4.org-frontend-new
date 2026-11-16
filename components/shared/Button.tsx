@@ -31,7 +31,7 @@ const Button: React.FC<ButtonProps> = ({
 
   // Size styles
   if (size === 'small') {
-    buttonStyle += 'px-3 py-1.5 text-small1 max-md:min-h-11 ';
+    buttonStyle += 'px-3 py-1.5 text-small1 ';
   } else if (size === 'medium') {
     buttonStyle += 'px-4 py-2.5 text-medium1 ';
   } else if (size === 'large') {

@@ -48,7 +48,6 @@ const SocialButtons = () => {
         return (
           <IconButton
             key={item.contentBlockType}
-            className="max-md:size-11"
             onClick={() => window.open(item.link)}
           >
             {Icon ?? null}

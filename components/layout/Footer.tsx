@@ -15,14 +15,11 @@ const Footer = () => {
           <Logo locale={locale} />
         </div>
         <div className="footer-links md:w-auto w-full">
-          <Link
-            className="menu-link tap-target py-1 mb-3 max-md:mb-2"
-            href="/about"
-          >
+          <Link className="menu-link py-1 mb-3" href="/about">
             <span>{t('menu.about_us')}</span>
           </Link>
           <Link
-            className="menu-link tap-target py-1 mb-3 max-md:mb-2"
+            className="menu-link py-1 mb-3"
             href="https://newwaveschool.org/"
             target="_blank"
           >
@@ -30,16 +27,10 @@ const Footer = () => {
           </Link>
         </div>
         <div className="footer-links md:w-auto w-full">
-          <Link
-            className="menu-link tap-target py-1 mb-3 max-md:mb-2"
-            href="/news"
-          >
+          <Link className="menu-link py-1 mb-3" href="/news">
             <span>{t('menu.news')}</span>
           </Link>
-          <Link
-            className="menu-link tap-target py-1 mb-3 max-md:mb-2"
-            href="/contacts"
-          >
+          <Link className="menu-link py-1 mb-3" href="/contacts">
             <span>{t('menu.contacts')}</span>
           </Link>
         </div>
