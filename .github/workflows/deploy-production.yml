@@ -1,0 +1,77 @@
+name: Deploy production
+
+# Production rollout of a main release, after approval.
+#
+# Runs when a `Release` run on main finishes, so waiting for approval here
+# never holds release.yml's `release-<ref>` concurrency group (which used to
+# block every later release behind an unapproved deploy). It deploys only
+# when that run:
+#   - concluded `success`, so staging was rolled out and became Ready first
+#     (deploy-staging waits for the rollout), and
+#   - uploaded a `production-release` artifact (its production-candidate job:
+#     a real X.Y.Z release whose production image and chart were published).
+#
+# The `production` GitHub Environment (required reviewer, `main`-only branch
+# policy, its own KUBECONFIG / VALUES_YAML / GHCR_PAT) gates the deploy job.
+# Deploys are serialized by deploy-to-kubernetes.yml's
+# `deploy-frontend-production` group: a newer release waiting there replaces
+# an older one that is still pending, and a deploy that is waiting for
+# approval still holds that group, so reject a stale deploy rather than
+# leaving it waiting.
+#
+# Manual `workflow_dispatch` on deploy-to-kubernetes.yml remains for
+# redeploys and rollbacks.
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: read
+  actions: read
+
+jobs:
+  candidate:
+    name: candidate
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_branch == 'main'
+      && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - name: Read production candidate
+        id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          found=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" \
+            --jq '[.artifacts[] | select(.name == "production-release" and .expired == false)] | length')
+          if [ "${found}" = "0" ]; then
+            echo "Release run ${RUN_ID} produced no production candidate (no new X.Y.Z release, or the production image was not built). Nothing to deploy."
+            exit 0
+          fi
+          gh run download "${RUN_ID}" -R "${GITHUB_REPOSITORY}" -n production-release -D candidate
+          version=$(tr -d '[:space:]' < candidate/version)
+          if ! echo "${version}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Candidate '${version}' is not an exact X.Y.Z release."
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Production candidate from Release run ${RUN_ID}: ${version}"
+
+  deploy-production:
+    name: deploy-production
+    needs: candidate
+    if: needs.candidate.outputs.version != ''
+    uses: ./.github/workflows/deploy-to-kubernetes.yml
+    with:
+      namespace: production
+      chart_version: ${{ needs.candidate.outputs.version }}
+      image_tag: ${{ needs.candidate.outputs.version }}
+    secrets: inherit
