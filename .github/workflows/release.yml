@@ -252,7 +252,7 @@ jobs:
   docker-publish-production:
     name: docker-publish-production
     needs: release
-    # deploy-production keys off this: the job "succeeds" with every build step
+    # production-candidate keys off this: the job "succeeds" with every build step
     # skipped while the PROD_* secrets are unset, and that must not deploy.
     outputs:
       built: ${{ steps.cfg.outputs.configured }}
@@ -410,15 +410,19 @@ jobs:
       image_tag: ${{ needs.release.outputs.image_tag }}
     secrets: inherit
 
-  # Production rollout of a main release. Unlike deploy-staging this pauses
-  # for approval: the `production` GitHub Environment has a required reviewer
-  # and only allows the `main` branch, and it carries production's own
-  # KUBECONFIG, VALUES_YAML and GHCR_PAT. The manual workflow_dispatch on
-  # deploy-to-kubernetes.yml remains for rollbacks and redeploys.
+  # Records "this run produced a production-deployable X.Y.Z" for
+  # deploy-production.yml, which picks it up once this whole run finishes.
+  #
+  # The production rollout deliberately does NOT run inside this workflow:
+  # a job waiting for approval keeps the run in progress, which holds the
+  # `release-<ref>` concurrency group above, so an unapproved production
+  # deploy used to block every later release on main (2026-11-15: the v2.1.0
+  # run sat waiting for 11h and queued v2.1.1 behind it). As a separate
+  # workflow_run workflow, the approval wait no longer holds the release lock.
   # Release-only (no force_build): production accepts only an exact X.Y.Z
   # chart + image pair, which only a real release produces.
-  deploy-production:
-    name: deploy-production
+  production-candidate:
+    name: production-candidate
     needs: [release, docker-publish-production, helm-publish]
     if: >-
       !cancelled()
@@ -427,9 +431,24 @@ jobs:
       && needs.docker-publish-production.result == 'success'
       && needs.docker-publish-production.outputs.built == 'true'
       && needs.helm-publish.result == 'success'
-    uses: ./.github/workflows/deploy-to-kubernetes.yml
-    with:
-      namespace: production
-      chart_version: ${{ needs.release.outputs.chart_version }}
-      image_tag: ${{ needs.release.outputs.image_tag }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Write candidate
+        env:
+          VERSION: ${{ needs.release.outputs.new_release_version }}
+        run: |
+          if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::'${VERSION}' is not an exact X.Y.Z release; not a production candidate."
+            exit 1
+          fi
+          mkdir -p candidate
+          printf '%s\n' "${VERSION}" > candidate/version
+          echo "Production candidate: ${VERSION}"
+
+      - name: Upload candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: production-release
+          path: candidate/version
+          retention-days: 30
