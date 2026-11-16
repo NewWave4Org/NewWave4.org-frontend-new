@@ -42,7 +42,7 @@ const Team = ({ ourTeam }: { ourTeam: ourTeamProps[] }) => {
 
         {/* Compact portrait grid: the whole team fits on one screen. Cards
             cascade in (see `.team-grid` in styles/globals.css, driven by `--i`). */}
-        <ul className="list-none grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6 lg:grid-cols-6">
+        <ul className="list-none grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-4 sm:gap-y-8 sm:gap-x-6 lg:grid-cols-6">
           {ourTeam.map((member, index) => (
             <li
               key={member.id}
