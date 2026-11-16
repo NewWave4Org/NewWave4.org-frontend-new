@@ -40,7 +40,7 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
   const hasSocial = Boolean(member.socialMediaUrl && socialIcon);
 
   return (
-    <article className="member-card group flex flex-col items-center text-center font-helv">
+    <article className="member-card group flex h-full flex-col items-center text-center font-helv">
       <div className="relative w-full max-w-[160px] transition-transform duration-300 ease-out group-hover:-translate-y-1 group-focus-within:-translate-y-1">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-[0_4px_14px_0_rgba(15,27,64,0.10)] ring-2 ring-transparent transition-shadow duration-300 group-hover:shadow-[0_12px_28px_0_rgba(15,27,64,0.18)] group-hover:ring-accent-600 group-focus-within:ring-accent-600">
           <Image
@@ -70,33 +70,36 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
         </div>
       </div>
 
-      <h5 className="mt-3 text-sm font-semibold leading-tight text-font-primary sm:text-base">
+      {/* Phones: name, role and location each reserve two lines (names are never
+          cut off), so cards in a row line up and the social icons share a baseline. */}
+      <h5 className="mt-3 text-sm font-semibold leading-tight text-font-primary max-md:min-h-[2.5em] sm:text-base">
         {name}
       </h5>
       {/* !mb-0: the phone row below makes this <p> no longer :last-child,
           which would otherwise pick up the global `p:not(:last-child)` margin. */}
       <p
         title={position}
-        className="!mb-0 mt-1 line-clamp-2 text-xs leading-snug text-primary-500 sm:text-sm"
+        className="!mb-0 mt-1 line-clamp-2 text-xs leading-snug text-primary-500 max-md:min-h-[2.75em] sm:text-sm"
       >
         {position}
       </p>
 
       {/* Phones: location and social link under the role, not over the photo. */}
       {(location || hasSocial) && (
-        <div className="mt-1 flex flex-col items-center md:hidden">
-          {location && (
-            <span className="text-xs leading-snug text-grey-600">
-              {location}
-            </span>
-          )}
+        <div className="mt-1 flex w-full flex-1 flex-col items-center md:hidden">
+          <span
+            title={location}
+            className="line-clamp-2 min-h-[2.75em] text-xs leading-snug text-grey-600"
+          >
+            {location}
+          </span>
           {hasSocial && (
             <Link
               target="_blank"
               rel="noopener noreferrer"
               href={member.socialMediaUrl}
               aria-label={`${name} — ${nameSocialMedia}`}
-              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-primary-500"
+              className="mt-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-primary-500"
             >
               {socialIcon}
             </Link>
