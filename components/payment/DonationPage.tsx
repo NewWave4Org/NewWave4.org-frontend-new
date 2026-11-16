@@ -3,10 +3,12 @@ import Logo from '@/components/layout/Logo';
 import PaymentForm from '@/components/payment/PaymentForm';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { getPublicEnv } from '@/utils/runtime-env';
 
 const DonationPage = () => {
+  // Runtime config (utils/runtime-env.ts), so one image serves test and live keys.
   const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS!,
+    getPublicEnv('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS') ?? '',
   );
 
   return (

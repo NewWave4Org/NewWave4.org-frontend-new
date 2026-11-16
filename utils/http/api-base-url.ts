@@ -1,3 +1,5 @@
+import { getPublicEnv } from '@/utils/runtime-env';
+
 /**
  * The single place the backend's location is derived from configuration.
  *
@@ -16,11 +18,10 @@
  * and delete live under `/api/`. Putting a path in the variable would force one
  * of the two to strip it back off again.
  *
- * Prefer importing `API_V1_BASE_URL` / `API_BASE_URL` over re-reading the env
- * var. `process.env.NEXT_PUBLIC_*` reads are inlined by Next at build time, so
- * scattered reads become scattered copies of a hardcoded string in the bundle,
- * each with its own idea of what path to append — which is exactly how both
- * axios instances came to hardcode staging in the first place.
+ * Prefer `getApiV1BaseUrl()` / `getApiBaseUrl()` over reading the env var.
+ * They are functions, read when a request is made, because the value comes
+ * from the runtime config (utils/runtime-env.ts), not from the build: the same
+ * image serves staging and production.
  *
  * ## Failure behaviour
  *
@@ -41,8 +42,8 @@ export function resolveApiOrigin(raw: string | undefined): string {
     throw new Error(
       'NEXT_PUBLIC_NEWWAVE_API_URL is not set. It must be the API origin, e.g. ' +
         '"https://api.stage.newwave4.org" or "http://localhost:8080". ' +
-        'Copy .env.example to .env.local for local work; in CI it comes from repo ' +
-        'secrets via .github/actions/generate-env.',
+        'Copy .env.example to .env.local for local work; deployed pods get it from ' +
+        'the Helm chart (templates/secret.yaml).',
     );
   }
 
@@ -74,22 +75,17 @@ export function resolveApiOrigin(raw: string | undefined): string {
 }
 
 /** Scheme + host (+ port), no trailing slash. */
-export const API_ORIGIN = resolveApiOrigin(
-  process.env.NEXT_PUBLIC_NEWWAVE_API_URL,
-);
+/** The API origin from the runtime config; throws when it is missing or malformed. */
+export function getApiOrigin(): string {
+  return resolveApiOrigin(getPublicEnv('NEXT_PUBLIC_NEWWAVE_API_URL'));
+}
 
-/**
- * Base for the versioned REST surface — everything in
- * `utils/http/enums/api-endpoint.ts` except the photo endpoints.
- *
- * The trailing slash is load-bearing: axios concatenates `baseURL` with a
- * relative `url`, so without it `/api/v1` + `article/public` would join wrong.
- */
-export const API_V1_BASE_URL = `${API_ORIGIN}/api/v1/`;
+/** Base for the REST surface, with a trailing slash: `${origin}/api/v1/`. */
+export function getApiV1BaseUrl(): string {
+  return `${getApiOrigin()}/api/v1/`;
+}
 
-/**
- * Base for the unversioned surface. Only the photo endpoints live here
- * (`utils/photos/photo-api.ts`), which is why it is a separate constant rather
- * than something `API_V1_BASE_URL` is derived from.
- */
-export const API_BASE_URL = `${API_ORIGIN}/api/`;
+/** Base for photo upload and delete, with a trailing slash: `${origin}/api/`. */
+export function getApiBaseUrl(): string {
+  return `${getApiOrigin()}/api/`;
+}

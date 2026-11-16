@@ -12,6 +12,7 @@ import Header from '@/components/layout/Header';
 import Subscribe from '@/components/layout/Subscribe';
 import Footer from '@/components/layout/Footer';
 import { buildAlternates, DEFAULT_OG_IMAGE, SITE_URL } from '@/utils/seo';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 interface ILocaleLayout {
   children: ReactNode;
@@ -87,6 +88,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        <PublicEnvScript />
+      </head>
       <body
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >

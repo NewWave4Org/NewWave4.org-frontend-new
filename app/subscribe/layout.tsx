@@ -7,6 +7,7 @@ import { EB_Garamond } from 'next/font/google';
 import localFont from 'next/font/local';
 import { ReactNode } from 'react';
 import '../../styles/globals.css';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 interface ILocaleLayout {
   children: ReactNode;
@@ -46,6 +47,9 @@ const ebGaramondFont = EB_Garamond({
 export default async function LocaleLayout({ children }: ILocaleLayout) {
   return (
     <html lang="ua">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >

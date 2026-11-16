@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   resolveApiOrigin,
-  API_ORIGIN,
-  API_BASE_URL,
-  API_V1_BASE_URL,
+  getApiOrigin,
+  getApiBaseUrl,
+  getApiV1BaseUrl,
 } from './api-base-url';
 
 describe('resolveApiOrigin', () => {
@@ -70,17 +70,37 @@ describe('resolveApiOrigin', () => {
 });
 
 describe('derived base URLs', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    delete window.__NW_PUBLIC_ENV__;
+  });
+
   it('builds both bases from the same origin, each with a trailing slash', () => {
     // A trailing slash matters: axios joins baseURL and a relative url by
     // concatenation, so `.../api/v1` + `article/public` would collide.
-    expect(API_V1_BASE_URL).toBe(`${API_ORIGIN}/api/v1/`);
-    expect(API_BASE_URL).toBe(`${API_ORIGIN}/api/`);
-    expect(API_V1_BASE_URL.endsWith('/')).toBe(true);
-    expect(API_BASE_URL.endsWith('/')).toBe(true);
+    const origin = getApiOrigin();
+    expect(getApiV1BaseUrl()).toBe(`${origin}/api/v1/`);
+    expect(getApiBaseUrl()).toBe(`${origin}/api/`);
   });
 
   it('contains no doubled slash after the scheme', () => {
-    expect(API_V1_BASE_URL.replace(/^https?:\/\//, '')).not.toContain('//');
-    expect(API_BASE_URL.replace(/^https?:\/\//, '')).not.toContain('//');
+    expect(getApiV1BaseUrl().replace(/^https?:\/\//, '')).not.toContain('//');
+    expect(getApiBaseUrl().replace(/^https?:\/\//, '')).not.toContain('//');
+  });
+
+  it('reads the value at call time, so one image can serve any environment', () => {
+    vi.stubEnv('NEXT_PUBLIC_NEWWAVE_API_URL', 'https://api.one.example');
+    expect(getApiV1BaseUrl()).toBe('https://api.one.example/api/v1/');
+
+    vi.stubEnv('NEXT_PUBLIC_NEWWAVE_API_URL', 'https://api.two.example/');
+    expect(getApiV1BaseUrl()).toBe('https://api.two.example/api/v1/');
+  });
+
+  it('prefers the config the server injected into the page', () => {
+    vi.stubEnv('NEXT_PUBLIC_NEWWAVE_API_URL', 'https://api.build.example');
+    window.__NW_PUBLIC_ENV__ = {
+      NEXT_PUBLIC_NEWWAVE_API_URL: 'https://api.runtime.example',
+    };
+    expect(getApiBaseUrl()).toBe('https://api.runtime.example/api/');
   });
 });

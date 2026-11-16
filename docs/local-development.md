@@ -30,7 +30,7 @@ Fill in `.env.local` — see `.env.example` for what each value is for.
 
 In CI these come from repo secrets via `.github/actions/generate-env`.
 
-`NEXT_PUBLIC_NEWWAVE_API_URL` is what every API call resolves against: `utils/http/api-base-url.ts` derives `API_V1_BASE_URL` and `API_BASE_URL` from it, and `axiosInstance`/`axiosOpenInstance`/`photo-api.ts` all use those. So pointing the frontend at a local Spring Boot instance is just `NEXT_PUBLIC_NEWWAVE_API_URL=http://localhost:8080` in `.env.local` plus a rebuild — these are `NEXT_PUBLIC_*`, inlined at build time, so `next dev` needs a restart and a production build needs rebuilding.
+`NEXT_PUBLIC_NEWWAVE_API_URL` is what every API call resolves against: `utils/http/api-base-url.ts` derives `getApiV1BaseUrl()` and `getApiBaseUrl()` from it, and `axiosInstance`/`axiosOpenInstance`/`photo-api.ts` all use those. So pointing the frontend at a local Spring Boot instance is just `NEXT_PUBLIC_NEWWAVE_API_URL=http://localhost:8080` in `.env.local` and a restart of `next dev`. It is runtime config (`utils/runtime-env.ts`), so a production build reads it at startup too: no rebuild needed.
 
 ## Running
 
