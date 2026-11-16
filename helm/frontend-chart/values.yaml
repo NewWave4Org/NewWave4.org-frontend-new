@@ -28,6 +28,11 @@ image:
   # Overridden at deploy time via --set image.tag=<version> (see
   # deploy-to-kubernetes.yml / release.yml) — never rely on this default.
   tag: ''
+  # sha256:... When set, the pod runs exactly this image (repository@digest)
+  # and the tag only labels the release (APP_VERSION/IMAGE_TAG). Release
+  # deploys always set it, so a tag moved after the release cannot change
+  # what runs (ADR 0008).
+  digest: ''
 
 # Also always overridden at deploy time via --set imagePullSecrets[0].name=...
 # (see deploy-to-kubernetes.yml) — kept here only so `helm template` succeeds

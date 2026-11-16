@@ -5,18 +5,21 @@
 ```
 feature/* or fix/* branch
         │  PR into development or main → ci.yml: quality gates, which build the
-        │  image ONCE and push it as sha-<commit> (same-repo PRs)
+        │  image ONCE (same-repo PRs push it to newwave4-frontend-pr, a package
+        │  releases never read)
         ▼
    development                       (auto-prerelease: X.Y.Z-dev.N)
         │  PR (squash-merge, PR title = Conventional Commit)
         │  push → release.yml: quality gates (one build, sha-<commit>) →
+        │         attest (signed provenance for that digest) →
         │         semantic-release → publish tags that digest X.Y.Z-dev.N →
         │         Helm chart → staging auto-deployed
         ▼
       main                           (release: X.Y.Z, tag vX.Y.Z, :latest)
         │  promotion PR → ci.yml: gates + e2e on the image that PR built
-        │  push → release.yml: plan finds development's image; if main's code
-        │         is identical to what it was built from, that digest becomes
+        │  push → release.yml: plan finds development's image, verifies its
+        │         attestation (release.yml, refs/heads/development); if main's
+        │         code is identical to the attested commit, that digest becomes
         │         X.Y.Z, :latest and newwave4-frontend-production:X.Y.Z (no
         │         rebuild, no repeat gates); otherwise a fresh build + full
         │         gates → staging deployed → production-candidate (version +
@@ -25,7 +28,7 @@ feature/* or fix/* branch
         └─ production: when that Release run succeeds, deploy-production.yml
            checks newwave4-frontend-production:X.Y.Z is still the recorded
            digest, waits for approval in the `production` GitHub Environment,
-           then deploys it: exactly the digest staging ran. It runs outside
+           then deploys it pinned to that digest: exactly what staging ran. It runs outside
            release.yml, so a pending approval never blocks the next release.
            Manual `workflow_dispatch` on deploy-to-kubernetes.yml remains
            for redeploys and rollbacks.

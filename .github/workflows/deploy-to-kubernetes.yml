@@ -17,6 +17,10 @@ on:
       image_tag:
         description: 'Docker image tag to deploy (e.g. 1.2.3 — must already be published, "latest" is rejected for production)'
         required: true
+      image_digest:
+        description: 'Optional sha256:... to pin the pods to that exact image (release deploys always pass it; leave empty to deploy by tag, e.g. for a rollback)'
+        required: false
+        default: ''
   workflow_call:
     inputs:
       namespace:
@@ -28,6 +32,10 @@ on:
       image_tag:
         type: string
         required: true
+      image_digest:
+        type: string
+        required: false
+        default: ''
 
 # Ensure the workflow itself can read packages (GHCR) and repo contents
 permissions:
@@ -49,11 +57,21 @@ jobs:
       NAMESPACE: ${{ inputs.namespace == 'production' && 'newwave-prod' || 'newwave-dev' }}
       CHART_VERSION: ${{ inputs.chart_version }}
       IMAGE_TAG: ${{ inputs.image_tag }}
+      IMAGE_DIGEST: ${{ inputs.image_digest }}
       # Production pulls from its own repository name, which release.yml's
       # publish job points at the same tested digest as newwave4-frontend
       # (ADR 0008). The environment's values come from the runtime config below.
       IMAGE_NAME: ${{ inputs.namespace == 'production' && 'newwave4-frontend-production' || 'newwave4-frontend' }}
     steps:
+      - name: Check image digest
+        if: inputs.image_digest != ''
+        run: |
+          if ! echo "${IMAGE_DIGEST}" | grep -qE '^sha256:[0-9a-f]{64}$'; then
+            echo "::error::image_digest '${IMAGE_DIGEST}' is not sha256:<64 hex>."
+            exit 1
+          fi
+          echo "Pods will run exactly ${IMAGE_NAME}@${IMAGE_DIGEST} (tag ${IMAGE_TAG})."
+
       - name: Guard production versions
         if: inputs.namespace == 'production'
         run: |
@@ -268,6 +286,7 @@ jobs:
             -f ./runtime-values.yaml \
             --set image.repository=ghcr.io/${{ env.ORG }}/${{ env.IMAGE_NAME }} \
             --set image.tag="${{ env.IMAGE_TAG }}" \
+            --set-string image.digest="${IMAGE_DIGEST}" \
             --set imagePullSecrets[0].name=ghcr-regcred \
             --atomic --wait --timeout 10m
 

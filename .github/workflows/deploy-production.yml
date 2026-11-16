@@ -43,6 +43,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       version: ${{ steps.read.outputs.version }}
+      digest: ${{ steps.read.outputs.digest }}
     steps:
       - name: Read production candidate
         id: read
@@ -80,7 +81,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Production runs exactly the digest the release tested and published
-      # (and staging rolled out). A tag moved since then fails here.
+      # (and staging rolled out). A tag moved since then fails here, and the
+      # deploy below pins the pods to the digest regardless.
       - name: Production tag still points at the tested digest
         if: steps.read.outputs.version != ''
         env:
@@ -107,4 +109,7 @@ jobs:
       namespace: production
       chart_version: ${{ needs.candidate.outputs.version }}
       image_tag: ${{ needs.candidate.outputs.version }}
+      # Pin the pods to the tested digest: a tag moved after the check above
+      # cannot change what production runs.
+      image_digest: ${{ needs.candidate.outputs.digest }}
     secrets: inherit

@@ -32,6 +32,13 @@ on:
         type: boolean
         required: false
         default: false
+      image_name:
+        description: >-
+          GHCR package to push to. ci.yml uses newwave4-frontend-pr: pull
+          request images never land in the package releases promote from.
+        type: string
+        required: false
+        default: newwave4-frontend
       extra_tag:
         description: Optional second tag for the pushed image (e.g. pr-12-<sha>).
         type: string
@@ -161,7 +168,7 @@ jobs:
         if: inputs.run_full
         id: tags
         env:
-          REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+          REPO: ghcr.io/${{ env.ORG }}/${{ inputs.image_name }}
           EXTRA: ${{ inputs.extra_tag }}
         run: |
           {
@@ -195,7 +202,7 @@ jobs:
         if: inputs.run_full
         id: ref
         env:
-          REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+          REPO: ghcr.io/${{ env.ORG }}/${{ inputs.image_name }}
           DIGEST: ${{ steps.build.outputs.digest }}
           PUSHED: ${{ inputs.push_image }}
         run: |

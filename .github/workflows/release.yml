@@ -79,6 +79,7 @@ jobs:
     permissions:
       contents: read
       packages: read
+      attestations: read
     outputs:
       promote_from: ${{ steps.find.outputs.image }}
     steps:
@@ -103,6 +104,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           # main only takes merges from development (restrict-main-merges.yml);
@@ -113,21 +115,39 @@ jobs:
           fi
           DEV_VERSION=$(git show 'HEAD^2:package.json' | jq -r .version)
           CANDIDATE="${REPO}:${DEV_VERSION}"
-          if ! CONFIG=$(docker buildx imagetools inspect "${CANDIDATE}" --format '{{json .Image}}' 2>/dev/null); then
+          if ! DIGEST=$(docker buildx imagetools inspect "${CANDIDATE}" --format '{{json .Manifest}}' 2>/dev/null | jq -er .digest); then
             echo "::notice::No image ${CANDIDATE}; building from scratch."
             exit 0
           fi
-          DIGEST=$(docker buildx imagetools inspect "${CANDIDATE}" --format '{{json .Manifest}}' | jq -r .digest)
-          # Images from before build-once are multi-manifest and carry no
-          # single config here: they fall through to a fresh build.
-          SOURCE=$(jq -r '.config.Labels["org.opencontainers.image.revision"] // empty' <<<"${CONFIG}" 2>/dev/null || true)
-          if [ -z "${SOURCE}" ] || ! git cat-file -e "${SOURCE}^{commit}" 2>/dev/null; then
-            echo "::notice::${CANDIDATE} names no source commit in this repo ('${SOURCE}'); building from scratch."
+
+          # Trust nothing the image says about itself. Promote only a digest
+          # with a provenance attestation signed by THIS workflow on a push to
+          # development (the `attest` job below). Tags and labels can be written
+          # by anything holding packages:write; that signature cannot.
+          if ! VERIFIED=$(gh attestation verify "oci://${REPO}@${DIGEST}" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --signer-workflow "${GITHUB_REPOSITORY}/.github/workflows/release.yml" \
+                --source-ref refs/heads/development \
+                --deny-self-hosted-runners \
+                --format json 2>/tmp/verify.err); then
+            echo "::notice::${CANDIDATE} (${DIGEST}) has no valid attestation from release.yml on development; building from scratch."
+            sed 's/^/  /' /tmp/verify.err
             exit 0
           fi
+          # The commit the attested build ran on, from the signed certificate.
+          SOURCE=$(jq -r '[.. | .sourceRepositoryDigest? // empty] | first // empty' <<<"${VERIFIED}")
+          if [ -z "${SOURCE}" ] || ! git cat-file -e "${SOURCE}^{commit}" 2>/dev/null; then
+            echo "::notice::The attestation for ${DIGEST} names no commit in this repo ('${SOURCE}'); building from scratch."
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor "${SOURCE}" 'HEAD^2'; then
+            echo "::notice::${SOURCE} is not in development's history; building from scratch."
+            exit 0
+          fi
+
           if node scripts/release/promotable.mjs "${SOURCE}" HEAD; then
             echo "image=${REPO}@${DIGEST}" >> "$GITHUB_OUTPUT"
-            echo "::notice::Promoting ${CANDIDATE} (${DIGEST}, built and tested from ${SOURCE}) without a rebuild."
+            echo "::notice::Promoting ${CANDIDATE} (${DIGEST}, attested build of ${SOURCE}) without a rebuild."
           else
             echo "::notice::main differs from what ${CANDIDATE} was built from; building from scratch with the full gates."
           fi
@@ -145,16 +165,45 @@ jobs:
       push_image: true
     secrets: inherit
 
+  # Signs a build provenance attestation for the image quality-gates just
+  # built and pushed, binding its digest to this workflow, this ref and this
+  # commit. `plan` on main promotes only digests attested from development.
+  attest:
+    name: attest
+    needs: quality-gates
+    if: needs.quality-gates.result == 'success' && needs.quality-gates.outputs.image != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Split the image reference
+        id: img
+        env:
+          IMAGE: ${{ needs.quality-gates.outputs.image }}
+        run: |
+          echo "name=${IMAGE%@*}" >> "$GITHUB_OUTPUT"
+          echo "digest=${IMAGE#*@}" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-name: ${{ steps.img.outputs.name }}
+          subject-digest: ${{ steps.img.outputs.digest }}
+
   release:
     name: release
-    needs: [plan, quality-gates]
-    # Runs after the gates passed, or after plan chose a promotion (gates are
-    # then skipped on purpose: the promoted image already passed them, and
-    # main's code is identical to what they tested).
+    needs: [plan, quality-gates, attest]
+    # Runs after the gates passed and the image was attested, or after plan
+    # chose a promotion (gates are then skipped on purpose: the promoted image
+    # already passed them, and main's code is identical to what they tested).
     if: >-
       !cancelled()
       && needs.plan.result == 'success'
-      && (needs.quality-gates.result == 'success'
+      && ((needs.quality-gates.result == 'success' && needs.attest.result == 'success')
           || (needs.quality-gates.result == 'skipped' && needs.plan.outputs.promote_from != ''))
     runs-on: ubuntu-latest
     # semantic-release's success phase comments/labels every PR referenced in
@@ -359,6 +408,7 @@ jobs:
       namespace: staging
       chart_version: ${{ needs.release.outputs.chart_version }}
       image_tag: ${{ needs.release.outputs.image_tag }}
+      image_digest: ${{ needs.publish.outputs.digest }}
     secrets: inherit
 
   # Records "this run produced a production-deployable X.Y.Z, digest D" for

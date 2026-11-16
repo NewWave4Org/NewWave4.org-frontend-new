@@ -92,6 +92,9 @@ jobs:
         && github.event.pull_request.head.repo.full_name == github.repository
         && github.actor != 'dependabot[bot]'
         && needs.changes.outputs.code == 'true' }}
+      # A separate package: release.yml never reads it, so nothing a PR run
+      # pushes can be promoted to a release.
+      image_name: newwave4-frontend-pr
       extra_tag: >-
         ${{ github.event_name == 'pull_request'
         && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha)
