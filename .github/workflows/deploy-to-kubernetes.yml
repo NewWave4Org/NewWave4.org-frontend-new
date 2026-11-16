@@ -49,9 +49,9 @@ jobs:
       NAMESPACE: ${{ inputs.namespace == 'production' && 'newwave-prod' || 'newwave-dev' }}
       CHART_VERSION: ${{ inputs.chart_version }}
       IMAGE_TAG: ${{ inputs.image_tag }}
-      # Production pulls the image built with production NEXT_PUBLIC_* values
-      # (release.yml's docker-publish-production job); everything else gets the
-      # default build, whose API origin is staging's. Same X.Y.Z tag either way.
+      # Production pulls from its own repository name, which release.yml's
+      # publish job points at the same tested digest as newwave4-frontend
+      # (ADR 0008). The environment's values come from the runtime config below.
       IMAGE_NAME: ${{ inputs.namespace == 'production' && 'newwave4-frontend-production' || 'newwave4-frontend' }}
     steps:
       - name: Guard production versions

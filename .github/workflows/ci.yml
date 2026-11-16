@@ -17,6 +17,11 @@ on:
       - 'fix-*'
   workflow_dispatch:
 
+# A newer push to the same PR (or branch) makes the older run pointless.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Decides whether this change can affect the build at all. Deliberately NOT
   # done with `paths-ignore` on the trigger above: three of this workflow's
@@ -73,39 +78,62 @@ jobs:
   # flag instead keeps every job running and reporting, doing no work.
   quality-gates:
     needs: changes
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/_quality-gates.yml
     with:
       run_full: ${{ needs.changes.outputs.code == 'true' }}
+      # Same-repo PRs push the image they test, so e2e (and anyone checking a
+      # PR by hand) runs that exact build. Dependabot and fork PRs get no
+      # write token: built and smoke-tested locally only.
+      push_image: >-
+        ${{ github.event_name == 'pull_request'
+        && github.event.pull_request.head.repo.full_name == github.repository
+        && github.actor != 'dependabot[bot]'
+        && needs.changes.outputs.code == 'true' }}
+      extra_tag: >-
+        ${{ github.event_name == 'pull_request'
+        && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha)
+        || '' }}
     secrets: inherit
 
-  # Ephemeral, traceable image for manual reviewer pulls on PRs into development.
-  # Never a real semver, never auto-deployed anywhere.
-  docker-pr-publish:
-    name: docker-pr-publish
+  # The development -> main promotion PR: browser tests against the real
+  # staging API, on the image docker-smoke just built and pushed (it used to
+  # build its own). Nightly and on-demand runs live in e2e.yml.
+  e2e:
+    name: e2e
     needs: [changes, quality-gates]
-    # Skipped for Dependabot, which GitHub runs without repo secrets. This job
-    # exists to give a reviewer a pullable image; built from placeholder env it
-    # would point at https://ci.invalid and be actively misleading to anyone who
-    # ran it. docker-smoke already proves a dependency bump still builds and
-    # boots (it falls back to .env.ci deliberately — see _quality-gates.yml),
-    # and that is the check that matters here. Dependabot's token is also
-    # read-only for packages, so the push would fail even if the build did not.
     if: >-
       github.event_name == 'pull_request'
-      && github.base_ref == 'development'
-      && github.actor != 'dependabot[bot]'
+      && github.base_ref == 'main'
       && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      packages: write
+      contents: read
+      packages: read
+    env:
+      IMAGE: ${{ needs.quality-gates.outputs.image }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
+      - name: Require the image under test
+        run: |
+          if [ -z "${IMAGE}" ]; then
+            echo "::error::quality-gates pushed no image for this PR (only same-repo, non-Dependabot PRs push one)."
+            exit 1
+          fi
+          echo "Testing ${IMAGE}"
 
-      - name: Set Org Lowercase
-        uses: ./.github/actions/set-org-lowercase
+      - uses: actions/checkout@v7
 
-      - name: Generate .env file
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Runtime config (staging values)
         uses: ./.github/actions/generate-env
         with:
           stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
@@ -120,14 +148,41 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      - name: Start the tested image
+        run: docker run -d --name e2e-app -p 3000:3000 --env-file .env "${IMAGE}"
 
-      - name: Docker build and push (PR tag only)
-        uses: docker/build-push-action@v7
+      - name: Wait for app to become ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null --max-time 5 http://localhost:3000/robots.txt; then
+              echo "App is ready after ${i} attempt(s)."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::App never became ready within 60s"
+          docker logs e2e-app
+          exit 1
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          E2E_BASE_URL: http://localhost:3000
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          NEXT_PUBLIC_NEWWAVE_API_URL: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+
+      - name: Dump app container logs
+        if: always()
+        run: docker logs e2e-app || true
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
         with:
-          context: .
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

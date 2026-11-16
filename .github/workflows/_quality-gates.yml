@@ -1,7 +1,16 @@
 name: Quality Gates
 
-# Reusable workflow: the actual quality gates every change goes through.
-# Called by ci.yml (feature/fix branches, PRs) and release.yml (main/development pushes).
+# Reusable workflow: the quality gates every change goes through, and the one
+# place the app image is built. Called by ci.yml (pull requests, feature/fix
+# branches) and release.yml (pushes to main/development).
+#
+# The image carries no environment values (utils/runtime-env.ts): the same
+# build serves staging and production. release.yml tags the digest built here
+# as the release; it never rebuilds.
+#
+# Job names are what branch protection requires on `development`
+# (quality-gates / casing-guard, unit-test, docker-smoke). Rename one only
+# together with the protection settings.
 on:
   workflow_call:
     inputs:
@@ -9,17 +18,36 @@ on:
         description: >-
           When false, every job below still runs and reports its check, but does
           no work. Used for documentation-only pull requests (see ci.yml).
-          The jobs must not be skipped outright: three of their check names are
+          The jobs must not be skipped outright: their check names are
           required by branch protection, and a job that never exists never
           reports, leaving the PR blocked on a check that can never arrive.
         type: boolean
         required: false
         default: true
+      push_image:
+        description: >-
+          Push the image to GHCR as `sha-<commit>` (plus extra_tag) and smoke-test
+          the pushed digest. False for Dependabot and fork PRs, which get no
+          write token: the image is then built and tested locally only.
+        type: boolean
+        required: false
+        default: false
+      extra_tag:
+        description: Optional second tag for the pushed image (e.g. pr-12-<sha>).
+        type: string
+        required: false
+        default: ''
+    outputs:
+      image:
+        description: The pushed image as repo@sha256:digest; empty when not pushed.
+        value: ${{ jobs.docker-smoke.outputs.image }}
 
 jobs:
+  # Cheap source guards, no install.
   casing-guard:
     name: casing-guard
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout Repository
         if: inputs.run_full
@@ -29,122 +57,65 @@ jobs:
         if: inputs.run_full
         run: |
           set -e
-          bad=0
-          # Folder casing
           if grep -RInE "@/components/Payment/|\.\./Payment/" --include=\*.{ts,tsx,js,jsx} app components; then
-            echo "Found '/components/Payment/'. Use '/components/payment/'."
-            bad=1
+            echo "::error::Found '/components/Payment/'. Use '/components/payment/'."
+            exit 1
           fi
-          exit $bad
-
-  no-console-log:
-    name: no-console-log
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        if: inputs.run_full
-        uses: actions/checkout@v7
 
       # eslint.config.mjs carries a matching no-console rule, but `npm run lint`
-      # cannot run at all under TypeScript 7 (issue #454), so that rule enforces
-      # nothing today. This grep does, and it is why 66 console.log calls could
-      # accumulate across 32 files unnoticed (issue #457) -- among them a
-      # plaintext password and donor PII written to the browser console.
-      #
-      # console.error/console.warn are deliberately allowed: they are real
-      # diagnostics. Only log/info are debug leftovers.
-      #
-      # scripts/ and e2e/ are excluded -- Node CLI tools and test harnesses
-      # where writing to stdout is the entire point.
+      # cannot run under TypeScript 7 (ADR 0003), so this grep is what enforces
+      # it. console.error/console.warn stay allowed: they are real diagnostics.
+      # scripts/ and e2e/ are excluded: writing to stdout is their job.
       - name: Guard against console.log/console.info in shipped code
         if: inputs.run_full
         run: |
           set -e
           if grep -RInE "console\.(log|info)\s*\(" \
                --include=\*.{ts,tsx,js,jsx} \
-               app components utils store stores i18n middleware.ts; then
+               app components utils store stores i18n middleware.ts instrumentation.ts; then
             echo "::error::Found console.log/console.info in shipped code. Use console.error or console.warn for real diagnostics, or remove the call."
             exit 1
           fi
           echo "No console.log/console.info found in shipped code."
 
-  format-check:
-    name: format-check
+  # Every Node check behind a single `npm ci` (it used to be four jobs, four
+  # installs). Each step still fails the job on its own.
+  unit-test:
+    name: unit-test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        if: inputs.run_full
+
       - uses: actions/setup-node@v7
         if: inputs.run_full
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+
       - run: npm ci
         if: inputs.run_full
-      # `format:check` existed but was wired into no workflow, so 320 files had
-      # drifted out of style with nothing to catch it (issue #455). Blocking
-      # from the start: the tree was formatted in the same PR that added this,
-      # so it starts green and can only be broken deliberately.
-      #
-      # See .prettierignore — helm/**/templates/ is excluded because Go
-      # templating is not valid YAML and Prettier throws a hard SyntaxError on
-      # it, which would make this job unpassable.
+
       - name: Check formatting
         if: inputs.run_full
         run: npm run format:check
 
-  typecheck:
-    name: typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        if: inputs.run_full
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-        if: inputs.run_full
-      # Blocking since 2026-07-31: the 36-error backlog that forced
-      # continue-on-error is paid off (issue #453) and the tree is clean, so
-      # this is now the ratchet — any new type error fails the build.
       - name: Type check
         if: inputs.run_full
         run: npx tsc --noEmit
 
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        if: inputs.run_full
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-        if: inputs.run_full
-      # Non-blocking: typescript@7.0.2 is incompatible with eslint-config-next's
-      # bundled typescript-eslint (upstream blocker, see CLAUDE.md and
-      # docs/decisions/0003-lint-non-blocking-pending-ts7-support.md).
+      # Non-blocking: typescript-eslint cannot load under TypeScript 7 and
+      # crashes before linting anything. See ADR 0003 and lint-compat-check.yml.
       - name: Lint (non-blocking, see docs/known-issues.md)
         if: inputs.run_full
         continue-on-error: true
         run: npx eslint .
 
-  unit-test:
-    name: unit-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - name: Unit tests with coverage
         if: inputs.run_full
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-        if: inputs.run_full
-      - run: npm run test:coverage
-        if: inputs.run_full
+        run: npm run test:coverage
+
       - name: Upload coverage
         if: always() && inputs.run_full
         uses: actions/upload-artifact@v7
@@ -153,31 +124,18 @@ jobs:
           path: coverage/
           retention-days: 14
 
-  # There is deliberately no standalone `build` job (`npm run build` on the
-  # bare runner or in a plain container). It was found to crash silently and
-  # deterministically — Next.js prints "Skipping validation of types" then
-  # the process dies with no error output — specifically on GitHub Actions'
-  # own infrastructure. Root cause not isolated despite extensive attempts
-  # (ruled out: this repo's own code, a poisoned npm cache, running inside
-  # the exact node:20-alpine image `docker-smoke` uses, a fresh git-clone-
-  # inside-container with zero macOS-originated files); it never reproduced
-  # in any local Docker build, only in GitHub's actual runner/container
-  # execution. `docker-smoke` below already fully exercises the same `next
-  # build` via the real Dockerfile (a proven-reliable path — this job has
-  # never failed) and is arguably the more representative check anyway,
-  # since it builds the exact artifact that gets deployed. See
-  # docs/known-issues.md.
+  # Builds the image once. When push_image is set, pushes it and smoke-tests
+  # the exact pushed digest, which is what release.yml later tags and deploys.
   docker-smoke:
     name: docker-smoke
     needs: casing-guard
     runs-on: ubuntu-latest
-    env:
-      # Dependabot and fork PRs run without access to repo secrets. generate-env
-      # then writes empty values, utils/env.ts fails the build on three missing
-      # required vars, and docker-smoke fails — a *required* status check, so
-      # every dependency update including security ones was permanently
-      # unmergeable. This flag lets the job fall back to committed placeholders.
-      HAS_SECRETS: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL != '' }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.ref.outputs.image }}
     steps:
       - name: Checkout Repository
         if: inputs.run_full
@@ -187,70 +145,92 @@ jobs:
         if: inputs.run_full
         uses: ./.github/actions/set-org-lowercase
 
-      - name: Generate .env file
-        if: env.HAS_SECRETS == 'true' && inputs.run_full
-        uses: ./.github/actions/generate-env
+      - name: GHCR Login
+        if: inputs.run_full && inputs.push_image
+        uses: docker/login-action@v4
         with:
-          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
-          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
-          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
-          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-
-      # `.env.ci` is committed, non-secret, and points at https://ci.invalid.
-      # Verified locally that a real image built from it starts and serves the
-      # homepage, so both smoke assertions still mean something: this checks the
-      # app compiles and boots, which is exactly what a dependency bump needs.
-      # It cannot mask a missing production secret, because this job only builds
-      # (`push: false`) — nothing published or deployed comes from here.
-      - name: Use committed CI placeholders (no secrets on Dependabot/fork PRs)
-        if: env.HAS_SECRETS != 'true' && inputs.run_full
-        run: |
-          echo "::notice::No repo secrets available (Dependabot or fork PR) — building with .env.ci placeholders."
-          cp .env.ci .env
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         if: inputs.run_full
         uses: docker/setup-buildx-action@v4
 
-      - name: Docker build for testing
+      - name: Image tags
         if: inputs.run_full
+        id: tags
+        env:
+          REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+          EXTRA: ${{ inputs.extra_tag }}
+        run: |
+          {
+            echo "tags<<EOF"
+            echo "${REPO}:sha-${GITHUB_SHA}"
+            [ -n "${EXTRA}" ] && echo "${REPO}:${EXTRA}"
+            echo "EOF"
+            echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } >> "$GITHUB_OUTPUT"
+
+      # No env values go in (.dockerignore excludes .env). provenance off keeps
+      # a single image manifest, so the digest and labels read back simply
+      # (release.yml reads org.opencontainers.image.revision from it).
+      - name: Build (and push) image
+        if: inputs.run_full
+        id: build
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: false
-          load: true
+          push: ${{ inputs.push_image }}
+          load: ${{ !inputs.push_image }}
+          provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
-          # Not a real release, so APP_VERSION keeps its 0.0.0-dev default --
-          # but stamping the commit still lets the smoke test below assert the
-          # ARG -> ENV -> /api/version chain actually works, which is the point.
+          tags: ${{ steps.tags.outputs.tags }}
           build-args: |
             GIT_COMMIT=${{ github.sha }}
-            IMAGE_TAG=${{ github.sha }}
+            BUILD_TIME=${{ steps.tags.outputs.built_at }}
+
+      - name: Resolve the image under test
+        if: inputs.run_full
+        id: ref
+        env:
+          REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+          DIGEST: ${{ steps.build.outputs.digest }}
+          PUSHED: ${{ inputs.push_image }}
+        run: |
+          set -euo pipefail
+          if [ "${PUSHED}" = "true" ]; then
+            IMAGE="${REPO}@${DIGEST}"
+            docker pull -q "${IMAGE}"
+            echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          else
+            IMAGE="${REPO}:sha-${GITHUB_SHA}"
+          fi
+          echo "under_test=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "Testing ${IMAGE}"
 
       - name: Docker image smoke test
         if: inputs.run_full
         env:
+          IMAGE: ${{ steps.ref.outputs.under_test }}
           EXPECTED_COMMIT: ${{ github.sha }}
         run: |
-          # -e and -u, but deliberately NOT pipefail: `grep -q` exits as soon as
-          # it matches, which SIGPIPEs the wget feeding it. Under pipefail that
-          # would fail a check that has always passed.
           set -eu
-          # The image carries no config (see .dockerignore): pass the .env
-          # written above as runtime env, the way the Helm chart does.
-          docker run --name newwave4-frontend-app -d -p 3000:3000 --env-file .env ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
-          echo Testing Image URL using wget
-          # Checks for a valid HTML response rather than specific brand text, since the
-          # homepage's default locale (UA) legitimately renders its title/branding in
-          # Ukrainian, not the English "New Wave" string.
-          wget -q -O - 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
+          # Placeholder runtime config, passed the way the Helm chart passes the
+          # real one. The image carries none of its own.
+          docker run --name newwave4-frontend-app -d -p 3000:3000 --env-file .env.ci "${IMAGE}"
+          for _ in $(seq 1 30); do
+            curl -fsS -o /dev/null --max-time 5 127.0.0.1:3000/robots.txt && break
+            sleep 1
+          done
 
-          # The status page's drift detection is only as good as this endpoint,
-          # and a silent regression here would degrade it to a permanent
-          # "running version unknown" that nobody would notice. Assert the whole
-          # chain: the route responds, and the build args really did reach it.
+          echo Testing that the app serves HTML
+          # A valid HTML response rather than brand text: the default locale
+          # (UA) renders its title in Ukrainian.
+          curl -fsS --max-time 20 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
+
+          # The status page's drift detection is only as good as this endpoint.
           echo Testing /api/version
           curl -fsS --max-time 10 127.0.0.1:3000/api/version -o /tmp/version.json
           cat /tmp/version.json
@@ -260,7 +240,7 @@ jobs:
           # Runtime config (utils/runtime-env.ts) must reach the browser: the
           # page carries the API origin from the env file, not from the build.
           echo Testing runtime config injection
-          API_URL=$(sed -n 's/^NEXT_PUBLIC_NEWWAVE_API_URL=//p' .env)
+          API_URL=$(sed -n 's/^NEXT_PUBLIC_NEWWAVE_API_URL=//p' .env.ci)
           curl -fsS --max-time 20 127.0.0.1:3000/donation \
             | grep -o '<script id="nw-public-env">[^<]*' \
             | grep -qF "\"NEXT_PUBLIC_NEWWAVE_API_URL\":\"${API_URL%/}"
@@ -269,7 +249,7 @@ jobs:
           # (instrumentation.ts), not serve a half-configured site.
           echo Testing that a container without config exits
           set +e
-          timeout 60 docker run --rm ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ github.sha }}
+          timeout 60 docker run --rm "${IMAGE}"
           code=$?
           set -e
           if [ "$code" -eq 0 ] || [ "$code" -eq 124 ]; then
@@ -277,3 +257,7 @@ jobs:
             exit 1
           fi
           echo "Exited with ${code}, as expected."
+
+      - name: Container logs
+        if: failure() && inputs.run_full
+        run: docker logs newwave4-frontend-app || true

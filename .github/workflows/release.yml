@@ -27,10 +27,10 @@ name: Release
 # The `force_build` input covers the *other* silent-skip: a push that DID run
 # Release, but where semantic-release found no releasable commit (merge commits,
 # `feature:` / bare `fix slider` subjects) and so published nothing -- leaving
-# docker-publish, helm-publish and deploy-staging all `skipped` and `:latest`
+# publish, helm-publish and deploy-staging all `skipped` and `:latest`
 # pointing at the previous release. Happened for real on 2026-08-29 (PR #527).
-# With force_build, docker-publish builds the branch HEAD anyway, tagged
-# `<package.json version>-<short sha>` (never a semver that could collide with
+# With force_build, quality-gates builds the branch HEAD anyway and publish tags
+# it `<package.json version>-<short sha>` (never a semver that could collide with
 # a real release), re-aliases `:latest` on main, and deploy-staging rolls it
 # out against the already-published chart version from Chart.yaml. No tag,
 # GitHub Release or chart is produced -- the next conventional commit still
@@ -41,7 +41,7 @@ on:
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Build and push a Docker image from the branch HEAD even if semantic-release publishes nothing (tag: <version>-<sha>; on main also re-aliases :latest and deploys staging)'
+        description: 'Build and publish an image from the branch HEAD even if semantic-release publishes nothing (tag: <version>-<sha>; on main also re-aliases :latest; deploys staging)'
         type: boolean
         required: false
         default: false
@@ -50,38 +50,116 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+#
+# Build once, promote (docs/ci-cd.md):
+#   development push: quality gates build and push the image (sha-<commit>);
+#     a release tags that digest X.Y.Z-dev.N and deploys it to staging.
+#   main push (a merge from development): `plan` finds development's image and
+#     checks main's code is identical to what it was built from
+#     (scripts/release/promotable.mjs). If so, that same digest becomes X.Y.Z,
+#     newwave4-frontend-production:X.Y.Z and :latest, with no rebuild and no
+#     repeat of gates it already passed. Anything that could change the image
+#     means a fresh build and the full gates instead.
+
 jobs:
-  # Don't re-release semantic-release's own version-bump commit. This replaces
-  # the `[skip ci]` marker that used to live in release.config.js's commit
-  # message: that marker worked, but GitHub applies it to every workflow and
-  # every trigger type for the commit, so it also silenced ci.yml,
-  # pr-title-lint, restrict-main-merges and e2e on any PR whose head SHA landed
-  # on a bump commit -- leaving promotion PRs with zero checks and permanently
-  # unmergeable. Guarding here scopes the behaviour to the only workflow that
-  # ever needed it.
+  # Decides what this run builds.
   #
-  # The event_name clause keeps the workflow_dispatch escape hatch working:
-  # github.event.head_commit exists only for push events, and startsWith(null,
-  # ...) would otherwise make a manual dispatch evaluate to false and skip.
-  #
-  # `release` needs this job, so it skips transitively -- as do docker-publish,
-  # helm-publish and deploy-staging via their own needs chains.
-  quality-gates:
+  # Skips semantic-release's own version-bump commit. This replaces the
+  # `[skip ci]` marker release.config.js used to write: GitHub applies that
+  # marker to every workflow and trigger type, which silenced ci.yml,
+  # pr-title-lint, restrict-main-merges and e2e on promotion PRs whose head
+  # landed on a bump commit (docs/known-issues.md). The event_name clause keeps
+  # workflow_dispatch working: head_commit exists only for push events.
+  # Everything downstream needs this job, so it all skips with it.
+  plan:
+    name: plan
     if: github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      promote_from: ${{ steps.find.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set Org Lowercase
+        uses: ./.github/actions/set-org-lowercase
+
+      - name: GHCR Login
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find a tested image to promote (main only)
+        id: find
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          REPO: ghcr.io/${{ env.ORG }}/newwave4-frontend
+        run: |
+          set -euo pipefail
+          # main only takes merges from development (restrict-main-merges.yml);
+          # the merge's second parent is development's tip.
+          if ! git rev-parse -q --verify 'HEAD^2' >/dev/null; then
+            echo "::notice::HEAD is not a merge from development; building from scratch."
+            exit 0
+          fi
+          DEV_VERSION=$(git show 'HEAD^2:package.json' | jq -r .version)
+          CANDIDATE="${REPO}:${DEV_VERSION}"
+          if ! CONFIG=$(docker buildx imagetools inspect "${CANDIDATE}" --format '{{json .Image}}' 2>/dev/null); then
+            echo "::notice::No image ${CANDIDATE}; building from scratch."
+            exit 0
+          fi
+          DIGEST=$(docker buildx imagetools inspect "${CANDIDATE}" --format '{{json .Manifest}}' | jq -r .digest)
+          # Images from before build-once are multi-manifest and carry no
+          # single config here: they fall through to a fresh build.
+          SOURCE=$(jq -r '.config.Labels["org.opencontainers.image.revision"] // empty' <<<"${CONFIG}" 2>/dev/null || true)
+          if [ -z "${SOURCE}" ] || ! git cat-file -e "${SOURCE}^{commit}" 2>/dev/null; then
+            echo "::notice::${CANDIDATE} names no source commit in this repo ('${SOURCE}'); building from scratch."
+            exit 0
+          fi
+          if node scripts/release/promotable.mjs "${SOURCE}" HEAD; then
+            echo "image=${REPO}@${DIGEST}" >> "$GITHUB_OUTPUT"
+            echo "::notice::Promoting ${CANDIDATE} (${DIGEST}, built and tested from ${SOURCE}) without a rebuild."
+          else
+            echo "::notice::main differs from what ${CANDIDATE} was built from; building from scratch with the full gates."
+          fi
+
+  # Full gates and the one image build, unless plan found a tested image to
+  # promote. The image is pushed as sha-<commit>; publish tags that digest.
+  quality-gates:
+    needs: plan
+    if: needs.plan.outputs.promote_from == ''
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/_quality-gates.yml
+    with:
+      push_image: true
     secrets: inherit
 
   release:
     name: release
-    needs: quality-gates
+    needs: [plan, quality-gates]
+    # Runs after the gates passed, or after plan chose a promotion (gates are
+    # then skipped on purpose: the promoted image already passed them, and
+    # main's code is identical to what they tested).
+    if: >-
+      !cancelled()
+      && needs.plan.result == 'success'
+      && (needs.quality-gates.result == 'success'
+          || (needs.quality-gates.result == 'skipped' && needs.plan.outputs.promote_from != ''))
     runs-on: ubuntu-latest
     # semantic-release's success phase comments/labels every PR referenced in
-    # the released commit range. On the very first release (no prior tag),
-    # that can be the entire repo history -- ~400 PRs at roughly 1/sec here,
-    # several minutes of genuine, correct work with no visible progress
-    # between GitHub Actions' step-level status updates. Cap it generously
-    # rather than leaving GitHub's default (up to 6h) in place, so a truly
-    # hung run fails loudly instead of silently burning CI minutes forever.
+    # the released commit range; on a first release that can be the whole
+    # history. Cap it rather than leave GitHub's 6h default.
     timeout-minutes: 30
     permissions:
       contents: write
@@ -90,22 +168,23 @@ jobs:
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
       new_release_version: ${{ steps.semantic.outputs.new_release_version }}
-      # What docker-publish / deploy-staging actually consume. On a real
-      # release these equal new_release_version; on a force_build dispatch
-      # they fall back to `<package.json version>-<short sha>` for the image
-      # and Chart.yaml's version for the chart. See the `resolve` step.
+      # What publish / deploy-staging consume. On a real release these equal
+      # new_release_version; on a force_build dispatch they fall back to
+      # `<package.json version>-<short sha>` for the image and Chart.yaml's
+      # version for the chart. See the `resolve` step.
       publish_image: ${{ steps.resolve.outputs.publish_image }}
       image_tag: ${{ steps.resolve.outputs.image_tag }}
       chart_version: ${{ steps.resolve.outputs.chart_version }}
+      # The tested image this release publishes, as repo@sha256:digest.
+      image: ${{ steps.resolve.outputs.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          # Branch protection on main/development requires 1 PR approval and
-          # blocks direct pushes from non-admin identities — the default
-          # GITHUB_TOKEN cannot push the release commit/tag. RELEASE_ADMIN_TOKEN
-          # must be a fine-grained PAT from a repo admin account. See
+          # Branch protection blocks direct pushes from non-admin identities, so
+          # the default GITHUB_TOKEN cannot push the release commit/tag.
+          # RELEASE_ADMIN_TOKEN is a fine-grained PAT from a repo admin. See
           # docs/decisions/0002-semantic-release-over-release-please.md.
           token: ${{ secrets.RELEASE_ADMIN_TOKEN }}
 
@@ -118,32 +197,41 @@ jobs:
 
       - name: Run semantic-release
         id: semantic
-        # Plain `npx semantic-release` never writes new_release_published/
-        # new_release_version to $GITHUB_OUTPUT (verified: no reference to
-        # GITHUB_OUTPUT or @actions/core anywhere in its dependency tree) —
-        # this wrapper uses the documented Node API instead so the downstream
-        # docker-publish/helm-publish/deploy-staging jobs actually gate correctly.
+        # Plain `npx semantic-release` never writes its outputs to
+        # $GITHUB_OUTPUT; this wrapper uses the Node API so the jobs below gate
+        # correctly.
         run: node scripts/release/run-semantic-release.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_ADMIN_TOKEN }}
 
-      # Decide what, if anything, to build. Runs after semantic-release so a
+      # Decide what, if anything, to publish. Runs after semantic-release so a
       # force_build dispatch that *does* find a releasable commit still takes
-      # the normal versioned path rather than a `-<sha>` build.
+      # the normal versioned path rather than a `-<sha>` tag.
       - name: Resolve image tag and chart version
         id: resolve
         env:
           RELEASED: ${{ steps.semantic.outputs.new_release_published }}
           RELEASED_VERSION: ${{ steps.semantic.outputs.new_release_version }}
           FORCE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.force_build == true }}
+          SOURCE_IMAGE: ${{ needs.plan.outputs.promote_from || needs.quality-gates.outputs.image }}
         run: |
           set -euo pipefail
+          if [ "$RELEASED" != "true" ] && [ "$FORCE_BUILD" != "true" ]; then
+            echo "publish_image=false" >> "$GITHUB_OUTPUT"
+            echo "No release published and force_build not set -- nothing to publish."
+            exit 0
+          fi
+          if [ -z "$SOURCE_IMAGE" ]; then
+            echo "::error::Nothing to publish: no promoted image and quality-gates pushed none."
+            exit 1
+          fi
+          echo "image=${SOURCE_IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "publish_image=true" >> "$GITHUB_OUTPUT"
           if [ "$RELEASED" = "true" ]; then
-            echo "publish_image=true" >> "$GITHUB_OUTPUT"
             echo "image_tag=${RELEASED_VERSION}" >> "$GITHUB_OUTPUT"
             echo "chart_version=${RELEASED_VERSION}" >> "$GITHUB_OUTPUT"
-            echo "Release ${RELEASED_VERSION} published -- versioned build."
-          elif [ "$FORCE_BUILD" = "true" ]; then
+            echo "Release ${RELEASED_VERSION} published -- publishing ${SOURCE_IMAGE}."
+          else
             PKG_VERSION=$(node -p "require('./package.json').version")
             CHART_VERSION=$(sed -nE 's/^version:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/p' helm/frontend-chart/Chart.yaml)
             SHORT_SHA=$(git rev-parse --short=7 HEAD)
@@ -151,165 +239,34 @@ jobs:
               echo "::error::Could not read package.json version ('${PKG_VERSION}') or Chart.yaml version ('${CHART_VERSION}')."
               exit 1
             fi
-            IMAGE_TAG="${PKG_VERSION}-${SHORT_SHA}"
-            echo "publish_image=true" >> "$GITHUB_OUTPUT"
-            echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${PKG_VERSION}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
             echo "chart_version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
-            echo "::notice::No release published; force_build set -- building image ${IMAGE_TAG} against chart ${CHART_VERSION} (must already be in GHCR)."
-          else
-            echo "publish_image=false" >> "$GITHUB_OUTPUT"
-            echo "No release published and force_build not set -- nothing to build."
+            echo "::notice::No release published; force_build set -- publishing ${SOURCE_IMAGE} as ${PKG_VERSION}-${SHORT_SHA} against chart ${CHART_VERSION} (must already be in GHCR)."
           fi
 
-  docker-publish:
-    name: docker-publish
+  # Tags the tested digest; never builds. On main the same digest also becomes
+  # :latest and newwave4-frontend-production:<tag>, which is what
+  # deploy-to-kubernetes.yml pulls for production. Each tag is read back and
+  # must resolve to exactly that digest.
+  publish:
+    name: publish
     needs: release
     if: needs.release.outputs.publish_image == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
+      contents: read
       packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.ref_name }}
-
-      - name: Set Org Lowercase
-        uses: ./.github/actions/set-org-lowercase
-
-      - name: Generate .env file
-        uses: ./.github/actions/generate-env
-        with:
-          stripe_publishable_keys: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
-          stripe_webhook_url: ${{ secrets.NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
-          newwave_api_url: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
-          site_url: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-
-      - name: GHCR Login
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      # Feeds the Dockerfile's version-stamping ARGs, which the running
-      # container reports back via /api/version and the status page compares
-      # against the newest published release to detect deploy drift.
-      #
-      # `git rev-parse HEAD`, not github.sha: this job checks out
-      # `ref: github.ref_name`, so it builds the branch HEAD *including*
-      # semantic-release's `chore(release): X.Y.Z` bump commit -- github.sha is
-      # the commit that triggered the run, one behind whatever is actually in
-      # the image.
-      - name: Stamp build metadata
-        id: stamp
-        run: |
-          set -euo pipefail
-          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
-
-      - name: Build and push versioned image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.image_tag }}
-          # APP_VERSION deliberately gets the full tag (e.g. `1.4.0-767dc58`) on
-          # a force build, not the bare package.json version: /api/version and
-          # the status page's drift check should say "unrecognised version"
-          # rather than falsely report staging as in sync with v1.4.0.
-          build-args: |
-            APP_VERSION=${{ needs.release.outputs.image_tag }}
-            IMAGE_TAG=${{ needs.release.outputs.image_tag }}
-            GIT_COMMIT=${{ steps.stamp.outputs.commit }}
-            BUILD_TIME=${{ steps.stamp.outputs.built_at }}
-
-      - name: Alias :latest to this release (main only)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker buildx imagetools create \
-            -t ghcr.io/${{ env.ORG }}/newwave4-frontend:latest \
-            ghcr.io/${{ env.ORG }}/newwave4-frontend:${{ needs.release.outputs.image_tag }}
-
-  # Production build of the same commit. NEXT_PUBLIC_* values are inlined at
-  # build time (see ADR 0006 / 0007), so an image built with staging's API
-  # origin can only ever talk to staging -- production needs its own image,
-  # built from the PROD_NEXT_PUBLIC_* repo secrets and pushed under a separate
-  # name (`newwave4-frontend-production`) with the *same* X.Y.Z tag, which is
-  # what deploy-to-kubernetes.yml pulls for `namespace: production`.
-  #
-  # Deliberately not bound to the `production` GitHub Environment: that
-  # environment carries the deploy secrets and (ideally) required reviewers,
-  # and a reviewer gate must hold up deploys, not release builds. Until the
-  # PROD_* secrets exist the job skips its build steps rather than failing,
-  # so releases keep working while production is being set up.
-  docker-publish-production:
-    name: docker-publish-production
-    needs: release
-    # production-candidate keys off this: the job "succeeds" with every build step
-    # skipped while the PROD_* secrets are unset, and that must not deploy.
     outputs:
-      built: ${{ steps.cfg.outputs.configured }}
-    if: >-
-      needs.release.outputs.publish_image == 'true'
-      && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      packages: write
-    env:
-      PROD_API_URL: ${{ secrets.PROD_NEXT_PUBLIC_NEWWAVE_API_URL }}
-      PROD_SITE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SITE_URL }}
-      PROD_STRIPE_PUBLISHABLE_KEYS: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
-      PROD_STRIPE_WEBHOOK_URL: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_WEBHOOK_URL }}
+      digest: ${{ steps.tag.outputs.digest }}
     steps:
-      # The secrets context can't be tested in a job-level `if`, so the
-      # "is production configured yet?" decision is made here and every later
-      # step keys off it. Only the two values the app can't build without
-      # are mandatory; the Stripe webhook URL is ceremonial (see CLAUDE.md).
-      - name: Check production build config
-        id: cfg
-        run: |
-          missing=""
-          [ -z "${PROD_API_URL}" ] && missing="${missing} PROD_NEXT_PUBLIC_NEWWAVE_API_URL"
-          [ -z "${PROD_STRIPE_PUBLISHABLE_KEYS}" ] && missing="${missing} PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS"
-          if [ -n "${missing}" ]; then
-            echo "::warning::Skipping the production image: repo secret(s) not set:${missing}. See docs/ci-cd.md, prerequisite 3."
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-          else
-            if [ -z "${PROD_SITE_URL}" ]; then
-              echo "::warning::PROD_NEXT_PUBLIC_SITE_URL is unset -- canonical URLs, hreflang and sitemap.xml in the production image will point at utils/seo.ts's staging fallback."
-            fi
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout
-        if: steps.cfg.outputs.configured == 'true'
         uses: actions/checkout@v7
-        with:
-          ref: ${{ github.ref_name }}
 
       - name: Set Org Lowercase
-        if: steps.cfg.outputs.configured == 'true'
         uses: ./.github/actions/set-org-lowercase
 
-      - name: Generate .env file (production values)
-        if: steps.cfg.outputs.configured == 'true'
-        uses: ./.github/actions/generate-env
-        with:
-          stripe_publishable_keys: ${{ env.PROD_STRIPE_PUBLISHABLE_KEYS }}
-          stripe_webhook_url: ${{ env.PROD_STRIPE_WEBHOOK_URL }}
-          newwave_api_url: ${{ env.PROD_API_URL }}
-          site_url: ${{ env.PROD_SITE_URL }}
-
       - name: GHCR Login
-        if: steps.cfg.outputs.configured == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -317,39 +274,35 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        if: steps.cfg.outputs.configured == 'true'
         uses: docker/setup-buildx-action@v4
 
-      - name: Stamp build metadata
-        if: steps.cfg.outputs.configured == 'true'
-        id: stamp
+      - name: Tag the tested image
+        id: tag
+        env:
+          SOURCE: ${{ needs.release.outputs.image }}
+          TAG: ${{ needs.release.outputs.image_tag }}
+          IS_MAIN: ${{ github.ref == 'refs/heads/main' }}
         run: |
           set -euo pipefail
-          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          REPO="ghcr.io/${ORG}/newwave4-frontend"
+          DIGEST="${SOURCE#*@}"
+          TAGS=("${REPO}:${TAG}")
+          if [ "${IS_MAIN}" = "true" ]; then
+            TAGS+=("${REPO}:latest" "ghcr.io/${ORG}/newwave4-frontend-production:${TAG}")
+          fi
+          ARGS=()
+          for t in "${TAGS[@]}"; do ARGS+=(-t "$t"); done
+          docker buildx imagetools create --prefer-index=false "${ARGS[@]}" "${SOURCE}"
+          for t in "${TAGS[@]}"; do
+            GOT=$(docker buildx imagetools inspect "$t" --format '{{json .Manifest}}' | jq -r .digest)
+            if [ "${GOT}" != "${DIGEST}" ]; then
+              echo "::error::${t} resolves to ${GOT}, expected the tested ${DIGEST}."
+              exit 1
+            fi
+            echo "${t} -> ${DIGEST}"
+          done
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
 
-      # Same tag as the staging image, different name: deploy-to-kubernetes.yml
-      # only accepts a bare X.Y.Z for production, and keeping the tag identical
-      # means the version-drift check (/api/version vs the newest release)
-      # works for production without special-casing.
-      - name: Build and push production image
-        if: steps.cfg.outputs.configured == 'true'
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ env.ORG }}/newwave4-frontend-production:${{ needs.release.outputs.image_tag }}
-          build-args: |
-            APP_VERSION=${{ needs.release.outputs.image_tag }}
-            IMAGE_TAG=${{ needs.release.outputs.image_tag }}
-            GIT_COMMIT=${{ steps.stamp.outputs.commit }}
-            BUILD_TIME=${{ steps.stamp.outputs.built_at }}
-
-  # Release-only on purpose: a force_build has no new chart version to publish
-  # (Chart.yaml is bumped by semantic-release), and re-pushing the existing
-  # one would silently overwrite a released artifact.
   helm-publish:
     name: helm-publish
     needs: release
@@ -389,19 +342,17 @@ jobs:
           set -euo pipefail
           helm push "${{ steps.pkg.outputs.pkg }}" oci://ghcr.io/${{ env.ORG }}/charts
 
-  # `!cancelled()` + explicit result checks instead of the default needs
-  # semantics: on a force_build, helm-publish is legitimately `skipped`, and
-  # the default would skip this job along with it. A failed docker-publish or
-  # helm-publish still blocks the deploy.
+  # Every published release goes to staging: dev prereleases from
+  # development, and the X.Y.Z release from main (the same digest staging may
+  # already run). `!cancelled()` + explicit results because helm-publish is
+  # legitimately skipped on a force_build.
   deploy-staging:
     name: deploy-staging
-    needs: [release, docker-publish, helm-publish]
+    needs: [release, publish, helm-publish]
     if: >-
       !cancelled()
-      && github.ref == 'refs/heads/main'
       && needs.release.result == 'success'
-      && needs.release.outputs.publish_image == 'true'
-      && needs.docker-publish.result == 'success'
+      && needs.publish.result == 'success'
       && (needs.helm-publish.result == 'success' || needs.helm-publish.result == 'skipped')
     uses: ./.github/workflows/deploy-to-kubernetes.yml
     with:
@@ -410,26 +361,21 @@ jobs:
       image_tag: ${{ needs.release.outputs.image_tag }}
     secrets: inherit
 
-  # Records "this run produced a production-deployable X.Y.Z" for
-  # deploy-production.yml, which picks it up once this whole run finishes.
-  #
-  # The production rollout deliberately does NOT run inside this workflow:
-  # a job waiting for approval keeps the run in progress, which holds the
-  # `release-<ref>` concurrency group above, so an unapproved production
-  # deploy used to block every later release on main (2026-11-15: the v2.1.0
-  # run sat waiting for 11h and queued v2.1.1 behind it). As a separate
-  # workflow_run workflow, the approval wait no longer holds the release lock.
-  # Release-only (no force_build): production accepts only an exact X.Y.Z
-  # chart + image pair, which only a real release produces.
+  # Records "this run produced a production-deployable X.Y.Z, digest D" for
+  # deploy-production.yml, which picks it up once this whole run (including
+  # the staging rollout) has succeeded. The production rollout deliberately
+  # does not run inside this workflow: a job waiting for approval would hold
+  # the `release-<ref>` concurrency group and block every later release
+  # (2026-11-15: v2.1.0 waited 11h and queued v2.1.1 behind it).
+  # Release-only (no force_build): production takes only an exact X.Y.Z.
   production-candidate:
     name: production-candidate
-    needs: [release, docker-publish-production, helm-publish]
+    needs: [release, publish, helm-publish]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
       && needs.release.outputs.new_release_published == 'true'
-      && needs.docker-publish-production.result == 'success'
-      && needs.docker-publish-production.outputs.built == 'true'
+      && needs.publish.result == 'success'
       && needs.helm-publish.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -437,18 +383,25 @@ jobs:
       - name: Write candidate
         env:
           VERSION: ${{ needs.release.outputs.new_release_version }}
+          DIGEST: ${{ needs.publish.outputs.digest }}
         run: |
+          set -euo pipefail
           if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::'${VERSION}' is not an exact X.Y.Z release; not a production candidate."
             exit 1
           fi
+          if ! echo "${DIGEST}" | grep -qE '^sha256:[0-9a-f]{64}$'; then
+            echo "::error::'${DIGEST}' is not an image digest."
+            exit 1
+          fi
           mkdir -p candidate
           printf '%s\n' "${VERSION}" > candidate/version
-          echo "Production candidate: ${VERSION}"
+          printf '%s\n' "${DIGEST}" > candidate/digest
+          echo "Production candidate: ${VERSION} (${DIGEST})"
 
       - name: Upload candidate
         uses: actions/upload-artifact@v7
         with:
           name: production-release
-          path: candidate/version
+          path: candidate/
           retention-days: 30
