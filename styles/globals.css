@@ -284,8 +284,9 @@ body {
       animation: none;
     }
   }
-  /* Touch devices have no hover: keep the card footer always visible. */
-  @media (hover: none) {
+  /* Touch tablets have no hover: keep the card footer always visible. Phones
+     (< md) hide the footer and show location/social under the role instead. */
+  @media (hover: none) and (min-width: 768px) {
     .member-card__footer {
       @apply translate-y-0 opacity-100;
     }

@@ -37,6 +37,7 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
     item => item.value === member.typeSocialMedia,
   )?.label;
   const socialIcon = nameSocialMedia ? socialIcons[nameSocialMedia] : null;
+  const hasSocial = Boolean(member.socialMediaUrl && socialIcon);
 
   return (
     <article className="member-card group flex flex-col items-center text-center font-helv">
@@ -50,8 +51,9 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
             className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
           />
 
-          {/* Footer: location + social, revealed on hover / focus. */}
-          <div className="member-card__footer absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between gap-2 bg-font-primary/85 px-3 py-2 text-left text-white opacity-0 backdrop-blur-sm transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+          {/* Footer: location + social, revealed on hover / focus (from md up;
+              on phones the same data sits under the role instead). */}
+          <div className="member-card__footer max-md:hidden absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between gap-2 bg-font-primary/85 px-3 py-2 text-left text-white opacity-0 backdrop-blur-sm transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
             <span className="truncate text-xs leading-tight">{location}</span>
             {member.socialMediaUrl && socialIcon && (
               <Link
@@ -71,12 +73,36 @@ const MemberTeaser = ({ member }: { member: ourTeamProps }) => {
       <h5 className="mt-3 text-sm font-semibold leading-tight text-font-primary sm:text-base">
         {name}
       </h5>
+      {/* !mb-0: the phone row below makes this <p> no longer :last-child,
+          which would otherwise pick up the global `p:not(:last-child)` margin. */}
       <p
         title={position}
-        className="mt-1 line-clamp-2 text-xs leading-snug text-primary-500 sm:text-sm"
+        className="!mb-0 mt-1 line-clamp-2 text-xs leading-snug text-primary-500 sm:text-sm"
       >
         {position}
       </p>
+
+      {/* Phones: location and social link under the role, not over the photo. */}
+      {(location || hasSocial) && (
+        <div className="mt-1 flex flex-col items-center md:hidden">
+          {location && (
+            <span className="text-xs leading-snug text-grey-600">
+              {location}
+            </span>
+          )}
+          {hasSocial && (
+            <Link
+              target="_blank"
+              rel="noopener noreferrer"
+              href={member.socialMediaUrl}
+              aria-label={`${name} — ${nameSocialMedia}`}
+              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-primary-500"
+            >
+              {socialIcon}
+            </Link>
+          )}
+        </div>
+      )}
     </article>
   );
 };

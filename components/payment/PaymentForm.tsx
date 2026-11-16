@@ -276,12 +276,15 @@ const PaymentForm = () => {
                 </p>
               </div>
             </div>
-            <div className="flex max-[500px]:flex-col">
+            {/* Phones: Donate first and full width, Back to Home under it as a
+                full-width 44px tap target, so the two aren't crammed together. */}
+            <div className="flex max-[500px]:flex-col-reverse max-[500px]:gap-4">
               <div className="flex-1 flex items-center">
                 <Button
                   size="small"
                   variant="tertiary"
                   type="button"
+                  className="max-[500px]:w-full max-[500px]:min-h-11 max-[500px]:justify-center"
                   onClick={() => {
                     resetForm();
                     router.push('/');
@@ -294,7 +297,7 @@ const PaymentForm = () => {
               <Button
                 variant="primary"
                 type="submit"
-                className="!px-6 donate-btn custom-donate-btn flex items-center"
+                className="!px-6 donate-btn custom-donate-btn flex items-center max-[500px]:w-full max-[500px]:justify-center"
               >
                 {loading ? 'Loading...' : 'Donate'}
                 {loading ? (
