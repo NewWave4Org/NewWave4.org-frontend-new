@@ -29,6 +29,8 @@ Production is **never** auto-deployed. To promote a specific, already-published 
 3. The workflow refuses anything that isn't an exact `X.Y.Z` semver for `namespace: production` — `latest`, `pr-*`, and `*-dev.*` tags are all rejected by design, so production can never accidentally run an untagged or prerelease build.
 4. If a `production` GitHub Environment with required reviewers has been configured (see [ci-cd.md](./ci-cd.md) prerequisite #3), the run pauses for approval before deploying.
 
+A normal release doesn't need these manual steps. When a `Release` run on `main` succeeds and publishes a new `X.Y.Z` (production image included), `deploy-production.yml` starts and waits for approval. It is a separate workflow, so an approval left pending never holds `release.yml`'s lock or blocks later releases. A deploy waiting for approval does hold the production deploy queue, though: reject a stale one instead of leaving it, or the next release's deploy waits behind it.
+
 ## When a merge to `main` publishes nothing
 
 `semantic-release` only counts Conventional Commits. If a promotion PR is merged with a **merge commit** instead of a squash, it analyzes the individual commits it brought in — and subjects like `feature: added Fancybox` or `fix slider` (no `fix:` prefix) match nothing, so the run ends with "no relevant changes, so no new version is released". The `Release` run is green, but `docker-publish`, `helm-publish` and `deploy-staging` all show as **skipped**, no image exists for that commit, and `:latest` still points at the previous release. This happened for PR #527 on 2026-08-29.
