@@ -1,8 +1,8 @@
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import ProgramBlockItem from './ProgramBlockItem';
-import { prefix } from '@/utils/prefix';
 import { useLocale, useTranslations } from 'next-intl';
 import { EN_LOCALE } from '@/i18n';
+import { LOGO_FALLBACK_SRC } from '@/utils/logo';
 
 function ProgramBlocks({
   dopPrograms,
@@ -36,7 +36,7 @@ function ProgramBlocks({
             const imgSrc =
               imageSrc !== undefined && imageSrc.length > 0
                 ? imageSrc
-                : `${prefix}/logo.png`;
+                : LOGO_FALLBACK_SRC;
 
             const title =
               locale === EN_LOCALE

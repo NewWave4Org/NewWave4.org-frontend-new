@@ -1,8 +1,8 @@
-import { prefix } from '@/utils/prefix';
 import ArrowRight4Icon from '../../icons/navigation/ArrowRight4Icon';
 import Button from '../../shared/Button';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { LOGO_FALLBACK_SRC } from '@/utils/logo';
 
 type ProgramSlideProps = {
   title: string;
@@ -32,7 +32,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
       <div className="bg-grey-50 shadow-custom pb-6 rounded-lg">
         <div className="relative w-[360px] h-[183px] rounded-t-lg">
           <Image
-            src={slide.imgSrc ? slide.imgSrc : `${prefix}/logo.png`}
+            src={slide.imgSrc ? slide.imgSrc : LOGO_FALLBACK_SRC}
             alt={slide.alt ? slide.alt : 'slide image'}
             fill
             className={`object-cover transition-all duration-300 rounded-t-lg`}
