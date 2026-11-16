@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Team, { ourTeamProps } from './Team';
 
@@ -43,6 +43,34 @@ describe('Team', () => {
     expect(screen.getByAltText('Member 2')).toBeInTheDocument();
   });
 
+  it('tapping the photo slides the location banner up, and tapping again hides it', () => {
+    const { container } = render(
+      <Team
+        ourTeam={[
+          member(1, {
+            socialMediaUrl: 'https://facebook.com/member1',
+            typeSocialMedia: '2',
+          }),
+        ]}
+      />,
+    );
+
+    const footer = container.querySelector('.member-card__footer');
+    expect(footer).not.toHaveClass('max-md:hidden');
+    expect(footer).toContainElement(screen.getByText('City 1'));
+    expect(footer).not.toHaveAttribute('data-open');
+
+    fireEvent.click(screen.getByAltText('Member 1'));
+    expect(footer).toHaveAttribute('data-open');
+
+    // Following the social link must not close the banner.
+    fireEvent.click(screen.getByRole('link'));
+    expect(footer).toHaveAttribute('data-open');
+
+    fireEvent.click(screen.getByAltText('Member 1'));
+    expect(footer).not.toHaveAttribute('data-open');
+  });
+
   it('marks the section as in view so the entrance animation can run', () => {
     const { container } = render(<Team ourTeam={[member(1)]} />);
 
@@ -67,9 +95,8 @@ describe('Team', () => {
       />,
     );
 
-    const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute('href', 'https://facebook.com/member1');
-    expect(links[0]).toHaveAttribute('target', '_blank');
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'https://facebook.com/member1');
+    expect(link).toHaveAttribute('target', '_blank');
   });
 });

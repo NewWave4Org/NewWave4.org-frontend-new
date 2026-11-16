@@ -73,7 +73,8 @@ const WhoWeAre: React.FC<IWhoWeAre> = ({
               dangerouslySetInnerHTML={{ __html: homeDescriptionText }}
             />
           </div>
-          <div className=" lg:max-w-[435px] lg:min-w-[360px] relative min-h-[415px] lg:h-full h-[415px] w-full rounded-xl mr-4">
+          {/* Decorative photo: hidden on phones, where it only added a screen of empty space. */}
+          <div className="max-md:hidden lg:max-w-[435px] lg:min-w-[360px] relative min-h-[415px] lg:h-full h-[415px] w-full rounded-xl mr-4">
             {homePhotoFile && (
               <Image
                 src={homePhotoFile}
