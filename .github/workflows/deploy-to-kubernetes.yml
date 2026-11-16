@@ -167,6 +167,61 @@ jobs:
       # stops working as soon as a pod is rescheduled onto a node that hasn't
       # cached the image. Production has 3 nodes and must not depend on that:
       # require the long-lived GHCR_PAT (read:packages) from its Environment.
+      # Public runtime config (utils/runtime-env.ts): the API origin, Stripe
+      # publishable key and site URL the pods read at startup. Taken from the
+      # same secrets the image builds used, staging and production kept strictly
+      # apart: a missing production value fails here rather than falling back to
+      # a staging one. Written last on the helm command line, so it wins over
+      # anything VALUES_YAML still carries under `secret:`.
+      - name: Write runtime config
+        env:
+          TARGET: ${{ inputs.namespace }}
+          STAGING_API_URL: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
+          STAGING_STRIPE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          STAGING_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          PROD_API_URL: ${{ secrets.PROD_NEXT_PUBLIC_NEWWAVE_API_URL }}
+          PROD_STRIPE_KEY: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
+          PROD_SITE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SITE_URL }}
+        run: |
+          set -euo pipefail
+          if [ "${TARGET}" = "production" ]; then
+            API_URL="${PROD_API_URL}"; STRIPE_KEY="${PROD_STRIPE_KEY}"; SITE_URL="${PROD_SITE_URL}"; PREFIX=PROD_NEXT_PUBLIC
+          else
+            API_URL="${STAGING_API_URL}"; STRIPE_KEY="${STAGING_STRIPE_KEY}"; SITE_URL="${STAGING_SITE_URL}"; PREFIX=NEXT_PUBLIC
+          fi
+          trim() { printf '%s' "$1" | tr -d '[:space:]'; }
+          API_URL=$(trim "${API_URL}"); STRIPE_KEY=$(trim "${STRIPE_KEY}"); SITE_URL=$(trim "${SITE_URL}")
+          API_URL="${API_URL%/}"; SITE_URL="${SITE_URL%/}"
+
+          # No site URL secret: use the first ingress host, which the
+          # production guard above has already checked is not a staging host.
+          if [ -z "${SITE_URL}" ]; then
+            HOST=$(yq eval '.ingress.hosts[0].host // ""' ./values.yaml)
+            [ -n "${HOST}" ] && SITE_URL="https://${HOST}"
+            echo "::notice::${PREFIX}_SITE_URL is not set; using the first ingress host: ${SITE_URL:-<none>}"
+          fi
+
+          fail=0
+          [ -z "${API_URL}" ] && { echo "::error::${PREFIX}_NEWWAVE_API_URL is not set."; fail=1; }
+          [ -z "${STRIPE_KEY}" ] && { echo "::error::${PREFIX}_STRIPE_PUBLISHABLE_KEYS is not set."; fail=1; }
+          [ -z "${SITE_URL}" ] && { echo "::error::No site URL: set ${PREFIX}_SITE_URL or an ingress host."; fail=1; }
+          echo "${API_URL}" | grep -qE '^https?://[^/]+$' || { echo "::error::API URL must be an origin like https://api.example.org (no path)."; fail=1; }
+          echo "${SITE_URL}" | grep -qE '^https?://[^/]+$' || { echo "::error::Site URL must be an origin like https://example.org (no path)."; fail=1; }
+          if [ "${TARGET}" = "production" ]; then
+            case "${STRIPE_KEY}" in pk_live_*) ;; *) echo "::error::Production needs a live Stripe publishable key (pk_live_...)."; fail=1 ;; esac
+            if echo "${API_URL} ${SITE_URL}" | grep -qiE '(stage|staging|//new\.)'; then
+              echo "::error::Production runtime config points at a staging host: API ${API_URL}, site ${SITE_URL}."; fail=1
+            fi
+          fi
+          [ "${fail}" = 0 ] || exit 1
+
+          export API_URL STRIPE_KEY SITE_URL
+          yq -n '.secret.NEXT_PUBLIC_NEWWAVE_API_URL = strenv(API_URL)
+            | .secret.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS = strenv(STRIPE_KEY)
+            | .secret.NEXT_PUBLIC_SITE_URL = strenv(SITE_URL)' > ./runtime-values.yaml
+          chmod 600 ./runtime-values.yaml
+          echo "Runtime config for ${TARGET}: API ${API_URL}, site ${SITE_URL}, Stripe key ${STRIPE_KEY:0:8}..."
+
       - name: Create/Update imagePullSecret for GHCR
         env:
           HAS_PAT: ${{ secrets.GHCR_PAT != '' }}
@@ -215,6 +270,7 @@ jobs:
             --create-namespace \
             -f helm/frontend-chart/values.yaml \
             -f ./values.yaml \
+            -f ./runtime-values.yaml \
             --set image.repository=ghcr.io/${{ env.ORG }}/${{ env.IMAGE_NAME }} \
             --set image.tag="${{ env.IMAGE_TAG }}" \
             --set imagePullSecrets[0].name=ghcr-regcred \
@@ -224,3 +280,4 @@ jobs:
         if: always()
         run: |
           shred -u ./values.yaml || rm -f ./values.yaml
+          shred -u ./runtime-values.yaml 2>/dev/null || rm -f ./runtime-values.yaml

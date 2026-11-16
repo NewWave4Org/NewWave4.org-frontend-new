@@ -1,15 +1,18 @@
 /**
- * Build-time validation of the environment this app needs.
+ * Validation of the environment this app needs.
  *
- * Called from next.config.ts, so it runs for `next dev` and `next build` alike.
- * Build time is the meaningful moment: `NEXT_PUBLIC_*` values are inlined into
- * the client bundle by Next, so a missing one bakes into the image and cannot be
- * corrected by redeploying (see docs/known-issues.md on the Helm secret.yaml
- * overlap). Catching it here fails the build instead of shipping an artifact
- * that interpolates the literal string "undefined" into URLs.
+ * Runs in two places:
+ * - `next dev` (next.config.ts), so a missing `.env.local` value is caught
+ *   before you click around a half-broken site;
+ * - every deployed server at startup (instrumentation.ts, `deployed: true`).
+ *   The values are runtime config (utils/runtime-env.ts), so the moment that
+ *   matters is when a pod starts: a pod with missing config refuses to start,
+ *   and the Helm deploy (`--atomic`) rolls back instead of serving it.
  *
- * Deliberately dependency-free — this runs before anything is bundled, and the
- * check is not complex enough to justify pulling zod into the build graph.
+ * `next build` no longer needs them: one image serves every environment.
+ *
+ * Deliberately dependency-free: the check is not complex enough to justify
+ * pulling zod in.
  */
 
 /** Absent or empty means the app is broken in a way users will hit. */
@@ -25,6 +28,14 @@ const REQUIRED = [
  */
 const RECOMMENDED = ['NEXT_PUBLIC_SITE_URL'] as const;
 
+export type EnvCheckOptions = {
+  /**
+   * A deployed server: the staging fallback for NEXT_PUBLIC_SITE_URL would
+   * point canonical URLs and the sitemap at the wrong site, so it is required.
+   */
+  deployed?: boolean;
+};
+
 function isBlank(value: string | undefined): boolean {
   return value === undefined || value.trim() === '';
 }
@@ -39,7 +50,10 @@ export type EnvProblem = { name: string; reason: string };
 export type EnvLike = Record<string, string | undefined>;
 
 /** Pure; returns what is wrong rather than throwing, so it is testable. */
-export function collectEnvProblems(env: EnvLike = process.env): {
+export function collectEnvProblems(
+  env: EnvLike = process.env,
+  { deployed = false }: EnvCheckOptions = {},
+): {
   errors: EnvProblem[];
   warnings: EnvProblem[];
 } {
@@ -53,7 +67,13 @@ export function collectEnvProblems(env: EnvLike = process.env): {
   }
 
   for (const name of RECOMMENDED) {
-    if (isBlank(env[name])) {
+    if (isBlank(env[name]) && deployed) {
+      errors.push({
+        name,
+        reason:
+          'required on a deployed server; without it canonical URLs, hreflang alternates and sitemap.xml fall back to https://new.newwave4.org',
+      });
+    } else if (isBlank(env[name])) {
       warnings.push({
         name,
         reason:
@@ -128,7 +148,10 @@ export function collectEnvProblems(env: EnvLike = process.env): {
  * tooling that never serves traffic (a types-only or lint-only pass), not for
  * getting a real deploy out of the door.
  */
-export function validateEnv(env: EnvLike = process.env): void {
+export function validateEnv(
+  env: EnvLike = process.env,
+  options: EnvCheckOptions = {},
+): void {
   if (env.SKIP_ENV_VALIDATION === '1' || env.SKIP_ENV_VALIDATION === 'true') {
     console.warn(
       '[env] SKIP_ENV_VALIDATION set — skipping environment validation.',
@@ -136,7 +159,7 @@ export function validateEnv(env: EnvLike = process.env): void {
     return;
   }
 
-  const { errors, warnings } = collectEnvProblems(env);
+  const { errors, warnings } = collectEnvProblems(env, options);
 
   for (const { name, reason } of warnings) {
     console.warn(`[env] warning: ${name} ${reason}`);
@@ -151,10 +174,10 @@ export function validateEnv(env: EnvLike = process.env): void {
     .join('\n');
   throw new Error(
     `Invalid environment — ${errors.length} problem${errors.length === 1 ? '' : 's'} found:\n${detail}\n\n` +
-      'These are inlined into the client bundle at build time, so a bad value ships in the image ' +
-      'and cannot be fixed by redeploying.\n' +
-      'Copy .env.example to .env.local for local work; in CI they come from repo secrets via ' +
-      '.github/actions/generate-env.\n' +
+      'These are runtime config (utils/runtime-env.ts): fix them where this server gets its ' +
+      'environment and restart it.\n' +
+      'Copy .env.example to .env.local for local work; deployed pods get them from the Helm ' +
+      'chart (templates/secret.yaml), filled in by deploy-to-kubernetes.yml.\n' +
       'Set SKIP_ENV_VALIDATION=1 only for tooling that never serves traffic.',
   );
 }

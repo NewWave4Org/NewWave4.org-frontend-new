@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import { prefix } from '@/utils/prefix';
+import { getPublicEnv } from '@/utils/runtime-env';
 
+// Server-only module, so this is evaluated when the server process loads it and
+// reads the runtime config (utils/runtime-env.ts), not a build-time value.
+// The fallback only serves local development: deployed servers refuse to start
+// without NEXT_PUBLIC_SITE_URL (instrumentation.ts).
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://new.newwave4.org'
+  getPublicEnv('NEXT_PUBLIC_SITE_URL') || 'https://new.newwave4.org'
 ).replace(/\/$/, '');
 export const DEFAULT_OG_IMAGE = `${prefix}/logo.png`;
 

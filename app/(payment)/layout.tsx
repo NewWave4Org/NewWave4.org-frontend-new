@@ -6,6 +6,7 @@ import { EB_Garamond, Poppins } from 'next/font/google';
 import DonationPageLayout from '@/components/DonationPageLayout/DonationPageLayout';
 import { NextIntlClientProvider } from 'next-intl';
 import { DEFAULT_OG_IMAGE, SITE_URL } from '@/utils/seo';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 const helveticaFont = localFont({
   src: [
@@ -62,6 +63,9 @@ export default function PaymentLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body
         className={`${helveticaFont.variable} ${ebGaramondFont.variable} ${poppinsFont.variable} font-helv antialiased flex flex-col min-h-screen`}
       >
