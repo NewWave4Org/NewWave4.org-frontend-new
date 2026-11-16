@@ -234,8 +234,9 @@ jobs:
 
           echo Testing that the app serves HTML
           # A valid HTML response rather than brand text: the default locale
-          # (UA) renders its title in Ukrainian.
-          curl -fsS --max-time 20 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
+          # (UA) renders its title in Ukrainian. -L: / redirects to the locale
+          # (307 to /ua) with an empty body.
+          curl -fsSL --max-time 20 127.0.0.1:3000 | grep -qi "<!DOCTYPE html"
 
           # The status page's drift detection is only as good as this endpoint.
           echo Testing /api/version
@@ -248,7 +249,7 @@ jobs:
           # page carries the API origin from the env file, not from the build.
           echo Testing runtime config injection
           API_URL=$(sed -n 's/^NEXT_PUBLIC_NEWWAVE_API_URL=//p' .env.ci)
-          curl -fsS --max-time 20 127.0.0.1:3000/donation \
+          curl -fsSL --max-time 20 127.0.0.1:3000/donation \
             | grep -o '<script id="nw-public-env">[^<]*' \
             | grep -qF "\"NEXT_PUBLIC_NEWWAVE_API_URL\":\"${API_URL%/}"
 
