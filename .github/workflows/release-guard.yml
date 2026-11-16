@@ -131,7 +131,7 @@ jobs:
                 'gh workflow run release.yml --ref main',
                 '```',
                 '',
-                'That fires the release the push should have produced. Verify afterwards that `docker-publish`, `helm-publish` and `deploy-staging` all report `success` rather than `skipped`.',
+                'That fires the release the push should have produced. Verify afterwards that `publish`, `helm-publish` and `deploy-staging` all report `success` rather than `skipped`.',
                 '',
                 '## Then work out why it recurred',
                 '',

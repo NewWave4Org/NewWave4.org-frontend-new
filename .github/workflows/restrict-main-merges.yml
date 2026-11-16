@@ -9,9 +9,17 @@ jobs:
   enforce-branch-policy:
     runs-on: ubuntu-latest
     steps:
+      # Branch names come from the PR author: passed through env, never
+      # interpolated into the script, so a crafted name cannot run commands.
+      # Also requires the head to be this repository's own development branch,
+      # not a fork's branch that happens to be called "development".
       - name: Check if PR is from 'development' branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          if [[ "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "development" ]]; then
+          if [[ "${BASE_REF}" == "main" && ( "${HEAD_REF}" != "development" || "${HEAD_REPO}" != "${GITHUB_REPOSITORY}" ) ]]; then
             echo "❌ PR to main is only allowed from development."
             exit 1
           else

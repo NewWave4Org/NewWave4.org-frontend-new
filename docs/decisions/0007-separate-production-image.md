@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR 0008](./0008-build-once-promote.md) (2026-11-16): the values are runtime config now, and production runs the tested staging digest.
 
 ## Date
 

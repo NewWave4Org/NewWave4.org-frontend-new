@@ -44,7 +44,7 @@ Because the sequence had become deterministic — any promotion PR opened after 
 3. **`pr-title-lint.yml` enforces a releasing type on PRs into `main`** (`feat`/`fix`/`perf`), closing the PR #429 failure mode that this document had only ever described in prose.
 4. **`release-guard.yml`** is the backstop: an hourly cron that opens a deduped issue when `main`'s HEAD has no `Release` run. Deliberately _not_ push-triggered — a marker on the commit would skip a push-triggered guard too, which is precisely the case most in need of catching. It exempts `chore(release):` commits so it doesn't cry wolf after every successful release.
 
-**If a release is ever silently skipped again**, the recovery is unchanged and still documented: `gh workflow run release.yml --ref main`. Then confirm `docker-publish`, `helm-publish` and `deploy-staging` report `success` rather than `skipped`, and record the new variant here.
+**If a release is ever silently skipped again**, the recovery is unchanged and still documented: `gh workflow run release.yml --ref main`. Then confirm `publish`, `helm-publish` and `deploy-staging` report `success` rather than `skipped`, and record the new variant here.
 
 One footgun worth knowing: **do not write the literal marker into a commit message or PR body**, even when describing this problem. Now that squash bodies come from the PR body, a PR explaining the trap can trigger it. This happened while writing the fix — a commit message quoting the token verbatim would have skipped itself.
 
