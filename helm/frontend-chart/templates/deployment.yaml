@@ -13,10 +13,13 @@ spec:
       {{- include "frontend-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        # Roll the pods when the runtime config changes: env from a Secret is
+        # read only at container start.
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "frontend-chart.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -47,6 +50,19 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secret
+          {{- $tag := .Values.image.tag | default .Chart.AppVersion | toString }}
+          env:
+            # The release this pod runs, for /api/version and the status page.
+            # Set at deploy time because a promoted image keeps the build it was
+            # tested as and gains its release tag later. Only a release tag
+            # (X.Y.Z or X.Y.Z-dev.N) overrides APP_VERSION; for pr-*/latest the
+            # version stamped into the image stays.
+            - name: IMAGE_TAG
+              value: {{ $tag | quote }}
+            {{- if regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+(-dev\\.[0-9]+)?$" $tag }}
+            - name: APP_VERSION
+              value: {{ $tag | quote }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

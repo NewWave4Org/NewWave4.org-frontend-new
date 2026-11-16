@@ -8,6 +8,7 @@ import ReduxProvider from '../../store/ReduxProvider';
 import AuthGate from '@/components/admin/AuthGate/AuthGate';
 import localFont from 'next/font/local';
 import { NextIntlClientProvider } from 'next-intl';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 const ebGaramondFont = EB_Garamond({
   weight: ['500', '600'],
@@ -52,6 +53,9 @@ export default function AdminLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body
         className={`${RobotoFont.variable} ${helveticaFont.variable} ${ebGaramondFont.variable} antialiased flex flex-col min-h-screen relative`}
       >

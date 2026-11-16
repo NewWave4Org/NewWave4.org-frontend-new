@@ -3,7 +3,7 @@ import { ArticleType } from '../ArticleType';
 import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { request } from '../http/http-request-service';
-import { API_BASE_URL } from '../http/api-base-url';
+import { getApiBaseUrl } from '../http/api-base-url';
 import { IPhotoApi } from './type/photo-api.interface';
 import { PagesType } from '@/components/admin/Pages/enum/types';
 
@@ -31,7 +31,7 @@ class PhotoApi implements IPhotoApi {
       },
       config: {
         headers: { 'Content-Type': 'multipart/form-data' },
-        baseURL: API_BASE_URL,
+        baseURL: getApiBaseUrl(),
       },
     });
   }
@@ -46,7 +46,7 @@ class PhotoApi implements IPhotoApi {
       body: formData,
       config: {
         headers: { 'Content-Type': 'multipart/form-data' },
-        baseURL: API_BASE_URL,
+        baseURL: getApiBaseUrl(),
       },
     });
   }
@@ -59,7 +59,7 @@ class PhotoApi implements IPhotoApi {
         url,
       },
       config: {
-        baseURL: API_BASE_URL,
+        baseURL: getApiBaseUrl(),
       },
     });
   }

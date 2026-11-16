@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/config/navigation';
 import { convertDraftToHTML } from '../TextEditor/utils/convertDraftToHTML';
+import { LOGO_FALLBACK_SRC } from '@/utils/logo';
 
 interface CardProps {
   imageSrc?: string;
@@ -19,7 +20,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, text, link }) => {
     >
       <div className="relative lg:h-[208px] sm:h-[300px] h-[200px]">
         <Image
-          src={imageSrc ? imageSrc : '/logo.png'}
+          src={imageSrc ? imageSrc : LOGO_FALLBACK_SRC}
           alt={title}
           fill
           style={{ objectFit: 'cover' }}

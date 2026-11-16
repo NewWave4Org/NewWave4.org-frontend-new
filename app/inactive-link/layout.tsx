@@ -4,6 +4,7 @@ import { Roboto } from 'next/font/google';
 import '../../styles/admin.css';
 
 import Logo from '@/components/layout/Logo';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -22,6 +23,9 @@ export default function AdminPublicLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body className={`${roboto.variable} antialiased`}>
         <main className="flex-1 h-full">
           <div className="py-[35px] flex items-center justify-center h-full">

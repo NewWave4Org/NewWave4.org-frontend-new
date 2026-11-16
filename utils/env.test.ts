@@ -49,6 +49,20 @@ describe('collectEnvProblems', () => {
     expect(warnings.map(w => w.name)).toEqual(['NEXT_PUBLIC_SITE_URL']);
   });
 
+  it('requires NEXT_PUBLIC_SITE_URL on a deployed server', () => {
+    // Its fallback is the staging host: fine for local work, wrong in production.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { NEXT_PUBLIC_SITE_URL: _omit, ...withoutSiteUrl } = VALID;
+    const { errors, warnings } = collectEnvProblems(withoutSiteUrl, {
+      deployed: true,
+    });
+    expect(errors.map(e => e.name)).toEqual(['NEXT_PUBLIC_SITE_URL']);
+    expect(warnings).toEqual([]);
+    expect(() => validateEnv(withoutSiteUrl, { deployed: true })).toThrow(
+      /NEXT_PUBLIC_SITE_URL/,
+    );
+  });
+
   describe('NEXT_PUBLIC_NEWWAVE_API_URL', () => {
     it('warns about a trailing slash, but does not fail the build for it', () => {
       // utils/http/api-base-url.ts strips it, so this is a nudge toward the

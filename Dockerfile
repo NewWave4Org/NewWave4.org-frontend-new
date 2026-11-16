@@ -12,8 +12,6 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source
 COPY . .
 
-# Copy .env from root
-COPY .env .env
 
 # Build (lint/type checks should be ignored in next.config.*)
 RUN npm run build
@@ -31,7 +29,6 @@ ENV HOSTNAME=0.0.0.0
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.env .env
 
 # Next's standalone file tracer doesn't bundle sharp@0.35.x's native libvips
 # binary correctly (confirmed: present after a plain `npm ci` in the deps

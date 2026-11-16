@@ -6,6 +6,7 @@ import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReduxProvider from '../../store/ReduxProvider';
 import AdminLayoutGuest from '../(admin)/AdminLayoutGuest';
+import PublicEnvScript from '@/components/PublicEnvScript';
 
 const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -24,6 +25,9 @@ export default function AdminPublicLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body className={`${roboto.variable} antialiased`}>
         <ReduxProvider>
           <AdminLayoutGuest>{children}</AdminLayoutGuest>

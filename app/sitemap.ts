@@ -8,6 +8,10 @@ import {
   ArticleTypeEnum,
 } from '@/utils/ArticleType';
 
+// Per request: SITE_URL is runtime config (utils/runtime-env.ts). Prerendered at
+// build time, this file would carry the build machine's value instead.
+export const dynamic = 'force-dynamic';
+
 const STATIC_PATHS = [
   '',
   '/about',

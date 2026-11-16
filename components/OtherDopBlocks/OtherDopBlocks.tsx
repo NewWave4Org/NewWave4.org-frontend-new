@@ -2,10 +2,10 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import DopBlockItem from './DopBlockItem/DopBlockItem';
-import { prefix } from '@/utils/prefix';
 import { IArticleBody } from '@/utils/article-content/type/interfaces';
 import { EN_LOCALE } from '@/i18n';
 import { ArticleType } from '@/utils/ArticleType';
+import { LOGO_FALLBACK_SRC } from '@/utils/logo';
 
 function OtherDopBlocks({
   dopBlocks,
@@ -43,7 +43,7 @@ function OtherDopBlocks({
             const imgSrc =
               imageSrc !== undefined && imageSrc.length > 0
                 ? imageSrc
-                : `${prefix}/logo.png`;
+                : LOGO_FALLBACK_SRC;
 
             const title =
               locale === EN_LOCALE

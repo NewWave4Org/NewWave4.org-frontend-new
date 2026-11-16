@@ -1,7 +1,7 @@
 'use client';
 import Footer from '@/components/layout/Footer';
 import Button from '@/components/shared/Button';
-import { API_V1_BASE_URL } from '@/utils/http/api-base-url';
+import { getApiV1BaseUrl } from '@/utils/http/api-base-url';
 import { prefix } from '@/utils/prefix';
 // import { useLocale } from 'next-intl';
 import Image from 'next/image';
@@ -21,7 +21,7 @@ const FinishPage = () => {
 
   const saveformData = async () => {
     try {
-      const data = await fetch(`${API_V1_BASE_URL}payments/save-donation`, {
+      const data = await fetch(`${getApiV1BaseUrl()}payments/save-donation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
