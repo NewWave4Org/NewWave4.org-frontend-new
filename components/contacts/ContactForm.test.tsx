@@ -41,15 +41,28 @@ vi.mock('@/components/shared/antispam/TurnstileField', () => ({
   default: ({
     value,
     onChange,
+    onError,
   }: {
     value: string;
     onChange: (t: string) => void;
+    onError?: () => void;
   }) => {
     turnstile.values.push(value);
     return (
-      <button type="button" onClick={() => onChange('tok')}>
-        Get token
-      </button>
+      <>
+        <button type="button" onClick={() => onChange('tok')}>
+          Get token
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onChange('');
+            onError?.();
+          }}
+        >
+          Widget error
+        </button>
+      </>
     );
   },
 }));
@@ -114,6 +127,25 @@ describe('ContactForm anti-spam', () => {
     expect(send).toBeDisabled();
     await userEvent.click(screen.getByText('Get token'));
     expect(send).toBeEnabled();
+  });
+
+  it('submitEnabledAfterWidgetError', async () => {
+    requestPublic.mockResolvedValue({});
+    renderForm();
+    await fill();
+    const send = screen.getByRole('button', { name: 'buttons.send' });
+    expect(send).toBeDisabled();
+
+    await userEvent.click(screen.getByText('Widget error'));
+    expect(send).toBeEnabled();
+
+    await userEvent.click(send);
+    await waitFor(() => expect(requestPublic).toHaveBeenCalledTimes(1));
+    // The backend decides; the client-only flag never reaches the payload.
+    expect(sentBody()).toEqual(
+      expect.objectContaining({ turnstileToken: '', website: '' }),
+    );
+    expect(sentBody()).not.toHaveProperty('turnstileError');
   });
 
   it('clearsTokenAfterFailedSubmit', async () => {

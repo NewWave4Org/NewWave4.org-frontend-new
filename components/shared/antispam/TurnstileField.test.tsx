@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const resetMock = vi.fn();
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('@marsidev/react-turnstile', () => ({
   Turnstile: forwardRef(function FakeTurnstile(
     props: {
@@ -66,6 +70,28 @@ describe('TurnstileField', () => {
     render(<TurnstileField value="tok" onChange={onChange} />);
     await userEvent.click(screen.getByText('error'));
     expect(onChange).toHaveBeenCalledWith('');
+  });
+
+  it('callsOnErrorAndShowsHint', async () => {
+    const onChange = vi.fn();
+    const onError = vi.fn();
+    render(<TurnstileField value="" onChange={onChange} onError={onError} />);
+    expect(
+      screen.queryByText('forms_errors.captcha_unavailable'),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('error'));
+    expect(onChange).toHaveBeenCalledWith('');
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByText('forms_errors.captcha_unavailable'),
+    ).toBeInTheDocument();
+
+    // A later successful token hides the hint again.
+    await userEvent.click(screen.getByText('success'));
+    expect(
+      screen.queryByText('forms_errors.captcha_unavailable'),
+    ).not.toBeInTheDocument();
   });
 
   it('resetsWidgetWhenValueClearedAfterToken', () => {

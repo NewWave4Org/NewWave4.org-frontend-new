@@ -46,7 +46,8 @@
     "phone": "Phone"
   },
   "forms_errors": {
-    "captcha_failed": "Verification failed, please try again"
+    "captcha_failed": "Verification failed, please try again",
+    "captcha_unavailable": "Verification could not load. You can still try to send the form."
   },
   "form_contact_us": {
     "title": "Contact us",

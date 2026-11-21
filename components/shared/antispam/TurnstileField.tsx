@@ -1,7 +1,8 @@
 'use client';
 
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { getPublicEnv } from '@/utils/runtime-env';
 
 const siteKey = (): string | undefined =>
@@ -13,11 +14,19 @@ export const isTurnstileEnabled = (): boolean => Boolean(siteKey());
 interface TurnstileFieldProps {
   value: string;
   onChange: (token: string) => void;
+  /**
+   * The widget failed (blocker, bad key/hostname, Cloudflare outage). Forms
+   * use it to stop requiring a token so the backend decides instead of the
+   * form dead-ending.
+   */
+  onError?: () => void;
 }
 
-const TurnstileField = ({ value, onChange }: TurnstileFieldProps) => {
+const TurnstileField = ({ value, onChange, onError }: TurnstileFieldProps) => {
+  const t = useTranslations();
   const ref = useRef<TurnstileInstance>(null);
   const previous = useRef(value);
+  const [errored, setErrored] = useState(false);
 
   // Tokens are single-use: when the form clears a spent token, get a fresh one.
   useEffect(() => {
@@ -29,14 +38,28 @@ const TurnstileField = ({ value, onChange }: TurnstileFieldProps) => {
   if (!key) return null;
 
   return (
-    <Turnstile
-      ref={ref}
-      siteKey={key}
-      onSuccess={onChange}
-      onExpire={() => onChange('')}
-      onError={() => onChange('')}
-      options={{ appearance: 'interaction-only', size: 'flexible' }}
-    />
+    <>
+      <Turnstile
+        ref={ref}
+        siteKey={key}
+        onSuccess={token => {
+          setErrored(false);
+          onChange(token);
+        }}
+        onExpire={() => onChange('')}
+        onError={() => {
+          setErrored(true);
+          onChange('');
+          onError?.();
+        }}
+        options={{ appearance: 'interaction-only', size: 'flexible' }}
+      />
+      {errored && (
+        <div className="text-small2 mt-[4px] text-status-danger-500">
+          {t('forms_errors.captcha_unavailable')}
+        </div>
+      )}
+    </>
   );
 };
 

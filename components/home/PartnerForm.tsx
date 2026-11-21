@@ -25,6 +25,8 @@ interface InnerPartnerFormValues {
   email: string;
   description: string;
   turnstileToken: string;
+  /** Client-only: the widget failed, so a token is no longer required. Never sent. */
+  turnstileError: boolean;
   website: string;
 }
 
@@ -62,7 +64,10 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
             <Button
               type="submit"
               disabled={
-                isSubmitting || (isTurnstileEnabled() && !values.turnstileToken)
+                isSubmitting ||
+                (isTurnstileEnabled() &&
+                  !values.turnstileToken &&
+                  !values.turnstileError)
               }
             >
               {t('buttons.become_partner')}
@@ -87,7 +92,9 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
                 type="submit"
                 disabled={
                   isSubmitting ||
-                  (isTurnstileEnabled() && !values.turnstileToken)
+                  (isTurnstileEnabled() &&
+                    !values.turnstileToken &&
+                    !values.turnstileError)
                 }
               >
                 {t('buttons.become_partner')}
@@ -108,7 +115,11 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
         <HoneypotField value={values.website} onChange={handleChange} />
         <TurnstileField
           value={values.turnstileToken}
-          onChange={token => setFieldValue('turnstileToken', token)}
+          onChange={token => {
+            setFieldValue('turnstileToken', token);
+            if (token) setFieldValue('turnstileError', false);
+          }}
+          onError={() => setFieldValue('turnstileError', true)}
         />
         {status && <div className="mt-2 text-sm text-red-500">{status}</div>}
       </Form>
@@ -137,6 +148,7 @@ const PartnerForm = () => {
         email: props.initialEmail || '',
         description: props.initialComment || '',
         turnstileToken: '',
+        turnstileError: false,
         website: '',
       };
     },
@@ -148,7 +160,14 @@ const PartnerForm = () => {
       { setSubmitting, resetForm, setStatus, setFieldValue, props },
     ) => {
       try {
-        await dispatch(becomeParthner(values)).unwrap();
+        await dispatch(
+          becomeParthner({
+            email: values.email,
+            description: values.description,
+            turnstileToken: values.turnstileToken,
+            website: values.website,
+          }),
+        ).unwrap();
         props.onOpenModal();
 
         resetForm();

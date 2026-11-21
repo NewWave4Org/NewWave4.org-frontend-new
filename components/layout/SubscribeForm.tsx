@@ -22,6 +22,8 @@ const validationSchema = Yup.object({
 interface InnerSubscribeFormValues {
   email: string;
   turnstileToken: string;
+  /** Client-only: the widget failed, so a token is no longer required. Never sent. */
+  turnstileError: boolean;
   website: string;
 }
 
@@ -44,7 +46,11 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
         <HoneypotField value={values.website} onChange={handleChange} />
         <TurnstileField
           value={values.turnstileToken}
-          onChange={token => setFieldValue('turnstileToken', token)}
+          onChange={token => {
+            setFieldValue('turnstileToken', token);
+            if (token) setFieldValue('turnstileError', false);
+          }}
+          onError={() => setFieldValue('turnstileError', true)}
         />
         <div className="flex gap-x-4 items-start sm:flex-row flex-col">
           <div className="sm:w-[264px] w-full">
@@ -62,7 +68,10 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
             <Button
               type="submit"
               disabled={
-                isSubmitting || (isTurnstileEnabled() && !values.turnstileToken)
+                isSubmitting ||
+                (isTurnstileEnabled() &&
+                  !values.turnstileToken &&
+                  !values.turnstileError)
               }
             >
               {t('buttons.sign_up')}
@@ -97,6 +106,7 @@ const SubscribeForm = () => {
       return {
         email: props.initialEmail || '',
         turnstileToken: '',
+        turnstileError: false,
         website: '',
       };
     },

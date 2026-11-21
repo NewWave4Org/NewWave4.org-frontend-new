@@ -34,6 +34,8 @@ interface InnerContactFormValues {
   tel: string;
   message: string;
   turnstileToken: string;
+  /** Client-only: the widget failed, so a token is no longer required. Never sent. */
+  turnstileError: boolean;
   website: string;
 }
 
@@ -100,7 +102,11 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
         <HoneypotField value={values.website} onChange={handleChange} />
         <TurnstileField
           value={values.turnstileToken}
-          onChange={token => setFieldValue('turnstileToken', token)}
+          onChange={token => {
+            setFieldValue('turnstileToken', token);
+            if (token) setFieldValue('turnstileError', false);
+          }}
+          onError={() => setFieldValue('turnstileError', true)}
         />
 
         <Button
@@ -108,7 +114,10 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           variant="secondary"
           className="!w-[136px]"
           disabled={
-            isSubmitting || (isTurnstileEnabled() && !values.turnstileToken)
+            isSubmitting ||
+            (isTurnstileEnabled() &&
+              !values.turnstileToken &&
+              !values.turnstileError)
           }
         >
           {t('buttons.send')}
@@ -158,6 +167,7 @@ const ContactForm = () => {
         message: '',
         tel: '',
         turnstileToken: '',
+        turnstileError: false,
         website: '',
       };
     },
