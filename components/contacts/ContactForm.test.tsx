@@ -129,6 +129,21 @@ describe('ContactForm anti-spam', () => {
     expect(send).toBeEnabled();
   });
 
+  it('submitEnabledWithoutSiteKey', async () => {
+    turnstile.enabled = false;
+    requestPublic.mockResolvedValue({});
+    renderForm();
+    await fill();
+    const send = screen.getByRole('button', { name: 'buttons.send' });
+    expect(send).toBeEnabled();
+
+    await userEvent.click(send);
+    await waitFor(() => expect(requestPublic).toHaveBeenCalledTimes(1));
+    expect(sentBody()).toEqual(
+      expect.objectContaining({ turnstileToken: '', website: '' }),
+    );
+  });
+
   it('submitEnabledAfterWidgetError', async () => {
     requestPublic.mockResolvedValue({});
     renderForm();
