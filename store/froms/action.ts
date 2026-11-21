@@ -1,5 +1,9 @@
 import { formsServices } from '@/utils/forms';
-import { BecomeParthnerRequestDTO } from '@/utils/forms/type/interfaces';
+import {
+  BecomeParthnerRequestDTO,
+  ContactRequestDTO,
+  SubscribeRequestDTO,
+} from '@/utils/forms/type/interfaces';
 import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -17,11 +21,25 @@ export const becomeParthner = createAsyncThunk(
   },
 );
 
+export const sendContact = createAsyncThunk(
+  'sendContact',
+  async (data: ContactRequestDTO, { rejectWithValue }) => {
+    try {
+      const response = await formsServices.sendContact(data);
+
+      return response;
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      return rejectWithValue(normalized);
+    }
+  },
+);
+
 export const createSubscribe = createAsyncThunk(
   'createSubscribe',
-  async (email: string, { rejectWithValue }) => {
+  async (data: SubscribeRequestDTO, { rejectWithValue }) => {
     try {
-      const response = await formsServices.createSubscribe(email);
+      const response = await formsServices.createSubscribe(data);
 
       return response;
     } catch (error) {

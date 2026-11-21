@@ -43,6 +43,7 @@ const ApiEndpoint = {
   TRANSLATION_PAGE: (id: number) => `pages/private/${id}/page/translate`,
 
   //FORMS
+  CONTACT: 'mail/contact',
   BECOME_PARTHNER: 'mail/become-partner',
   CREATE_SUBSCRIBE: 'mail/public/subscribe',
   CONFIRM_SUBSCRIBE: 'mail/public/subscribe/confirm',

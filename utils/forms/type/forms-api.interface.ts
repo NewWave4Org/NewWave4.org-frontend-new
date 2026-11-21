@@ -1,8 +1,13 @@
-import { BecomeParthnerRequestDTO } from './interfaces';
+import {
+  BecomeParthnerRequestDTO,
+  ContactRequestDTO,
+  SubscribeRequestDTO,
+} from './interfaces';
 
 interface IFormsAPI {
   becomeParthner: (data: BecomeParthnerRequestDTO) => void;
-  createSubscribe: (email: string) => Promise<any>;
+  sendContact: (data: ContactRequestDTO) => Promise<any>;
+  createSubscribe: (data: SubscribeRequestDTO) => Promise<any>;
   confirmSubscribe: (token: string) => Promise<any>;
   confirmUnsubscribe: (id: string) => Promise<any>;
 }

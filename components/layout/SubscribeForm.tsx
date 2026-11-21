@@ -81,7 +81,9 @@ const SubscribeForm = () => {
       { setSubmitting, resetForm, setStatus, props },
     ) => {
       try {
-        const result = await dispatch(createSubscribe(values.email)).unwrap();
+        const result = await dispatch(
+          createSubscribe({ email: values.email }),
+        ).unwrap();
         props.onOpenModal();
 
         resetForm();

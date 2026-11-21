@@ -35,13 +35,56 @@ describe('FormsAPI', () => {
     expect(requestMock).not.toHaveBeenCalled();
   });
 
-  it('createSubscribe posts the bare email through the public path', async () => {
-    await api.createSubscribe('reader@example.com');
+  it('becomeParthner forwards anti-spam fields', async () => {
+    await api.becomeParthner({
+      email: 'lead@example.com',
+      description: 'hi',
+      turnstileToken: 'tok',
+      website: '',
+    });
+
+    expect(requestPublicMock).toHaveBeenCalledWith({
+      method: HttpMethod.POST,
+      url: 'mail/become-partner',
+      body: {
+        email: 'lead@example.com',
+        description: 'hi',
+        turnstileToken: 'tok',
+        website: '',
+      },
+    });
+  });
+
+  it('sendContact posts through the public path', async () => {
+    const body = {
+      name: 'Ann',
+      email: 'ann@example.com',
+      phone: '+380501234567',
+      description: 'hello',
+      turnstileToken: 'tok',
+      website: '',
+    };
+    await api.sendContact(body);
+
+    expect(requestPublicMock).toHaveBeenCalledWith({
+      method: HttpMethod.POST,
+      url: 'mail/contact',
+      body,
+    });
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it('createSubscribe posts an object body through the public path', async () => {
+    await api.createSubscribe({
+      email: 'reader@example.com',
+      turnstileToken: 'tok',
+      website: '',
+    });
 
     expect(requestPublicMock).toHaveBeenCalledWith({
       method: HttpMethod.POST,
       url: 'mail/public/subscribe',
-      body: 'reader@example.com',
+      body: { email: 'reader@example.com', turnstileToken: 'tok', website: '' },
     });
     expect(requestMock).not.toHaveBeenCalled();
   });
