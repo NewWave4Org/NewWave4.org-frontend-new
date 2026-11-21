@@ -4,10 +4,11 @@ import { Provider } from 'react-redux';
 import { AxiosError } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { store } from '@/store/store';
+import { normalizeApiError } from '@/utils/http/normalizeApiError';
 import ContactForm from './ContactForm';
 
-const { sendContact, turnstile } = vi.hoisted(() => ({
-  sendContact: vi.fn(),
+const { requestPublic, turnstile } = vi.hoisted(() => ({
+  requestPublic: vi.fn(),
   turnstile: { enabled: true, values: [] as string[] },
 }));
 
@@ -15,9 +16,25 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock('@/utils/forms', () => ({
-  formsServices: { sendContact },
+// Mock at the http layer so the real forms api -> service -> thunk chain runs.
+vi.mock('@/utils/http/http-request-service', async importOriginal => ({
+  ...(await importOriginal<
+    typeof import('@/utils/http/http-request-service')
+  >()),
+  requestPublic,
 }));
+
+/** Exactly what the real requestPublic throws for a backend error response. */
+const backendError = (errors: string[]) => {
+  const err = new AxiosError('Request failed with status code 400');
+  err.response = {
+    status: 400,
+    data: { status: 'BAD_REQUEST', errors },
+  } as AxiosError['response'];
+  return normalizeApiError(err);
+};
+
+const sentBody = () => requestPublic.mock.calls.at(-1)?.[0]?.body;
 
 vi.mock('@/components/shared/antispam/TurnstileField', () => ({
   isTurnstileEnabled: () => turnstile.enabled,
@@ -58,20 +75,20 @@ const fill = async () => {
 
 describe('ContactForm anti-spam', () => {
   beforeEach(() => {
-    sendContact.mockReset();
+    requestPublic.mockReset();
     turnstile.enabled = true;
     turnstile.values = [];
   });
 
   it('sends token and empty honeypot', async () => {
-    sendContact.mockResolvedValue({});
+    requestPublic.mockResolvedValue({});
     renderForm();
     await fill();
     await userEvent.click(screen.getByText('Get token'));
     await userEvent.click(screen.getByRole('button', { name: 'buttons.send' }));
 
-    await waitFor(() => expect(sendContact).toHaveBeenCalledTimes(1));
-    expect(sendContact).toHaveBeenCalledWith(
+    await waitFor(() => expect(requestPublic).toHaveBeenCalledTimes(1));
+    expect(sentBody()).toEqual(
       expect.objectContaining({
         name: 'Ivan',
         email: 'ivan@example.com',
@@ -100,23 +117,21 @@ describe('ContactForm anti-spam', () => {
   });
 
   it('clearsTokenAfterFailedSubmit', async () => {
-    sendContact.mockRejectedValue(new Error('boom'));
+    requestPublic.mockRejectedValue(backendError(['boom']));
     renderForm();
     await fill();
     await userEvent.click(screen.getByText('Get token'));
     await userEvent.click(screen.getByRole('button', { name: 'buttons.send' }));
 
-    await waitFor(() => expect(sendContact).toHaveBeenCalled());
+    await waitFor(() => expect(requestPublic).toHaveBeenCalled());
     await waitFor(() => expect(turnstile.values.at(-1)).toBe(''));
     expect(turnstile.values).toContain('tok');
   });
 
   it('shows the translated text for a captcha failure', async () => {
-    const err = new AxiosError('bad');
-    err.response = {
-      data: { status: '400', errors: ['Captcha verification failed'] },
-    } as AxiosError['response'];
-    sendContact.mockRejectedValue(err);
+    requestPublic.mockRejectedValue(
+      backendError(['Captcha verification failed']),
+    );
     renderForm();
     await fill();
     await userEvent.click(screen.getByText('Get token'));
