@@ -288,9 +288,16 @@ Package for all new classes: `org.newwave4api.email.antispam`. Tests go in the m
 ## Rollout (manual, after both PRs merge)
 
 - [ ] **R1. Create the Turnstile widget.** In the Cloudflare dashboard under Turnstile, add a widget in Managed mode. List the production domain(s), the staging domain and `localhost` as hostnames. Store the secret in the backend's secret store (`TURNSTILE_SECRET`) and the site key in the frontend's values (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`).
-- [ ] **R2. Deploy the backend to staging with `TURNSTILE_ENABLED=false`.** The honeypot, gibberish and rate-limit checks go live immediately, and the gibberish rule alone blocks the current spam campaign. Submit the contact form once and check the backend log's drop/IP line, or add a temporary debug log of `ClientIpResolver.resolve`.
+- [ ] **R2. Deploy the backend to staging with `TURNSTILE_ENABLED=false`.** The honeypot, gibberish and rate-limit checks go live immediately, and the gibberish rule alone blocks the current spam campaign. A clean submission logs nothing at INFO, so trigger a honeypot drop from your own machine and read the IP from the INFO line `Spam guard: dropped reason=honeypot ip=...`:
+  ```bash
+  curl -X POST <public api host>/api/v1/mail/contact \
+    -H 'Content-Type: application/json' \
+    -d '{"name":"x","email":"you@example.com","description":"x","website":"x"}'
+  ```
+  The response is the normal `200` and no email is sent. Alternatively, raise `org.newwave4api.email.antispam.SpamGuard` to DEBUG: every check then logs `Anti-spam check from ip=...`.
   - The resolved IP must be your real public IP.
   - If it shows a Cloudflare or ingress address, set `ANTISPAM_CLIENT_IP_HEADER=CF-Connecting-IP` (behind Cloudflare) and re-check before production.
+  - If the IP turns out to be shared (every visitor resolves to the same address) and the header cannot fix it yet, relax or switch off the rate limiter with `ANTISPAM_RATE_LIMIT_MAX_REQUESTS` (default `5`; `0` disables it) and `ANTISPAM_RATE_LIMIT_WINDOW` (default `10m`) so real users are not answered with 429.
 - [ ] **R3. Deploy the frontend with the site key** to staging. The widget renders, and the forms still submit while the backend ignores the token.
 - [ ] **R4. Set `TURNSTILE_ENABLED=true` on staging.** Test all three forms. Then use `curl` to POST to `/api/v1/mail/contact` without a token and confirm the response is 400.
 - [ ] **R5. Repeat R2–R4 for production.** This goes through the manual `deploy-to-kubernetes.yml` dispatch with the released version.
