@@ -14,6 +14,14 @@ describe('collectEnvProblems', () => {
     expect(warnings).toEqual([]);
   });
 
+  it('does not error or warn when the optional Turnstile site key is absent', () => {
+    const { errors, warnings } = collectEnvProblems(VALID);
+    expect(errors.map(e => e.name)).not.toContain(
+      'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
+    );
+    expect(warnings).toEqual([]);
+  });
+
   it('flags each missing required variable', () => {
     const { errors } = collectEnvProblems({});
     expect(errors.map(e => e.name)).toEqual([

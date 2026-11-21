@@ -23,6 +23,16 @@ describe('readServerPublicEnv', () => {
   });
 });
 
+describe('readServerPublicEnv turnstile site key', () => {
+  it('includes the optional Turnstile site key', () => {
+    expect(
+      readServerPublicEnv({
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
+      }),
+    ).toEqual({ NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA' });
+  });
+});
+
 describe('getPublicEnv', () => {
   it('reads process.env at call time when no config was injected', () => {
     vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://one.example');
