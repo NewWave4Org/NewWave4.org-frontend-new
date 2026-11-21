@@ -112,7 +112,10 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
               : `${t('forms_label.leave_comment')}`}
           </Button>
         </div>
-        <HoneypotField value={values.website} onChange={handleChange} />
+        <HoneypotField
+          value={values.website}
+          onChange={v => setFieldValue('website', v)}
+        />
         <TurnstileField
           value={values.turnstileToken}
           onChange={token => {

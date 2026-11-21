@@ -112,6 +112,23 @@ describe('ContactForm anti-spam', () => {
     );
   });
 
+  it('honeypotValueReachesPayload', async () => {
+    requestPublic.mockResolvedValue({});
+    const { container } = renderForm();
+    await fill();
+    const honeypot = container.querySelector(
+      'input[name="nw_hp"]',
+    ) as HTMLInputElement;
+    await userEvent.type(honeypot, 'spam.example');
+    await userEvent.click(screen.getByText('Get token'));
+    await userEvent.click(screen.getByRole('button', { name: 'buttons.send' }));
+
+    await waitFor(() => expect(requestPublic).toHaveBeenCalledTimes(1));
+    expect(sentBody()).toEqual(
+      expect.objectContaining({ website: 'spam.example' }),
+    );
+  });
+
   it('keepsTypedValuesWhenTokenArrives', async () => {
     renderForm();
     const name = screen.getByLabelText(/forms_label.name/);

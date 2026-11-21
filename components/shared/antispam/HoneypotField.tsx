@@ -1,19 +1,23 @@
 'use client';
 
-import { useId, type ChangeEventHandler } from 'react';
+import { useId } from 'react';
 
 interface HoneypotFieldProps {
   value: string;
-  onChange: ChangeEventHandler<HTMLInputElement>;
+  onChange: (value: string) => void;
 }
 
 /**
  * Spam trap: positioned off-screen rather than display:none (some bots skip
  * fields hidden that way), and removed from the a11y tree and tab order.
+ * The input name is deliberately non-semantic and password/identity managers
+ * are told to skip it: a name like "website" gets autofilled, and a filled
+ * honeypot silently drops a real person's message. The Formik value and the
+ * JSON field stay `website`; forms map the string through `onChange`.
  */
 const HoneypotField = ({ value, onChange }: HoneypotFieldProps) => {
   // Several forms (footer subscribe + page form) can share a page, so the id
-  // must be unique; `name` stays "website" because Formik keys off it.
+  // must be unique.
   const id = useId();
   return (
     <div
@@ -23,12 +27,15 @@ const HoneypotField = ({ value, onChange }: HoneypotFieldProps) => {
       <label htmlFor={id}>Leave this field empty</label>
       <input
         id={id}
-        name="website"
+        name="nw_hp"
         type="text"
         tabIndex={-1}
         autoComplete="off"
+        data-1p-ignore
+        data-lpignore="true"
+        data-form-type="other"
         value={value}
-        onChange={onChange}
+        onChange={e => onChange(e.target.value)}
       />
     </div>
   );

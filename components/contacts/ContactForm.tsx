@@ -99,7 +99,10 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           />
         </div>
 
-        <HoneypotField value={values.website} onChange={handleChange} />
+        <HoneypotField
+          value={values.website}
+          onChange={v => setFieldValue('website', v)}
+        />
         <TurnstileField
           value={values.turnstileToken}
           onChange={token => {

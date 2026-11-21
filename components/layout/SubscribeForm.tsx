@@ -43,7 +43,10 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
   return (
     <>
       <Form>
-        <HoneypotField value={values.website} onChange={handleChange} />
+        <HoneypotField
+          value={values.website}
+          onChange={v => setFieldValue('website', v)}
+        />
         <TurnstileField
           value={values.turnstileToken}
           onChange={token => {
