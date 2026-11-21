@@ -133,8 +133,49 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
 interface ContactFormProps {
   initialEmail?: string;
   initialName?: string;
-  onOpenModal: () => void;
+  submitContact: (values: InnerContactFormValues) => Promise<unknown>;
+  onSucceeded: () => void;
+  onFailed: (error: unknown) => void;
 }
+
+// Module level, not inside ContactForm: recreating the HOC on every render
+// made the outer modal state remount the form and wipe what the user typed.
+const ContactFormikWrapper = withFormik<
+  ContactFormProps,
+  InnerContactFormValues
+>({
+  mapPropsToValues: props => {
+    return {
+      email: props.initialEmail || '',
+      name: props.initialName || '',
+      message: '',
+      tel: '',
+      turnstileToken: '',
+      turnstileError: false,
+      website: '',
+    };
+  },
+
+  validationSchema: validationSchema,
+
+  handleSubmit: async (
+    values,
+    { setSubmitting, resetForm, setFieldValue, props },
+  ) => {
+    try {
+      await props.submitContact(values);
+      props.onSucceeded();
+      resetForm();
+    } catch (err) {
+      console.warn('err', err);
+      props.onFailed(err);
+    } finally {
+      // Turnstile tokens are single-use; clearing makes the widget reset.
+      setFieldValue('turnstileToken', '');
+      setSubmitting(false);
+    }
+  },
+})(InnerContactForm);
 
 const ContactForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -159,59 +200,31 @@ const ContactForm = () => {
       }),
     ).unwrap();
 
-  const ContactFormikWrapper = withFormik<
-    ContactFormProps,
-    InnerContactFormValues
-  >({
-    mapPropsToValues: props => {
-      return {
-        email: props.initialEmail || '',
-        name: props.initialName || '',
-        message: '',
-        tel: '',
-        turnstileToken: '',
-        turnstileError: false,
-        website: '',
-      };
-    },
+  const handleSucceeded = () => {
+    setModalType('success');
+    setModalTitle(t('modals.modal_contacts.succeed_title'));
+    setModalDescription(t('modals.modal_contacts.succeed_description'));
+    setIsOpenModal(true);
+  };
 
-    validationSchema: validationSchema,
-
-    handleSubmit: async (
-      values,
-      { setSubmitting, resetForm, setFieldValue, props },
-    ) => {
-      try {
-        await handleSubmitContactForm(values);
-
-        setModalType('success');
-        setModalTitle(t('modals.modal_contacts.succeed_title'));
-        setModalDescription(t('modals.modal_contacts.succeed_description'));
-
-        props.onOpenModal();
-
-        resetForm();
-      } catch (err) {
-        console.warn('err', err);
-        setModalType('error');
-        setModalTitle(t('modals.modal_contacts.error_title'));
-        setModalDescription(
-          isCaptchaError(err)
-            ? t('forms_errors.captcha_failed')
-            : t('modals.modal_contacts.error_description'),
-        );
-        props.onOpenModal();
-      } finally {
-        // Turnstile tokens are single-use; clearing makes the widget reset.
-        setFieldValue('turnstileToken', '');
-        setSubmitting(false);
-      }
-    },
-  })(InnerContactForm);
+  const handleFailed = (err: unknown) => {
+    setModalType('error');
+    setModalTitle(t('modals.modal_contacts.error_title'));
+    setModalDescription(
+      isCaptchaError(err)
+        ? t('forms_errors.captcha_failed')
+        : t('modals.modal_contacts.error_description'),
+    );
+    setIsOpenModal(true);
+  };
 
   return (
     <>
-      <ContactFormikWrapper onOpenModal={() => setIsOpenModal(true)} />
+      <ContactFormikWrapper
+        submitContact={handleSubmitContactForm}
+        onSucceeded={handleSucceeded}
+        onFailed={handleFailed}
+      />
       <Modal
         type={modalType}
         title={modalTitle}

@@ -138,6 +138,25 @@ describe('ContactForm anti-spam', () => {
     expect(screen.getByLabelText(/forms_label.name/)).toHaveValue('Ivan');
   });
 
+  it('keepsTypedValuesAfterFailedSubmit', async () => {
+    requestPublic.mockRejectedValue(backendError(['boom']));
+    renderForm();
+    await fill();
+    await userEvent.click(screen.getByText('Get token'));
+    await userEvent.click(screen.getByRole('button', { name: 'buttons.send' }));
+
+    expect(
+      await screen.findByText('modals.modal_contacts.error_title'),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/forms_label.name/)).toHaveValue('Ivan');
+    expect(screen.getByLabelText(/forms_label.email/)).toHaveValue(
+      'ivan@example.com',
+    );
+    expect(screen.getByLabelText(/forms_label.message_text/)).toHaveValue(
+      'Hello there',
+    );
+  });
+
   it('submitDisabledUntilToken', async () => {
     renderForm();
     const send = screen.getByRole('button', { name: 'buttons.send' });
