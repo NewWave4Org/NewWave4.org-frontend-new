@@ -9,6 +9,11 @@ import { emailValidation } from '@/utils/validation';
 import { useTranslations } from 'next-intl';
 import { useAppDispatch } from '@/store/hook';
 import { createSubscribe } from '@/store/froms/action';
+import HoneypotField from '@/components/shared/antispam/HoneypotField';
+import TurnstileField, {
+  isTurnstileEnabled,
+} from '@/components/shared/antispam/TurnstileField';
+import { isCaptchaError } from '@/utils/forms/captcha-error';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -16,16 +21,31 @@ const validationSchema = Yup.object({
 
 interface InnerSubscribeFormValues {
   email: string;
+  turnstileToken: string;
+  website: string;
 }
 
 const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
-  const { touched, errors, isSubmitting, handleChange, values, status } = props;
+  const {
+    touched,
+    errors,
+    isSubmitting,
+    handleChange,
+    values,
+    status,
+    setFieldValue,
+  } = props;
 
   const t = useTranslations();
 
   return (
     <>
       <Form>
+        <HoneypotField value={values.website} onChange={handleChange} />
+        <TurnstileField
+          value={values.turnstileToken}
+          onChange={token => setFieldValue('turnstileToken', token)}
+        />
         <div className="flex gap-x-4 items-start sm:flex-row flex-col">
           <div className="sm:w-[264px] w-full">
             <Input
@@ -39,7 +59,12 @@ const InnerSubscribeForm = (props: FormikProps<InnerSubscribeFormValues>) => {
             />
           </div>
           <div className="mt-[28px]">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting || (isTurnstileEnabled() && !values.turnstileToken)
+              }
+            >
               {t('buttons.sign_up')}
             </Button>
           </div>
@@ -71,6 +96,8 @@ const SubscribeForm = () => {
     mapPropsToValues: props => {
       return {
         email: props.initialEmail || '',
+        turnstileToken: '',
+        website: '',
       };
     },
 
@@ -78,11 +105,15 @@ const SubscribeForm = () => {
 
     handleSubmit: async (
       values,
-      { setSubmitting, resetForm, setStatus, props },
+      { setSubmitting, resetForm, setStatus, setFieldValue, props },
     ) => {
       try {
         const result = await dispatch(
-          createSubscribe({ email: values.email }),
+          createSubscribe({
+            email: values.email,
+            turnstileToken: values.turnstileToken,
+            website: values.website,
+          }),
         ).unwrap();
         props.onOpenModal();
 
@@ -90,10 +121,13 @@ const SubscribeForm = () => {
       } catch (error: any) {
         console.error('createSubscribe', error);
         setStatus(
-          error?.original?.errors?.[0] ??
-            t('modals.modal_subscribe.error_message'),
+          isCaptchaError(error)
+            ? t('forms_errors.captcha_failed')
+            : (error?.original?.errors?.[0] ??
+                t('modals.modal_subscribe.error_message')),
         );
       } finally {
+        setFieldValue('turnstileToken', '');
         setSubmitting(false);
       }
     },

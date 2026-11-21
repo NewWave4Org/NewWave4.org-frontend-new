@@ -12,7 +12,13 @@ import {
   nameValidation,
   phoneValidation,
 } from '@/utils/validation';
-import { axiosOpenInstance } from '@/utils/http/axiosInstance';
+import HoneypotField from '@/components/shared/antispam/HoneypotField';
+import TurnstileField, {
+  isTurnstileEnabled,
+} from '@/components/shared/antispam/TurnstileField';
+import { useAppDispatch } from '@/store/hook';
+import { sendContact } from '@/store/froms/action';
+import { isCaptchaError } from '@/utils/forms/captcha-error';
 import { useTranslations } from 'next-intl';
 
 const validationSchema = Yup.object({
@@ -27,10 +33,13 @@ interface InnerContactFormValues {
   name: string;
   tel: string;
   message: string;
+  turnstileToken: string;
+  website: string;
 }
 
 const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
-  const { touched, errors, isSubmitting, handleChange, values } = props;
+  const { touched, errors, isSubmitting, handleChange, values, setFieldValue } =
+    props;
 
   const t = useTranslations();
 
@@ -88,11 +97,19 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           />
         </div>
 
+        <HoneypotField value={values.website} onChange={handleChange} />
+        <TurnstileField
+          value={values.turnstileToken}
+          onChange={token => setFieldValue('turnstileToken', token)}
+        />
+
         <Button
           type="submit"
           variant="secondary"
           className="!w-[136px]"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting || (isTurnstileEnabled() && !values.turnstileToken)
+          }
         >
           {t('buttons.send')}
         </Button>
@@ -116,17 +133,19 @@ const ContactForm = () => {
   const [modalDescription, setModalDescription] = useState('');
 
   const t = useTranslations();
+  const dispatch = useAppDispatch();
 
-  const handleSubmitContactForm = async (values: any) => {
-    const res = await axiosOpenInstance.post('/mail/contact', {
-      name: values.name,
-      email: values.email,
-      phone: values.tel,
-      description: values.message,
-    });
-
-    return res.data;
-  };
+  const handleSubmitContactForm = (values: InnerContactFormValues) =>
+    dispatch(
+      sendContact({
+        name: values.name,
+        email: values.email,
+        phone: values.tel,
+        description: values.message,
+        turnstileToken: values.turnstileToken,
+        website: values.website,
+      }),
+    ).unwrap();
 
   const ContactFormikWrapper = withFormik<
     ContactFormProps,
@@ -138,14 +157,19 @@ const ContactForm = () => {
         name: props.initialName || '',
         message: '',
         tel: '',
+        turnstileToken: '',
+        website: '',
       };
     },
 
     validationSchema: validationSchema,
 
-    handleSubmit: async (values, { setSubmitting, resetForm, props }) => {
+    handleSubmit: async (
+      values,
+      { setSubmitting, resetForm, setFieldValue, props },
+    ) => {
       try {
-        const res = await handleSubmitContactForm(values);
+        await handleSubmitContactForm(values);
 
         setModalType('success');
         setModalTitle(t('modals.modal_contacts.succeed_title'));
@@ -158,9 +182,15 @@ const ContactForm = () => {
         console.warn('err', err);
         setModalType('error');
         setModalTitle(t('modals.modal_contacts.error_title'));
-        setModalDescription(t('modals.modal_contacts.error_description'));
+        setModalDescription(
+          isCaptchaError(err)
+            ? t('forms_errors.captcha_failed')
+            : t('modals.modal_contacts.error_description'),
+        );
         props.onOpenModal();
       } finally {
+        // Turnstile tokens are single-use; clearing makes the widget reset.
+        setFieldValue('turnstileToken', '');
         setSubmitting(false);
       }
     },
