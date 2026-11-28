@@ -2,7 +2,11 @@ import { ApiEndpoint } from '../http/enums/api-endpoint';
 import HttpMethod from '../http/enums/http-method';
 import { requestPublic } from '../http/http-request-service';
 import IFormsAPI from './type/forms-api.interface';
-import { BecomeParthnerRequestDTO } from './type/interfaces';
+import {
+  BecomeParthnerRequestDTO,
+  ContactRequestDTO,
+  SubscribeRequestDTO,
+} from './type/interfaces';
 
 class FormsAPI implements IFormsAPI {
   async becomeParthner(data: BecomeParthnerRequestDTO) {
@@ -13,11 +17,19 @@ class FormsAPI implements IFormsAPI {
     });
   }
 
-  async createSubscribe(email: string) {
+  async sendContact(data: ContactRequestDTO) {
+    return requestPublic({
+      method: HttpMethod.POST,
+      url: ApiEndpoint.CONTACT,
+      body: data,
+    });
+  }
+
+  async createSubscribe(data: SubscribeRequestDTO) {
     return requestPublic({
       method: HttpMethod.POST,
       url: ApiEndpoint.CREATE_SUBSCRIBE,
-      body: email,
+      body: data,
     });
   }
 

@@ -180,3 +180,5 @@ secret:
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS: ''
   NEXT_PUBLIC_NEWWAVE_API_URL: ''
   NEXT_PUBLIC_SITE_URL: ''
+  # Optional: Cloudflare Turnstile site key. Empty = no captcha widget.
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: ''

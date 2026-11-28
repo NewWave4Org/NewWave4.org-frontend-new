@@ -12,7 +12,13 @@ import {
   nameValidation,
   phoneValidation,
 } from '@/utils/validation';
-import { axiosOpenInstance } from '@/utils/http/axiosInstance';
+import HoneypotField from '@/components/shared/antispam/HoneypotField';
+import TurnstileField, {
+  isTurnstileEnabled,
+} from '@/components/shared/antispam/TurnstileField';
+import { useAppDispatch } from '@/store/hook';
+import { sendContact } from '@/store/froms/action';
+import { isCaptchaError } from '@/utils/forms/captcha-error';
 import { useTranslations } from 'next-intl';
 
 const validationSchema = Yup.object({
@@ -27,10 +33,15 @@ interface InnerContactFormValues {
   name: string;
   tel: string;
   message: string;
+  turnstileToken: string;
+  /** Client-only: the widget failed, so a token is no longer required. Never sent. */
+  turnstileError: boolean;
+  website: string;
 }
 
 const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
-  const { touched, errors, isSubmitting, handleChange, values } = props;
+  const { touched, errors, isSubmitting, handleChange, values, setFieldValue } =
+    props;
 
   const t = useTranslations();
 
@@ -88,11 +99,29 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
           />
         </div>
 
+        <HoneypotField
+          value={values.website}
+          onChange={v => setFieldValue('website', v)}
+        />
+        <TurnstileField
+          value={values.turnstileToken}
+          onChange={token => {
+            setFieldValue('turnstileToken', token);
+            if (token) setFieldValue('turnstileError', false);
+          }}
+          onError={() => setFieldValue('turnstileError', true)}
+        />
+
         <Button
           type="submit"
           variant="secondary"
           className="!w-[136px]"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting ||
+            (isTurnstileEnabled() &&
+              !values.turnstileToken &&
+              !values.turnstileError)
+          }
         >
           {t('buttons.send')}
         </Button>
@@ -104,8 +133,49 @@ const InnerContactForm = (props: FormikProps<InnerContactFormValues>) => {
 interface ContactFormProps {
   initialEmail?: string;
   initialName?: string;
-  onOpenModal: () => void;
+  submitContact: (values: InnerContactFormValues) => Promise<unknown>;
+  onSucceeded: () => void;
+  onFailed: (error: unknown) => void;
 }
+
+// Module level, not inside ContactForm: recreating the HOC on every render
+// made the outer modal state remount the form and wipe what the user typed.
+const ContactFormikWrapper = withFormik<
+  ContactFormProps,
+  InnerContactFormValues
+>({
+  mapPropsToValues: props => {
+    return {
+      email: props.initialEmail || '',
+      name: props.initialName || '',
+      message: '',
+      tel: '',
+      turnstileToken: '',
+      turnstileError: false,
+      website: '',
+    };
+  },
+
+  validationSchema: validationSchema,
+
+  handleSubmit: async (
+    values,
+    { setSubmitting, resetForm, setFieldValue, props },
+  ) => {
+    try {
+      await props.submitContact(values);
+      props.onSucceeded();
+      resetForm();
+    } catch (err) {
+      console.warn('err', err);
+      props.onFailed(err);
+    } finally {
+      // Turnstile tokens are single-use; clearing makes the widget reset.
+      setFieldValue('turnstileToken', '');
+      setSubmitting(false);
+    }
+  },
+})(InnerContactForm);
 
 const ContactForm = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -116,59 +186,45 @@ const ContactForm = () => {
   const [modalDescription, setModalDescription] = useState('');
 
   const t = useTranslations();
+  const dispatch = useAppDispatch();
 
-  const handleSubmitContactForm = async (values: any) => {
-    const res = await axiosOpenInstance.post('/mail/contact', {
-      name: values.name,
-      email: values.email,
-      phone: values.tel,
-      description: values.message,
-    });
+  const handleSubmitContactForm = (values: InnerContactFormValues) =>
+    dispatch(
+      sendContact({
+        name: values.name,
+        email: values.email,
+        phone: values.tel,
+        description: values.message,
+        turnstileToken: values.turnstileToken,
+        website: values.website,
+      }),
+    ).unwrap();
 
-    return res.data;
+  const handleSucceeded = () => {
+    setModalType('success');
+    setModalTitle(t('modals.modal_contacts.succeed_title'));
+    setModalDescription(t('modals.modal_contacts.succeed_description'));
+    setIsOpenModal(true);
   };
 
-  const ContactFormikWrapper = withFormik<
-    ContactFormProps,
-    InnerContactFormValues
-  >({
-    mapPropsToValues: props => {
-      return {
-        email: props.initialEmail || '',
-        name: props.initialName || '',
-        message: '',
-        tel: '',
-      };
-    },
-
-    validationSchema: validationSchema,
-
-    handleSubmit: async (values, { setSubmitting, resetForm, props }) => {
-      try {
-        const res = await handleSubmitContactForm(values);
-
-        setModalType('success');
-        setModalTitle(t('modals.modal_contacts.succeed_title'));
-        setModalDescription(t('modals.modal_contacts.succeed_description'));
-
-        props.onOpenModal();
-
-        resetForm();
-      } catch (err) {
-        console.warn('err', err);
-        setModalType('error');
-        setModalTitle(t('modals.modal_contacts.error_title'));
-        setModalDescription(t('modals.modal_contacts.error_description'));
-        props.onOpenModal();
-      } finally {
-        setSubmitting(false);
-      }
-    },
-  })(InnerContactForm);
+  const handleFailed = (err: unknown) => {
+    setModalType('error');
+    setModalTitle(t('modals.modal_contacts.error_title'));
+    setModalDescription(
+      isCaptchaError(err)
+        ? t('forms_errors.captcha_failed')
+        : t('modals.modal_contacts.error_description'),
+    );
+    setIsOpenModal(true);
+  };
 
   return (
     <>
-      <ContactFormikWrapper onOpenModal={() => setIsOpenModal(true)} />
+      <ContactFormikWrapper
+        submitContact={handleSubmitContactForm}
+        onSucceeded={handleSucceeded}
+        onFailed={handleFailed}
+      />
       <Modal
         type={modalType}
         title={modalTitle}

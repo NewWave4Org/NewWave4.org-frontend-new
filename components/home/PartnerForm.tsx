@@ -11,6 +11,11 @@ import { emailValidation } from '@/utils/validation';
 import { useTranslations } from 'next-intl';
 import { useAppDispatch } from '@/store/hook';
 import { becomeParthner } from '@/store/froms/action';
+import HoneypotField from '@/components/shared/antispam/HoneypotField';
+import TurnstileField, {
+  isTurnstileEnabled,
+} from '@/components/shared/antispam/TurnstileField';
+import { isCaptchaError } from '@/utils/forms/captcha-error';
 
 const validationSchema = Yup.object({
   email: emailValidation,
@@ -19,12 +24,24 @@ const validationSchema = Yup.object({
 interface InnerPartnerFormValues {
   email: string;
   description: string;
+  turnstileToken: string;
+  /** Client-only: the widget failed, so a token is no longer required. Never sent. */
+  turnstileError: boolean;
+  website: string;
 }
 
 const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
   const t = useTranslations();
 
-  const { touched, errors, isSubmitting, handleChange, values, status } = props;
+  const {
+    touched,
+    errors,
+    isSubmitting,
+    handleChange,
+    values,
+    status,
+    setFieldValue,
+  } = props;
 
   const [showComment, setShowComment] = useState(false);
 
@@ -44,7 +61,15 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
         </div>
         <div className="place-self-start mt-[28px] lg:order-none order-3">
           {!showComment && (
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                (isTurnstileEnabled() &&
+                  !values.turnstileToken &&
+                  !values.turnstileError)
+              }
+            >
               {t('buttons.become_partner')}
             </Button>
           )}
@@ -65,7 +90,12 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
               <Button
                 className="mt-[72px]"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  (isTurnstileEnabled() &&
+                    !values.turnstileToken &&
+                    !values.turnstileError)
+                }
               >
                 {t('buttons.become_partner')}
               </Button>
@@ -82,6 +112,18 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
               : `${t('forms_label.leave_comment')}`}
           </Button>
         </div>
+        <HoneypotField
+          value={values.website}
+          onChange={v => setFieldValue('website', v)}
+        />
+        <TurnstileField
+          value={values.turnstileToken}
+          onChange={token => {
+            setFieldValue('turnstileToken', token);
+            if (token) setFieldValue('turnstileError', false);
+          }}
+          onError={() => setFieldValue('turnstileError', true)}
+        />
         {status && <div className="mt-2 text-sm text-red-500">{status}</div>}
       </Form>
     </>
@@ -108,6 +150,9 @@ const PartnerForm = () => {
       return {
         email: props.initialEmail || '',
         description: props.initialComment || '',
+        turnstileToken: '',
+        turnstileError: false,
+        website: '',
       };
     },
 
@@ -115,20 +160,30 @@ const PartnerForm = () => {
 
     handleSubmit: async (
       values,
-      { setSubmitting, resetForm, setStatus, props },
+      { setSubmitting, resetForm, setStatus, setFieldValue, props },
     ) => {
       try {
-        await dispatch(becomeParthner(values)).unwrap();
+        await dispatch(
+          becomeParthner({
+            email: values.email,
+            description: values.description,
+            turnstileToken: values.turnstileToken,
+            website: values.website,
+          }),
+        ).unwrap();
         props.onOpenModal();
 
         resetForm();
       } catch (error: any) {
         setStatus(
-          error?.original?.errors?.[0] ??
-            t('modals.modal_parthner.error_message'),
+          isCaptchaError(error)
+            ? t('forms_errors.captcha_failed')
+            : (error?.original?.errors?.[0] ??
+                t('modals.modal_parthner.error_message')),
         );
         console.error('becomeParthner', error);
       } finally {
+        setFieldValue('turnstileToken', '');
         setSubmitting(false);
       }
     },

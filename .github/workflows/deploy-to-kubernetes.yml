@@ -186,7 +186,9 @@ jobs:
       # the repo-level PROD_* secrets; staging reads NEXT_PUBLIC_*, which inside
       # this job resolve to the `staging` Environment's copies where they exist.
       # The two are kept strictly apart: a missing production value fails here
-      # rather than falling back to a staging one. Written last on the helm command line, so it wins over
+      # rather than falling back to a staging one. The optional Turnstile site
+      # key is the exception: empty is allowed (no captcha widget) and never
+      # fails the step. Written last on the helm command line, so it wins over
       # anything VALUES_YAML still carries under `secret:`.
       - name: Write runtime config
         env:
@@ -194,18 +196,21 @@ jobs:
           STAGING_API_URL: ${{ secrets.NEXT_PUBLIC_NEWWAVE_API_URL }}
           STAGING_STRIPE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           STAGING_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          STAGING_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           PROD_API_URL: ${{ secrets.PROD_NEXT_PUBLIC_NEWWAVE_API_URL }}
           PROD_STRIPE_KEY: ${{ secrets.PROD_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS }}
           PROD_SITE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SITE_URL }}
+          PROD_TURNSTILE_SITE_KEY: ${{ secrets.PROD_NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         run: |
           set -euo pipefail
           if [ "${TARGET}" = "production" ]; then
-            API_URL="${PROD_API_URL}"; STRIPE_KEY="${PROD_STRIPE_KEY}"; SITE_URL="${PROD_SITE_URL}"; PREFIX=PROD_NEXT_PUBLIC
+            API_URL="${PROD_API_URL}"; STRIPE_KEY="${PROD_STRIPE_KEY}"; SITE_URL="${PROD_SITE_URL}"; TURNSTILE_SITE_KEY="${PROD_TURNSTILE_SITE_KEY}"; PREFIX=PROD_NEXT_PUBLIC
           else
-            API_URL="${STAGING_API_URL}"; STRIPE_KEY="${STAGING_STRIPE_KEY}"; SITE_URL="${STAGING_SITE_URL}"; PREFIX=NEXT_PUBLIC
+            API_URL="${STAGING_API_URL}"; STRIPE_KEY="${STAGING_STRIPE_KEY}"; SITE_URL="${STAGING_SITE_URL}"; TURNSTILE_SITE_KEY="${STAGING_TURNSTILE_SITE_KEY}"; PREFIX=NEXT_PUBLIC
           fi
           trim() { printf '%s' "$1" | tr -d '[:space:]'; }
           API_URL=$(trim "${API_URL}"); STRIPE_KEY=$(trim "${STRIPE_KEY}"); SITE_URL=$(trim "${SITE_URL}")
+          TURNSTILE_SITE_KEY=$(trim "${TURNSTILE_SITE_KEY}")
           API_URL="${API_URL%/}"; SITE_URL="${SITE_URL%/}"
 
           fail=0
@@ -224,12 +229,14 @@ jobs:
           fi
           [ "${fail}" = 0 ] || exit 1
 
-          export API_URL STRIPE_KEY SITE_URL
+          export API_URL STRIPE_KEY SITE_URL TURNSTILE_SITE_KEY
           yq -n '.secret.NEXT_PUBLIC_NEWWAVE_API_URL = strenv(API_URL)
             | .secret.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS = strenv(STRIPE_KEY)
-            | .secret.NEXT_PUBLIC_SITE_URL = strenv(SITE_URL)' > ./runtime-values.yaml
+            | .secret.NEXT_PUBLIC_SITE_URL = strenv(SITE_URL)
+            | .secret.NEXT_PUBLIC_TURNSTILE_SITE_KEY = strenv(TURNSTILE_SITE_KEY)' > ./runtime-values.yaml
           chmod 600 ./runtime-values.yaml
-          echo "Runtime config for ${TARGET}: API ${API_URL}, site ${SITE_URL}, Stripe key ${STRIPE_KEY:0:8}..."
+          if [ -n "${TURNSTILE_SITE_KEY}" ]; then TURNSTILE_STATE="set"; else TURNSTILE_STATE="none"; fi
+          echo "Runtime config for ${TARGET}: API ${API_URL}, site ${SITE_URL}, Stripe key ${STRIPE_KEY:0:8}..., turnstile: ${TURNSTILE_STATE}"
 
       # GITHUB_TOKEN expires when this job ends, so a pull secret built from it
       # stops working as soon as a pod is rescheduled onto a node that hasn't
