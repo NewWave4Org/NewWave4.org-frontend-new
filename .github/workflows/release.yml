@@ -300,7 +300,14 @@ jobs:
   publish:
     name: publish
     needs: release
-    if: needs.release.outputs.publish_image == 'true'
+    # !cancelled(): on a promotion, quality-gates and attest are skipped, and a
+    # bare `if:` implies success() over every ancestor job, which a skipped
+    # ancestor fails -- so this job would skip even after a real release
+    # (2.2.3 shipped no image that way). Gate on release's own result instead.
+    if: >-
+      !cancelled()
+      && needs.release.result == 'success'
+      && needs.release.outputs.publish_image == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -355,7 +362,11 @@ jobs:
   helm-publish:
     name: helm-publish
     needs: release
-    if: needs.release.outputs.new_release_published == 'true'
+    # !cancelled(): see publish above.
+    if: >-
+      !cancelled()
+      && needs.release.result == 'success'
+      && needs.release.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
