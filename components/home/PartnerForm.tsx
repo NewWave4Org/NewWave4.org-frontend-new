@@ -49,7 +49,7 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
             </Button>
           )}
         </div>
-        <div className="col-span-2 mt-2">
+        <div className="col-span-2 mt-2 w-full">
           <div className="flex gap-x-6 lg:flex-row flex-col">
             {showComment && (
               <TextArea
@@ -58,7 +58,7 @@ const InnerPartnerForm = (props: FormikProps<InnerPartnerFormValues>) => {
                 maxLength={200}
                 value={values.description}
                 onChange={handleChange}
-                className="w-[347px] h-[100px]"
+                className="w-full sm:w-[347px] h-[100px]"
               />
             )}
             {showComment && (

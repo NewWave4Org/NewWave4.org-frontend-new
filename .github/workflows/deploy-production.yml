@@ -43,6 +43,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       version: ${{ steps.read.outputs.version }}
+      digest: ${{ steps.read.outputs.digest }}
     steps:
       - name: Read production candidate
         id: read
@@ -62,8 +63,42 @@ jobs:
             echo "::error::Candidate '${version}' is not an exact X.Y.Z release."
             exit 1
           fi
+          digest=$(tr -d '[:space:]' < candidate/digest 2>/dev/null || true)
+          if ! echo "${digest}" | grep -qE '^sha256:[0-9a-f]{64}$'; then
+            echo "::error::Candidate has no image digest; refusing to deploy a tag that cannot be checked."
+            exit 1
+          fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "Production candidate from Release run ${RUN_ID}: ${version}"
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+          echo "Production candidate from Release run ${RUN_ID}: ${version} (${digest})"
+
+      - name: GHCR Login
+        if: steps.read.outputs.version != ''
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Production runs exactly the digest the release tested and published
+      # (and staging rolled out). A tag moved since then fails here, and the
+      # deploy below pins the pods to the digest regardless.
+      - name: Production tag still points at the tested digest
+        if: steps.read.outputs.version != ''
+        env:
+          VERSION: ${{ steps.read.outputs.version }}
+          DIGEST: ${{ steps.read.outputs.digest }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          ORG=$(echo "${OWNER}" | tr '[:upper:]' '[:lower:]')
+          REF="ghcr.io/${ORG}/newwave4-frontend-production:${VERSION}"
+          GOT=$(docker buildx imagetools inspect "${REF}" --format '{{json .Manifest}}' | jq -r .digest)
+          if [ "${GOT}" != "${DIGEST}" ]; then
+            echo "::error::${REF} resolves to ${GOT}, but the release published ${DIGEST}."
+            exit 1
+          fi
+          echo "${REF} -> ${DIGEST}"
 
   deploy-production:
     name: deploy-production
@@ -74,4 +109,7 @@ jobs:
       namespace: production
       chart_version: ${{ needs.candidate.outputs.version }}
       image_tag: ${{ needs.candidate.outputs.version }}
+      # Pin the pods to the tested digest: a tag moved after the check above
+      # cannot change what production runs.
+      image_digest: ${{ needs.candidate.outputs.digest }}
     secrets: inherit

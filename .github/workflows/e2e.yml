@@ -1,13 +1,10 @@
 name: E2E
 
-# Deliberately not on every PR/push — a full Next.js build + Playwright
-# browser run is slow, and hitting the real staging API (which is what
-# NEXT_PUBLIC_NEWWAVE_API_URL resolves to here) isn't something every
-# feature-branch push should do. Runs on the development->main promotion PR
-# and nightly against development, plus on-demand.
+# Nightly and on-demand. The development -> main promotion PR runs the same
+# tests in ci.yml's `e2e` job, against the image that PR already built.
+# Not on every PR/push: a Playwright run against the real staging API isn't
+# something every feature-branch push should do.
 on:
-  pull_request:
-    branches: [main]
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:

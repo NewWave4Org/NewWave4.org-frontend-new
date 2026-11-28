@@ -44,7 +44,7 @@ Because the sequence had become deterministic — any promotion PR opened after 
 3. **`pr-title-lint.yml` enforces a releasing type on PRs into `main`** (`feat`/`fix`/`perf`), closing the PR #429 failure mode that this document had only ever described in prose.
 4. **`release-guard.yml`** is the backstop: an hourly cron that opens a deduped issue when `main`'s HEAD has no `Release` run. Deliberately _not_ push-triggered — a marker on the commit would skip a push-triggered guard too, which is precisely the case most in need of catching. It exempts `chore(release):` commits so it doesn't cry wolf after every successful release.
 
-**If a release is ever silently skipped again**, the recovery is unchanged and still documented: `gh workflow run release.yml --ref main`. Then confirm `docker-publish`, `helm-publish` and `deploy-staging` report `success` rather than `skipped`, and record the new variant here.
+**If a release is ever silently skipped again**, the recovery is unchanged and still documented: `gh workflow run release.yml --ref main`. Then confirm `publish`, `helm-publish` and `deploy-staging` report `success` rather than `skipped`, and record the new variant here.
 
 One footgun worth knowing: **do not write the literal marker into a commit message or PR body**, even when describing this problem. Now that squash bodies come from the PR body, a PR explaining the trap can trigger it. This happened while writing the fix — a commit message quoting the token verbatim would have skipped itself.
 
@@ -55,6 +55,14 @@ ESLint 9+ uses only the flat config (`eslint.config.mjs`). A `.eslintrc.json` al
 `helm/frontend-chart/templates/secret.yaml` injected `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS` and `NEXT_PUBLIC_NEWWAVE_API_URL` into the pods, but Next.js had already inlined both into the bundles at `next build`, so the Secret changed nothing and every environment needed its own image build.
 
 **Fixed:** the API URL, Stripe publishable key and site URL are now runtime config (`utils/runtime-env.ts`). The server reads them with a computed `process.env[key]` (which Next does not inline), and every root layout writes them into `window.__NW_PUBLIC_ENV__` for the browser (`components/PublicEnvScript.tsx`). The chart's Secret is now the source of truth; `deploy-to-kubernetes.yml` fills it from the same GitHub secrets the builds used (staging and `PROD_*` kept strictly apart), and a production-mode server refuses to start without all three (`instrumentation.ts`), so a misconfigured deploy rolls back instead of serving. `NEXT_PUBLIC_BASE_PATH` is still build-time, and empty everywhere.
+
+## Stale `staging` Environment secrets failed the 2.2.2 staging deploy (fixed 2026-11-16)
+
+The first release with runtime config (2.2.2) failed at `deploy-staging` with `API URL must be an origin like https://api.example.org (no path)`. Nothing was deployed: the check runs before Helm, so staging stayed on 2.2.1 and production's deploy was skipped.
+
+**Cause:** the `staging` GitHub Environment still held its own `NEXT_PUBLIC_NEWWAVE_API_URL` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEYS` from 2025-10-29, and the API URL had a path. Inside a job that runs in an Environment, an Environment secret overrides the repo secret of the same name. Before runtime config these copies were never read: only the build job used the values, and it runs outside any Environment, so it always got the correct repo-level ones. Moving the values into the deploy job (#613) exposed them.
+
+**Fixed:** both Environment copies were deleted, so the deploy uses the repo-level secrets every staging build had used. The rerun's config matched the pre-change baseline exactly: same API origin, same Stripe key fingerprint. The rule is now in [ci-cd.md](./ci-cd.md) prerequisite #3: runtime config secrets live at repo level only.
 
 ## `next build` (Turbopack) crashes specifically on GitHub Actions' own infrastructure
 
