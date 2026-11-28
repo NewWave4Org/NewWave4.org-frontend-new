@@ -118,16 +118,11 @@ const ProgramsSlider = () => {
   return (
     <>
       <div className="relative w-full max-w-[969px] h-[535px] mx-auto flex items-center justify-center">
-        {isMobile && (
-          <button className="slide-btn left-0" onClick={scrollPrev}>
-            <ArrowLeft4Icon size="32" color="#fafafa" />
-          </button>
-        )}
         <div className="relative flex justify-center items-center w-full h-full rounded-lg">
           {slidesData.map((slide, index) => (
             <div
               key={slide.id}
-              className={`absolute w-[360px] rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`}
+              className={`absolute w-[360px] max-w-full rounded-t-lg h-full flex items-center justify-center cursor-pointer ${getPosition(index)}`}
               onClick={() => setCurrentIndex(index)}
             >
               <ProgramCard
@@ -139,18 +134,20 @@ const ProgramsSlider = () => {
             </div>
           ))}
         </div>
-        {isMobile && (
-          <button
-            className="slide-btn right-0 flex justify-center items-center"
-            onClick={scrollNext}
-          >
-            <ArrowRight4Icon size="32" color="#fafafa" />
-          </button>
-        )}
       </div>
 
-      <div className="mt-10 flex  justify-center">
-        <div className="inline-flex py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-6 min-w-[195px]">
+      <div className="mt-10 flex items-center justify-center gap-4">
+        {isMobile && (
+          <button
+            type="button"
+            className="slide-btn"
+            onClick={scrollPrev}
+            aria-label="Previous program"
+          >
+            <ArrowLeft4Icon size="32" color="#fafafa" />
+          </button>
+        )}
+        <div className="inline-flex flex-wrap min-w-0 py-[6px] px-3 bg-[rgba(255,255,255,0.5)] rounded-2xl justify-center items-center gap-3 sm:gap-6 sm:min-w-[195px]">
           {slidesData?.map((_, index) => (
             <div
               key={index}
@@ -158,6 +155,16 @@ const ProgramsSlider = () => {
             />
           ))}
         </div>
+        {isMobile && (
+          <button
+            type="button"
+            className="slide-btn"
+            onClick={scrollNext}
+            aria-label="Next program"
+          >
+            <ArrowRight4Icon size="32" color="#fafafa" />
+          </button>
+        )}
       </div>
     </>
   );
