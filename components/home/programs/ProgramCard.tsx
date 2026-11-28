@@ -26,11 +26,9 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   const t = useTranslations();
 
   return (
-    <div
-      className={`min-w-0 flex-[0_0_360px] mx-3 cursor-pointer transition-all duration-300 `}
-    >
+    <div className="w-full min-w-0 cursor-pointer transition-all duration-300">
       <div className="bg-grey-50 shadow-custom pb-6 rounded-lg">
-        <div className="relative w-[360px] h-[183px] rounded-t-lg">
+        <div className="relative w-full h-[183px] rounded-t-lg">
           <Image
             src={slide.imgSrc ? slide.imgSrc : LOGO_FALLBACK_SRC}
             alt={slide.alt ? slide.alt : 'slide image'}
@@ -60,7 +58,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
 
         <Button
           size="large"
-          className="flex justify-self-center items-center custom-donate-btn"
+          className="flex mx-auto items-center custom-donate-btn"
           onClick={() => onDonateClick()}
         >
           Donate

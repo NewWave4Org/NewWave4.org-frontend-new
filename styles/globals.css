@@ -142,7 +142,7 @@ body {
     @apply w-3 h-3 rounded-full transition-all;
   }
   .slide-btn {
-    @apply absolute top-1/2 w-[60px] h-[60px] opacity-70 -translate-y-1/2 p-3 bg-primary-400 transition rounded-full z-20;
+    @apply w-11 h-11 p-1.5 shrink-0 flex items-center justify-center opacity-80 hover:opacity-100 bg-primary-400 transition rounded-full;
   }
 
   /* Sponsors */
@@ -324,13 +324,13 @@ body {
   /* Modal */
 
   .modal-wrapper {
-    @apply bg-[#0000005E] w-[100vw] h-[100vh] fixed top-[0px];
+    @apply bg-[#0000005E] fixed inset-0;
   }
   .modal-position {
     @apply fixed left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%];
   }
   .modal {
-    @apply w-[400px] rounded-2xl bg-grey-50 p-6 flex flex-col gap-y-2;
+    @apply w-[400px] max-w-[calc(100vw-32px)] max-h-[calc(100dvh-32px)] overflow-y-auto rounded-2xl bg-grey-50 p-6 flex flex-col gap-y-2;
   }
   .modal-icon {
     @apply w-[48px] h-[48px] rounded-full flex items-center justify-center border-8;

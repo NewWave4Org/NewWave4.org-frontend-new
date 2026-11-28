@@ -232,7 +232,7 @@ const PaymentForm = () => {
                     maxLength={200}
                     value={values.comment}
                     onChange={handleChange}
-                    className="w-[357px] h-[80px]"
+                    className="w-full sm:w-[357px] h-[80px]"
                   />
                 )}
 
